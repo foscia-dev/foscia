@@ -1,0 +1,56 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "sourceMap": false,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "rootDir": ".",
+    "newLine": "lf",
+    "paths": {
+      "@foscia/*": [
+        "packages/*/src"
+      ],
+      "@foscia/cli/*": [
+        "packages/cli/src/*"
+      ],
+      "@foscia/core/*": [
+        "packages/core/src/*"
+      ],
+      "@foscia/http/*": [
+        "packages/http/src/*"
+      ],
+      "@foscia/jsonapi/*": [
+        "packages/jsonapi/src/*"
+      ],
+      "@foscia/object/*": [
+        "packages/object/src/*"
+      ],
+      "@foscia/rest/*": [
+        "packages/rest/src/*"
+      ],
+      "@foscia/shared/*": [
+        "packages/shared/src/*"
+      ],
+      "@foscia/test/*": [
+        "packages/test/src/*"
+      ]
+    },
+    "lib": [
+      "esnext",
+      "dom"
+    ]
+  },
+  "include": [
+    "packages/*/src",
+    "packages/*/tests"
+  ]
+}

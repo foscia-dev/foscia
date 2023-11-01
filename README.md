@@ -1,6 +1,6 @@
 <p align="center">
-  <a href="https://paul-thebaud.github.io/foscia">
-    <img width="180" src="https://paul-thebaud.github.io/foscia/img/icon.svg" alt="Foscia">
+  <a href="https://foscia-dev.github.io/docs">
+    <img width="180" src="https://foscia-dev.github.io/docs/img/icon.svg" alt="">
   </a>
 </p>
 
@@ -8,23 +8,23 @@
 <a href="https://www.npmjs.com/package/foscia">
   <img src="https://img.shields.io/npm/v/foscia" alt="NPM package">
 </a>
-<a href="https://github.com/paul-thebaud/foscia/actions/workflows/tests.yml">
-  <img src="https://github.com/paul-thebaud/foscia/actions/workflows/tests.yml/badge.svg" alt="Test workflow">
+<a href="https://github.com/foscia-dev/foscia/actions/workflows/tests.yml">
+  <img src="https://github.com/foscia-dev/foscia/actions/workflows/tests.yml/badge.svg" alt="Test workflow">
 </a>
 <a href="https://codecov.io/gh/paul-thebaud/foscia">
   <img src="https://codecov.io/gh/paul-thebaud/foscia/branch/main/graph/badge.svg?token=TODO" alt="Codecov Coverage">
 </a>
-<a href="https://github.com/paul-thebaud/foscia/blob/main/LICENSE">
+<a href="https://github.com/foscia-dev/foscia/blob/main/LICENSE">
   <img src="https://img.shields.io/npm/l/foscia" alt="MIT License">
 </a>
 </p>
 
 <p align="center">
-<a href="https://paul-thebaud.github.io/foscia">
+<a href="https://foscia-dev.github.io/docs">
   Website
 </a>
 •
-<a href="https://paul-thebaud.github.io/foscia/docs/getting-started">
+<a href="https://foscia-dev.github.io/docs/docs/getting-started">
   Documentation
 </a>
 •
@@ -49,7 +49,7 @@
 - _Coming soon:_ Fully tested and documented
 
 > Foscia is currently in alpha stage. It may contain bugs and the API may change.
-> [**Please fill an issue**](https://github.com/paul-thebaud/foscia/issues)
+> [**Please fill an issue**](https://github.com/foscia-dev/foscia/issues)
 > to give your feedback.
 
 ## Contributing
@@ -58,13 +58,13 @@ Please see [CONTRIBUTING file](CONTRIBUTING.md) for more details.
 
 Informal discussion regarding bugs, new features, and implementation of existing
 features takes place in the
-[GitHub issue page of this repository](https://github.com/paul-thebaud/foscia/issues).
+[GitHub issue page of this repository](https://github.com/foscia-dev/foscia/issues).
 
 ## Credits
 
 - [Paul Thébaud](https://github.com/paul-thebaud)
 - [Mathieu Thébaud](https://github.com/mthebaud)
-- [All Contributors](https://github.com/paul-thebaud/foscia/graphs/contributors)
+- [All Contributors](https://github.com/foscia-dev/foscia/graphs/contributors)
 
 ## License
 

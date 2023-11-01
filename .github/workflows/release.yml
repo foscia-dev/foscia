@@ -1,0 +1,63 @@
+name: release
+run-name: "release [${{ inputs.type }}] by @${{ github.actor }}${{ github.event.inputs.dry == 'true' && ' (dry run)' || '' }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        type: choice
+        description: Choose release
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+          - alpha
+          - beta
+        default: auto
+      dry:
+        type: boolean
+        description: Dry release
+        default: false
+
+jobs:
+  publish:
+    name: Publish release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Docker build
+        run: make docker-build
+
+      - name: Test
+        run: make test
+
+      - name: Build
+        run: make build
+
+      - name: NPM config
+        run: npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Git config
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+      - name: Release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TYPE_ARG: ${{ fromJSON('{"auto":"", "patch":"--increment=patch", "minor":"--increment=minor", "major":"--increment=major", "beta":"--increment=beta", "alpha":"--increment=alpha"}')[github.event.inputs.type] }}
+          DRY_ARG: ${{ github.event.inputs.dry == 'true' && '--dry' || '' }}
+        run: pnpm run release --ci --verbose $TYPE_ARG $DRY_ARG

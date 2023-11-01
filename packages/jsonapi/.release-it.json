@@ -1,0 +1,17 @@
+{
+  "git": false,
+  "plugins": {
+    "@release-it/bumper": {
+      "out": {
+        "file": "package.json",
+        "path": [
+          "dependencies.@foscia/core",
+          "dependencies.@foscia/http",
+          "dependencies.@foscia/object",
+          "dependencies.@foscia/shared",
+          "dependencies.@foscia/test"
+        ]
+      }
+    }
+  }
+}

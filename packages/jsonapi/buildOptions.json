@@ -1,0 +1,8 @@
+{
+  "name": "FosciaJsonapi",
+  "formats": [
+    "esm",
+    "cjs",
+    "global"
+  ]
+}

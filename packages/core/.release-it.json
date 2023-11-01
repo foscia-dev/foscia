@@ -1,0 +1,13 @@
+{
+  "git": false,
+  "plugins": {
+    "@release-it/bumper": {
+      "out": {
+        "file": "package.json",
+        "path": [
+          "dependencies.@foscia/shared"
+        ]
+      }
+    }
+  }
+}

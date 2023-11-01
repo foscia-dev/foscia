@@ -1,0 +1,8 @@
+{
+  "name": "FosciaTest",
+  "formats": [
+    "esm",
+    "cjs",
+    "global"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "disableGit": true,
+  "sourceLinkTemplate": "https://github.com/foscia-dev/foscia/tree/main/{path}#L{line}",
+  "groupOrder": [
+    "Classes",
+    "*",
+    "Namespaces"
+  ],
+  "categoryOrder": [
+    "Enhancers",
+    "Runners",
+    "*"
+  ]
+}

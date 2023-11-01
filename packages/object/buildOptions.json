@@ -1,0 +1,8 @@
+{
+  "name": "FosciaObject",
+  "formats": [
+    "esm",
+    "cjs",
+    "global"
+  ]
+}

@@ -1,0 +1,24 @@
+name: tests
+
+on: [ push, pull_request ]
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Docker build
+        run: make docker-build
+
+      - name: Test
+        run: make test
+
+      - name: Coverage upload
+        uses: codecov/codecov-action@v3
+        with:
+          directory: coverage

@@ -1,0 +1,41 @@
+{
+  "name": "@foscia/object",
+  "type": "module",
+  "version": "0.0.0",
+  "license": "MIT",
+  "author": "Paul Thébaud",
+  "description": "Type safe, modular and intuitive API/data client.",
+  "homepage": "https://paul-thebaud.github.io/foscia",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/foscia-dev/foscia.git",
+    "directory": "packages/object"
+  },
+  "bugs": {
+    "url": "https://github.com/foscia-dev/foscia/issues"
+  },
+  "sideEffects": false,
+  "files": [
+    "./dist/*",
+    "LICENSE",
+    "README.md"
+  ],
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/index.global.js",
+  "jsdelivr": "./dist/index.global.js",
+  "main": "./dist/index.mjs",
+  "exports": {
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.cjs"
+  },
+  "scripts": {
+    "release": "release-it"
+  },
+  "dependencies": {
+    "@foscia/core": "0.0.0",
+    "@foscia/shared": "0.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "FosciaRest",
+  "formats": [
+    "esm",
+    "cjs",
+    "global"
+  ]
+}

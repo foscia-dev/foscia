@@ -1,0 +1,8 @@
+{
+  "name": "FosciaCore",
+  "formats": [
+    "esm",
+    "cjs",
+    "global"
+  ]
+}

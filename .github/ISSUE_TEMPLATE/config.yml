@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question
+    url: https://github.com/foscia-dev/foscia/discussions/new?category=help-questions
+    about: Ask a question or discuss about Foscia
+  - name: Ideas
+    url: https://github.com/foscia-dev/foscia/discussions/new?category=ideas
+    about: Start a discussion to improve Foscia

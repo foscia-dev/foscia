@@ -1,0 +1,49 @@
+{
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "test:watch": "vitest --watch",
+    "test:typecheck": "vitest typecheck --run",
+    "test:coverage": "vitest --run --coverage",
+    "test": "pnpm test:typecheck && pnpm test:coverage",
+    "lint": "node scripts/lint.js",
+    "build": "node scripts/build.js",
+    "release": "node scripts/release.js",
+    "preinstall": "npx only-allow pnpm"
+  },
+  "devDependencies": {
+    "@release-it/bumper": "^5.1.0",
+    "@release-it/conventional-changelog": "^7.0.2",
+    "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.2.1",
+    "@rollup/plugin-terser": "^0.4.3",
+    "@rollup/plugin-typescript": "^11.1.4",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "@vitest/coverage-istanbul": "^0.33.0",
+    "concurrently": "^8.2.1",
+    "eslint": "^8.50.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^17.1.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.28.1",
+    "execa": "^8.0.1",
+    "jsdom": "^22.1.0",
+    "minimist": "^1.2.8",
+    "ora": "^7.0.1",
+    "picocolors": "^1.0.0",
+    "release-it": "^16.2.1",
+    "rimraf": "^5.0.5",
+    "rollup": "^3.29.4",
+    "tsc-alias": "^1.8.8",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2",
+    "vitest": "^0.33.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
