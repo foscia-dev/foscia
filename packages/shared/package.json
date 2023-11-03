@@ -28,6 +28,9 @@
     "import": "./dist/index.mjs",
     "require": "./dist/index.cjs"
   },
+  "scripts": {
+    "release": "release-it"
+  },
   "publishConfig": {
     "access": "public"
   }
