@@ -1,6 +1,6 @@
 #!/bin/sh -
 
-sh -c "git config --global --add safe.directory $PWD"
+sh -c "git config --global --add safe.directory /home/lib"
 
 if [ ! -d node_modules ]
 then
