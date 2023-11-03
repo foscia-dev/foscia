@@ -1,6 +1,9 @@
 name: release
 run-name: "release [${{ inputs.type }}] by @${{ github.actor }}${{ github.event.inputs.dry == 'true' && ' (dry run)' || '' }}"
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
@@ -24,8 +27,6 @@ jobs:
   publish:
     name: Publish release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v3
         with:
