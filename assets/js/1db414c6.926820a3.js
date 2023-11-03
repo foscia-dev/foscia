@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk=self.webpackChunk||[]).push([[112],{7715:e=>{e.exports=JSON.parse('{"title":"Models","slug":"/category/models","permalink":"/foscia/docs/category/models","navigation":{"previous":{"title":"CLI","permalink":"/foscia/docs/guides/cli"},"next":{"title":"Configuring models","permalink":"/foscia/docs/guides/models/models-configuration"}}}')}}]);
