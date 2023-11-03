@@ -1,0 +1,317 @@
+---
+sidebar_position: 1
+description: Available models utilities.
+---
+
+# Models utilities
+
+## Common
+
+### `fill`
+
+Fill the model instance's values with the given values.
+
+#### Example
+
+```javascript
+import { fill } from '@foscia/core';
+
+const post = fill(new Post(), { title: 'Hello', description: 'World' });
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance`
+-   [`{Partial<ModelValues<I>>}`](/docs/reference/api/modules/foscia_core#modelvalues)
+    `values`
+
+#### Returns
+
+`{I}`, the affected instance.
+
+### `isSame`
+
+Check if two values are the same model instance. Ensure the equality by checking
+if the two instances:
+
+-   Are Foscia model instances
+-   Have the same type
+-   Have the same and non-NIL ID
+
+**This function does not deeply compare instances' values.**
+
+#### Example
+
+```javascript
+import { isSame } from '@foscia/core';
+
+const areSameInstances = isSame(foo, bar);
+if (areSameInstances) {
+    /* do something */
+}
+```
+
+#### Arguments
+
+-   `{unknown}` `value`
+-   `{unknown}` `otherValue`
+
+#### Returns
+
+`{boolean}`
+
+### `loaded`
+
+Check if the given relations are loaded on the instance or its related
+instances. Can check for sub relations using dot relation keys: will check each
+related instances regardless of the number of concerned instances. If no
+relations are provided, wont perform any check.
+
+#### Example
+
+```javascript
+import { loaded } from '@foscia/core';
+
+const isFullyLoaded = loaded(post, ['comments', 'comments.author']);
+if (!isFullyLoaded) {
+    /* do something */
+}
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance`
+-   [`{ArrayableVariadic<ModelRelationDotKey<I>>}`](/docs/reference/api/modules/foscia_core#modelrelationdotkey)
+    `...relations`
+
+#### Returns
+
+`{boolean}`
+
+### `changed`
+
+Check if the given keys have been changed since last instance sync. If no keys
+are provided, will check whole original snapshot (including IDs).
+
+#### Example
+
+```javascript
+import { changed } from '@foscia/core';
+
+const wasChanged = changed(post, ['title', 'description']);
+if (wasChanged) {
+    /* do something */
+}
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance`
+-   [`{ArrayableVariadic<ModelKey<I>}`](/docs/reference/api/modules/foscia_core#modelkey)
+    `...only`
+
+#### Returns
+
+`{boolean}` if keys (or instance) changed since last sync.
+
+### `markSynced`
+
+Mark the model instance's values as synced. If no keys are provided, will
+replace whole original snapshot (including IDs).
+
+#### Example
+
+```javascript
+import { markSynced } from '@foscia/core';
+
+markSynced(post, ['title', 'description']);
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance`
+-   [`{ArrayableVariadic<ModelKey<I>>}`](/docs/reference/api/modules/foscia_core#modelkey)
+    `...only`
+
+#### Returns
+
+`{I}`, the affected instance.
+
+### `restore`
+
+Restore the model instance's original values. If no keys are provided, will
+restore whole original snapshot (including IDs).
+
+#### Example
+
+```javascript
+import { restore } from '@foscia/core';
+
+restore(post, ['title', 'description']);
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance`
+-   [`{ArrayableVariadic<ModelKey<I>>}`](/docs/reference/api/modules/foscia_core#modelkey)
+    `...only`
+
+#### Returns
+
+`{I}`, the affected instance.
+
+### `takeSnapshot`
+
+Take a snapshot of the model's state (IDs, values, etc.).
+
+#### Example
+
+```javascript
+import { takeSnapshot } from '@foscia/core';
+
+const postSnapshot = takeSnapshot(post);
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance`
+
+#### Returns
+
+[`{ModelSnapshot<I>}`](/docs/reference/api/modules/foscia_core#modelsnapshot),
+the snapshot.
+
+### `restoreSnapshot`
+
+Restore a snapshot of the model's state (IDs, values, etc.). If no keys are
+provided, will restore whole original snapshot (including IDs).
+
+#### Example
+
+```javascript
+import { restoreSnapshot } from '@foscia/core';
+
+restoreSnapshot(post, postSnapshot, ['title', 'description']);
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance`
+-   [`{ModelSnapshot<I>}`](/docs/reference/api/modules/foscia_core#modelsnapshot)
+    `snapshot`
+-   [`{ArrayableVariadic<ModelKey<I>>}`](/docs/reference/api/modules/foscia_core#modelkey)
+    `...only`
+
+#### Returns
+
+`{I}`, the affected instance.
+
+### `compareSnapshots`
+
+Check if the given keys are different between two snapshots. If no keys are
+provided, will check whole snapshots (including IDs).
+
+#### Example
+
+```javascript
+import { compareSnapshots } from '@foscia/core';
+
+compareSnapshots(nextSnapshot, prevSnapshot, ['title', 'description']);
+```
+
+#### Arguments
+
+-   [`{ModelSnapshot<I>}`](/docs/reference/api/modules/foscia_core#modelsnapshot)
+    `nextSnapshot`
+-   [`{ModelSnapshot<I>}`](/docs/reference/api/modules/foscia_core#modelsnapshot)
+    `prevSnapshot`
+-   [`{ArrayableVariadic<ModelKey<I>>}`](/docs/reference/api/modules/foscia_core#modelkey)
+    `...only`
+
+#### Returns
+
+`{boolean}` if keys (or all values) are different on given snapshots.
+
+## Factories
+
+### `makeModel`
+
+Create a model class.
+
+#### Example
+
+```javascript
+import { makeModel } from '@foscia/core';
+
+const PostModel = makeModel('posts', {
+    /* definition */
+});
+```
+
+#### Arguments
+
+-   [`{ModelConfig | string}`](/docs/reference/api/modules/foscia_core#modelconfig)
+    `config`
+-   `{ModelDefinition}` `rawDefinition`
+
+#### Returns
+
+[`{ModelClass}`](/docs/reference/api/modules/foscia_core#modelclass)
+
+### `makeModelFactory`
+
+Create a model class factory.
+
+#### Example
+
+```javascript
+import { makeModelFactory } from '@foscia/core';
+
+const makeModel = makeModelFactory(
+    {
+        /* definition */
+    },
+    {
+        /* config */
+    },
+);
+```
+
+#### Arguments
+
+-   `{ModelDefinition | undefined}` `baseRawDefinition`
+-   [`{ModelConfig | undefined}`](/docs/reference/api/modules/foscia_core#modelconfig)
+    `baseConfig` (omitting `type`)
+
+#### Returns
+
+[`{makeModel}`](#makemodel), a customized model factory function.
+
+### `makeComposable`
+
+Create a composable definition to integrate in models.
+
+#### Example
+
+```javascript
+import { makeComposable } from '@foscia/core';
+
+const publishable = makeComposable({
+    /* definition */
+});
+```
+
+#### Arguments
+
+-   `{ModelDefinition}` `rawDefinition`
+
+#### Returns
+
+[`{ModelParsedDefinition}`](/docs/reference/api/modules/foscia_core#modelparseddefinition)

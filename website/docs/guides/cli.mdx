@@ -1,0 +1,203 @@
+---
+sidebar_position: 0
+title: CLI
+description: Using Foscia CLI.
+---
+
+import ShellCommand from '@site/src/components/ShellCommand';
+
+# Command Line Interface
+
+:::tip What you'll learn
+
+-   Initializing Foscia on your project
+-   Creating files related to Foscia (models, composables, etc.)
+
+:::
+
+## Installation
+
+The Foscia CLI is directly provided by Foscia, making it available inside any
+project where `foscia` package is installed.
+
+To install Foscia, read the [installation guide](/docs/installation).
+
+## Usage
+
+The Foscia CLI is directly provided by Foscia, making it available inside any
+project where `foscia` package is installed.
+
+The `foscia` command can be called from command line once Foscia is installed.
+When called without arguments, it will list available commands.
+
+<ShellCommand command="foscia" />
+
+:::info
+
+Since Foscia is not installed globally, you will need to prefix `foscia` with
+your package runner.
+
+:::
+
+## Commands
+
+### `init <path>`
+
+Initialize the Foscia CLI configuration file and create an action factory. The
+command will ask you multiple things about your project to set up an adapted
+Foscia CLI environment.
+
+#### Examples
+
+<ShellCommand
+    command={[
+        'foscia init src/api',
+        '# Init with specific usage and write to dedicated configuration.',
+        'foscia init src/api --config=.fosciarc.api.json --usage=jsonapi',
+    ]}
+/>
+
+#### Arguments
+
+-   `<path>` Directory to put new Foscia files in (models, composables, actions)
+
+#### Options
+
+-   `--usage` Define your usage of Foscia (CLI will ask for it if not provided)
+-   `--manual` Disable environment detection (language and modules
+    organizations)
+-   `--show` Output the files instead of writing them on filesystem
+
+### `foscia make:model <name>`
+
+Create a Foscia model using the name argument.
+
+#### Examples
+
+<ShellCommand
+    command={[
+        'foscia make:model post',
+        '# Make model and show file content instead of writing to filesystem.',
+        'foscia make:model post --show',
+    ]}
+/>
+
+#### Arguments
+
+-   `<name>` Name of the model (class, file and type will be determined from it)
+
+#### Options
+
+-   `--show` Output the file instead of writing it on filesystem
+
+### `make:composable <name>`
+
+Create a Foscia composable using the name argument.
+
+#### Examples
+
+<ShellCommand command="foscia make:composable publishable" />
+
+#### Arguments
+
+-   `<name>` Name of the composable (file will be determined from it)
+
+#### Options
+
+-   `--show` Output the file instead of writing it on filesystem
+
+### `make:action [name]`
+
+Create a Foscia action factory.
+
+#### Examples
+
+<ShellCommand
+    command={[
+        'foscia make:action',
+        '# Make an action for a specific usage.',
+        'foscia make:action --usage=http',
+    ]}
+/>
+
+#### Arguments
+
+-   `[name]` Name of the action factory file (default to `action`)
+
+#### Options
+
+-   `--usage` Define your usage of Foscia (default to your configuration defined
+    usage)
+-   `--show` Output the file instead of writing it on filesystem
+
+### `make:transformer <name>`
+
+Create a Foscia value transformer (for IDs and attributes).
+
+#### Examples
+
+<ShellCommand command="foscia make:transformer toDate" />
+
+#### Arguments
+
+-   `<name>` Name of the transformer (file will be determined from it)
+
+#### Options
+
+-   `--show` Output the file instead of writing it on filesystem
+
+## Configuration
+
+Foscia CLI uses a configuration file which help generating files correctly for
+all `make:*` commands using many options, such as:
+
+-   Path to store your files
+-   Language you are using (TS or JS)
+-   Modules organization (ESM or CommonJS)
+-   etc.
+
+This configuration can be set up using [`foscia init <path>`](#foscia-init-path)
+command and will be stored in a `.fosciarc.json`.
+
+### Available options
+
+Example of a Foscia CLI configuration:
+
+```json
+{
+    "path": "src/api",
+    "alias": "@/api",
+    "packageManager": "npm",
+    "usage": "jsonapi",
+    "language": "ts",
+    "modules": "esm"
+}
+```
+
+Description of each configuration options:
+
+| Key              | Type                                                         | Description                                                                    |
+| ---------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `path`           | `string`                                                     | Directory to put your Foscia files in (action factory, models, etc.)           |
+| `alias`          | `string`&vert;`undefined`                                    | Alias to use when importing models in files (instead of relative import path). |
+| `packageManager` | `'npm'`&vert;`'yarn'`&vert;`'pnpm'`&vert;`'bun'`             | Package manager to use when installing Foscia dependencies                     |
+| `usage`          | `'jsonapi'`&vert;`'jsonrest'`&vert;`'http'`&vert;`undefined` | Your usage of Foscia for this configuration.                                   |
+| `language`       | `'ts'`&vert;`'js'`                                           | The language to use when generating files.                                     |
+| `modules`        | `'esm'`&vert;`'commonjs'`                                    | The modules organization to use when generating files.                         |
+| `tabSize`        | `number`                                                     | The tab size to use when generating files (defaults to 2).                     |
+
+### Multiple configurations
+
+Using a configuration file also allow you to use multiple configurations files
+for multiple purposes (e.g. one for your client-side, another for your
+server-side).
+
+To init a multiple configurations setup, you can call `init` with a `config`
+option:
+
+<ShellCommand command="foscia init --config=.fosciarc.api.json" />
+
+Once your configuration is set up, you can run other commands using the same
+`config` option:
+
+<ShellCommand command="foscia make:model --config=.fosciarc.api.json post" />

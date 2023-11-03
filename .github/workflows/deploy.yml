@@ -1,0 +1,30 @@
+name: deploy
+run-name: deploy by @${{ github.actor }}
+
+on: [ workflow_dispatch, workflow_call ]
+
+jobs:
+  deploy:
+    name: Deploy docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Docker build
+        run: make docker-build
+
+      - name: Build
+        run: make build
+
+      - name: Docs build
+        run: make docs-build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./website/build
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com

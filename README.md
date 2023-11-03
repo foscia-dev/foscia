@@ -1,6 +1,6 @@
 <p align="center">
-  <a href="https://foscia-dev.github.io/docs">
-    <img width="180" src="https://foscia-dev.github.io/docs/img/icon.svg" alt="">
+  <a href="https://foscia-dev.github.io/foscia">
+    <img width="180" src="https://foscia-dev.github.io/foscia/img/icon.svg" alt="">
   </a>
 </p>
 
@@ -20,11 +20,11 @@
 </p>
 
 <p align="center">
-<a href="https://foscia-dev.github.io/docs">
+<a href="https://foscia-dev.github.io/foscia">
   Website
 </a>
 •
-<a href="https://foscia-dev.github.io/docs/docs/getting-started">
+<a href="https://foscia-dev.github.io/foscia/docs/getting-started">
   Documentation
 </a>
 •

@@ -1,0 +1,14 @@
+.examples {
+    max-width: 1000px;
+}
+
+.examplesBtn {
+    display: inline-flex;
+    align-items: center;
+}
+
+.examplesBtnSvg {
+    margin-left: 8px;
+    height: 24px;
+    width: 24px;
+}

@@ -1,0 +1,727 @@
+---
+sidebar_position: 2
+description: Available actions enhancers.
+---
+
+import Chip from '@site/src/components/Chip';
+import FunctionInfo from '@site/src/components/FunctionInfo';
+
+# Actions enhancers
+
+## Note
+
+Many actions enhancers are available. Each may:
+
+-   <Chip>depend</Chip> on a minimal package version
+-   <Chip color="primary">only</Chip> be available in a given use case (JSON:API,
+    REST, HTTP, etc.)
+-   <Chip color="success">provide</Chip> a given context to next enhancers or runners
+-   <Chip color="danger">require</Chip> a given context from previous enhancers or
+    runners
+
+Examples of this guide will omit imports of your action factories or models to
+provide shorter examples.
+
+## `@foscia/core`
+
+### `when`
+
+See
+[Conditionals on actions core concepts](/docs/core-concepts/actions#conditionals).
+
+### `context`
+
+Merge the given context into the action's current context. **The context is not
+deeply merged.**
+
+This is the most basic context enhancer. It is used by a lot of Foscia
+enhancers.
+
+#### Example
+
+```javascript
+import { context } from '@foscia/core';
+
+action().use(
+    context({
+        /* additional context */
+    }),
+);
+```
+
+#### Arguments
+
+-   `{{}}` `contextToMerge` a context object to merge into the action's current
+    context
+
+### `forModel`
+
+<FunctionInfo provides="Model" />
+
+Target the given model.
+
+#### Example
+
+```javascript
+import { forModel } from '@foscia/core';
+
+action().use(forModel(Post));
+```
+
+#### Arguments
+
+-   [`{M extends Model}`](/docs/reference/api/modules/foscia_core#model) `model`
+    the model class to use
+
+### `forInstance`
+
+<FunctionInfo provides="Model, Instance, ID" />
+
+Target the given model's instance.
+
+#### Example
+
+```javascript
+import { forInstance } from '@foscia/core';
+
+action().use(forInstance(post));
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance` the instance to use
+
+### `forRelation`
+
+<FunctionInfo provides="Model, Instance, ID, Relation" />
+
+Target the given model instance's relation.
+
+#### Example
+
+```javascript
+import { forRelation } from '@foscia/core';
+
+action().use(forRelation(post, 'comments'));
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance` the instance to use
+-   [`{ModelRelationKey<I>}`](/docs/reference/api/modules/foscia_core#modelrelationkey)
+    `relationKey` the relation to use
+
+### `forId`
+
+<FunctionInfo provides="ID" />
+
+Target the given ID.
+
+#### Example
+
+```javascript
+import { forId } from '@foscia/core';
+
+action().use(forId('123'));
+```
+
+#### Arguments
+
+-   [`{ModelId | undefined}`](/docs/reference/api/modules/foscia_core#modelid)
+    `id` the ID to use
+
+### `find`
+
+<FunctionInfo provides="Model, ID" />
+
+Target a given model and ID.
+
+#### Example
+
+```javascript
+import { find } from '@foscia/core';
+
+action().use(find(Post, '123'));
+```
+
+#### Arguments
+
+-   [`{M extends Model}`](/docs/reference/api/modules/foscia_core#model) `model`
+    the model class to use
+-   [`{ModelId}`](/docs/reference/api/modules/foscia_core#modelid) `id` the ID
+    to use
+
+### `create`
+
+<FunctionInfo requires="Serializer" provides="Model, Instance, ID" />
+
+Prepare context for an instance creation.
+
+#### Example
+
+```javascript
+import { create } from '@foscia/core';
+
+const post = new Post();
+action().use(create(post));
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance` an instance of model to create
+
+### `update`
+
+<FunctionInfo requires="Serializer" provides="Model, Instance, ID" />
+
+Prepare context for an instance update.
+
+#### Example
+
+```javascript
+import { update } from '@foscia/core';
+
+action().use(update(post));
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance` an instance of model to update
+
+### `save`
+
+<FunctionInfo requires="Serializer" provides="Model, Instance, ID" />
+
+Prepare context for an instance creation or update depending on its existence
+state. Calls `update` if the instance exists, otherwise call `create`.
+
+#### Example
+
+```javascript
+import { save } from '@foscia/core';
+
+action().use(save(post));
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance` an instance of model to save
+
+### `destroy`
+
+<FunctionInfo provides="Model, Instance, ID" />
+
+Prepare context for an instance deletion.
+
+#### Example
+
+```javascript
+import { destroy } from '@foscia/core';
+
+action().use(destroy(post));
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance` an instance of model to delete
+
+### `instanceData`
+
+<FunctionInfo requires="Serializer" />
+
+Serialize the given instance as the context's data.
+
+#### Example
+
+```javascript
+import { instanceData } from '@foscia/core';
+
+action().use(instanceData(post));
+```
+
+#### Arguments
+
+-   [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+    `instance` an instance of model to serialize
+
+### `include`
+
+<FunctionInfo requires="Model" />
+
+Eager load the given relations for the current model definition. It accepts deep
+relations through dot notation. The new relations will be merged with the
+previous ones.
+
+#### Example
+
+```javascript
+import { include } from '@foscia/core';
+
+action().use(include('author'));
+action().use(include('author', 'comments', 'comments.reactions'));
+action().use(include(['author', 'comments', 'comments.reactions']));
+```
+
+#### Arguments
+
+-   [`{ArrayableVariadic<ModelRelationDotKey<M>>}`](/docs/reference/api/modules/foscia_core#modelrelationdotkey)
+    `...relations` a relation or a set of relation to eager load
+
+### `onRunning`
+
+Register a `running` hook callback on action. Callback may be async.
+
+#### Example
+
+```javascript
+import { onRunning } from '@foscia/jsonapi';
+
+action().use(
+    onRunning((event) => {
+        /* Do something */
+    }),
+);
+```
+
+#### Arguments
+
+-   `{(event: { context: {}; runner: Function }) => Awaitable<void>}` `callback`
+    callback to run on event
+
+### `onSuccess`
+
+Register a `success` hook callback on action. Callback may be async.
+
+#### Example
+
+```javascript
+import { onSuccess } from '@foscia/jsonapi';
+
+action().use(
+    onSuccess((event) => {
+        /* Do something */
+    }),
+);
+```
+
+#### Arguments
+
+-   `{(event: { context: {}; result: unknown }) => Awaitable<void>}` `callback`
+    callback to run on event
+
+### `onError`
+
+Register a `error` hook callback on action. Callback may be async.
+
+#### Example
+
+```javascript
+import { onError } from '@foscia/jsonapi';
+
+action().use(
+    onError((event) => {
+        /* Do something */
+    }),
+);
+```
+
+#### Arguments
+
+-   `{(event: { context: {}; error: unknown }) => Awaitable<void>}` `callback`
+    callback to run on event
+
+### `onFinally`
+
+Register a `finally` hook callback on action. Callback may be async.
+
+#### Example
+
+```javascript
+import { onFinally } from '@foscia/jsonapi';
+
+action().use(
+    onFinally((event) => {
+        /* Do something */
+    }),
+);
+```
+
+#### Arguments
+
+-   `{(event: { context: {} }) => Awaitable<void>}` `callback` callback to run
+    on event
+
+## `@foscia/http`
+
+### `makeGet`
+
+<FunctionInfo only="HTTP" />
+
+HTTP GET method shortcut for the [`makeRequest` function](#makerequest).
+
+#### Example
+
+```javascript
+import { makeGet } from '@foscia/http';
+
+action().use(
+    makeGet('https://example.com', {
+        /* config */
+    }),
+);
+```
+
+#### Arguments
+
+-   `{string}` `pathOrBaseURL` a path or base URL for the request
+-   [`{HttpRequestConfig | undefined}`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+    `config` a request configuration object
+
+### `makePost`
+
+<FunctionInfo only="HTTP" />
+
+HTTP POST method shortcut for the [`makeRequest` function](#makerequest).
+
+#### Example
+
+```javascript
+import { makePost } from '@foscia/http';
+
+action().use(
+    makePost(
+        'https://example.com',
+        { data: 'foobar' },
+        {
+            /* config */
+        },
+    ),
+);
+```
+
+#### Arguments
+
+-   `{string}` `pathOrBaseURL` a path or base URL for the request
+-   [`{HttpRequestConfig['body'] | undefined}`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+    `body` a request body
+-   [`{HttpRequestConfig | undefined}`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+    `config` a request configuration object
+
+### `makePut`
+
+<FunctionInfo only="HTTP" />
+
+HTTP PUT method shortcut for the [`makeRequest` function](#makerequest).
+
+#### Example
+
+```javascript
+import { makePut } from '@foscia/http';
+
+action().use(
+    makePut(
+        'https://example.com',
+        { data: 'foobar' },
+        {
+            /* config */
+        },
+    ),
+);
+```
+
+#### Arguments
+
+-   `{string}` `pathOrBaseURL` a path or base URL for the request
+-   [`{HttpRequestConfig['body'] | undefined}`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+    `body` a request body
+-   [`{HttpRequestConfig | undefined}`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+    `config` a request configuration object
+
+### `makePatch`
+
+<FunctionInfo only="HTTP" />
+
+HTTP PATCH method shortcut for the [`makeRequest` function](#makerequest).
+
+#### Example
+
+```javascript
+import { makePatch } from '@foscia/http';
+
+action().use(
+    makePatch(
+        'https://example.com',
+        { data: 'foobar' },
+        {
+            /* config */
+        },
+    ),
+);
+```
+
+#### Arguments
+
+-   `{string}` `pathOrBaseURL` a path or base URL for the request
+-   [`{HttpRequestConfig['body'] | undefined}`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+    `body` a request body
+-   [`{HttpRequestConfig | undefined}`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+    `config` a request configuration object
+
+### `makeDelete`
+
+<FunctionInfo only="HTTP" />
+
+HTTP DELETE method shortcut for the [`makeRequest` function](#makerequest).
+
+#### Example
+
+```javascript
+import { makeDelete } from '@foscia/http';
+
+action().use(
+    makeDelete(
+        'https://example.com',
+        { data: 'foobar' },
+        {
+            /* config */
+        },
+    ),
+);
+```
+
+#### Arguments
+
+-   `{string}` `pathOrBaseURL` a path or base URL for the request
+-   [`{HttpRequestConfig['body'] | undefined}`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+    `body` a request body
+-   [`{HttpRequestConfig | undefined}`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+    `config` a request configuration object
+
+### `makeRequest`
+
+<FunctionInfo only="HTTP" />
+
+Prepare a generic HTTP request. If given path starts with scheme (HTTPS, etc.),
+it will be used as the base URL of action, otherwise it will only be used as
+path.
+
+#### Example
+
+```javascript
+import { makeRequest } from '@foscia/http';
+
+action().use(
+    makeRequest('https://example.com', {
+        /* config */
+    }),
+);
+```
+
+#### Arguments
+
+-   `{string}` `pathOrBaseURL` a path or base URL for the request
+-   [`{HttpRequestConfig | undefined}`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+    `config` a request configuration object
+
+### `param`
+
+<FunctionInfo only="HTTP" />
+
+Set the given query param on the request. The new params will be merged with the
+previous ones.
+
+#### Example
+
+```javascript
+import { param } from '@foscia/http';
+
+action().use(param('foo', 'foo')); // Key and value.
+action().use(param({ bar: 'bar' })); // Object.
+```
+
+#### Arguments
+
+-   `{string | Dictionary}` `key` a key for the param or a params object
+-   `{unknown | undefined}` `value` a value for the param
+
+### `abortSignal`
+
+<FunctionInfo only="HTTP" />
+
+Configure an abort signal on the request to
+[make it abortable](https://developer.chrome.com/blog/abortable-fetch/).
+
+#### Example
+
+```javascript
+import { abortSignal } from '@foscia/http';
+
+const abortController = new AbortController();
+
+action().use(abortSignal(abortController));
+```
+
+#### Arguments
+
+-   `{Optional<AbortController | AbortSignal>}` `controllerOrSignal` an abort
+    controller or signal instance to configure (or undefined/null to cancel a
+    previous configuration)
+
+## `@foscia/jsonapi`
+
+### `fields`
+
+<FunctionInfo only="JSON:API" requires="Model" />
+
+[Select the given JSON:API fieldsets](https://jsonapi.org/format/#fetching-sparse-fieldsets)
+for the current context's model. The new fieldsets will be merged with the
+previous ones.
+
+#### Example
+
+```javascript
+import { fields } from '@foscia/jsonapi';
+
+action().use(fields('title'));
+action().use(fields('title', 'description'));
+action().use(fields(['title', 'description']));
+```
+
+#### Arguments
+
+-   [`{ArrayableVariadic<ModelKey<M>>}`](/docs/reference/api/modules/foscia_core#modelkey)
+    `...fieldset` a field or a set of field to select for the current context's
+    model
+
+### `fieldsFor`
+
+<FunctionInfo only="JSON:API" />
+
+[Select the given JSON:API fieldsets](https://jsonapi.org/format/#fetching-sparse-fieldsets)
+for the given model. The new fieldsets will be merged with the previous ones.
+
+#### Example
+
+```javascript
+import { fieldsFor } from '@foscia/jsonapi';
+
+action().use(fieldsFor(Post, 'title'));
+action().use(fieldsFor(Post, 'title', 'description'));
+action().use(fieldsFor(Post, ['title', 'description']));
+```
+
+#### Arguments
+
+-   [`{M extends ModelClass<D>}`](/docs/reference/api/modules/foscia_core#modelclass)
+    `model` the model to select the fieldsets for
+-   [`{ArrayableVariadic<ModelKey<M>>}`](/docs/reference/api/modules/foscia_core#modelkey)
+    `...fieldset` a field or a set of field to select for the given model
+
+### `filterBy`
+
+<FunctionInfo only="JSON:API" />
+
+[Filter the JSON:API resource](https://jsonapi.org/format/#fetching-filtering)
+by the given key and value. When key is an object, it will spread the object as
+a filter values map. The new filter will be merged with the previous ones.
+
+#### Example
+
+```javascript
+import { filterBy } from '@foscia/jsonapi';
+
+action().use(filterBy('isPublished', true));
+```
+
+#### Arguments
+
+-   `{string | Dictionary}` `key` a key for the filter or a filter object
+-   `{unknown | undefined}` `value` a value for the filter
+
+### `sortBy`
+
+<FunctionInfo only="JSON:API" />
+
+[Sort the JSON:API resource](https://jsonapi.org/format/#fetching-sorting) by
+the given keys and directions. The new sort will be merged with the previous
+ones. **Sorts priority are kept**.
+
+#### Example
+
+```javascript
+import { sortBy } from '@foscia/jsonapi';
+
+action().use(sortBy('createdAt'));
+action().use(sortBy('createdAt', 'desc'));
+action().use(sortBy(['name', 'createdAt'], ['asc', 'asc']));
+action().use(sortBy({ name: 'asc', createdAt: 'asc' }));
+```
+
+#### Arguments
+
+-   `{Arrayable<string> | Dictionary<SortDirection>}` `key` the key(s) for the
+    sort
+-   `{Arrayable<'asc' | 'desc'> = 'asc'}` `direction` the direction(s) for the
+    sort
+
+### `sortByAsc`
+
+<FunctionInfo only="JSON:API" />
+
+Shortcut for the [`sortBy` function](#sortby) with an `asc` direction.
+
+#### Example
+
+```javascript
+import { sortByAsc } from '@foscia/jsonapi';
+
+action().use(sortByAsc('createdAt'));
+```
+
+#### Arguments
+
+-   `{ArrayableVariadic<string>}` `...keys` the key(s) for the sort
+
+### `sortByDesc`
+
+<FunctionInfo only="JSON:API" />
+
+Shortcut for the [`sortBy` function](#sortby) with a `desc` direction.
+
+#### Example
+
+```javascript
+import { sortByDesc } from '@foscia/jsonapi';
+
+action().use(sortByDesc('createdAt'));
+```
+
+#### Arguments
+
+-   `{ArrayableVariadic<string>}` `...keys` the key(s) for the sort
+
+### `paginate`
+
+<FunctionInfo only="JSON:API" />
+
+[Paginate the JSON:API resource](https://jsonapi.org/format/#fetching-pagination)
+by the given params. JSON:API specification on pagination is agnostic, so page
+params may be anything used by your implementation.
+
+#### Example
+
+```javascript
+import { paginate } from '@foscia/jsonapi';
+
+action().use(paginate({ number: 1, size: 10 }));
+```
+
+#### Arguments
+
+-   `{unknown}` `page` a pagination value which match your implementation

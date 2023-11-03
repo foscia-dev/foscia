@@ -1,0 +1,258 @@
+---
+sidebar_position: 200
+description: Build actions, registering hooks, discover enhancers and runners.
+---
+
+import Link from '@docusaurus/Link';
+
+# Actions
+
+:::tip What you'll learn
+
+-   Enhancing actions
+-   Running actions
+-   Extending actions for builder pattern calls
+-   Conditionally enhancing and running actions
+-   Registering hooks on actions
+
+:::
+
+:::caution Before reading this guide
+
+This guide is only about using actions. You can read more about action factories
+setups here:
+
+-   [**Make your first action factory**](/docs/getting-started#action-factory)
+-   [**Configure your action factory**](/docs/guides/actions/action-factory-configuration)
+-   [**Implement custom action factory**](/docs/guides/actions/custom-action-factory)
+
+:::
+
+## Instantiation
+
+As stated in the
+[getting started guide](/docs/getting-started#running-simple-actions), actions
+are instantiated through your action factory. In this guide, we'll admit you
+have a setup action factory.
+
+## Enhancers
+
+An action instance can receive multiple enhancements that will build an
+appropriate context to run requests to your data sources.
+
+Each enhancer can be applied using the `use` action method. Note that those
+enhancers are not instantly applied to the action context, but during the action
+run step (or context computation).
+
+```javascript
+action()
+    // Enhance the action.
+    .use(forModel(Post))
+    .use(include('comments'));
+```
+
+`use` also support variadic enhancers. Number of arguments might be limited,
+check the function signature for details.
+
+```javascript
+action().use(
+    forModel(Post),
+    include('comments'),
+    sortByDesc('publishedAt'),
+    // etc.
+);
+```
+
+<Link className="button bg--primary" to="/docs/reference/actions-enhancers">
+    Available enhancers API guide
+</Link>
+
+## Runners
+
+An action instance can be run using the `run` method. The runner can execute
+multiple enhancers or runners.
+
+When an action run, it does 3 things:
+
+-   Dequeue all enhancers since the action instantiation and builds context
+-   Execute the runner and each of its internal enhancers/runners (this may
+    update the context)
+-   Return the runner result (might be any value, including void or an error
+    throwing)
+
+Internally, action running will also trigger [actions hooks](#hooks).
+
+```javascript
+action()
+    .use(forModel(Post))
+    .use(include('comments'))
+    // Run the action.
+    .run(all());
+```
+
+<Link className="button bg--primary" to="/docs/reference/actions-runners">
+    Available runners API guide
+</Link>
+
+## Extensions
+
+Sometimes, functional programming can be frustrating, because you must always
+rewrite the same words (e.g. `use`) to keep a builder pattern styled code.
+
+Extensions provide a set of properties or methods which will be added to your
+actions' instances. As an action, extensions can avoid you writing `use` or
+`run` by adding enhancers/runners methods on you action.
+
+The first step to use one or many extensions is to update your action factory in
+which you should provide an `extension` configuration option. If you are using a
+custom action factory, you should check the
+[custom action factory guide](/docs/guides/actions/custom-action-factory).
+
+```javascript title="action.js"
+import { forModel, include, all, hooksExtensions } from '@foscia/core';
+import { makeJsonApi } from '@foscia/jsonapi';
+
+const { action, registry } = makeJsonApi({
+    extensions: {
+        // Spread any extensions you want to use here...
+        ...hooksExtensions,
+        ...forModel.extension,
+        ...include.extension,
+        ...all.extension,
+    },
+});
+```
+
+You can now use the extended enhancers and runners without calling `use` or
+`run`:
+
+```javascript
+import action from './action';
+
+await action().forModel(Post).include('tags').all();
+```
+
+Every enhancers and runners of Foscia provide a `.extension` property which is
+extendable by an action instance.
+
+You may extend your action with any enhancers or runners extensions manually.
+Otherwise, you may also use **prebuild extensions packs**. Those provide
+multiple extensions in one exported object allowing you to extend multiple
+extensions at one time!
+
+<Link
+    className="button bg--primary margin-bottom--lg"
+    to="/docs/reference/actions-extensions"
+>
+    Available extensions packs API guide
+</Link>
+
+:::caution
+
+Keep in mind that using extensions will avoid tree-shaking the extended
+enhancers or runners functions (even when those are unused in your codebase),
+because those are imported by their extensions.
+
+:::
+
+## Conditionals
+
+Sometimes, you may need to conditionally apply an enhancer or run an action. As
+an example, you may want to sort results differently based on the user's defined
+sort's direction. This can be done easily using the `when` helper:
+
+```javascript
+import { when } from '@foscia/core';
+import { sortByDesc } from '@foscia/jsonapi';
+
+action()
+    .use(forModel(Post))
+    .use(when(displayLatestFirst, sortByDesc('createdAt')));
+```
+
+`when` returns a new enhancer or runner based on the given value's _truthiness_.
+It will execute the first enhancer/runner only if its value is _truthy_. You may
+pass the value as a factory function returning the value, and even a promise
+value. You may also pass a second enhancer/runner which will only execute if the
+value is _falsy_. Each callback arguments will receive the action as their first
+argument and the value as their second argument. Each callback may also be
+async, as any enhancers and runners.
+
+Here are further examples:
+
+```javascript
+import { changed, create, oneOrFail, when } from '@foscia/core';
+
+const post = fill(new Post(), userInputData);
+
+action()
+    .use(create(post))
+    .use(when(
+        () => /* compute a special value */,
+        (a, specialTruthyValue) => /* do something */,
+        (a, specialFalsyValue) => /* do something */,
+    ))
+    .run(when(
+        changed(post),
+        oneOrFail(),
+        () => post,
+    ));
+```
+
+## Hooks
+
+You may hook on multiple events which occurs on action instance using the hook
+registration function:
+
+-   `onRunning`: after context computation, before context runner execution.
+-   `onSuccess`: after context runner successful execution (no error thrown).
+-   `onError`: after context runner failed execution (error thrown).
+-   `onFinally`: after context runner successful or failed execution.
+
+To register a hook callback, you must use the registration enhancer on your
+building action.
+
+```javascript
+import {
+    onRunning,
+    onSuccess,
+    onError,
+    onFinally,
+} from '@foscia/core';
+
+action().use(onRunning(({ context }) => /* ... */));
+action().use(onSuccess(({ context, result }) => /* ... */));
+action().use(onError(({ context, error }) => /* ... */));
+action().use(onFinally(({ context }) => /* ... */));
+```
+
+:::info
+
+Hooks' callbacks are async and executed in a sequential fashion (one by one, not
+parallelized).
+
+:::
+
+You can temporally disable hook execution for a given action by using the
+`withoutHooks` function.
+
+Be aware that `withoutHooks` will always return a promise, even when your
+callback is a sync function.
+
+```javascript
+import { withoutHooks } from '@foscia/core';
+
+// Retrieve a list of User instances without action hooks running.
+const users = await withoutHooks(action(), async (a) => {
+    return await a.use(forModel(User)).run(all());
+});
+```
+
+:::caution
+
+Foscia may also register hooks internally when using some enhancers. Those
+provide some library features
+([**models hooks**](/docs/core-concepts/models#hooks), etc.). Be careful running
+actions without hooks, as those hooks will also be disable.
+
+:::

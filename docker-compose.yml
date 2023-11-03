@@ -19,3 +19,39 @@ services:
     volumes:
       - ./:/home/lib:consistent
     tty: true
+  docs:
+    container_name: docs
+    depends_on:
+      dependencies:
+        condition: service_completed_successfully
+    build:
+      dockerfile: Dockerfile
+      target: docs
+    working_dir: /home/lib/website
+    volumes:
+      - ./:/home/lib:consistent
+    ports:
+      - 3000:3000
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.docs.rule=Host(`foscia.localhost`)
+      - traefik.http.routers.docs.entryPoints=web
+      - traefik.http.services.docs.loadbalancer.server.port=3000
+  reverse-proxy:
+    container_name: reverse-proxy
+    image: traefik:latest
+    restart: unless-stopped
+    depends_on:
+      docs:
+        condition: service_healthy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/traefik.yml
+    ports:
+      - 80:80
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.reverse-proxy-dashboard.rule=Host(`proxy.foscia.localhost`)
+      - traefik.http.routers.reverse-proxy-dashboard.service=api@internal
+      - traefik.http.routers.reverse-proxy-dashboard.entrypoints=web
+      - traefik.http.services.reverse-proxy-dashboard.loadbalancer.server.port=80

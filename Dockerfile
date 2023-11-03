@@ -13,3 +13,10 @@ ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 FROM dependencies as node
 
 CMD ["sh"]
+
+FROM node as docs
+
+CMD ["pnpm", "start"]
+
+HEALTHCHECK --retries=60 --interval=5s --timeout=5s CMD ["curl", "-f", "http://localhost:3000"]
+

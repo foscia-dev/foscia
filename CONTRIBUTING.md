@@ -18,8 +18,8 @@ features takes place in the
   Run tests using `make test`.
 
 - **Document any change in behaviour.** Make sure the `README.md` and any other
-  relevant documentation  are kept up-to-date
-  (see [Docs repository](https://github.com/foscia-dev/docs)).
+  relevant documentation are kept up-to-date
+  (see the `website` directory).
 
 - **Create feature branches.** Don't ask us to pull from your master branch.
 
@@ -47,8 +47,11 @@ make help
 make docker-build
 ```
 
-Once the docker containers are fully running, you use all Makefile rules
+Once the docker containers are fully running, you can use all Makefile rules
 (such as `make build`, `make test`, `make test-watch`).
+
+You can also visit docs website to preview changes at
+[foscia.localhost](http://foscia.localhost).
 
 ### Adding a new package
 
@@ -69,4 +72,5 @@ You must also define multiple files
 - `README.md`
 - `typedoc.json`
 
-You must also add an entry to the `tsconfig.json` `paths` compiler option.
+You must also add an entry to the `tsconfig.json` and
+`website/docs/tsconfig.json` `paths` compiler option.

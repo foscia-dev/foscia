@@ -1,0 +1,42 @@
+---
+sidebar_position: 10
+---
+
+import ShellCommand from '@site/src/components/ShellCommand';
+import TabItem from '@theme/TabItem';
+import Tabs from '@theme/Tabs';
+
+# Installation
+
+Foscia is composed of multiple packages for different purposes (see
+[available packages](/docs/about#available-packages)).
+
+## CLI (recommended)
+
+Best way to install Foscia is to install the CLI, and let it install the
+additional dependencies.
+
+<ShellCommand command="add dev @foscia/cli" />
+
+Once `@foscia/cli` is installed, you can run the `init` command with the
+directory where you want to store your Foscia related files (models, action,
+etc.).
+
+<ShellCommand command="foscia init src/data" />
+
+## Manual
+
+If you don't want to install `@foscia/cli`, you can manually install the set of
+package you will need depending on your usage.
+
+<Tabs groupId="usage">
+    <TabItem value="jsonapi" label="JSON:API" default>
+        <ShellCommand command="add @foscia/core @foscia/http @foscia/jsonapi" />
+    </TabItem>
+    <TabItem value="rest" label="REST">
+        <ShellCommand command="add @foscia/core @foscia/http @foscia/rest" />
+    </TabItem>
+    <TabItem value="http" label="HTTP Client">
+        <ShellCommand command="add @foscia/core @foscia/http" />
+    </TabItem>
+</Tabs>

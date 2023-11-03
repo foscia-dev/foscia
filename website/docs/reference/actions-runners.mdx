@@ -1,0 +1,326 @@
+---
+sidebar_position: 3
+description: Available actions runners.
+---
+
+import Chip from '@site/src/components/Chip';
+import FunctionInfo from '@site/src/components/FunctionInfo';
+
+# Actions runners
+
+## Note
+
+Many actions runners are available. Each may:
+
+-   <Chip>depend</Chip> on a minimal package version
+-   <Chip color="primary">only</Chip> be available in a given use case (JSON:API,
+    REST, HTTP, etc.)
+-   <Chip color="success">provide</Chip> a given context to next enhancers or runners
+-   <Chip color="danger">require</Chip> a given context from previous enhancers or
+    runners
+
+Examples of this guide will omit imports of your action factories or models to
+provide shorter examples.
+
+## `@foscia/core`
+
+### `when`
+
+See
+[Conditionals on actions core concepts](/docs/core-concepts/actions#conditionals).
+
+### `none`
+
+<FunctionInfo requires="Adapter" />
+
+Run the action and ignore the content of the result. Adapter errors are not
+caught and so may be thrown.
+
+#### Example
+
+```javascript
+import { none } from '@foscia/core';
+
+await action().run(none());
+```
+
+#### Returns
+
+`{Promise<void>}`
+
+### `raw`
+
+<FunctionInfo requires="Adapter" />
+
+Run the action and retrieve the raw adapter's data.
+
+#### Example
+
+```javascript
+import { raw } from '@foscia/core';
+
+// When using HttpAdapter, raw result is a fetch Response object.
+const response = await action().run(raw());
+// You may also transform the data by passing a function.
+const data = await action().run(raw((r) => r.json()));
+```
+
+#### Arguments
+
+-   `{Function | undefined}` `transform` the callback to transform the data
+    object
+
+#### Returns
+
+`{Promise<AD>}` where `AD` is your adapter's data (e.g. a fetch Response object)
+or a transformed data if `transform` callback was provided.
+
+### `all`
+
+<FunctionInfo requires="Adapter, Deserializer, Model" />
+
+Run the action and deserialize an array of model's instance.
+
+#### Example
+
+```javascript
+import { all } from '@foscia/core';
+
+const posts = await action().run(all());
+```
+
+#### Arguments
+
+-   `{Function | undefined}` `transform` the callback to transform the data
+    object
+
+#### Returns
+
+`{Promise<I[]>}` where `I` is an instance of the targeted model or a transformed
+data if `transform` callback was provided.
+
+### `one`
+
+<FunctionInfo requires="Adapter, Deserializer, Model" />
+
+Run the action and deserialize one model's instance. Returns null when not
+found.
+
+#### Example
+
+```javascript
+import { one } from '@foscia/core';
+
+const post = await action().run(one());
+```
+
+#### Arguments
+
+-   `{Function | undefined}` `transform` the callback to transform the data
+    object
+
+#### Returns
+
+`{Promise<I | null>}` where `I` is an instance of the targeted model or a
+transformed data if `transform` callback was provided.
+
+### `oneOrFail`
+
+<FunctionInfo requires="Adapter, Deserializer, Model" />
+
+Run the action and deserialize one model's instance. Throws an
+`ExpectedRunFailureError` when not found or empty result.
+
+#### Example
+
+```javascript
+import { oneOrFail } from '@foscia/core';
+
+const post = await action().run(oneOrFail());
+```
+
+#### Arguments
+
+-   `{Function | undefined}` `transform` the callback to transform the data
+    object
+
+#### Returns
+
+`{Promise<I>}` where `I` is an instance of the targeted model or a transformed
+data if `transform` callback was provided.
+
+### `oneOrCurrent`
+
+<FunctionInfo requires="Adapter, Deserializer, Model, Instance" />
+
+Run the action and deserialize one model's instance. Returns current instance
+when not found or empty result.
+
+#### Example
+
+```javascript
+import { oneOrCurrent } from '@foscia/core';
+
+const post = await action().run(oneOrCurrent());
+```
+
+#### Arguments
+
+-   `{Function | undefined}` `transform` the callback to transform the data
+    object
+
+#### Returns
+
+`{Promise<I>}` where `I` is an instance of the targeted model or a transformed
+data if `transform` callback was provided.
+
+### `oneOr`
+
+<FunctionInfo requires="Adapter, Deserializer, Model" />
+
+Run the action and deserialize one model's instance.
+
+#### Example
+
+```javascript
+import { oneOr } from '@foscia/core';
+
+const post = await action().run(oneOr(() => null));
+```
+
+#### Arguments
+
+-   `{Function}` `nilRunner` the runner to use when one result is empty
+-   `{Function | undefined}` `transform` the callback to transform the data
+    object
+
+#### Returns
+
+`{Promise<I>}` where `I` is an instance of the targeted model, a transformed
+data if `transform` callback was provided or the `nilRunner` result.
+
+### `cached`
+
+<FunctionInfo requires="Cache, Model, Id" />
+
+Retrieve an instance from the cache. If the instance is not in cache or if the
+included relations are not loaded, returns null.
+
+#### Example
+
+```javascript
+import { cached } from '@foscia/core';
+
+const post = await action().run(cached());
+```
+
+#### Arguments
+
+-   `{Function | undefined}` `transform` the callback to transform the data
+    object
+
+#### Returns
+
+`{Promise<I | null>}` where `I` is an instance of the targeted model or a
+transformed data if `transform` callback was provided.
+
+### `cachedOrFail`
+
+<FunctionInfo requires="Cache, Model, Id" />
+
+Retrieve an instance from the cache. If the instance is not in cache or if the
+included relations are not loaded, throws an `ExpectedRunFailureError`.
+
+#### Example
+
+```javascript
+import { cachedOrFail } from '@foscia/core';
+
+const post = await action().run(cachedOrFail());
+```
+
+#### Arguments
+
+-   `{Function | undefined}` `transform` the callback to transform the data
+    object
+
+#### Returns
+
+`{Promise<I>}` where `I` is an instance of the targeted model or a transformed
+data if `transform` callback was provided.
+
+### `cachedOr`
+
+<FunctionInfo requires="Cache, Model, Id" />
+
+Retrieve an instance from the cache. If the instance is not in cache or if the
+included relations are not loaded, runs the given runner.
+
+#### Example
+
+```javascript
+import { cachedOr } from '@foscia/core';
+
+const post = await action().run(cachedOr(() => null));
+```
+
+#### Arguments
+
+-   `{Function}` `nilRunner` the runner to use when cached result is empty
+-   `{Function | undefined}` `transform` the callback to transform the data
+    object
+
+#### Returns
+
+`{Promise<I>}` where `I` is an instance of the targeted model, a transformed
+data if `transform` callback was provided or the `nilRunner` result.
+
+### `catchIf`
+
+<FunctionInfo />
+
+Run given runner and catch errors using catchCallback. If catchCallback is
+omitted, will return null on error. If catchCallback returns a function, will
+run it as an action's runner. Else, will ignore error and return null only if
+callback for error is truthy.
+
+#### Example
+
+```javascript
+import { catchIf, one } from '@foscia/core';
+
+const postOrNull = await action().run(
+    catchIf(one(), (error) => error instanceof ErrorToCatch),
+);
+```
+
+#### Arguments
+
+-   `{Function}` `runner` the runner to run and catch errors from
+-   `{Function | undefined}` `catchCallback` the callback to use when an error
+    is caught
+
+#### Returns
+
+`{Promise<T>}` where `T` is either the runner result, the catch runner result or
+null.
+
+## `@foscia/jsonapi`
+
+### `usingDocument`
+
+<FunctionInfo only="JSON:API" />
+
+Append the JSON:API document object to data object. Use it as the parameter of
+`all` and `one` (and derivatives) runners.
+
+#### Example
+
+```javascript
+import { all } from '@foscia/core';
+import { usingDocument } from '@foscia/jsonapi';
+
+const data = await action().run(all(usingDocument));
+data.instances; // Model instances.
+data.document; // JSON:API document with meta, etc.
+```

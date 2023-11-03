@@ -1,0 +1,176 @@
+---
+sidebar_position: 30
+description: Creating custom functional or object transformers.
+---
+
+# Using transformers
+
+:::tip What you'll learn
+
+-   Using built-in transformers
+-   Creating transformers
+
+:::
+
+## Built-in transformers
+
+### `toDate`
+
+`toDate` converts values to `Date` object using
+[`Date.parse`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Date/parse).
+It will serialize values to an
+[ISO string date](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString).
+
+```javascript
+import { attr, makeModel, toDate } from '@foscia/core';
+
+makeModel('posts', {
+    createdAt: attr(toDate()),
+});
+```
+
+:::info
+
+`toDate` will log a warning if a value gets converted to an invalid date.
+
+:::
+
+### `toNumber`
+
+`toNumber` converts values to `Number` object using
+[`Number()`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number/Number).
+
+```javascript
+import { attr, makeModel, toNumber } from '@foscia/core';
+
+makeModel('products', {
+    price: attr(toNumber()),
+});
+```
+
+:::info
+
+`toNumber` will log a warning if a value gets converted to a `NaN` value.
+
+:::
+
+### `toBoolean`
+
+`toBoolean` converts values to `boolean` if the value match a truthy value.
+
+You can provide your own truthy values using `trueValues` option (defaults are
+`[true, 1, '1', 'true', 'yes']`).
+
+```javascript
+import { attr, makeModel, toBoolean } from '@foscia/core';
+
+makeModel('users', {
+    verified: attr(toBoolean()),
+    blocked: attr(toBoolean({ trueValues: [true] })),
+});
+```
+
+### `toString`
+
+`toString` converts values to `String` object using
+[`String()`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String/String).
+
+```javascript
+import { attr, makeModel, toString } from '@foscia/core';
+
+makeModel('posts', {
+    title: attr(toString()),
+});
+```
+
+### `toArrayOf`
+
+`toArrayOf` converts values of an array using the given transformer. This can be
+useful when dealing with array of dates.
+
+```javascript
+import { attr, makeModel, toArrayOf, toDate } from '@foscia/core';
+
+makeModel('posts', {
+    openingDates: attr(toArrayOf(toDate())),
+});
+```
+
+## Creating transformers
+
+### `makeTransformer` (recommended)
+
+Foscia provides a `makeTransformer` utility function to create a new
+transformer. This function creates a transformer using a `deserialize` function
+and an optional `serialize` function (deserializer will be used as a default).
+
+Transformers created with `makeTransformer` will transform `null` or `undefined`
+value to `null`.
+
+Here are two examples of transformers:
+
+```ts title="transformers/toNumber.ts"
+import { makeTransformer } from '@foscia/core';
+
+export default () => makeTransformer((value: string) => Number(value));
+```
+
+```ts title="transformers/toDate.ts"
+import { makeTransformer } from '@foscia/core';
+
+export default () =>
+    makeTransformer(
+        (value: string) => {
+            const date = new Date();
+            date.setTime(Date.parse(value));
+
+            return date;
+        },
+        (value: Date) => value.toISOString(),
+    );
+```
+
+The return value of `makeTransformer` is a transformer object.
+
+```javascript
+import { attr, makeModel } from '@foscia/core';
+import toNumber from '../transformers/toNumber';
+import toDate from '../transformers/toDate';
+
+makeModel('posts', {
+    commentsCount: attr(toNumber()),
+    publishedAt: attr(toDate()),
+});
+```
+
+### Custom transformers
+
+If you want full control on your transformers, you can create transformer
+objects manually. A transformer object should have two methods:
+
+-   `serialize` which converts a _real_ value to its _raw_ counterpart
+-   `deserialize` which converts a _raw_ value to its _real_ counterpart
+
+```ts
+export default {
+    deserialize: (value: string | null) => {
+        if (value === null) {
+            return null;
+        }
+
+        const date = new Date();
+        date.setTime(Date.parse(value));
+
+        return date;
+    },
+    serialize: (value: Date | null) => (value ? value.toISOString() : null),
+};
+```
+
+:::caution
+
+Custom transformers must handle `null` values because `null` may also be
+transformed by serializers and deserializers (e.g. converting a `null` value to
+an empty string).
+
+:::

@@ -1,0 +1,82 @@
+---
+sidebar_position: 10
+description: Using Foscia as a simple HTTP client.
+---
+
+import Link from '@docusaurus/Link';
+import ShellCommand from '@site/src/components/ShellCommand';
+
+# HTTP client
+
+:::tip What you'll learn
+
+-   Configuring your action factory to only make HTTP request
+-   Using Foscia as an HTTP client
+
+:::
+
+:::info
+
+If you are using JSON REST or JSON:API blueprints, you can already use your
+action factory as an HTTP client.
+
+:::
+
+## Creating the action factory
+
+### CLI (recommended)
+
+You can get started for Foscia as an HTTP client using the
+[`@foscia/cli`](/docs/guides/cli).
+
+<ShellCommand command="foscia init src/http --usage=http" />
+
+### Manually
+
+You can use Foscia as a simple HTTP client (just like Axios). For this, you can
+configure an HTTP client action factory.
+
+```javascript title="action.js"
+import { makeHttpClient } from '@foscia/http';
+
+const { action } = makeHttpClient({
+    http: {
+        baseURL: 'https://example.com',
+    },
+});
+
+export default action;
+```
+
+## Using the HTTP client features
+
+Once your action factory is ready, sending HTTP request is pretty easy:
+
+```javascript
+import { makeGet, makePost } from '@foscia/http';
+import { action } from './action';
+
+// GET https://example.com/
+const response = await action().use(makeGet('/')).run(raw());
+
+// GET https://example.com/api/posts (and get JSON payload)
+const data = await action()
+    .use(
+        makePost('/api/posts', {
+            data: { title: 'Hello World!' },
+        }),
+    )
+    .run(raw((response) => response.json()));
+```
+
+<Link
+    className="button bg--primary"
+    to="/docs/reference/actions-enhancers#fosciahttp"
+>
+    Read the HTTP' enhancers API guide
+</Link>
+
+## Implementation notes
+
+You may learn more about the HTTP adapter capabilities and implementation on
+[the HTTP implementation guide](/docs/guides/implementations/http).

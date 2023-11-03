@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "sourceMap": false,
+    "outDir": "dist",
+    "baseUrl": "..",
+    "newLine": "lf",
+    "paths": {
+      "@foscia/core": [
+        "packages/core/dist/index.d.ts"
+      ],
+      "@foscia/http": [
+        "packages/http/dist/index.d.ts"
+      ],
+      "@foscia/object": [
+        "packages/object/dist/index.d.ts"
+      ],
+      "@foscia/jsonapi": [
+        "packages/jsonapi/dist/index.d.ts"
+      ],
+      "@foscia/rest": [
+        "packages/rest/dist/index.d.ts"
+      ],
+      "@foscia/shared": [
+        "packages/shared/dist/index.d.ts"
+      ],
+      "@foscia/test": [
+        "packages/test/dist/index.d.ts"
+      ]
+    }
+  }
+}

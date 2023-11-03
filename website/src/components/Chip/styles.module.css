@@ -1,0 +1,48 @@
+.chip {
+    display: inline-block;
+    position: relative;
+    padding: 2px 12px;
+    border-radius: var(--ifm-global-radius);
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+.chip::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: currentColor;
+    opacity: 0.2;
+    border-radius: inherit;
+}
+
+.chip.chip--primary {
+    color: var(--ifm-color-primary);
+}
+
+.chip.chip--success {
+    color: var(--ifm-color-success-darkest);
+}
+
+.chip.chip--info {
+    color: var(--ifm-color-info-darkest);
+}
+
+.chip.chip--danger {
+    color: var(--ifm-color-danger-darkest);
+}
+
+[data-theme="dark"] .chip.chip--success {
+    color: var(--ifm-color-success-lightest);
+}
+
+[data-theme="dark"] .chip.chip--info {
+    color: var(--ifm-color-info-lightest);
+}
+
+[data-theme="dark"] .chip.chip--danger {
+    color: var(--ifm-color-danger-lightest);
+}

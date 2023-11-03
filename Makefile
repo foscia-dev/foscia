@@ -2,6 +2,7 @@
 DOCKER_COMPOSE?=docker compose
 DOCKER_EXEC?=$(DOCKER_COMPOSE) exec -it
 PNPM?=$(DOCKER_EXEC) node pnpm
+DOCS?=$(DOCKER_EXEC) docs
 
 # Misc
 default: help
@@ -33,7 +34,7 @@ pnpm: ## Run a PNPM command (e.g. make pnpm c="update").
 	@$(PNPM) $(c)
 
 ##
-## —— Build, lint and tests ———————————————————————————————————————————————————————————
+## —— Build, lint and tests ————————————————————————————————————————————————————
 
 .PHONY: build
 build: ## Build.
@@ -57,6 +58,17 @@ test-coverage: ## Run tests.
 
 .PHONY: test
 test: lint typecheck test-coverage ## Lint and run tests.
+
+##
+## —— Docs —————————————————————————————————————————————————————————————————————
+
+.PHONY: docs-build
+docs-build: ## Build docs website.
+	@$(DOCS) pnpm build
+
+.PHONY: docs-prettier
+docs-prettier: ## Run prettier on docs MD files.
+	@$(DOCS) pnpm prettier
 
 ##
 ## —— Utilities ————————————————————————————————————————————————————————————————

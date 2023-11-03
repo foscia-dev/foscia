@@ -1,0 +1,526 @@
+---
+sidebar_position: 100
+description: Define models with attributes, relations and hooks.
+---
+
+import Link from '@docusaurus/Link';
+import CodeBlock from '@theme/CodeBlock';
+import TabItem from '@theme/TabItem';
+import Tabs from '@theme/Tabs';
+
+# Models
+
+:::tip What you'll learn
+
+-   Defining basic models with attributes and relations
+-   Extending your models with custom properties
+-   Registering hooks on models
+
+:::
+
+## Model factory
+
+`makeModel` is the default model factory function. It defines a new model using
+2 arguments and returns an ES6 class:
+
+-   The string `type` or a
+    [configuration object](/docs/guides/models/models-configuration).
+-   The optional `definition` of the model: an object map containing
+    IDs/attributes/relations definitions and custom properties and methods.
+
+The attributes and relations definition represents the `schema` of the model.
+
+```javascript
+import { makeModel, attr, hasMany, toDate } from '@foscia/core';
+
+makeModel('posts', {
+    /* The model definition */
+    title: attr<string>(),
+    description: attr<string>(),
+    publishedAt: attr(toDate()).nullable(),
+    comments: hasMany<Comment>(),
+    get published() {
+        return !!this.publishedAt;
+    },
+});
+```
+
+### Extending a model class
+
+`makeModel` will return a model class which can be extended by an ES6 class.
+
+```javascript
+export default class Post extends makeModel('posts') {}
+```
+
+The returned model class also provides static methods to extend the definition
+already provided to `makeModel`.
+
+```javascript
+/* Initial model creation without definition */
+makeModel('posts')
+    .extends({
+        title: attr<string>(),
+        description: attr<string>(),
+    })
+    .extends({
+        publishedAt: attr(toDate()),
+        get published() {
+            return !!this.publishedAt;
+        },
+    });
+```
+
+This can be useful when sharing common features across models: creation
+timestamps, client side ID generation, etc.
+
+If you wish to learn more about the composition capabilities of models, you
+should read the
+[advanced guide about models composition](/docs/guides/models/models-composition).
+
+#### Note on exported value
+
+In many Foscia guides and examples, you will see that the ES6 class returned by
+`makeModel` is extended before exporting: we use
+`export default class Post extends makeModel...` instead of
+`export default makeModel...`.
+
+This has two benefits:
+
+-   When using TypeScript, it allows to only import the type of the class using
+    `import type Post from './models/post'` and avoids circular dependencies
+    when models have circular relationships
+-   It gives you more flexibility as you can quickly add custom properties and
+    methods in the future
+
+However, both syntax are valid. Use the one you prefer! 🦄
+
+### Using models classes
+
+Model classes can be used like any ES6 class. It can be instantiated,
+manipulated, etc. Properties will be defined on each instance from the model
+definition.
+
+```javascript
+const post = new Post();
+post.title = 'Hello World!';
+post.publishedAt = new Date();
+console.log(post.title); // "Hello World!"
+console.log(post.published); // true
+console.log(post.$exists); // false
+```
+
+:::info
+
+Please note that most model's interaction (fetching, updating, etc.) are done
+through actions, you can
+[**read the actions guide**](/docs/core-concepts/actions) to learn more about
+those.
+
+:::
+
+**Foscia proposes you multiple utilities functions to interact with models**
+
+<Link className="button bg--primary" to="/docs/reference/models-utilities">
+    Read the models' utilities API guide
+</Link>
+
+## Definition
+
+### IDs
+
+#### Description
+
+`id` is a pending ID definition factory function used to define your model's IDs
+properties. You can pass a transformer or a default value to this factory.
+
+-   Foscia consider your IDs as `string`, `number` or `null` values by default.
+    Each model have `id` and `lid` properties representing record
+    identification. If you want to change the typing of those properties or
+    transform values, you can use the `id` function.
+-   `id` properties can be transformed.
+    [Read more on the transformers guide](/docs/guides/models/models-transformers).
+-   `id` pending definition supports
+    [chained modifiers](#ids-chained-modifiers).
+
+:::caution
+
+`id` cannot use another type than `number`, `string` or `null` and can only be
+used on `id` and `lid` keyed model's properties. There is currently no way of
+aliasing an ID in Foscia.
+
+[**Please fill an issue if this is something you need.**](https://github.com/foscia-dev/foscia/issues/new/choose)
+
+:::
+
+#### Example
+
+```ts
+import { id, toString } from '@foscia/core';
+
+// With TypeScript type.
+id<string>();
+// With default value.
+id(null as string | null);
+id(() => null as string | null);
+// With transformer to infer type.
+id(toString());
+// With chained modifiers.
+id(toString())
+    .nullable()
+    .default(() => null)
+    .readOnly();
+```
+
+#### Chained modifiers {#ids-chained-modifiers}
+
+| Name        | Parameters                                  | Effect                                 |
+| ----------- | ------------------------------------------- | -------------------------------------- |
+| `transform` | `ObjectTransformer`                         | Use a transformer.                     |
+| `default`   | <code>unknown &vert; (() => unknown)</code> | Set a default value on `new` instance. |
+| `readOnly`  | `boolean`                                   | Set read-only state.                   |
+| `nullable`  | -                                           | Set current type as nullable.          |
+
+### Attributes
+
+#### Description
+
+`attr` is an attribute definition factory function used to define your model's
+attributes. You can pass a transformer or a default value to this factory.
+
+-   Foscia consider your attributes as non-nullable values by default.
+-   `attr` properties can be transformed.
+    [Read more on the transformers guide](/docs/guides/models/models-transformers).
+-   `attr` pending definition supports
+    [chained modifiers](#attributes-chained-modifiers).
+
+#### Example
+
+```ts
+import { attr, toDate } from '@foscia/core';
+
+// With TypeScript type.
+attr<string>();
+// With default value.
+attr(null as string | null);
+attr(() => null as string | null);
+// With transformer to infer type.
+attr(toDate());
+// With chained modifiers.
+attr(toDate())
+    .nullable()
+    .default(() => null)
+    .readOnly()
+    .alias('published-at')
+    .sync('pull');
+```
+
+#### Chained modifiers {#attributes-chained-modifiers}
+
+| Name        | Parameters                                       | Effect                                                                                                                                                         |
+| ----------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `transform` | `ObjectTransformer`                              | Use a transformer.                                                                                                                                             |
+| `default`   | <code>unknown &vert; (() => unknown)</code>      | Set a default value on `new` instance.                                                                                                                         |
+| `readOnly`  | `boolean`                                        | Set read-only state.                                                                                                                                           |
+| `nullable`  | -                                                | Set current type as nullable.                                                                                                                                  |
+| `alias`     | `string`                                         | Set an alias for data source interactions.                                                                                                                     |
+| `sync`      | <code>boolean &vert; 'pull' &vert; 'push'</code> | Set sync state: `true` for always (default), `false` for never, `'pull'` to ignore property when serializing, `'push'` to ignore property when deserializing). |
+
+### Relations
+
+#### Description
+
+`hasMany` and `hasOne` are relation definition factory function used to define
+your model's relations. As suggested by their names, `hasMany` represents a
+relation to a list of models and `hasOne` represents a relation to a single
+model. Those take 0 to 1 argument, depending on what you want to do.
+
+Foscia consider your relations as non-nullable values by default. When one of
+your model contains nullable relations, you can pass a type to the factory (e.g.
+`hasOne<User | null>()`) or set a default relation value (e.g.
+`hasOne({ default: null as User | null })`).
+
+Also consider that non-loaded relations will have a value of `undefined`.
+
+-   Foscia consider your relations as non-nullable values by default.
+-   `hasOne` and `hasMany` pending definition supports
+    [chained modifiers](#relations-chained-modifiers).
+-   Depending on your data structure, you should follow one of the
+    recommandation over relations definition to avoid circular dependencies
+    errors:
+    -   [Explicit **model** when **not having circular dependencies**](#explicit-model-when-not-having-circular-references).
+    -   [Explicit **type** when **having circular dependencies**](#explicit-type-when-having-circular-references).
+
+#### Example
+
+<Tabs>
+  <TabItem
+    value="hasOne"
+    label="hasOne"
+    default
+  >
+
+```ts
+// file: models/user.ts noEmit
+import { makeModel } from '@foscia/core';
+export default class User extends makeModel('users') {}
+
+// file: models/example.ts
+import { hasOne } from '@foscia/core';
+import User from './user';
+
+// With explicit related model.
+hasOne(() => User);
+// With TypeScript type.
+hasOne<User>();
+// With explicit related type.
+hasOne<User>('users');
+// With explicit information object.
+hasOne<User>({ type: 'users', path: 'author' });
+// With chained modifiers.
+hasOne<User>()
+    .nullable()
+    .default(() => null)
+    .readOnly()
+    .alias('author')
+    .sync('pull');
+```
+
+  </TabItem>
+  <TabItem
+    value="hasMany"
+    label="hasMany"
+  >
+
+```ts
+// file: models/comment.ts noEmit
+import { makeModel } from '@foscia/core';
+export default class Comment extends makeModel('comments') {}
+
+// file: models/example.ts
+import { hasMany } from '@foscia/core';
+import Comment from './comment';
+
+// With explicit related model.
+hasMany(() => Comment);
+// With TypeScript type.
+hasMany<Comment>();
+// With explicit related type.
+hasMany<Comment>('comments');
+// With explicit information object.
+hasMany<Comment>({ type: 'comments', path: 'comments' });
+// With chained modifiers.
+hasMany<Comment>()
+    .nullable()
+    .default(() => null)
+    .readOnly()
+    .alias('comments')
+    .sync('pull');
+```
+
+  </TabItem>
+</Tabs>
+
+:::tip
+
+When using TypeScript, you should define the type of the relation to get a type
+safe model. We suggest you to use `import type` to avoid creating circular
+dependencies when having circular model relations.
+
+:::
+
+#### Chained modifiers {#relations-chained-modifiers}
+
+| Name       | Parameters                                                                                                                                | Effect                                                                                                                                                         |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `to`       | <code>string &vert; (() => Awaitable&lt;Model&gt;) &vert; { type?: string; path?: string; model?: (() => Awaitable&lt;Model&gt;) }</code> | Specify the relation information (related model/type and custom path).                                                                                         |
+| `default`  | <code>unknown &vert; (() => unknown)</code>                                                                                               | Set a default value on `new` instance.                                                                                                                         |
+| `readOnly` | `boolean`                                                                                                                                 | Set read-only state.                                                                                                                                           |
+| `nullable` | -                                                                                                                                         | Set current type as nullable.                                                                                                                                  |
+| `alias`    | `string`                                                                                                                                  | Set an alias for data source interactions.                                                                                                                     |
+| `sync`     | <code>boolean &vert; 'pull' &vert; 'push'</code>                                                                                          | Set sync state: `true` for always (default), `false` for never, `'pull'` to ignore property when serializing, `'push'` to ignore property when deserializing). |
+
+#### Recommandations
+
+##### Explicit model when not having circular references
+
+If your models does not contain ciruclar references (e.g. Post has a "author"
+relation to User and User has a "favoritePosts" relation to Post), you should
+define your relations with explicit related model as follow:
+
+```ts
+// file: models/user.ts noEmit
+import { makeModel } from '@foscia/core';
+export default class User extends makeModel('users') {}
+
+// file: models/example.ts
+import { hasOne } from '@foscia/core';
+import User from './user';
+
+hasOne(() => User);
+```
+
+This will make relation's related model easier for Foscia and make registering
+your models optional.
+
+##### Explicit type when having circular references
+
+If your models does contain ciruclar references (e.g. Post has a "author"
+relation to User and User has a "favoritePosts" relation to Post), you should
+define your relations with a TypeScript type as follow:
+
+```ts
+// file: models/user.ts noEmit
+import { makeModel } from '@foscia/core';
+export default class User extends makeModel('users') {}
+
+// file: models/example.ts
+import { hasOne } from '@foscia/core';
+import type User from './user';
+
+hasOne<User>();
+```
+
+Notice the `import type` for type definition when using TypeScript. This will
+import the type of the model and will avoid circular dependencies at runtime.
+
+You should also
+[correctly register your models](/docs/getting-started#registering-your-models)
+on your action factory registry.
+
+When using a data source where each record contains an explicit type info (e.g.
+JSON:API), you don't have anything to do.
+
+If your data source does not provide an explicit type info, you should either:
+
+-   Let Foscia guess the related type from the relation's name.
+-   Add an explicit mapped type to the relation as follow:
+
+```ts
+// file: models/user.ts noEmit
+import { makeModel } from '@foscia/core';
+export default class User extends makeModel('users') {}
+
+// file: models/example.ts
+import { hasOne } from '@foscia/core';
+import type User from './user';
+
+hasOne<User>({ type: 'users' });
+```
+
+### Custom properties
+
+In addition to IDs, attributes and relations, you can implement additional
+properties to your model. It's useful when you need computed values (getters) or
+specific instance methods.
+
+This can be done using the definition or an extending class:
+
+```javascript
+// Directly in the definition.
+export default makeModel('users', {
+    firstName: attr(toString()),
+    lastName: attr(toString()),
+    get fullName() {
+        return `${this.firstName} ${this.lastName}`
+    }
+});
+
+// Inside an extending class.
+export default class User extends makeModel('users', {
+    firstName: attr(toString()),
+    lastName: attr(toString()),
+}) {
+    get fullName() {
+        return `${this.firstName} ${this.lastName}`
+    }
+}
+```
+
+:::caution
+
+At this moment, custom properties/methods inside definition mixed with
+composables object spread is not supported because of
+[**an issue with TypeScript**](https://github.com/foscia-dev/foscia/issues/6).
+
+:::
+
+## Hooks
+
+You can hook multiple events from your model instances using the hook
+registration functions:
+
+-   `onRetrieved`: instance was deserialized from a backend response.
+-   `onCreating`: action to create instance will run soon.
+-   `onCreated`: action to create instance was ran successfully.
+-   `onUpdating`: action to update instance will run soon.
+-   `onUpdated`: action to update instance was ran successfully.
+-   `onSaving`: action to save (create or update) instance will run soon (always
+    ran after `onCreating` and `onUpdating`).
+-   `onSaved`: action to save (create or update) instance was ran successfully
+    (always ran after `onCreated` and `onUpdated`).
+-   `onDestroying`: action to destroy instance will run soon.
+-   `onDestroyed`: action to destroy instance was ran successfully.
+
+To register a hook callback, you must pass a model class and a callback function
+to the registration function. It will return a function that you can call to
+unregister the hook. All model hooks' callbacks have the concerned model
+instance as the only provided argument.
+
+```javascript
+import { onSaving } from '@foscia/core';
+
+// After this, the hook will run on each User instance saving.
+const unregisterThisHook = onSaving(User, async (user) => {
+    // TODO Do something (a)sync with user instance before saving.
+});
+
+// After this, this hook will never run again.
+unregisterThisHook();
+```
+
+:::info
+
+Hooks' callbacks are async and executed in a sequential fashion (one by one, not
+parallelized).
+
+:::
+
+You can temporally disable hook execution for a given model by using the
+`withoutHooks` function.
+
+Be aware that `withoutHooks` will always return a promise, even when your
+callback is a sync function.
+
+```javascript
+import { withoutHooks } from '@foscia/core';
+
+const asyncResultOfYourCallback = await withoutHooks(User, async () => {
+    // TODO Do something async and return it.
+});
+```
+
+## Special properties
+
+### Instances
+
+Each model's instance have the following special properties:
+
+| Key         | Type                                                                          | Description                                                      |
+| ----------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `$exists`   | `boolean`                                                                     | Tells if the instance exists in the data source.                 |
+| `$loaded`   | `Dictionary<true>`                                                            | Dictionary containing `true` for each loaded relation.           |
+| `$values`   | [`Partial<ModelValues>`](/docs/reference/api/modules/foscia_core#modelvalues) | Current values of the instance.                                  |
+| `$original` | [`ModelSnapshot`](/docs/reference/api/modules/foscia_core#modelsnapshot)      | Original snapshot since last sync.                               |
+| `$raw`      | `any`                                                                         | Data source value which was deserialized to create the instance. |
+| `$model`    | [`ModelClass`](/docs/reference/api/modules/foscia_core#modelclass)            | Base model class.                                                |
+
+### Models
+
+Each model have the following special properties:
+
+| Key       | Type                                                                 | Description                                            |
+| --------- | -------------------------------------------------------------------- | ------------------------------------------------------ |
+| `$type`   | `string`                                                             | Unique model type.                                     |
+| `$config` | [`ModelConfig`](/docs/reference/api/modules/foscia_core#modelconfig) | Configuration options.                                 |
+| `$schema` | [`ModelSchema`](/docs/reference/api/modules/foscia_core#modelschema) | Schema containing IDs/attributes/relations definition. |
