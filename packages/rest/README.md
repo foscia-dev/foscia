@@ -1,6 +1,26 @@
-# @foscia/rest
+<p align="center">
+  <a href="https://foscia-dev.github.io/docs">
+    <img width="180" src="https://foscia-dev.github.io/docs/img/icon.svg" alt="">
+  </a>
+</p>
 
-REST related features for Foscia.
+<p align="center">
+<a href="https://foscia-dev.github.io/docs">
+  Website
+</a>
+•
+<a href="https://foscia-dev.github.io/docs/docs/getting-started">
+  Documentation
+</a>
+•
+<a href="https://stackblitz.com/edit/foscia?file=playground.ts">
+  Playground
+</a>
+</p>
+
+## @foscia/rest
+
+REST implementation for [Foscia](https://foscia-dev.github.io/docs) actions.
 
 ## License
 

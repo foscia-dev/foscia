@@ -1,6 +1,26 @@
-# @foscia/http
+<p align="center">
+  <a href="https://foscia-dev.github.io/docs">
+    <img width="180" src="https://foscia-dev.github.io/docs/img/icon.svg" alt="">
+  </a>
+</p>
 
-HTTP adapter and utils for Foscia.
+<p align="center">
+<a href="https://foscia-dev.github.io/docs">
+  Website
+</a>
+•
+<a href="https://foscia-dev.github.io/docs/docs/getting-started">
+  Documentation
+</a>
+•
+<a href="https://stackblitz.com/edit/foscia?file=playground.ts">
+  Playground
+</a>
+</p>
+
+## @foscia/http
+
+HTTP adapter implementation for [Foscia](https://foscia-dev.github.io/docs) actions.
 
 ## License
 

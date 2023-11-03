@@ -46,7 +46,6 @@
   [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API))
 - Free and open-source under
   [MIT license](LICENSE)
-- _Coming soon:_ Fully tested and documented
 
 > Foscia is currently in alpha stage. It may contain bugs and the API may change.
 > [**Please fill an issue**](https://github.com/foscia-dev/foscia/issues)
