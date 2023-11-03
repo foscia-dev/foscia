@@ -5,17 +5,17 @@
 </p>
 
 <p align="center">
-<a href="https://www.npmjs.com/package/foscia">
-  <img src="https://img.shields.io/npm/v/foscia" alt="NPM package">
+<a href="https://www.npmjs.com/package/@foscia/core">
+  <img src="https://img.shields.io/npm/v/@foscia/core" alt="NPM package">
 </a>
 <a href="https://github.com/foscia-dev/foscia/actions/workflows/tests.yml">
   <img src="https://github.com/foscia-dev/foscia/actions/workflows/tests.yml/badge.svg" alt="Test workflow">
 </a>
-<a href="https://codecov.io/gh/paul-thebaud/foscia">
-  <img src="https://codecov.io/gh/paul-thebaud/foscia/branch/main/graph/badge.svg?token=TODO" alt="Codecov Coverage">
+<a href="https://codecov.io/gh/foscia-dev/foscia">
+  <img src="https://codecov.io/gh/foscia-dev/foscia/branch/main/graph/badge.svg" alt="Codecov Coverage">
 </a>
 <a href="https://github.com/foscia-dev/foscia/blob/main/LICENSE">
-  <img src="https://img.shields.io/npm/l/foscia" alt="MIT License">
+  <img src="https://img.shields.io/npm/l/%40foscia%2Fcore" alt="MIT License">
 </a>
 </p>
 
