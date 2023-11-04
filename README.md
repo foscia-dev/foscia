@@ -47,9 +47,8 @@
 - Free and open-source under
   [MIT license](LICENSE)
 
-> Foscia is currently in alpha stage. It may contain bugs and the API may change.
-> [**Please fill an issue**](https://github.com/foscia-dev/foscia/issues)
-> to give your feedback.
+> Foscia v0.1.0 just released!
+> [**Please fill an issue to give your feedback.**](https://github.com/foscia-dev/foscia/issues)
 
 ## Contributing
 

@@ -78,8 +78,8 @@ const config = {
         indexName: 'foscia',
       },
       announcementBar: {
-        id: 'alpha_stage',
-        content: 'Foscia is currently in alpha stage, <a target="_blank" rel="noopener noreferrer" href="https://github.com/foscia-dev/foscia/issues">please fill an issue</a> to give your feedback.',
+        id: '0.1.0-announcement',
+        content: 'Foscia v0.1.0 just released! <a target="_blank" rel="noopener noreferrer" href="https://github.com/foscia-dev/foscia/issues">please fill an issue to give your feedback</a>.',
         backgroundColor: 'var(--ifm-background-surface-color)',
         textColor: 'inherit',
         isCloseable: false,
