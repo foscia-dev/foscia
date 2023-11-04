@@ -24,6 +24,10 @@ function parseOptions(args) {
     args.interactive ? '' : '--ci',
   ].filter((o) => o);
 
+  if (args.increment === undefined) {
+    return options;
+  }
+
   if (['alpha', 'beta'].indexOf(args.increment) !== -1) {
     return [
       `--preRelease=${args.increment}`,
