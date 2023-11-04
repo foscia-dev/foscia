@@ -1,5 +1,6 @@
 import { context, makeActionClass, MapRegistry, RefsCache } from '@foscia/core';
-import { bodyAsJson, HttpAdapter } from '@foscia/http';
+import { bodyAsJson } from '@foscia/http';
+import RestAdapter from '@foscia/rest/restAdapter';
 import RestDeserializer from '@foscia/rest/restDeserializer';
 import RestSerializer from '@foscia/rest/restSerializer';
 import { JsonRestConfig } from '@foscia/rest/types';
@@ -24,7 +25,7 @@ export default function makeJsonRest<Extension extends {} = {}>(
     registry.register(config.models);
   }
 
-  const adapter = new HttpAdapter({
+  const adapter = new RestAdapter({
     baseURL: '/api',
     defaultBodyAs: bodyAsJson,
     defaultHeaders: {
