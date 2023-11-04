@@ -1,15 +1,15 @@
 <p align="center">
-  <a href="https://foscia-dev.github.io/foscia">
-    <img width="180" src="https://foscia-dev.github.io/foscia/img/icon.svg" alt="">
+  <a href="https://foscia.netlify.app">
+    <img width="180" src="https://foscia.netlify.app/img/icon.svg" alt="">
   </a>
 </p>
 
 <p align="center">
-<a href="https://foscia-dev.github.io/foscia">
+<a href="https://foscia.netlify.app">
   Website
 </a>
 •
-<a href="https://foscia-dev.github.io/foscia/docs/getting-started">
+<a href="https://foscia.netlify.app/docs/getting-started">
   Documentation
 </a>
 •
@@ -20,7 +20,7 @@
 
 ## @foscia/object
 
-Object serialization tools for [Foscia](https://foscia-dev.github.io/foscia) actions.
+Object serialization tools for [Foscia](https://foscia.netlify.app) actions.
 
 ## License
 
