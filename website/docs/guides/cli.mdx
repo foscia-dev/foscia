@@ -156,8 +156,20 @@ all `make:*` commands using many options, such as:
 -   Modules organization (ESM or CommonJS)
 -   etc.
 
-This configuration can be set up using [`foscia init <path>`](#foscia-init-path)
+This configuration can be set up using [`foscia init <path>`](#init-path)
 command and will be stored in a `.fosciarc.json`.
+
+:::tip
+
+You should name your `@foscia/cli` configuration file either for
+`.fosciarc.json` or `.fosciarc.<name>.json` (where name is an alphanumerical
+string). `@foscia/cli` will try to automatically resolve the first config
+it founds.
+
+If you are using a name like `.fosciarc.api.json`, you can just use
+the option `--config=api` (instead of `.fosciarc.api.json`) as a shortcut.
+
+:::
 
 ### Available options
 
@@ -200,4 +212,4 @@ option:
 Once your configuration is set up, you can run other commands using the same
 `config` option:
 
-<ShellCommand command="foscia make:model --config=.fosciarc.api.json post" />
+<ShellCommand command="foscia make:model --config=api post" />
