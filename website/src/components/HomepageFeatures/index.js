@@ -40,9 +40,9 @@ const FeatureList = [
 
 function Feature({ Icon, title, description }) {
   return (
-    <div className={clsx('col col--4')}>
-      <div className="text--center padding-horiz--md">
-        <div className={`${styles.featureSvgWrapper} bg--primary margin-bottom--lg`}>
+    <div className={`${clsx('col col--4')} padding--md`}>
+      <div className={`${styles.feature} text--center padding--md`}>
+        <div className={`${styles.featureSvgWrapper} bg--primary margin-bottom--md`}>
           <Icon className={styles.featureSvg} />
         </div>
         <h2>{title}</h2>
@@ -54,7 +54,7 @@ function Feature({ Icon, title, description }) {
 
 export default function HomepageFeatures() {
   return (
-    <section className={styles.features}>
+    <section className={`${styles.features} padding--md`}>
       <div className="container">
         <div className="row">
           {FeatureList.map((props, idx) => (

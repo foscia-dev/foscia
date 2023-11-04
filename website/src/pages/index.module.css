@@ -11,7 +11,10 @@
     fill: white;
 }
 
+
 html[data-theme='light'] .heroBanner {
+    margin: 0 16px 16px 16px;
+    border-radius: var(--ifm-global-radius);
     fill: var(--ifm-background-surface-color);
     color: var(--ifm-background-surface-color);
     background: linear-gradient(45deg, var(--ifm-color-primary) 30%, var(--accent-color));
@@ -78,16 +81,19 @@ html[data-theme='dark'] .hero__logo__bg {
     }
 
     .hero__title {
-        font-size: 2.6rem;
+        font-size: 2rem;
     }
 
     .hero__subtitle {
-        font-size: 1.4rem;
-        margin-bottom: 0;
+        font-size: 1.2rem;
     }
 
     .heroBanner {
         padding: 2rem;
+    }
+
+    .hero__button {
+        font-size: 1.1rem;
     }
 }
 

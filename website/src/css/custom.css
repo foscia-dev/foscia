@@ -14,7 +14,7 @@
     --ifm-tabs-padding-vertical: 0.5rem;
     --ifm-global-radius: 24px;
     --ifm-card-border-radius: 24px;
-    --ifm-pre-border-radius: 24px;
+    --ifm-pre-border-radius: 8px;
     --ifm-code-border-radius: 8px;
     --ifm-alert-border-left-width: 0px;
     --ifm-navbar-shadow: none;
@@ -90,13 +90,12 @@ html[data-theme="dark"] .header-github-link:before {
 
 div[class^="language-"] {
     --prism-background-color: var(--ifm-code-background) !important;
-    border-radius: var(--ifm-pre-border-radius);
 }
 
 table {
     background-color: var(--ifm-code-background);
     box-shadow: var(--ifm-global-shadow-lw);
-    border-radius: var(--ifm-global-radius);
+    border-radius: var(--ifm-pre-border-radius);
     border-spacing: 0;
     border-collapse: separate;
     display: table;
@@ -108,21 +107,33 @@ table > thead > tr > th, table > tbody > tr > td {
 }
 
 table > thead > tr > th:first-child {
-    border-top-left-radius: var(--ifm-global-radius);
+    border-top-left-radius: var(--ifm-pre-border-radius);
 }
 
 table > thead > tr > th:last-child {
-    border-top-right-radius: var(--ifm-global-radius);
+    border-top-right-radius: var(--ifm-pre-border-radius);
+}
+
+table > tbody > tr:last-child > td:first-child {
+    border-bottom-left-radius: var(--ifm-pre-border-radius);
+}
+
+table > tbody > tr:last-child > td:last-child {
+    border-bottom-right-radius: var(--ifm-pre-border-radius);
 }
 
 table > thead > tr > th:not(:last-child), table > tbody > tr > td:not(:last-child) {
     border-right: 1px solid var(--ifm-color-emphasis-300);
 }
 
+.card {
+    border: none !important;
+}
+
 .tabs-container {
     background-color: var(--ifm-code-background);
     box-shadow: var(--ifm-global-shadow-lw);
-    border-radius: var(--ifm-global-radius);
+    border-radius: var(--ifm-pre-border-radius);
 }
 
 .tabs-container > .margin-top--md {
@@ -192,4 +203,10 @@ aside, .table-of-contents__left-border {
 
 .navbar .navbar-sidebar {
     z-index: 2;
+}
+
+.pagination-nav__link {
+    background: var(--ifm-code-background);
+    border: none;
+    box-shadow: var(--ifm-global-shadow-lw);
 }

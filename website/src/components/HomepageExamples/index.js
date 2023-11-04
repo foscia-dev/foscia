@@ -14,7 +14,6 @@ const definitionExampleMeta = {
       Foscia provides a simple and expressive way to define your models,
       which may combine attributes, relations, custom properties/methods and
       even composable definitions.
-      <br />
       Models can be used through an action factory allowing to run actions
       (e.g. CRUD).
     </>
@@ -72,7 +71,6 @@ const playExampleMeta = {
       The <code>action()</code> factory provides an easy way to
       interact with any data source.
       Possibilities are endless and provided set of functions is wide.
-      <br />
       Not a fan of functional programming?
       You can even plug functional capabilities onto your actions to get a
       class alike call style!

@@ -4,6 +4,13 @@ sidebar_position: 0
 
 # About
 
+:::info
+
+First stable version was released recently!
+[**Give your feedback!**](https://github.com/foscia-dev/foscia/issues)
+
+:::
+
 ## What is Foscia?
 
 _Type safe, modular and intuitive API/data client._
@@ -21,14 +28,6 @@ or TypeScript, and with any data source.
     [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API))
 -   Free and open-source under
     [MIT license](https://opensource.org/licenses/MIT)
--   _Coming soon:_ Fully tested and documented
-
-:::info
-
-Foscia v0.1.0 just released!
-[**Please fill an issue to give your feedback.**](https://github.com/foscia-dev/foscia/issues)
-
-:::
 
 ## Starting point
 

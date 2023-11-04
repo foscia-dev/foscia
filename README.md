@@ -47,9 +47,6 @@
 - Free and open-source under
   [MIT license](LICENSE)
 
-> Foscia v0.1.0 just released!
-> [**Please fill an issue to give your feedback.**](https://github.com/foscia-dev/foscia/issues)
-
 ## Contributing
 
 Please see [CONTRIBUTING file](CONTRIBUTING.md) for more details.
@@ -62,6 +59,7 @@ features takes place in the
 
 - [Paul Thébaud](https://github.com/paul-thebaud)
 - [Mathieu Thébaud](https://github.com/mthebaud)
+- Elodie Taverson
 - [All Contributors](https://github.com/foscia-dev/foscia/graphs/contributors)
 
 ## License

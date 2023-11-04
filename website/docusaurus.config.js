@@ -79,7 +79,7 @@ const config = {
       },
       announcementBar: {
         id: '0.1.0-announcement',
-        content: 'Foscia v0.1.0 just released! <a target="_blank" rel="noopener noreferrer" href="https://github.com/foscia-dev/foscia/issues">please fill an issue to give your feedback</a>.',
+        content: 'First stable version released! <a target="_blank" rel="noopener noreferrer" href="https://github.com/foscia-dev/foscia/issues">Give your feedback</a>',
         backgroundColor: 'var(--ifm-background-surface-color)',
         textColor: 'inherit',
         isCloseable: false,
@@ -88,6 +88,7 @@ const config = {
         title: 'Foscia',
         logo: {
           src: 'img/icon.svg',
+          srcDark: 'img/icon--dark.svg',
           alt: '',
         },
         items: [
