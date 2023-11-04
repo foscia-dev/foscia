@@ -38,22 +38,23 @@ async function check() {
   const rootDirname = useRootDirname();
   await Promise.all(
     (await listFiles(path.resolve(rootDirname, 'packages'))).map(async (file) => {
-      const [_, packageName] = file.match(/packages\/([a-z-]+)\/src/) ?? [];
+      const [_, packageName, context] = file.match(/packages\/([a-z-]+)\/(src|tests)/) ?? [];
       if (packageName) {
         const errors = [];
         const fileContent = await readFile(file, { encoding: 'utf8' });
         const matches = fileContent.match(/from '@foscia\/[a-z-]+(\/index|.)/g) ?? [];
         matches.forEach((match) => {
           const importPackageName = match.substring(14, match.length).replace(/(\/index|.)$/, '');
-          if (packageName !== importPackageName && match.endsWith('/')) {
+
+          if (match.endsWith('/') && (context !== 'src' || packageName !== importPackageName)) {
             errors.push(
-              `external import of ${pc.red(`@foscia/${importPackageName}`)} must use dependency package instead of relative path`,
+              `import of ${pc.red(`@foscia/${importPackageName}`)} must use root package export (instead of inner package export)`,
             );
           }
 
-          if (packageName === importPackageName && (!match.endsWith('/') || match.endsWith('/index'))) {
+          if (context === 'src' && packageName === importPackageName && (!match.endsWith('/') || match.endsWith('/index'))) {
             errors.push(
-              `local import of ${pc.red(`@foscia/${packageName}`)} must use relative path instead of package/index path`,
+              `import of ${pc.red(`@foscia/${packageName}`)} must use inner package export (instead of root package export)`,
             );
           }
         });

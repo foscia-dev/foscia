@@ -1,4 +1,4 @@
-import RefsCache from '@foscia/core/cache/refsCache';
+import { RefsCache } from '@foscia/core';
 import { describe, expect, it, vi } from 'vitest';
 import CommentMock from '../../mocks/models/comment.mock';
 import PostMock from '../../mocks/models/post.mock';

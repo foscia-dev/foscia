@@ -1,4 +1,4 @@
-import { context, when } from '@foscia/core/actions';
+import { context, when } from '@foscia/core';
 import { describe, expect, it } from 'vitest';
 import evaluateContext from '../../utils/evaluateContext';
 

@@ -1,5 +1,4 @@
-import { makeModel } from '@foscia/core';
-import { forModel } from '@foscia/core/actions';
+import { forModel, makeModel } from '@foscia/core';
 import { describe, expect, it } from 'vitest';
 import evaluateContext from '../../../../utils/evaluateContext';
 
