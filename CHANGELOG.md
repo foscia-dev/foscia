@@ -15,3 +15,5 @@
 * **rest:** use a dedicated extended adapter for rest implementation ([95cef4e](https://github.com/foscia-dev/foscia/commit/95cef4e3ba852f37f657feee0f01ffa646eb44ba))
 
 ## 0.1.1 (2023-11-03)
+
+Initial release.
