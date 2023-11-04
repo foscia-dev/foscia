@@ -10,14 +10,13 @@ on:
       type:
         type: choice
         description: Choose release
+        required: true
         options:
-          - auto
           - patch
           - minor
           - major
           - alpha
           - beta
-        default: auto
       dry:
         type: boolean
         description: Dry release
