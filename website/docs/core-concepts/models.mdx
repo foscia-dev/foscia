@@ -38,7 +38,7 @@ makeModel('posts', {
     title: attr<string>(),
     description: attr<string>(),
     publishedAt: attr(toDate()).nullable(),
-    comments: hasMany<Comment>(),
+    comments: hasMany(() => Comment),
     get published() {
         return !!this.publishedAt;
     },

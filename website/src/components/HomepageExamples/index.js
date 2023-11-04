@@ -23,15 +23,15 @@ const definitionExampleMeta = {
 const modelExampleCode = `
 import { makeModel, attr, hasOne } from '@foscia/core';
 import publishable from './publishable';
-import type User from './user';
-import type Tag from './tag';
+import User from './user';
+import Tag from './tag';
 
 export default class Post extends makeModel('posts', {
     ...publishable,
     title: attr<string>(),
     content: attr<string>(),
-    author: hasOne<User>(),
-    tags: hasMany<Tag>(),
+    tags: hasMany(() => Tag),
+    author: hasOne(() => User).readOnly(),
 }) {
     get fullTitle() {
         return \`\${this.title} by \${this.author.name} on \${this.publishedAt}\`;
