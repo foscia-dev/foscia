@@ -1,4 +1,3 @@
-import logger from '@foscia/core/logger/logger';
 import isModel from '@foscia/core/model/checks/isModel';
 import { Model } from '@foscia/core/model/types';
 import {
@@ -34,16 +33,7 @@ export default class MapRegistry implements RegistryI {
       ));
     }
 
-    const model = this.models.get(type);
-    if (!model) {
-      logger.debug(
-        `Could not found model for type \`${type}\` (normalized from \`${rawType}\`).`,
-      );
-
-      return null;
-    }
-
-    return model;
+    return this.models.get(type) ?? null;
   }
 
   /**

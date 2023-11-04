@@ -1,11 +1,8 @@
-import { logger, makeModel } from '@foscia/core';
-import MapRegistry from '@foscia/core/registry/mapRegistry';
-import { describe, expect, it, vi } from 'vitest';
+import { makeModel, MapRegistry } from '@foscia/core';
+import { describe, expect, it } from 'vitest';
 
 describe.concurrent('unit: mapRegistry', () => {
   it('should register and resolve models', async () => {
-    const loggerDebugSpy = vi.spyOn(logger, 'debug');
-
     const modelFoo = makeModel('foo');
     const modelBar = makeModel('bar');
     const modelBaz = makeModel('baz');
@@ -17,7 +14,6 @@ describe.concurrent('unit: mapRegistry', () => {
     expect(await registry.modelFor('bar')).toBeNull();
     expect(await registry.modelFor('baz')).toBeNull();
     expect(await registry.modelFor('foo-bar')).toBeNull();
-    expect(loggerDebugSpy).toHaveBeenCalledTimes(4);
 
     registry.register([modelFoo, modelBar]);
 
@@ -25,7 +21,6 @@ describe.concurrent('unit: mapRegistry', () => {
     expect(await registry.modelFor('bar')).toBe(modelBar);
     expect(await registry.modelFor('baz')).toBeNull();
     expect(await registry.modelFor('foo-bar')).toBeNull();
-    expect(loggerDebugSpy).toHaveBeenCalledTimes(6);
 
     registry.register([{ resolve: () => modelBaz }]);
 
@@ -33,7 +28,6 @@ describe.concurrent('unit: mapRegistry', () => {
     expect(await registry.modelFor('bar')).toBe(modelBar);
     expect(await registry.modelFor('baz')).toBe(modelBaz);
     expect(await registry.modelFor('foo-bar')).toBeNull();
-    expect(loggerDebugSpy).toHaveBeenCalledTimes(7);
 
     registry.register({ 'foo-bar': async () => modelFooBar });
 
