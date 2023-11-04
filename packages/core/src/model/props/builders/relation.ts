@@ -12,6 +12,7 @@ import { Awaitable } from '@foscia/shared';
 
 export type PendingModelRelation<T, R extends boolean> = {
   to: <NT>(to: PendingModelRelationTo<NT>) => PendingModelRelation<T extends any[] ? NT[] : NT, R>;
+  path: (path: string) => PendingModelRelation<T, R>;
   default: <NT extends T>(value: T | (() => T)) => PendingModelRelation<NT, R>;
   readOnly: <NR extends boolean = true>(readOnly?: NR) => PendingModelRelation<T, NR>;
   nullable: unknown extends T ? never : (() => PendingModelRelation<T | null, R>);
@@ -48,6 +49,7 @@ export default function relation<I>(
   const makePendingRelation = makePendingProp({
     ...PROP_MODIFIERS,
     to: resolveConfig,
+    path: (path: string) => ({ path }),
   });
 
   return makePendingRelation({
