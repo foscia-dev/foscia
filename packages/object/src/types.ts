@@ -1,4 +1,4 @@
-import { ModelIdType } from '@foscia/core';
+import { Model, ModelIdType } from '@foscia/core';
 import { Optional } from '@foscia/shared';
 
 export type ObjectOptionalIdentifier = {
@@ -9,6 +9,7 @@ export type ObjectOptionalIdentifier = {
 
 export type ObjectNormalizedIdentifier = {
   type: string;
+  model: Model;
   id?: ModelIdType;
   lid?: ModelIdType;
 };

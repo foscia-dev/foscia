@@ -7,8 +7,8 @@ import { RegistryI } from '@foscia/core/types';
 import { isNone, Optional } from '@foscia/shared';
 
 export default function normalizeDotRelations<D extends {}>(
-  model: ModelClass<D>,
-  relations: ModelRelationDotKey<ModelClass<D>>[],
+  model: Model<D>,
+  relations: ModelRelationDotKey<Model<D>>[],
   registry?: Optional<RegistryI>,
 ): Promise<string[]> {
   return Promise.all(relations.map(async (dotKey) => {
@@ -28,9 +28,7 @@ export default function normalizeDotRelations<D extends {}>(
       return normalizedKey;
     }
 
-    const subModel = await guessContextModel({
-      model: model as Model, relation: def, registry: registry ?? undefined,
-    }, true);
+    const subModel = await guessContextModel({ model, relation: def, registry }, true);
     if (!subModel) {
       logger.debug(
         `Could not detect model for relation \`${model.$type}.${def.key}\`. Skipping sub-keys normalization.`,

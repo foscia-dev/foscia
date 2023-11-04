@@ -1,6 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { hasOne, logger, makeModel, normalizeDotRelations } from '@foscia/core';
-import MapRegistry from '@foscia/core/registry/mapRegistry';
+import { hasOne, logger, makeModel, MapRegistry, normalizeDotRelations } from '@foscia/core';
 import { describe, expect, it, vi } from 'vitest';
 
 describe.concurrent('unit: normalizeDotRelations', () => {

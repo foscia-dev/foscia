@@ -1,35 +1,32 @@
-import consumeModel from '@foscia/core/actions/context/consumers/consumeModel';
-import consumeRegistry from '@foscia/core/actions/context/consumers/consumeRegistry';
-import consumeRelation from '@foscia/core/actions/context/consumers/consumeRelation';
-import { ConsumeModel, ConsumeRegistry, ConsumeRelation } from '@foscia/core/actions/types';
-import { Model } from '@foscia/core/model/types';
 import guessRelationType from '@foscia/core/model/relations/guessRelationType';
-import { isNil } from '@foscia/shared';
+import { Model, ModelRelation } from '@foscia/core/model/types';
+import { RegistryI } from '@foscia/core/types';
+import { isNil, Optional } from '@foscia/shared';
 
 type GuessedContextModel<LoadModel extends boolean> = LoadModel extends true
   ? Model | undefined
   : string | undefined;
 
 export default async function guessContextModel<LoadModel extends boolean>(
-  context: Partial<ConsumeModel & ConsumeRelation & ConsumeRegistry>,
+  context: {
+    model?: Optional<Model>;
+    relation?: Optional<ModelRelation>;
+    registry?: Optional<RegistryI>;
+  },
   loadModel: LoadModel,
 ): Promise<GuessedContextModel<LoadModel>> {
-  const registry = consumeRegistry(context, null);
-
-  const model = consumeModel(context, null);
-  const relation = consumeRelation(context, null);
-  if (relation) {
-    if (relation.model) {
+  if (context.relation) {
+    if (context.relation.model) {
       return (
-        loadModel ? relation.model() : (await relation.model()).$type
+        loadModel ? context.relation.model() : (await context.relation.model()).$type
       ) as GuessedContextModel<LoadModel>;
     }
 
-    const type = relation.type
-      ?? (model?.$config?.guessRelationType ?? guessRelationType)(relation);
-    if (registry && !isNil(type)) {
+    const type = context.relation.type
+      ?? (context.model?.$config.guessRelationType ?? guessRelationType)(context.relation);
+    if (context.registry && !isNil(type)) {
       return (
-        loadModel ? (await registry.modelFor(type)) : type
+        loadModel ? (await context.registry.modelFor(type)) : type
       ) as GuessedContextModel<LoadModel>;
     }
 
@@ -37,6 +34,6 @@ export default async function guessContextModel<LoadModel extends boolean>(
   }
 
   return (
-    loadModel ? (model ?? undefined) : model?.$type
+    loadModel ? (context.model ?? undefined) : context.model?.$type
   ) as GuessedContextModel<LoadModel>;
 }

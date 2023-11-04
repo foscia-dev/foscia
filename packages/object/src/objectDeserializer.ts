@@ -35,7 +35,7 @@ export default abstract class ObjectDeserializer<
   Extract extends ObjectExtractedData<Resource> = ObjectExtractedData<Resource>,
   Data extends DeserializedData = DeserializedData,
 > implements DeserializerI<AdapterData, Data> {
-  protected static NON_IDENTIFIED_LOCAL_ID = '__non_identified__';
+  protected static NON_IDENTIFIED_LOCAL_ID = '__foscia_non_identified_local_id__';
 
   public constructor(config?: ObjectDeserializerConfig) {
     this.configure(config ?? {});
@@ -219,7 +219,7 @@ export default abstract class ObjectDeserializer<
     context: {},
     parent?: ModelInstance,
     relation?: ModelRelation,
-  ) {
+  ): Promise<ObjectNormalizedIdentifier> {
     const identifier = await this.extractOptionalIdentifier(
       resource,
       context,
@@ -227,23 +227,49 @@ export default abstract class ObjectDeserializer<
       relation,
     );
 
-    if (isNil(identifier.type)) {
-      if (isNil(relation)) {
-        identifier.type = await guessContextModel(context, false);
-      } else {
-        identifier.type = await guessContextModel({
-          ...context, relation, model: parent!.$model as Model,
-        }, false);
-      }
+    const registry = consumeRegistry(context, null);
 
-      if (isNil(identifier.type)) {
-        throw new DeserializerError(
-          `No alternative found to identify type of resource with ID \`${identifier.id}\`. You should either: target a model, define an explicit relation type or change your deserializer configuration to manage types extraction.`,
-        );
+    // Try to resolve the model directly from the type when possible.
+    // This will provide support for polymorphism and registry based
+    // actions.
+    if (registry && !isNil(identifier.type)) {
+      const model = await registry.modelFor(identifier.type);
+      if (model) {
+        return { ...identifier, model } as ObjectNormalizedIdentifier;
       }
     }
 
-    return identifier as ObjectNormalizedIdentifier;
+    // When no registry is configured or identifier type was not retrieved,
+    // we'll try to resolve the model from the context.
+    const model = consumeModel(context, null);
+    const guessedModel = await guessContextModel({
+      model: (relation ? parent!.$model : model) as Model,
+      relation,
+      registry,
+    }, true);
+
+    if (!guessedModel) {
+      if (isNil(identifier.type)) {
+        throw new DeserializerError(
+          `No alternative found to resolve model of resource with ID \`${identifier.id}\`. You should either: target a model, give an explicit type to your relation or configure/extends the deserializer to manage types extraction.`,
+        );
+      }
+
+      throw new DeserializerError(
+        `No alternative found to resolve model of resource with ID \`${identifier.id}\` and type \`${identifier.type}\`. You should verify there is a registered model which matches this type in your action factory.`,
+      );
+    }
+
+    // In some case, a type may be defined in identifier but there
+    // was no registry to lookup for model, so we should ensure
+    // the looked up model match this type before returning it.
+    if (!isNil(identifier.type) && identifier.type !== guessedModel.$type) {
+      throw new DeserializerError(
+        `Resolved model has type \`${guessedModel.$type}\` but resource with ID \`${identifier.id}\` has type \`${identifier.type}\`. There is probably an error with the context values of your action. If not, you should verify there is a registered model which matches this type in your action factory.`,
+      );
+    }
+
+    return { ...identifier, type: identifier.type ?? guessedModel.$type, model: guessedModel };
   }
 
   protected async extractLocalId(
@@ -274,7 +300,7 @@ export default abstract class ObjectDeserializer<
     }
 
     const instance = consumeInstance(context, null);
-    if (instance && identifier.id === instance.id) {
+    if (instance && identifier.id === instance.id && identifier.type === instance.$model.$type) {
       return instance;
     }
 
@@ -284,24 +310,11 @@ export default abstract class ObjectDeserializer<
   protected async makeInstance(
     _resource: Resource,
     identifier: ObjectNormalizedIdentifier,
-    context: {},
+    _context: {},
   ): Promise<ModelInstance> {
-    const registry = consumeRegistry(context, null);
-    if (registry) {
-      const ModelClass = await registry.modelFor(identifier.type);
-      if (ModelClass) {
-        return new ModelClass();
-      }
-    }
+    const ModelClass = identifier.model;
 
-    const ContextModel = consumeModel(context, null);
-    if (ContextModel && ContextModel.$type === identifier.type) {
-      return new ContextModel();
-    }
-
-    throw new DeserializerError(
-      `No alternative found to deserialize resource with type \`${identifier.type}\`. You should use a Registry and register your models using their corresponding types.`,
-    );
+    return new ModelClass();
   }
 
   protected async releaseInstance(
