@@ -12,12 +12,12 @@ import FunctionInfo from '@site/src/components/FunctionInfo';
 
 Many actions runners are available. Each may:
 
--   <Chip>depend</Chip> on a minimal package version
--   <Chip color="primary">only</Chip> be available in a given use case (JSON:API,
-    REST, HTTP, etc.)
--   <Chip color="success">provide</Chip> a given context to next enhancers or runners
--   <Chip color="danger">require</Chip> a given context from previous enhancers or
-    runners
+- <Chip>depend</Chip> on a minimal package version
+- <Chip color="primary">only</Chip> be available in a given use case (JSON:API, REST,
+  HTTP, etc.)
+- <Chip color="success">provide</Chip> a given context to next enhancers or runners
+- <Chip color="danger">require</Chip> a given context from previous enhancers or
+  runners
 
 Examples of this guide will omit imports of your action factories or models to
 provide shorter examples.
@@ -38,7 +38,7 @@ caught and so may be thrown.
 
 #### Example
 
-```javascript
+```typescript
 import { none } from '@foscia/core';
 
 await action().run(none());
@@ -56,7 +56,7 @@ Run the action and retrieve the raw adapter's data.
 
 #### Example
 
-```javascript
+```typescript
 import { raw } from '@foscia/core';
 
 // When using HttpAdapter, raw result is a fetch Response object.
@@ -67,8 +67,7 @@ const data = await action().run(raw((r) => r.json()));
 
 #### Arguments
 
--   `{Function | undefined}` `transform` the callback to transform the data
-    object
+- `{Function | undefined}` `transform` the callback to transform the data object
 
 #### Returns
 
@@ -83,7 +82,7 @@ Run the action and deserialize an array of model's instance.
 
 #### Example
 
-```javascript
+```typescript
 import { all } from '@foscia/core';
 
 const posts = await action().run(all());
@@ -91,8 +90,7 @@ const posts = await action().run(all());
 
 #### Arguments
 
--   `{Function | undefined}` `transform` the callback to transform the data
-    object
+- `{Function | undefined}` `transform` the callback to transform the data object
 
 #### Returns
 
@@ -108,7 +106,7 @@ found.
 
 #### Example
 
-```javascript
+```typescript
 import { one } from '@foscia/core';
 
 const post = await action().run(one());
@@ -116,8 +114,7 @@ const post = await action().run(one());
 
 #### Arguments
 
--   `{Function | undefined}` `transform` the callback to transform the data
-    object
+- `{Function | undefined}` `transform` the callback to transform the data object
 
 #### Returns
 
@@ -133,7 +130,7 @@ Run the action and deserialize one model's instance. Throws an
 
 #### Example
 
-```javascript
+```typescript
 import { oneOrFail } from '@foscia/core';
 
 const post = await action().run(oneOrFail());
@@ -141,8 +138,7 @@ const post = await action().run(oneOrFail());
 
 #### Arguments
 
--   `{Function | undefined}` `transform` the callback to transform the data
-    object
+- `{Function | undefined}` `transform` the callback to transform the data object
 
 #### Returns
 
@@ -158,7 +154,7 @@ when not found or empty result.
 
 #### Example
 
-```javascript
+```typescript
 import { oneOrCurrent } from '@foscia/core';
 
 const post = await action().run(oneOrCurrent());
@@ -166,8 +162,7 @@ const post = await action().run(oneOrCurrent());
 
 #### Arguments
 
--   `{Function | undefined}` `transform` the callback to transform the data
-    object
+- `{Function | undefined}` `transform` the callback to transform the data object
 
 #### Returns
 
@@ -182,7 +177,7 @@ Run the action and deserialize one model's instance.
 
 #### Example
 
-```javascript
+```typescript
 import { oneOr } from '@foscia/core';
 
 const post = await action().run(oneOr(() => null));
@@ -190,9 +185,8 @@ const post = await action().run(oneOr(() => null));
 
 #### Arguments
 
--   `{Function}` `nilRunner` the runner to use when one result is empty
--   `{Function | undefined}` `transform` the callback to transform the data
-    object
+- `{Function}` `nilRunner` the runner to use when one result is empty
+- `{Function | undefined}` `transform` the callback to transform the data object
 
 #### Returns
 
@@ -208,7 +202,7 @@ included relations are not loaded, returns null.
 
 #### Example
 
-```javascript
+```typescript
 import { cached } from '@foscia/core';
 
 const post = await action().run(cached());
@@ -216,8 +210,7 @@ const post = await action().run(cached());
 
 #### Arguments
 
--   `{Function | undefined}` `transform` the callback to transform the data
-    object
+- `{Function | undefined}` `transform` the callback to transform the data object
 
 #### Returns
 
@@ -233,7 +226,7 @@ included relations are not loaded, throws an `ExpectedRunFailureError`.
 
 #### Example
 
-```javascript
+```typescript
 import { cachedOrFail } from '@foscia/core';
 
 const post = await action().run(cachedOrFail());
@@ -241,8 +234,7 @@ const post = await action().run(cachedOrFail());
 
 #### Arguments
 
--   `{Function | undefined}` `transform` the callback to transform the data
-    object
+- `{Function | undefined}` `transform` the callback to transform the data object
 
 #### Returns
 
@@ -258,7 +250,7 @@ included relations are not loaded, runs the given runner.
 
 #### Example
 
-```javascript
+```typescript
 import { cachedOr } from '@foscia/core';
 
 const post = await action().run(cachedOr(() => null));
@@ -266,9 +258,8 @@ const post = await action().run(cachedOr(() => null));
 
 #### Arguments
 
--   `{Function}` `nilRunner` the runner to use when cached result is empty
--   `{Function | undefined}` `transform` the callback to transform the data
-    object
+- `{Function}` `nilRunner` the runner to use when cached result is empty
+- `{Function | undefined}` `transform` the callback to transform the data object
 
 #### Returns
 
@@ -286,19 +277,19 @@ callback for error is truthy.
 
 #### Example
 
-```javascript
+```typescript
 import { catchIf, one } from '@foscia/core';
 
 const postOrNull = await action().run(
-    catchIf(one(), (error) => error instanceof ErrorToCatch),
+  catchIf(one(), (error) => error instanceof ErrorToCatch),
 );
 ```
 
 #### Arguments
 
--   `{Function}` `runner` the runner to run and catch errors from
--   `{Function | undefined}` `catchCallback` the callback to use when an error
-    is caught
+- `{Function}` `runner` the runner to run and catch errors from
+- `{Function | undefined}` `catchCallback` the callback to use when an error is
+  caught
 
 #### Returns
 
@@ -316,7 +307,7 @@ Append the JSON:API document object to data object. Use it as the parameter of
 
 #### Example
 
-```javascript
+```typescript
 import { all } from '@foscia/core';
 import { usingDocument } from '@foscia/jsonapi';
 

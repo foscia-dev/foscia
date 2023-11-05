@@ -1,7 +1,7 @@
 ---
 sidebar_position: 110
 description:
-    Specificities of the REST implementation and available configuration.
+  Specificities of the REST implementation and available configuration.
 ---
 
 # REST

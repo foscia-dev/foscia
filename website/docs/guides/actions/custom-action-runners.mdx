@@ -7,8 +7,8 @@ description: Defining your own action runners and their associated extension.
 
 :::tip What you'll learn
 
--   Defining a custom action runner
--   Providing an extension property to your runner
+- Defining a custom action runner
+- Providing an extension property to your runner
 
 :::
 
@@ -23,14 +23,14 @@ from any existing Foscia runners.
 Since Foscia is pagination agnostic, providing a `first` runner is not possible.
 Here is what we want our new `first` runner to do:
 
--   Limit the pagination to the first page and one record only
--   Fetch the first record using the `one` runner
+- Limit the pagination to the first page and one record only
+- Fetch the first record using the `one` runner
 
 In this example, we will admit a JSON:API is used with the following query
 parameters working:
 
--   `page[number]` describes the number of the page to fetch
--   `page[size]` describes the count of records to fetch (aka. limit)
+- `page[number]` describes the number of the page to fetch
+- `page[size]` describes the count of records to fetch (aka. limit)
 
 :::info
 
@@ -43,34 +43,34 @@ This guide is a runner version of the `first` enhancer described in the
 
 Our implementation of `first` will paginate the context and fetch one instance.
 
-```ts title="action/runners/first.ts"
+```typescript title="action/runners/first.ts"
 import {
-    Action,
-    ConsumeAdapter,
-    ConsumeDeserializer,
-    ConsumeModel,
-    Model,
-    one,
+  Action,
+  ConsumeAdapter,
+  ConsumeDeserializer,
+  ConsumeModel,
+  Model,
+  one,
 } from '@foscia/core';
 import { paginate } from '@foscia/jsonapi';
 
 export default function first<
-    Context extends {},
-    ContextModel extends Model,
-    ContextData,
+  Context extends {},
+  ContextModel extends Model,
+  ContextData,
 >() {
-    return (
-        action: Action<
-            Context &
-                ConsumeAdapter<ContextData> &
-                ConsumeDeserializer<ContextData> &
-                ConsumeModel<ContextModel>
-        >,
-    ) => action.use(paginate({ number: 1, size: 1 })).run(one());
+  return (
+    action: Action<
+      Context &
+        ConsumeAdapter<ContextData> &
+        ConsumeDeserializer<ContextData> &
+        ConsumeModel<ContextModel>
+    >,
+  ) => action.use(paginate({ number: 1, size: 1 })).run(one());
 }
 ```
 
-:::caution
+:::warning
 
 Please note that when defining custom enhancers or runners, you should always
 correctly define generic types. This is very important as it will allow the
@@ -82,7 +82,7 @@ context propagation through other enhancers and runners.
 
 Once your runner is ready, you may use it like any other Foscia runner.
 
-```javascript
+```typescript
 import { forModel } from '@foscia/core';
 import action from './action';
 import first from './action/runners/first';
@@ -107,52 +107,52 @@ etc.).
 Once your runner extension is ready, you will be able to use it
 [as any other runners of Foscia](/docs/core-concepts/actions#extensions).
 
-```ts title="action/runners/first.ts"
+```typescript title="action/runners/first.ts"
 import {
-    Action,
-    ActionParsedExtension,
-    ConsumeAdapter,
-    ConsumeDeserializer,
-    ConsumeModel,
-    Model,
-    makeRunnersExtension,
-    one,
+  Action,
+  ActionParsedExtension,
+  ConsumeAdapter,
+  ConsumeDeserializer,
+  ConsumeModel,
+  Model,
+  makeRunnersExtension,
+  one,
 } from '@foscia/core';
 import { paginate } from '@foscia/jsonapi';
 
 // Our previous enhancer code.
 export default function first<
-    Context extends {},
-    ContextModel extends Model,
-    ContextData,
+  Context extends {},
+  ContextModel extends Model,
+  ContextData,
 >() {
-    return (
-        action: Action<
-            Context &
-                ConsumeAdapter<ContextData> &
-                ConsumeDeserializer<ContextData> &
-                ConsumeModel<ContextModel>
-        >,
-    ) => action.use(paginate({ number: 1, size: 1 })).run(one());
+  return (
+    action: Action<
+      Context &
+        ConsumeAdapter<ContextData> &
+        ConsumeDeserializer<ContextData> &
+        ConsumeModel<ContextModel>
+    >,
+  ) => action.use(paginate({ number: 1, size: 1 })).run(one());
 }
 
 // The extension typing.
 type FirstRunnerExtension = ActionParsedExtension<{
-    first<Context extends {}, ContextModel extends Model, ContextData>(
-        this: Action<
-            Context &
-                ConsumeAdapter<ContextData> &
-                ConsumeDeserializer<ContextData> &
-                ConsumeModel<ContextModel>
-        >,
-    ): Promise<InstanceType<ContextModel> | null>;
+  first<Context extends {}, ContextModel extends Model, ContextData>(
+    this: Action<
+      Context &
+        ConsumeAdapter<ContextData> &
+        ConsumeDeserializer<ContextData> &
+        ConsumeModel<ContextModel>
+    >,
+  ): Promise<InstanceType<ContextModel> | null>;
 }>;
 
 // The extension value.
 first.extension = makeRunnersExtension({ first }) as FirstRunnerExtension;
 ```
 
-:::caution
+:::warning
 
 Here again, correctly typing our runner extension is really important to get
 context and action's extension propagation.

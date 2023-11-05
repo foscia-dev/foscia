@@ -9,8 +9,8 @@ import ShellCommand from '@site/src/components/ShellCommand';
 
 :::tip What you'll learn
 
--   Mocking action factory for unit tests
--   Writing expectation about ran contexts
+- Mocking action factory for unit tests
+- Writing expectation about ran contexts
 
 :::
 
@@ -60,11 +60,11 @@ import action from './action';
 let actionMock: ActionFactoryMock;
 
 beforeEach(() => {
-    actionMock = mockAction(action);
+  actionMock = mockAction(action);
 });
 
 afterEach(() => {
-    unmockAction(action);
+  unmockAction(action);
 });
 
 export default actionMock;
@@ -82,8 +82,8 @@ can make any factory function mockable using `makeActionFactoryMockable`:
 
 ```typescript title="action.ts"
 function action() {
-    // Your custom action factory...
-    return new Action();
+  // Your custom action factory...
+  return new Action();
 }
 
 // This will return a new function which can be mocked.
@@ -100,19 +100,19 @@ import action from './action';
 import User from './models/user';
 
 export default function registerUser(
-    email: string,
-    acceptedTerms: boolean,
+  email: string,
+  acceptedTerms: boolean,
 ): Promise<User> {
-    if (!acceptedTerms) {
-        throw new Error('User did not accept terms and conditions of use.');
-    }
+  if (!acceptedTerms) {
+    throw new Error('User did not accept terms and conditions of use.');
+  }
 
-    const user = fill(new User(), {
-        email,
-        acceptedTermsAt: new Date(),
-    });
+  const user = fill(new User(), {
+    email,
+    acceptedTermsAt: new Date(),
+  });
 
-    return action().use(create(user)).run(oneOrCurrent());
+  return action().use(create(user)).run(oneOrCurrent());
 }
 ```
 
@@ -128,24 +128,24 @@ import registerUser from '../src/registerUser';
 import actionMock from './actionMock';
 
 test('should create user', async () => {
-    const user = fill(new User(), {
-        email: 'john.doe@example.com',
-        acceptedTermsAt: new Date(),
-    });
+  const user = fill(new User(), {
+    email: 'john.doe@example.com',
+    acceptedTermsAt: new Date(),
+  });
 
-    actionMock.mockResult(user);
+  actionMock.mockResult(user);
 
-    const result = await registerUser('john.doe@example.com', true);
+  const result = await registerUser('john.doe@example.com', true);
 
-    expect(result).toStrictEqual(user);
+  expect(result).toStrictEqual(user);
 });
 
 test('should fail creating user with non accepted terms', async () => {
-    const result = await registerUser('john.doe@example.com', true);
+  const result = await registerUser('john.doe@example.com', true);
 
-    expect(() =>
-        registerUser('john.doe@example.com', true),
-    ).rejects.toThrowError();
+  expect(() =>
+    registerUser('john.doe@example.com', true),
+  ).rejects.toThrowError();
 });
 ```
 
@@ -166,7 +166,7 @@ actionMock.mockResultTimes(3, value);
 actionMock.mockResult(() => value);
 ```
 
-:::caution
+:::warning
 
 Mocking results indefinitely will prevent your next mocked runs to be used.
 Mocking for "n" times is therefore a safer way to mock results, since it will
@@ -186,11 +186,11 @@ actionMock.mockResult(value, (context) => context.model === Post);
 ```typescript
 // Run expectation over context before returning value.
 actionMock.mockResult({
-    result: value,
-    expectation: (context) => {
-        expect(context.model).toStrictEqual(Post);
-        expect(context.action).toStrictEqual('create');
-    },
+  result: value,
+  expectation: (context) => {
+    expect(context.model).toStrictEqual(Post);
+    expect(context.action).toStrictEqual('create');
+  },
 });
 ```
 
@@ -199,12 +199,12 @@ actionMock.mockResult({
 ```typescript
 // Use differents mocking options.
 actionMock.mockResult({
-    result: value,
-    times: 3,
-    predicate: (context) => context.model === Post,
-    expectation: (context) => {
-        expect(context.model).toStrictEqual(Post);
-        expect(context.action).toStrictEqual('create');
-    },
+  result: value,
+  times: 3,
+  predicate: (context) => context.model === Post,
+  expectation: (context) => {
+    expect(context.model).toStrictEqual(Post);
+    expect(context.action).toStrictEqual('create');
+  },
 });
 ```

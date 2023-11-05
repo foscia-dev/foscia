@@ -7,9 +7,9 @@ description: Quick introduction on available implementations for Foscia.
 
 ## Introduction
 
-Foscia actions might require one or many dependencies to work.
-Dependencies are implementations of interfaces which are used in multiple
-parts of the actions process.
+Foscia actions might require one or many dependencies to work. Dependencies are
+implementations of interfaces which are used in multiple parts of the actions
+process.
 
 There are 5 kinds of dependency:
 
@@ -23,8 +23,8 @@ There are 5 kinds of dependency:
 
 ### Registry
 
-Registry is a map of types and associated model. It is used by
-deserializer to identify which models should map to which types.
+Registry is a map of types and associated model. It is used by deserializer to
+identify which models should map to which types.
 
 ```typescript
 type RegistryI = {
@@ -44,8 +44,8 @@ type SerializerI<Data> = {
 
 ### Deserializer
 
-Deserializer will deserialize records to instances. It might use the
-cache and registry internally.
+Deserializer will deserialize records to instances. It might use the cache and
+registry internally.
 
 ```typescript
 type DeserializedData<I extends ModelInstance = ModelInstance> = {
@@ -59,9 +59,9 @@ type DeserializerI<AdapterData, Data extends DeserializedData> = {
 
 ### Adapter
 
-Adapter create the exchange between your actions' built context and your
-data source. As an example, it will _translate_ the context to an HTTP
-request when using JSON:API or REST implementations.
+Adapter create the exchange between your actions' built context and your data
+source. As an example, it will _translate_ the context to an HTTP request when
+using JSON:API or REST implementations.
 
 ```typescript
 type AdapterI<Data> = {
@@ -72,9 +72,9 @@ type AdapterI<Data> = {
 
 ### Cache
 
-Cache will store already fetched models instances. It will avoid
-multiple instances of the same record coexisting and allows you to retrieve
-already fetched record without making further requests to your data source.
+Cache will store already fetched models instances. It will avoid multiple
+instances of the same record coexisting and allows you to retrieve already
+fetched record without making further requests to your data source.
 
 ```typescript
 type CacheI = {
@@ -90,16 +90,16 @@ type CacheI = {
 
 ### Core
 
-`@foscia/core` provides implementations for `Cache` and `Registry`.
-Those implementations may be used for any Foscia usage (JSON:API, REST, etc.).
+`@foscia/core` provides implementations for `Cache` and `Registry`. Those
+implementations may be used for any Foscia usage (JSON:API, REST, etc.).
 
--   [Registry through `MapRegistry`](/docs/guides/implementations/core#mapregistry)
--   [Cache through `RefsCache`](/docs/guides/implementations/core#refscache)
+- [Registry through `MapRegistry`](/docs/guides/implementations/core#mapregistry)
+- [Cache through `RefsCache`](/docs/guides/implementations/core#refscache)
 
 ### HTTP
 
-`@foscia/http` provides implementation of `Adapter` to interact
-with HTTP data sources.
+`@foscia/http` provides implementation of `Adapter` to interact with HTTP data
+sources.
 
 - [Adapter through `HttpAdapter`](/docs/guides/implementations/http#httpadapter)
 

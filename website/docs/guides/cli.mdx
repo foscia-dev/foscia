@@ -10,8 +10,8 @@ import ShellCommand from '@site/src/components/ShellCommand';
 
 :::tip What you'll learn
 
--   Initializing Foscia on your project
--   Creating files related to Foscia (models, composables, etc.)
+- Initializing Foscia on your project
+- Creating files related to Foscia (models, composables, etc.)
 
 :::
 
@@ -50,23 +50,22 @@ Foscia CLI environment.
 #### Examples
 
 <ShellCommand
-    command={[
-        'foscia init src/api',
-        '# Init with specific usage and write to dedicated configuration.',
-        'foscia init src/api --config=.fosciarc.api.json --usage=jsonapi',
-    ]}
+  command={[
+    'foscia init src/api',
+    '# Init with specific usage and write to dedicated configuration.',
+    'foscia init src/api --config=.fosciarc.api.json --usage=jsonapi',
+  ]}
 />
 
 #### Arguments
 
--   `<path>` Directory to put new Foscia files in (models, composables, actions)
+- `<path>` Directory to put new Foscia files in (models, composables, actions)
 
 #### Options
 
--   `--usage` Define your usage of Foscia (CLI will ask for it if not provided)
--   `--manual` Disable environment detection (language and modules
-    organizations)
--   `--show` Output the files instead of writing them on filesystem
+- `--usage` Define your usage of Foscia (CLI will ask for it if not provided)
+- `--manual` Disable environment detection (language and modules organizations)
+- `--show` Output the files instead of writing them on filesystem
 
 ### `foscia make:model <name>`
 
@@ -75,20 +74,20 @@ Create a Foscia model using the name argument.
 #### Examples
 
 <ShellCommand
-    command={[
-        'foscia make:model post',
-        '# Make model and show file content instead of writing to filesystem.',
-        'foscia make:model post --show',
-    ]}
+  command={[
+    'foscia make:model post',
+    '# Make model and show file content instead of writing to filesystem.',
+    'foscia make:model post --show',
+  ]}
 />
 
 #### Arguments
 
--   `<name>` Name of the model (class, file and type will be determined from it)
+- `<name>` Name of the model (class, file and type will be determined from it)
 
 #### Options
 
--   `--show` Output the file instead of writing it on filesystem
+- `--show` Output the file instead of writing it on filesystem
 
 ### `make:composable <name>`
 
@@ -100,11 +99,11 @@ Create a Foscia composable using the name argument.
 
 #### Arguments
 
--   `<name>` Name of the composable (file will be determined from it)
+- `<name>` Name of the composable (file will be determined from it)
 
 #### Options
 
--   `--show` Output the file instead of writing it on filesystem
+- `--show` Output the file instead of writing it on filesystem
 
 ### `make:action [name]`
 
@@ -113,22 +112,22 @@ Create a Foscia action factory.
 #### Examples
 
 <ShellCommand
-    command={[
-        'foscia make:action',
-        '# Make an action for a specific usage.',
-        'foscia make:action --usage=http',
-    ]}
+  command={[
+    'foscia make:action',
+    '# Make an action for a specific usage.',
+    'foscia make:action --usage=http',
+  ]}
 />
 
 #### Arguments
 
--   `[name]` Name of the action factory file (default to `action`)
+- `[name]` Name of the action factory file (default to `action`)
 
 #### Options
 
--   `--usage` Define your usage of Foscia (default to your configuration defined
-    usage)
--   `--show` Output the file instead of writing it on filesystem
+- `--usage` Define your usage of Foscia (default to your configuration defined
+  usage)
+- `--show` Output the file instead of writing it on filesystem
 
 ### `make:transformer <name>`
 
@@ -140,21 +139,21 @@ Create a Foscia value transformer (for IDs and attributes).
 
 #### Arguments
 
--   `<name>` Name of the transformer (file will be determined from it)
+- `<name>` Name of the transformer (file will be determined from it)
 
 #### Options
 
--   `--show` Output the file instead of writing it on filesystem
+- `--show` Output the file instead of writing it on filesystem
 
 ## Configuration
 
 Foscia CLI uses a configuration file which help generating files correctly for
 all `make:*` commands using many options, such as:
 
--   Path to store your files
--   Language you are using (TS or JS)
--   Modules organization (ESM or CommonJS)
--   etc.
+- Path to store your files
+- Language you are using (TS or JS)
+- Modules organization (ESM or CommonJS)
+- etc.
 
 This configuration can be set up using [`foscia init <path>`](#init-path)
 command and will be stored in a `.fosciarc.json`.
@@ -163,11 +162,11 @@ command and will be stored in a `.fosciarc.json`.
 
 You should name your `@foscia/cli` configuration file either for
 `.fosciarc.json` or `.fosciarc.<name>.json` (where name is an alphanumerical
-string). `@foscia/cli` will try to automatically resolve the first config
-it founds.
+string). `@foscia/cli` will try to automatically resolve the first config it
+founds.
 
-If you are using a name like `.fosciarc.api.json`, you can just use
-the option `--config=api` (instead of `.fosciarc.api.json`) as a shortcut.
+If you are using a name like `.fosciarc.api.json`, you can just use the option
+`--config=api` (instead of `.fosciarc.api.json`) as a shortcut.
 
 :::
 
@@ -177,12 +176,12 @@ Example of a Foscia CLI configuration:
 
 ```json
 {
-    "path": "src/api",
-    "alias": "@/api",
-    "packageManager": "npm",
-    "usage": "jsonapi",
-    "language": "ts",
-    "modules": "esm"
+  "path": "src/api",
+  "alias": "@/api",
+  "packageManager": "npm",
+  "usage": "jsonapi",
+  "language": "ts",
+  "modules": "esm"
 }
 ```
 

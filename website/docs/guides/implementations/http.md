@@ -1,7 +1,7 @@
 ---
 sidebar_position: 30
 description:
-    Specificities of the HTTP implementation and available configuration.
+  Specificities of the HTTP implementation and available configuration.
 ---
 
 # HTTP

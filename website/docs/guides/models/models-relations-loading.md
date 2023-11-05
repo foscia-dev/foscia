@@ -7,9 +7,9 @@ description: Loading relations on a model's instances.
 
 :::tip What you'll learn
 
--   Checking if relations are loaded
--   Creating functions which will load your relations
--   Configuring those functions to match your needs
+- Checking if relations are loaded
+- Creating functions which will load your relations
+- Configuring those functions to match your needs
 
 :::
 
@@ -22,7 +22,7 @@ you can use the `loaded` function.
 **all** relations of the instance (and sub-instances for deep relations) are
 loaded.
 
-```javascript
+```typescript
 import { loaded } from '@foscia/core';
 
 // True if comments is loaded.
@@ -49,19 +49,19 @@ supports nested relations keys if your data source supports them.
 
 Here is an example when using a JSON:API backend with an `ids` filter available.
 
-```javascript title="loaders/refreshLoad.ts"
+```typescript title="loaders/refreshLoad.ts"
 import { makeRefreshIncludeLoader } from '@foscia/core';
 import { filterBy } from '@foscia/jsonapi';
 
 export default makeRefreshIncludeLoader({
-    prepare: (action, { instances }) =>
-        action.use(filterBy({ ids: instances.map((i) => i.id) })),
+  prepare: (action, { instances }) =>
+    action.use(filterBy({ ids: instances.map((i) => i.id) })),
 });
 ```
 
 You can now use the loader on any instance.
 
-```javascript
+```typescript
 import refreshLoad from './loaders/refreshLoad';
 
 await refreshLoad(myPost, 'comments');
@@ -100,7 +100,7 @@ such as JSON:API.
 
 It does not support nested relations keys as it will be dangerously inefficient.
 
-```javascript title="loaders/forRelationLoad.ts"
+```typescript title="loaders/forRelationLoad.ts"
 import { makeRefreshIncludeLoader } from '@foscia/core';
 
 export default makeForRelationLoader();
@@ -108,13 +108,13 @@ export default makeForRelationLoader();
 
 You can now use the loader on any instance.
 
-```javascript
+```typescript
 import forRelationLoad from './loaders/forRelationLoad';
 
 await forRelationLoad(myPost, 'comments');
 ```
 
-:::caution
+:::warning
 
 Because this loader will run one action per instance and relation, it is only
 recommended for one instance's relation loading, not many.

@@ -10,8 +10,8 @@ import ShellCommand from '@site/src/components/ShellCommand';
 
 :::tip What you'll learn
 
--   Configuring your action factory to only make HTTP request
--   Using Foscia as an HTTP client
+- Configuring your action factory to only make HTTP request
+- Using Foscia as an HTTP client
 
 :::
 
@@ -36,13 +36,13 @@ You can get started for Foscia as an HTTP client using the
 You can use Foscia as a simple HTTP client (just like Axios). For this, you can
 configure an HTTP client action factory.
 
-```javascript title="action.js"
+```typescript title="action.js"
 import { makeHttpClient } from '@foscia/http';
 
 const { action } = makeHttpClient({
-    http: {
-        baseURL: 'https://example.com',
-    },
+  http: {
+    baseURL: 'https://example.com',
+  },
 });
 
 export default action;
@@ -52,7 +52,7 @@ export default action;
 
 Once your action factory is ready, sending HTTP request is pretty easy:
 
-```javascript
+```typescript
 import { makeGet, makePost } from '@foscia/http';
 import { action } from './action';
 
@@ -61,19 +61,19 @@ const response = await action().use(makeGet('/')).run(raw());
 
 // GET https://example.com/api/posts (and get JSON payload)
 const data = await action()
-    .use(
-        makePost('/api/posts', {
-            data: { title: 'Hello World!' },
-        }),
-    )
-    .run(raw((response) => response.json()));
+  .use(
+    makePost('/api/posts', {
+      data: { title: 'Hello World!' },
+    }),
+  )
+  .run(raw((response) => response.json()));
 ```
 
 <Link
-    className="button bg--primary"
-    to="/docs/reference/actions-enhancers#fosciahttp"
+  className="button bg--primary"
+  to="/docs/reference/actions-enhancers#fosciahttp"
 >
-    Read the HTTP' enhancers API guide
+  Read the HTTP' enhancers API guide
 </Link>
 
 ## Implementation notes

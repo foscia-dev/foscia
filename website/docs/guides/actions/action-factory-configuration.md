@@ -7,7 +7,7 @@ description: Making your own action factory.
 
 :::tip What you'll learn
 
--   Configuring your action factory dependencies
+- Configuring your action factory dependencies
 
 :::
 
@@ -24,31 +24,31 @@ the REST blueprint action factory as an example. For this, each configurable
 dependency have a `configure` method which will allow you to configure the
 dependency.
 
-```javascript title="action.js"
+```typescript title="action.js"
 import { makeJsonRest } from '@foscia/jsonapi';
 import Post from './models/post';
 
 const { cache, registry, adapter, deserializer, serializer, action } =
-    makeJsonRest({
-        // Configure using action factory blueprint.
-        models: [Post],
-        http: {
-            baseURL: 'https://example.com/api/v1',
-        },
-    });
+  makeJsonRest({
+    // Configure using action factory blueprint.
+    models: [Post],
+    http: {
+      baseURL: 'https://example.com/api/v1',
+    },
+  });
 
 // Configure over each dependency:
 cache.configure({
-    /* Cache configuration. */
+  /* Cache configuration. */
 });
 adapter.configure({
-    /* Adapter configuration. */
+  /* Adapter configuration. */
 });
 deserializer.configure({
-    /* Deserializer configuration. */
+  /* Deserializer configuration. */
 });
 serializer.configure({
-    /* Serializer configuration. */
+  /* Serializer configuration. */
 });
 
 export default action;

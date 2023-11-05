@@ -27,15 +27,15 @@ import User from './user';
 import Tag from './tag';
 
 export default class Post extends makeModel('posts', {
-    ...publishable,
-    title: attr<string>(),
-    content: attr<string>(),
-    tags: hasMany(() => Tag),
-    author: hasOne(() => User).readOnly(),
+  ...publishable,
+  title: attr<string>(),
+  content: attr<string>(),
+  tags: hasMany(() => Tag),
+  author: hasOne(() => User).readOnly(),
 }) {
-    get fullTitle() {
-        return \`\${this.title} by \${this.author.name} on \${this.publishedAt}\`;
-    },
+  get fullTitle() {
+    return \`\${this.title} by \${this.author.name} on \${this.publishedAt}\`;
+  },
 }
 `.trim();
 
@@ -43,7 +43,7 @@ const composableExampleCode = `
 import { makeComposable, attr, toDate } from '@foscia/core';
 
 export default makeComposable({
-    publishedAt: attr(toDate()).nullable(),
+  publishedAt: attr(toDate()).nullable(),
 });
 `.trim();
 
@@ -85,17 +85,17 @@ import action from './action';
 
 // The functional way!
 const post = await action()
-    .use(
-      find(Post, 123),
-      include('author', 'tags'),
-    )
-    .run(oneOrFail());
+  .use(
+    find(Post, 123),
+    include('author', 'tags'),
+  )
+  .run(oneOrFail());
 
 fill(post, { title: 'Hello World!' });
 
 const updatedPost = await action()
-    .use(update(post))
-    .run(oneOrCurrent());
+  .use(update(post))
+  .run(oneOrCurrent());
 `.trim();
 
 const playBuilderExampleCode = `
@@ -104,15 +104,15 @@ import action from './action';
 
 // The good old builder pattern way!
 const post = await action()
-    .find(Post, 123)
-    .include('author', 'tags')
-    .oneOrFail();
+  .find(Post, 123)
+  .include('author', 'tags')
+  .oneOrFail();
 
 fill(post, { title: 'Hello World!' });
 
 const updatedPost = await action()
-    .update(post)
-    .oneOrCurrent();
+  .update(post)
+  .oneOrCurrent();
 `.trim();
 
 function Example({ title, description, link, children }) {

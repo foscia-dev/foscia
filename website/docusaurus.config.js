@@ -1,9 +1,9 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 const path = require('node:path');
-const { transpileCodeblocks } = require('remark-typescript-tools');
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const { themes } = require('prism-react-renderer');
+const lightCodeTheme = themes.github;
+const darkCodeTheme = themes.dracula;
 const packages = require('../scripts/entries.cjs')();
 
 require('dotenv').config();
@@ -32,22 +32,6 @@ const config = {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/foscia-dev/foscia/tree/main/website/',
           showLastUpdateTime: true,
-          remarkPlugins: [[transpileCodeblocks, {
-            compilerSettings: {
-              tsconfig: path.resolve(__dirname, '../tsconfig.json'),
-              externalResolutions: packages.reduce((resolutions, pkg) => ({
-                ...resolutions,
-                [pkg.path]: {
-                  resolvedPath: path.resolve(__dirname, `../packages/${pkg.name}/dist`),
-                  packageId: {
-                    name: pkg.path,
-                    subModuleName: 'index.d.ts',
-                    version: '1.0',
-                  },
-                },
-              }), {}),
-            },
-          }]],
           exclude: ['reference/api/index.md'],
         },
         blog: false,
@@ -63,6 +47,7 @@ const config = {
       name: 'API reference',
       readme: 'none',
       out: 'reference/api',
+      includeExtension: false,
       entryPointStrategy: 'packages',
       entryPoints: packages.map((pkg) => `../packages/${pkg.name}`),
       tsconfig: path.resolve(__dirname, '../tsconfig.json'),
@@ -166,6 +151,7 @@ const config = {
         ],
       },
       prism: {
+        additionalLanguages: ['bash', 'json'],
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
       },

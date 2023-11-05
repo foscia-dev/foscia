@@ -12,9 +12,9 @@ import ShellCommand from '@site/src/components/ShellCommand';
 
 :::tip What you'll learn
 
--   Creating your first model and using it through model instances
--   Creating your action factory using blueprints
--   Running basic actions on your models with your action factory
+- Creating your first model and using it through model instances
+- Creating your action factory using blueprints
+- Running basic actions on your models with your action factory
 
 :::
 
@@ -32,12 +32,12 @@ Before getting started, you must have installed Foscia packages you will need.
 started using Foscia.
 
 <ShellCommand
-    command={[
-        '# Install Foscia CLI',
-        'add dev @foscia/cli',
-        '# Initialize Foscia and action factory inside "src/data" directory.',
-        'foscia init src/data',
-    ]}
+  command={[
+    '# Install Foscia CLI',
+    'add dev @foscia/cli',
+    '# Initialize Foscia and action factory inside "src/data" directory.',
+    'foscia init src/data',
+  ]}
 />
 
 :::info
@@ -53,10 +53,10 @@ For the moment, there is no other official implementation available besides
 JSON:API and REST. If you would like to interact with another data source, you
 should therefore either:
 
--   **Implement your own action's dependencies**, you should inspire from
-    existing implementations to build your own.
--   [**Open an issue or a pull request**](https://github.com/foscia-dev/foscia/issues)
-    to suggest a new implementation.
+- **Implement your own action's dependencies**, you should inspire from existing
+  implementations to build your own.
+- [**Open an issue or a pull request**](https://github.com/foscia-dev/foscia/issues)
+  to suggest a new implementation.
 
 ## Your first model
 
@@ -70,28 +70,23 @@ type safe interactions with your data source.
 To declare a model, you just need to use the `makeModel` function. This function
 takes up to 2 arguments and returns an ES6 class:
 
--   The model `type`, which is used by other services to identify your model or
-    interact with a data source.
--   The model `definition`, which contains your attributes/relations definitions
-    and custom properties and methods.
+- The model `type`, which is used by other services to identify your model or
+  interact with a data source.
+- The model `definition`, which contains your attributes/relations definitions
+  and custom properties and methods.
 
-```ts title="models/post.ts"
-// file: models/comment.ts noEmit
-import { makeModel } from '@foscia/core';
-export default class Comment extends makeModel('comments') {}
-
-// file: models/post.ts
+```typescript title="models/post.ts"
 import { makeModel, attr, hasMany, toDate } from '@foscia/core';
 import Comment from './comment';
 
 export default class Post extends makeModel('posts', {
-    title: attr<string>(),
-    description: attr<string>(),
-    publishedAt: attr(toDate()).nullable(),
-    comments: hasMany(() => Comment),
-    get published() {
-        return !!this.publishedAt;
-    },
+  title: attr<string>(),
+  description: attr<string>(),
+  publishedAt: attr(toDate()).nullable(),
+  comments: hasMany(() => Comment),
+  get published() {
+    return !!this.publishedAt;
+  },
 }) {}
 ```
 
@@ -101,7 +96,7 @@ Model classes can be used like any ES6 class. It can be instantiated,
 manipulated, etc. Properties will be defined on each instance from the model
 definition.
 
-```javascript
+```typescript
 import Post from './models/post';
 
 const post = new Post();
@@ -113,7 +108,7 @@ console.log(post.$exists); // false
 ```
 
 <Link className="button bg--primary" to="/docs/core-concepts/models">
-    Read the full guide on models
+  Read the full guide on models
 </Link>
 
 ## Your first actions
@@ -145,45 +140,45 @@ Depending on the usage you are targetting, here is what your action factory may
 looks like:
 
 <Tabs groupId="usage">
-  <TabItem
-    value="jsonapi"
-    label="JSON:API"
-    default
-  >
+<TabItem
+  value="jsonapi"
+  label="JSON:API"
+  default
+>
 
-```javascript
+```typescript
 import { makeJsonApi } from '@foscia/jsonapi';
 
 const { action } = makeJsonApi({
-    models: [],
-    http: {
-        baseURL: '/api/v1',
-    },
+  models: [],
+  http: {
+    baseURL: '/api/v1',
+  },
 });
 
 export default action;
 ```
 
-  </TabItem>
-  <TabItem
-    value="jsonrest"
-    label="JSON REST"
-  >
+</TabItem>
+<TabItem
+  value="jsonrest"
+  label="JSON REST"
+>
 
-```javascript
+```typescript
 import { makeJsonRest } from '@foscia/rest';
 
 const { action } = makeJsonRest({
-    models: [],
-    http: {
-        baseURL: '/api/v1',
-    },
+  models: [],
+  http: {
+    baseURL: '/api/v1',
+  },
 });
 
 export default action;
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 ##### Notice on blueprints
@@ -191,16 +186,16 @@ export default action;
 Using blueprints is a simple and quick way to set up an action factory. However,
 it may have some downsides:
 
--   Only some implementations are available for now, so you may not find
-    something which fits your needs
--   Some dependencies (e.g. serializer in a readonly context) may be imported
-    even if you don't use them, and it may increase your production bundle size
--   Some behaviors may not be configurable
+- Only some implementations are available for now, so you may not find something
+  which fits your needs
+- Some dependencies (e.g. serializer in a readonly context) may be imported even
+  if you don't use them, and it may increase your production bundle size
+- Some behaviors may not be configurable
 
 You may configure the behavior or implementation in two ways:
 
--   [**Configure your action factory**](/docs/guides/actions/action-factory-configuration)
--   [**Implement custom action factory**](/docs/guides/actions/custom-action-factory)
+- [**Configure your action factory**](/docs/guides/actions/action-factory-configuration)
+- [**Implement custom action factory**](/docs/guides/actions/custom-action-factory)
 
 #### Registering your models
 
@@ -218,14 +213,14 @@ an explicit mapping between a given type and a model.
 To register models, you can pass an array of models you wish to use to your
 action factory blueprint:
 
-```js
+```typescript
 import { makeJsonApi } from '@foscia/jsonapi';
 import Post from './models/post';
 import Comment from './models/comment';
 
 const { action } = makeJsonApi({
-    // Register the models.
-    models: [Post, Comment],
+  // Register the models.
+  models: [Post, Comment],
 });
 
 export default action;
@@ -251,12 +246,12 @@ want to use during your action factory creation.
     default
   >
 
-```js
+```typescript
 import { makeJsonApi, jsonApiStarterExtensions } from '@foscia/jsonapi';
 
 const { action } = makeJsonApi({
-    // Register the extensions.
-    extensions: jsonApiStarterExtensions,
+  // Register the extensions.
+  extensions: jsonApiStarterExtensions,
 });
 ```
 
@@ -266,12 +261,12 @@ const { action } = makeJsonApi({
     label="JSON REST"
   >
 
-```js
+```typescript
 import { makeJsonRest, jsonRestStarterExtensions } from '@foscia/jsonapi';
 
 const { action } = makeJsonRest({
-    // Register the extensions.
-    extensions: jsonRestStarterExtensions,
+  // Register the extensions.
+  extensions: jsonRestStarterExtensions,
 });
 ```
 
@@ -282,17 +277,17 @@ You can [learn more about extensions](/docs/core-concepts/actions#extensions),
 check the [available extensions packs](/docs/reference/actions-extensions). You
 can also manually import enhancers and runners extensions you need:
 
-```javascript
+```typescript
 import { forModel, include, all, hooksExtensions } from '@foscia/core';
 import { makeJsonApi } from '@foscia/jsonapi';
 
 const { action } = makeJsonApi({
-    extensions: {
-        ...hooksExtensions,
-        ...forModel.extension,
-        ...include.extension,
-        ...all.extension,
-    },
+  extensions: {
+    ...hooksExtensions,
+    ...forModel.extension,
+    ...include.extension,
+    ...all.extension,
+  },
 });
 ```
 
@@ -303,7 +298,7 @@ factory. With this instance, you can call **context enhancers** through `use` to
 modify the action context. When you are ready, you can `run` the action with a
 given **context runner**.
 
-```javascript
+```typescript
 import { all, forModel } from '@foscia/core';
 import Post from './models/post';
 import action from './action';
@@ -320,7 +315,7 @@ A great example of this is when finding a model using its ID. You'll not use a
 and a `oneOrFail` context runner. This way, you are able to do a find query and
 retrieve a raw result when needed.
 
-```javascript
+```typescript
 import { find, oneOrFail } from '@foscia/core';
 import Post from './models/post';
 import action from './action';
@@ -331,21 +326,21 @@ const post = await action().use(find(Post, 'abc-123')).run(oneOrFail());
 This works the same to send write operations through actions. In the following
 example, we are retrieving a raw adapter response instead of model instances.
 
-```javascript
+```typescript
 import { create, fill, oneOrCurrent } from '@foscia/core';
 import Post from './models/post';
 import action from './action';
 
 const post = fill(new Post(), {
-    title: 'Hello World!',
-    description: 'Your first post',
+  title: 'Hello World!',
+  description: 'Your first post',
 });
 
 const response = await action().use(create(post)).run(oneOrCurrent());
 ```
 
 <Link className="button bg--primary" to="/docs/core-concepts/actions">
-    Read the full guide on actions
+  Read the full guide on actions
 </Link>
 
 ## Advanced actions
@@ -358,7 +353,7 @@ API calls.
 This way, you can standardize all API calls across your application, even when
 those are non JSON:API/REST related.
 
-```javascript
+```typescript
 import { forInstance, raw } from '@foscia/core';
 import { makePost } from '@foscia/http';
 import Comment from './comment';
@@ -368,13 +363,13 @@ const comment = await action().use(find(Comment, 'abc-123')).run(oneOrFail());
 
 // Make a POST call to "https://example.com/api/v1/services/comments/1/publish"
 const response = await action()
-    .use(
-        forInstance(comment),
-        makePost('publish', {
-            data: { publishedAt: new Date() },
-        }),
-    )
-    .run(raw());
+  .use(
+    forInstance(comment),
+    makePost('publish', {
+      data: { publishedAt: new Date() },
+    }),
+  )
+  .run(raw());
 
 // This is a raw `fetch` Response object.
 console.log(response.status);

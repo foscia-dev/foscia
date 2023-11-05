@@ -36,8 +36,8 @@ make help
 make first
 ```
 
-Once the docker containers are fully running, you can access
-the docs on [foscia.localhost](http://foscia.localhost).
+Once the docker containers are fully running, you can access the docs on
+[foscia.localhost](http://foscia.localhost).
 
 ## Docusaurus
 
@@ -46,5 +46,4 @@ static website generator.
 
 ## License
 
-`foscia` is an open-sourced software licensed under the
-[MIT license](LICENSE).
+`foscia` is an open-sourced software licensed under the [MIT license](LICENSE).

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 40
 description:
-    Specificities of the "object" implementation and available configuration.
+  Specificities of the "object" implementation and available configuration.
 ---
 
 # Object

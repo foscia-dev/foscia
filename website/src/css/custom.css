@@ -92,6 +92,10 @@ div[class^="language-"] {
     --prism-background-color: var(--ifm-code-background) !important;
 }
 
+div[class^="language-"] pre {
+    background-color: transparent !important;
+}
+
 table {
     background-color: var(--ifm-code-background);
     box-shadow: var(--ifm-global-shadow-lw);
@@ -203,6 +207,10 @@ aside, .table-of-contents__left-border {
 
 .navbar .navbar-sidebar {
     z-index: 2;
+}
+
+.button > p {
+    margin: 0;
 }
 
 .pagination-nav__link {

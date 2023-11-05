@@ -7,8 +7,8 @@ description: Defining your own action enhancers and their associated extension.
 
 :::tip What you'll learn
 
--   Defining a custom action enhancer
--   Providing an extension property to your enhancer
+- Defining a custom action enhancer
+- Providing an extension property to your enhancer
 
 :::
 
@@ -23,14 +23,14 @@ from any existing Foscia enhancers.
 Since Foscia is pagination agnostic, providing a `first` enhancer is not
 possible. Here is what we want our new `first` enhancer to do:
 
--   Select the model just like the `find` enhancer, but not a record ID
--   Limit the pagination to the first page and one record only
+- Select the model just like the `find` enhancer, but not a record ID
+- Limit the pagination to the first page and one record only
 
 In this example, we will admit a JSON:API is used with the following query
 parameters working:
 
--   `page[number]` describes the number of the page to fetch
--   `page[size]` describes the count of records to fetch (aka. limit)
+- `page[number]` describes the number of the page to fetch
+- `page[size]` describes the count of records to fetch (aka. limit)
 
 :::info
 
@@ -43,22 +43,22 @@ This guide is an enhancer version of the `first` runner described in the
 
 Our implementation of `first` will target the model and paginate the context.
 
-```ts title="action/enhancers/first.ts"
+```typescript title="action/enhancers/first.ts"
 import { Action, Model, ModelInstance, forModel } from '@foscia/core';
 import { paginate } from '@foscia/jsonapi';
 
 export default function first<
-    Context extends {},
-    ContextDefinition extends {},
-    ContextInstance extends ModelInstance<ContextDefinition>,
-    ContextModel extends Model<ContextDefinition, ContextInstance>,
+  Context extends {},
+  ContextDefinition extends {},
+  ContextInstance extends ModelInstance<ContextDefinition>,
+  ContextModel extends Model<ContextDefinition, ContextInstance>,
 >(model: ContextModel) {
-    return (action: Action<Context>) =>
-        action.use(forModel(model)).use(paginate({ number: 1, size: 1 }));
+  return (action: Action<Context>) =>
+    action.use(forModel(model)).use(paginate({ number: 1, size: 1 }));
 }
 ```
 
-:::caution
+:::warning
 
 Please note that when defining custom enhancers or runners, you should always
 correctly define generic types. This is very important as it will allow the
@@ -70,7 +70,7 @@ context propagation through other enhancers and runners.
 
 Once your enhancer is ready, you may use it like any other Foscia enhancer.
 
-```javascript
+```typescript
 import { one } from '@foscia/core';
 import action from './action';
 import first from './action/enhancers/first';
@@ -95,43 +95,43 @@ etc.).
 Once your enhancer extension is ready, you will be able to use it
 [as any other enhancers of Foscia](/docs/core-concepts/actions#extensions).
 
-```ts title="action/enhancers/first.ts"
+```typescript title="action/enhancers/first.ts"
 import {
-    Action,
-    ActionParsedExtension,
-    ConsumeId,
-    ConsumeModel,
-    forModel,
-    makeEnhancersExtension,
-    Model,
-    ModelInstance,
+  Action,
+  ActionParsedExtension,
+  ConsumeId,
+  ConsumeModel,
+  forModel,
+  makeEnhancersExtension,
+  Model,
+  ModelInstance,
 } from '@foscia/core';
 import { paginate } from '@foscia/jsonapi';
 
 // Our previous enhancer code.
 export default function first<
-    Context extends {},
-    ContextDefinition extends {},
-    ContextInstance extends ModelInstance<ContextDefinition>,
-    ContextModel extends Model<ContextDefinition, ContextInstance>,
+  Context extends {},
+  ContextDefinition extends {},
+  ContextInstance extends ModelInstance<ContextDefinition>,
+  ContextModel extends Model<ContextDefinition, ContextInstance>,
 >(model: ContextModel) {
-    return (action: Action<Context>) =>
-        action.use(forModel(model)).use(paginate({ number: 1, size: 1 }));
+  return (action: Action<Context>) =>
+    action.use(forModel(model)).use(paginate({ number: 1, size: 1 }));
 }
 
 // The extension typing.
 type FirstEnhancerExtension = ActionParsedExtension<{
-    first<Context extends {}, Extension extends {}, ContextModel extends Model>(
-        this: Action<Context, Extension>,
-        model: ContextModel,
-    ): Action<Context & ConsumeModel<ContextModel> & ConsumeId, Extension>;
+  first<Context extends {}, Extension extends {}, ContextModel extends Model>(
+    this: Action<Context, Extension>,
+    model: ContextModel,
+  ): Action<Context & ConsumeModel<ContextModel> & ConsumeId, Extension>;
 }>;
 
 // The extension value.
 first.extension = makeEnhancersExtension({ first }) as FirstEnhancerExtension;
 ```
 
-:::caution
+:::warning
 
 Here again, correctly typing our enhancer extension is really important to get
 context and action's extension propagation.
