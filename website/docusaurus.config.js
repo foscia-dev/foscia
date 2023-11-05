@@ -55,7 +55,9 @@ const config = {
       out: 'reference/api',
       includeExtension: false,
       entryPointStrategy: 'packages',
-      entryPoints: packages.map((pkg) => `../packages/${pkg.name}`),
+      entryPoints: packages
+        .filter((pkg) => pkg.name !== 'cli')
+        .map((pkg) => `../packages/${pkg.name}`),
       tsconfig: path.resolve(__dirname, '../tsconfig.json'),
       sidebar: { fullNames: true, position: 5, categoryLabel: 'API' },
     }],
