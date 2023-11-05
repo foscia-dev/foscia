@@ -1,12 +1,18 @@
 // @ts-check
+import dotenv from 'dotenv';
+import { createRequire } from 'node:module';
 // Note: type annotations allow type checking and IDEs autocompletion
-const path = require('node:path');
-const { themes } = require('prism-react-renderer');
+import path from 'node:path';
+import { themes } from 'prism-react-renderer';
+
+const require = createRequire(import.meta.url);
+
 const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
+
 const packages = require('../scripts/entries.cjs')();
 
-require('dotenv').config();
+dotenv.config();
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -158,4 +164,4 @@ const config = {
     }),
 };
 
-module.exports = config;
+export default config;
