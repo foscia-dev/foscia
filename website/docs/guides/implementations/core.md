@@ -66,9 +66,9 @@ registry.register([async () => (await import('./models/post')).default]);
 
 #### Configuration
 
-| Name            | Type                                                | Description                                                  |
-| --------------- | --------------------------------------------------- | ------------------------------------------------------------ |
-| `normalizeType` | <code>((type: string) => string) &vert; null</code> | Normalization function when registering or resolving models. |
+| Name            | Type                                                | Description                                                |
+|-----------------|-----------------------------------------------------|------------------------------------------------------------|
+| `normalizeType` | <code>((type: string) => string) &vert; null</code> | Normalize the type before registering or resolving models. |
 
 #### Defined in
 
@@ -76,7 +76,47 @@ registry.register([async () => (await import('./models/post')).default]);
 
 ### `RefsCache`
 
-<span className="chip chip--primary">Work in progress</span>
+This implementation of the cache stores reference to model instance
+created by a `RefManager`.
+
+The `RefManager` is responsible to:
+
+- Create a ref object for a cached instance.
+- Retrieve value for this ref object (may return undefined if the ref has
+  expired).
+
+Foscia proposes a simple implementation of a `RefManager`,
+named `weakRefManager`, which will store model instance as
+[`WeakRef`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/WeakRef).
+With this implementation, only instance that are still stored in your
+application memory (not garbage collected) remains in cache.
+
+You can define another implementation of `RefManager`,
+for example based on an expiration timeout.
+
+#### Usage
+
+```typescript
+import { RefsCache, weakRefManager } from '@foscia/core';
+import Post from './models/post';
+
+const cache = new RefsCache({
+  manager: weakRefManager,
+});
+
+const post = new Post();
+
+// Store post.
+cache.put('posts', '1', post);
+// Retrieve post.
+cache.find('posts', '1');
+```
+
+#### Configuration
+
+| Name      | Type                                                               | Description                                                      |
+|-----------|--------------------------------------------------------------------|------------------------------------------------------------------|
+| `manager` | [`RefManager`](/docs/reference/api/modules/foscia_core#refmanager) | Create refs to instances and retrieve/expire those refs' values. |
 
 #### Defined in
 

@@ -70,7 +70,7 @@ Please note that when using the object spread syntax, you won't be able to get a
 correctly typed `this` context _inside the current definition object_ (it is
 still available in next/previous definition or in class body). This is because
 of an
-[**issue due to a TypeScript limitation**](https://github.com/foscia-dev/foscia/issues/6).
+[**issue due to a TypeScript limitation**](https://github.com/foscia-dev/foscia/issues/2).
 
 :::
 

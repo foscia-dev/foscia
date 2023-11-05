@@ -192,6 +192,7 @@ id(toString())
 attributes. You can pass a transformer or a default value to this factory.
 
 - Foscia consider your attributes as non-nullable values by default.
+- Non-loaded attributes will have a value of `undefined`.
 - `attr` properties can be transformed.
   [Read more on the transformers guide](/docs/guides/models/models-transformers).
 - `attr` pending definition supports
@@ -236,16 +237,10 @@ attr(toDate())
 `hasMany` and `hasOne` are relation definition factory function used to define
 your model's relations. As suggested by their names, `hasMany` represents a
 relation to a list of models and `hasOne` represents a relation to a single
-model. Those take 0 to 1 argument, depending on what you want to do.
-
-Foscia consider your relations as non-nullable values by default. When one of
-your model contains nullable relations, you can pass a type to the factory (e.g.
-`hasOne<User | null>()`) or set a default relation value (e.g.
-`hasOne({ default: null as User | null })`).
-
-Also consider that non-loaded relations will have a value of `undefined`.
+model. You can pass the relation information to this factory.
 
 - Foscia consider your relations as non-nullable values by default.
+- Non-loaded relations will have a value of `undefined`.
 - `hasOne` and `hasMany` pending definition supports
   [chained modifiers](#relations-chained-modifiers).
 - Depending on your data structure, you should follow one of the recommandation
@@ -416,9 +411,11 @@ export default class User extends makeModel('users', {
 
 :::warning
 
-At this moment, custom properties/methods inside definition mixed with
-composables object spread is not supported because of
-[**an issue with TypeScript**](https://github.com/foscia-dev/foscia/issues/6).
+Please note that when using the object spread syntax, you won't be able to get a
+correctly typed `this` context _inside the current definition object_ (it is
+still available in next/previous definition or in class body). This is because
+of an
+[**issue due to a TypeScript limitation**](https://github.com/foscia-dev/foscia/issues/2).
 
 :::
 
