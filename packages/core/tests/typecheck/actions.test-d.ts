@@ -12,6 +12,7 @@ import {
   makeActionClass,
   one,
   oneOrCurrent,
+  raw,
   when,
 } from '@foscia/core';
 import { expectTypeOf, test } from 'vitest';
@@ -31,9 +32,9 @@ test('Actions are type safe', async () => {
     });
 
     return new ActionClass().use(context({
-      adapter: null as unknown as AdapterI<any>,
+      adapter: null as unknown as AdapterI<Response>,
       cache: null as unknown as CacheI,
-      deserializer: null as unknown as DeserializerI<any, any>,
+      deserializer: null as unknown as DeserializerI<Response, any>,
     }));
   };
 
@@ -91,4 +92,10 @@ test('Actions are type safe', async () => {
 
   expectTypeOf(commentsUsingFunc).toMatchTypeOf<CommentMock[]>();
   expectTypeOf(commentsUsingBuild).toMatchTypeOf<CommentMock[]>();
+
+  const response = await action().run(raw());
+
+  expectTypeOf(response).toMatchTypeOf<Response>();
+  // This will ensure `response` is not `any`.
+  expectTypeOf(response).not.toMatchTypeOf<number>();
 });
