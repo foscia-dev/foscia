@@ -47,6 +47,7 @@ import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExt
 import readExtensions from '@foscia/core/actions/extensions/readExtensions';
 import writeExtensions from '@foscia/core/actions/extensions/writeExtensions';
 import makeActionClass from '@foscia/core/actions/makeActionClass';
+import makeActionFactory from '@foscia/core/actions/makeActionFactory';
 import when from '@foscia/core/actions/when';
 
 export type { AllData, OneData };
@@ -97,6 +98,7 @@ export {
   makeEnhancersExtension,
   makeRunnersExtension,
   makeActionClass,
+  makeActionFactory,
   coreExtensions,
   crudExtensions,
   hooksExtensions,
