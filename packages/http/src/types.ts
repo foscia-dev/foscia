@@ -47,7 +47,7 @@ export type ConsumeHttpRequestConfig = {
 export type HttpAdapterConfig = {
   fetch?: typeof fetch;
   baseURL?: string | null;
-  serializeParams?: HttpParamsSerializer;
+  serializeParams: HttpParamsSerializer;
   defaultHeaders?: Dictionary<string>;
   defaultBodyAs?: BodyAsTransformer | null;
   requestTransformers?: RequestTransformer[];

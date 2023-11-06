@@ -26,7 +26,6 @@ import {
   RequestTransformer,
   ResponseTransformer,
 } from '@foscia/http/types';
-import paramsSerializer from '@foscia/http/utilities/paramsSerializer';
 import { applyConfig, Dictionary, isNil, optionalJoin, sequentialTransform } from '@foscia/shared';
 
 /**
@@ -37,7 +36,7 @@ export default class HttpAdapter implements AdapterI<Response> {
 
   private fetch = globalThis.fetch;
 
-  private serializeParams: HttpParamsSerializer = paramsSerializer;
+  private serializeParams: HttpParamsSerializer;
 
   private defaultHeaders: Dictionary<string> = {};
 
@@ -49,8 +48,10 @@ export default class HttpAdapter implements AdapterI<Response> {
 
   private errorTransformers: ErrorTransformer[] = [];
 
-  public constructor(config?: HttpAdapterConfig) {
-    this.configure(config ?? {});
+  public constructor(config: HttpAdapterConfig) {
+    this.serializeParams = config.serializeParams;
+
+    this.configure(config);
   }
 
   public configure(config: HttpAdapterConfig, override = true) {
