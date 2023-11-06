@@ -1,5 +1,6 @@
 import consumeRequestConfig from '@foscia/http/actions/context/consumers/consumeRequestConfig';
-import consumeRequestObjectParams from '@foscia/http/actions/context/consumers/consumeRequestObjectParams';
+import consumeRequestObjectParams
+  from '@foscia/http/actions/context/consumers/consumeRequestObjectParams';
 import abortSignal from '@foscia/http/actions/context/enhancers/abortSignal';
 import configureRequest from '@foscia/http/actions/context/enhancers/configureRequest';
 import makeDelete from '@foscia/http/actions/context/enhancers/makeDelete';
@@ -9,6 +10,7 @@ import makePost from '@foscia/http/actions/context/enhancers/makePost';
 import makePut from '@foscia/http/actions/context/enhancers/makePut';
 import makeRequest from '@foscia/http/actions/context/enhancers/makeRequest';
 import param from '@foscia/http/actions/context/enhancers/param';
+import makeHttpAdapter from '@foscia/http/blueprints/makeHttpAdapter';
 import AbortedError from '@foscia/http/errors/abortedError';
 import ConflictError from '@foscia/http/errors/conflictError';
 import ForbiddenError from '@foscia/http/errors/forbiddenError';
@@ -22,7 +24,6 @@ import TooManyRequestsError from '@foscia/http/errors/tooManyRequestsError';
 import UnauthorizedError from '@foscia/http/errors/unauthorizedError';
 import HttpAdapter from '@foscia/http/httpAdapter';
 import httpExtensions from '@foscia/http/httpExtensions';
-import makeHttpClient from '@foscia/http/makeHttpClient';
 import bodyAsJson from '@foscia/http/utilities/bodyAsJson';
 import deepParamsSerializer from '@foscia/http/utilities/deepParamsSerializer';
 import paramsSerializer from '@foscia/http/utilities/paramsSerializer';
@@ -30,8 +31,8 @@ import paramsSerializer from '@foscia/http/utilities/paramsSerializer';
 export * from '@foscia/http/types';
 
 export {
-  makeHttpClient,
   HttpAdapter,
+  makeHttpAdapter,
   bodyAsJson,
   paramsSerializer,
   deepParamsSerializer,

@@ -61,8 +61,3 @@ export type RequestTransformer = (request: Request) => Awaitable<Request>;
 export type ResponseTransformer = (response: Response) => Awaitable<Response>;
 export type ErrorTransformer = (error: unknown) => Awaitable<unknown>;
 export type BodyAsTransformer = (body: unknown, headers: Dictionary<string>) => Awaitable<BodyInit>;
-
-export type HttpClientConfig<Extension extends {}> = {
-  extensions?: Extension;
-  http?: HttpAdapterConfig;
-};

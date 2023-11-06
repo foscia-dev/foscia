@@ -22,6 +22,22 @@
 
 HTTP adapter implementation for [Foscia](https://foscia.netlify.app) actions.
 
+## Usage
+
+This package provides factories to create an HTTP client action factory.
+
+```typescript
+import { makeActionFactory, makeCache, makeRegistry } from '@foscia/core';
+import { makeHttpAdapter } from '@foscia/http';
+import { makeActionFactoryMockable } from '@foscia/test';
+
+export default makeActionFactoryMockable(makeActionFactory({
+  ...makeHttpAdapter({
+    baseURL: '/api',
+  }),
+}));
+```
+
 ## License
 
 `foscia` is an open-sourced software licensed under the
