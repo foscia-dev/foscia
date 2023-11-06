@@ -1,5 +1,4 @@
 import { RefManager, RefsCacheConfig } from '@foscia/core/cache/types';
-import weakRefManager from '@foscia/core/cache/weakRefManager';
 import { ModelIdType, ModelInstance } from '@foscia/core/model/types';
 import { CacheI } from '@foscia/core/types';
 import { applyConfig, IdentifiersMap } from '@foscia/shared';
@@ -7,11 +6,14 @@ import { applyConfig, IdentifiersMap } from '@foscia/shared';
 export default class RefsCache implements CacheI {
   private readonly instances: IdentifiersMap<string, ModelIdType, unknown>;
 
-  private manager: RefManager<unknown> = weakRefManager;
+  private manager: RefManager<unknown>;
 
-  public constructor(config?: RefsCacheConfig) {
+  public constructor(config: RefsCacheConfig) {
     this.instances = new IdentifiersMap();
-    this.configure(config ?? {});
+
+    this.manager = config.manager;
+
+    this.configure(config);
   }
 
   public configure(config: RefsCacheConfig, override = true) {

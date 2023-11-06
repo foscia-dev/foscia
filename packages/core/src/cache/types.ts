@@ -7,5 +7,5 @@ export type RefManager<R> = {
 };
 
 export type RefsCacheConfig<R = unknown> = {
-  manager?: RefManager<R>;
+  manager: RefManager<R>;
 };

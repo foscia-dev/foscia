@@ -1,4 +1,4 @@
-import { RefsCache } from '@foscia/core';
+import { RefsCache, weakRefManager } from '@foscia/core';
 import { describe, expect, it, vi } from 'vitest';
 import CommentMock from '../../mocks/models/comment.mock';
 import PostMock from '../../mocks/models/post.mock';
@@ -9,7 +9,7 @@ describe.concurrent('unit: refsCache', () => {
     const secondPost = new PostMock();
     const comment = new CommentMock();
 
-    const cache = new RefsCache();
+    const cache = new RefsCache({ manager: weakRefManager });
 
     expect(await cache.find('posts', '1')).toBeNull();
     expect(await cache.find('posts', '2')).toBeNull();
