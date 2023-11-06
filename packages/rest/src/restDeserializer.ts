@@ -9,14 +9,16 @@ import {
 import { applyConfig } from '@foscia/shared';
 
 export default class RestDeserializer extends ObjectDeserializer<Response, RestNewResource> {
-  private dataReader: DataReader | null = null;
+  private dataReader: DataReader;
 
   private dataExtractor: DataExtractor | null = null;
 
-  public constructor(config?: RestDeserializerConfig) {
+  public constructor(config: RestDeserializerConfig) {
     super(config);
 
-    this.configure(config ?? {});
+    this.dataReader = config.dataReader;
+
+    this.configure(config);
   }
 
   public configure(config: RestDeserializerConfig, override = true) {
@@ -34,7 +36,7 @@ export default class RestDeserializer extends ObjectDeserializer<Response, RestN
    * @inheritDoc
    */
   protected async extractData(response: Response): Promise<ObjectExtractedData<RestNewResource>> {
-    const document = this.dataReader ? await this.dataReader(response) : response;
+    const document = await this.dataReader(response);
 
     return {
       resources: this.dataExtractor ? await this.dataExtractor(document) : document,

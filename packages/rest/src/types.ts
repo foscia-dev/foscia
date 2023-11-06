@@ -23,7 +23,7 @@ export type RestNewResource = RestAbstractResource & {
 };
 
 export type RestDeserializerConfig = ObjectDeserializerConfig & {
-  dataReader?: DataReader;
+  dataReader: DataReader;
   dataExtractor?: DataExtractor | null;
 };
 
