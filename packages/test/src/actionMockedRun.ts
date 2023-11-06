@@ -2,6 +2,8 @@ import { ActionMockedRunOptions } from '@foscia/test/types';
 
 /**
  * Mocked action run configuration for mocked action factory.
+ *
+ * @internal
  */
 export default class ActionMockedRun<C extends {} = any> {
   /**

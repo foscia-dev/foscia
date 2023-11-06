@@ -1,5 +1,7 @@
 /**
  * History item wrapper for ran context over a mocked action.
+ *
+ * @internal
  */
 export default class ActionMockedHistoryItem {
   /**
