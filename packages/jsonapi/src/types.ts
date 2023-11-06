@@ -104,14 +104,3 @@ export type JsonApiDocument = {
     meta?: JsonApiMeta;
   };
 };
-
-/**
- * JSON:API action factory blueprint's configuration.
- */
-export type JsonApiConfig<Extension extends {}> = {
-  extensions?: Extension;
-  models?: MapRegistryModelsRegistration;
-  cache?: RefsCacheConfig;
-  registry?: MapRegistryConfig;
-  http?: HttpAdapterConfig;
-};

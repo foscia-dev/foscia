@@ -1,14 +1,20 @@
-import { makeJsonApi } from '@foscia/jsonapi';
+import { makeActionFactory, makeCache, makeRegistry } from '@foscia/core';
+import {
+  makeJsonApiAdapter,
+  makeJsonApiDeserializer,
+  makeJsonApiSerializer,
+} from '@foscia/jsonapi';
 import CommentMock from './models/comment.mock';
 import PostMock from './models/post.mock';
 
 export default function makeJsonApiActionMock() {
-  const { action } = makeJsonApi({
-    models: [PostMock, CommentMock],
-    http: {
+  return makeActionFactory({
+    ...makeRegistry({ models: [PostMock, CommentMock] }),
+    ...makeCache(),
+    ...makeJsonApiDeserializer(),
+    ...makeJsonApiSerializer(),
+    ...makeJsonApiAdapter({
       baseURL: 'https://example.com/api/v1',
-    },
+    }),
   });
-
-  return action;
 }
