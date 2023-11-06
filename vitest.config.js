@@ -1,7 +1,7 @@
 import typescript from '@rollup/plugin-typescript';
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 import { useRootDirname } from './scripts/utils.js';
 
 const require = createRequire(import.meta.url);
@@ -20,6 +20,9 @@ export default defineConfig({
     environment: 'jsdom',
     coverage: {
       provider: 'istanbul',
+      all: true,
+      include: ['packages/*/src/**'],
+      exclude: [...configDefaults.coverage.exclude, 'packages/cli/src/**'],
     },
     typecheck: {
       tsconfig: path.resolve(rootDirname, 'tsconfig.json'),
