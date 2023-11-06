@@ -36,16 +36,3 @@ export type DataExtractor = (
   document: any,
 ) => Awaitable<RestResource[] | RestResource | RestNewResource | null>;
 export type DataWrapper = (resource: Dictionary) => Awaitable<Dictionary>;
-
-/**
- * JSON REST action factory blueprint's configuration.
- */
-export type JsonRestConfig<Extension extends {}> = {
-  extensions?: Extension;
-  models?: MapRegistryModelsRegistration;
-  cache?: RefsCacheConfig;
-  registry?: MapRegistryConfig;
-  http?: HttpAdapterConfig;
-  serializer?: RestSerializerConfig;
-  deserializer?: RestDeserializerConfig;
-};

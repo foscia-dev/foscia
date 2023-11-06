@@ -22,6 +22,26 @@
 
 REST implementation for [Foscia](https://foscia.netlify.app) actions.
 
+## Usage
+
+This package provides factories to create a JSON REST API action factory.
+
+```typescript
+import { makeActionFactory, makeCache, makeRegistry } from '@foscia/core';
+import { makeJsonRestAdapter, makeJsonRestDeserializer, makeJsonRestSerializer } from '@foscia/rest';
+import { makeActionFactoryMockable } from '@foscia/test';
+
+export default makeActionFactoryMockable(makeActionFactory({
+  ...makeCache(),
+  ...makeRegistry(),
+  ...makeJsonRestDeserializer(),
+  ...makeJsonRestSerializer(),
+  ...makeJsonRestAdapter({
+    baseURL: '/api',
+  }),
+}));
+```
+
 ## License
 
 `foscia` is an open-sourced software licensed under the
