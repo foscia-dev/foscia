@@ -87,20 +87,12 @@ export type ConsumeModel<M extends Model = Model> = {
   model: M;
 };
 
-export type ConsumeModelPath = {
-  modelPath: string;
-};
-
 export type ConsumeInstance<I extends ModelInstance = ModelInstance> = {
   instance: I;
 };
 
 export type ConsumeRelation<R extends ModelRelation = ModelRelation> = {
   relation: R;
-};
-
-export type ConsumeRelationPath = {
-  relationPath: string;
 };
 
 export type ConsumeId = {
