@@ -1,10 +1,4 @@
-import {
-  MapRegistryConfig,
-  MapRegistryModelsRegistration,
-  ModelIdType,
-  RefsCacheConfig,
-} from '@foscia/core';
-import { HttpAdapterConfig } from '@foscia/http';
+import { ModelIdType } from '@foscia/core';
 import { ObjectDeserializerConfig, ObjectSerializerConfig } from '@foscia/object';
 import { Awaitable, Dictionary } from '@foscia/shared';
 
