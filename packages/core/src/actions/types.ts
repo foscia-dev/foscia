@@ -24,32 +24,32 @@ export type ActionHooksDefinition<C extends {} = any> = {
   finally: HookCallback<{ context: C; }>;
 };
 
-export type Action<Context extends {} = {}, Extension extends {} = {}> =
+export type Action<Context extends {} = {}, Extensions extends {} = {}> =
   & {
     useContext(): Promise<Context>;
     updateContext<NewContext extends {}>(
       newContext: NewContext,
-    ): Action<NewContext, Extension>;
+    ): Action<NewContext, Extensions>;
     use<NewContext extends {} = Context>(
-      enhancer: ContextEnhancer<Context, Extension, NewContext>,
-    ): Action<NewContext, Extension>;
+      enhancer: ContextEnhancer<Context, Extensions, NewContext>,
+    ): Action<NewContext, Extensions>;
     run<Result>(
-      runner: ContextRunner<Context, Extension, Result>,
+      runner: ContextRunner<Context, Extensions, Result>,
     ): Promise<Awaited<Result>>;
   }
-  & ActionVariadicUse<Context, Extension>
+  & ActionVariadicUse<Context, Extensions>
   & Hookable<ActionHooksDefinition<Context>>
-  & ExtendedAction<Extension>;
+  & ExtendedAction<Extensions>;
 
-export type ActionClass<Context extends {} = {}, Extension extends {} = {}> = {
+export type ActionClass<Context extends {} = {}, Extensions extends {} = {}> = {
   extends<NewExtension extends {} = {}>(
-    newExtensions?: NewExtension & ThisType<Action<Context, Extension & NewExtension>>,
-  ): ActionClass<Context, Extension & NewExtension>;
-} & Constructor<Action<Context, Extension>>;
+    newExtensions?: NewExtension & ThisType<Action<Context, Extensions & NewExtension>>,
+  ): ActionClass<Context, Extensions & NewExtension>;
+} & Constructor<Action<Context, Extensions>>;
 
-export type ActionFactory<Args extends any[], Context extends {}, Extension extends {}> = (
+export type ActionFactory<Args extends any[], Context extends {}, Extensions extends {}> = (
   ...args: Args
-) => Action<Context, Extension>;
+) => Action<Context, Extensions>;
 
 export type ActionParsedExtension<E extends {} = {}> = {
   [K in keyof E]: E[K] extends DescriptorHolder<any> ? E[K] : DescriptorHolder<E[K]>;
