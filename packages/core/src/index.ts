@@ -1,4 +1,6 @@
 import normalizeInclude from '@foscia/core/actions/context/utils/normalizeInclude';
+import makeCache from '@foscia/core/blueprints/makeCache';
+import makeRegistry from '@foscia/core/blueprints/makeRegistry';
 import RefsCache from '@foscia/core/cache/refsCache';
 import weakRefManager from '@foscia/core/cache/weakRefManager';
 import AdapterError from '@foscia/core/errors/adapterError';
@@ -79,7 +81,9 @@ export {
   DeserializerError,
   SerializerError,
   ExpectedRunFailureError,
+  makeRegistry,
   MapRegistry,
+  makeCache,
   RefsCache,
   weakRefManager,
   attr,
