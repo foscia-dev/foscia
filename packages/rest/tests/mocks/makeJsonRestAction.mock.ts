@@ -9,7 +9,7 @@ import PostMock from './models/post.mock';
 
 export default function makeJsonRestActionMock() {
   return makeActionFactory({
-    ...makeRegistry({ models: [PostMock, CommentMock] }),
+    ...makeRegistry([PostMock, CommentMock]),
     ...makeCache(),
     ...makeJsonRestDeserializer(),
     ...makeJsonRestSerializer(),

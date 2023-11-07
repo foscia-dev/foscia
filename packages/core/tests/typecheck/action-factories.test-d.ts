@@ -10,7 +10,7 @@ import { expectTypeOf, test } from 'vitest';
 
 test('Action factories are type safe', async () => {
   const actionFactory = makeActionFactory({
-    ...makeRegistry(),
+    ...makeRegistry([]),
     ...makeCache(),
   }, {
     ...all.extension,
