@@ -6,7 +6,7 @@ description: Using Foscia as a simple HTTP client.
 import Link from '@docusaurus/Link';
 import ShellCommand from '@site/src/components/ShellCommand';
 
-# HTTP client
+# HTTP
 
 :::tip What you'll learn
 
@@ -27,7 +27,7 @@ action factory as an HTTP client.
 ### CLI (recommended)
 
 You can get started for Foscia as an HTTP client using the
-[`@foscia/cli`](/docs/guides/cli).
+[`@foscia/cli`](/docs/digging-deeper/cli).
 
 <ShellCommand command="foscia init src/http --usage=http" />
 
@@ -50,7 +50,10 @@ export default action;
 
 ## Using the HTTP client features
 
-Once your action factory is ready, sending HTTP request is pretty easy:
+Once your action factory is ready, sending HTTP request is pretty easy using
+provided enhancers (`makeGet`, `makePost`, etc.). Running a request is done by
+`raw` runner, which will retrieve a fetch `Response` object. You can also pass a
+callback to `raw` to retrieve a value from the `Response` object.
 
 ```typescript
 import { makeGet, makePost } from '@foscia/http';
@@ -79,4 +82,4 @@ const data = await action()
 ## Implementation notes
 
 You may learn more about the HTTP adapter capabilities and implementation on
-[the HTTP implementation guide](/docs/guides/implementations/http).
+[the HTTP implementation guide](/docs/digging-deeper/implementations/http).

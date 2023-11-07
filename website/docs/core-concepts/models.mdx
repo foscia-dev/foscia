@@ -26,7 +26,7 @@ import Tabs from '@theme/Tabs';
 2 arguments and returns an ES6 class:
 
 - The string `type` or a
-  [configuration object](/docs/guides/models/models-configuration).
+  [configuration object](/docs/digging-deeper/models/models-configuration).
 - The optional `definition` of the model: an object map containing
   IDs/attributes/relations definitions and custom properties and methods.
 
@@ -78,7 +78,7 @@ timestamps, client side ID generation, etc.
 
 If you wish to learn more about the composition capabilities of models, you
 should read the
-[advanced guide about models composition](/docs/guides/models/models-composition).
+[advanced guide about models composition](/docs/digging-deeper/models/models-composition).
 
 #### Note on exported value
 
@@ -143,7 +143,7 @@ properties. You can pass a transformer or a default value to this factory.
   If you want to change the typing of those properties or transform values, you
   can use the `id` function.
 - `id` properties can be transformed.
-  [Read more on the transformers guide](/docs/guides/models/models-transformers).
+  [Read more on the transformers guide](/docs/digging-deeper/models/models-transformers).
 - `id` pending definition supports [chained modifiers](#ids-chained-modifiers).
 
 :::warning
@@ -194,7 +194,7 @@ attributes. You can pass a transformer or a default value to this factory.
 - Foscia consider your attributes as non-nullable values by default.
 - Non-loaded attributes will have a value of `undefined`.
 - `attr` properties can be transformed.
-  [Read more on the transformers guide](/docs/guides/models/models-transformers).
+  [Read more on the transformers guide](/docs/digging-deeper/models/models-transformers).
 - `attr` pending definition supports
   [chained modifiers](#attributes-chained-modifiers).
 
@@ -342,8 +342,8 @@ import User from './user';
 hasOne(() => User);
 ```
 
-This will make identifying a relation's related model easier for Foscia and
-make registering your models optional.
+This will make identifying a relation's related model easier for Foscia and make
+registering your models optional.
 
 ##### Explicit type when having circular references
 
@@ -362,7 +362,7 @@ Notice the `import type` for type definition when using TypeScript. This will
 import the type of the model and will avoid circular dependencies at runtime.
 
 You should also
-[correctly register your models](/docs/getting-started#registering-your-models)
+[correctly register your models](/docs/digging-deeper/actions/models-registration)
 on your action factory registry.
 
 When using a data source where each record contains an explicit type info (e.g.

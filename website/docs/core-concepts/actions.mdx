@@ -17,16 +17,17 @@ import Link from '@docusaurus/Link';
 
 :::
 
-:::warning Before reading this guide
+## Before reading this guide
 
-This guide is only about using actions. You can read more about action factories
-setups here:
+This guide is only about how actions work. You can read more about action
+factories setups in
+[the getting started guide](/docs/getting-started#action-factory).
 
-- [**Make your first action factory**](/docs/getting-started#action-factory)
-- [**Configure your action factory**](/docs/guides/actions/action-factory-configuration)
-- [**Implement custom action factory**](/docs/guides/actions/custom-action-factory)
+Using Foscia actions may look different when using one or another
+implementation, even if most basic actions are standardized.
 
-:::
+If you want to see some concrete examples on how actions could be used, you can
+check the [examples documentation section](/docs/category/examples).
 
 ## Instantiation
 
@@ -104,23 +105,28 @@ actions' instances. As an action, extensions can avoid you writing `use` or
 `run` by adding enhancers/runners methods on you action.
 
 The first step to use one or many extensions is to update your action factory in
-which you should provide an `extension` configuration option. If you are using a
-custom action factory, you should check the
-[custom action factory guide](/docs/guides/actions/custom-action-factory).
+which you should provide a second parameter.
 
 ```typescript title="action.js"
-import { forModel, include, all, hooksExtensions } from '@foscia/core';
-import { makeJsonApi } from '@foscia/jsonapi';
+import {
+  makeActionFactory,
+  forModel,
+  include,
+  all,
+  hooksExtensions,
+} from '@foscia/core';
 
-const { action, registry } = makeJsonApi({
-  extensions: {
-    // Spread any extensions you want to use here...
+export default makeActionFactory(
+  {
+    // makeJsonRestAdapter(), ...etc.
+  },
+  {
     ...hooksExtensions,
     ...forModel.extension,
     ...include.extension,
     ...all.extension,
   },
-});
+);
 ```
 
 You can now use the extended enhancers and runners without calling `use` or

@@ -27,19 +27,16 @@ JSON:API implementation for [Foscia](https://foscia.netlify.app) actions.
 This package provides factories to create a JSON:API action factory.
 
 ```typescript
-import { makeActionFactory, makeCache, makeRegistry } from '@foscia/core';
+import { makeActionFactory } from '@foscia/core';
 import { makeJsonApiAdapter, makeJsonApiDeserializer, makeJsonApiSerializer } from '@foscia/jsonapi';
-import { makeActionFactoryMockable } from '@foscia/test';
 
-export default makeActionFactoryMockable(makeActionFactory({
-  ...makeCache(),
-  ...makeRegistry(),
+export default makeActionFactory({
   ...makeJsonApiDeserializer(),
   ...makeJsonApiSerializer(),
   ...makeJsonApiAdapter({
     baseURL: '/api/v1',
   }),
-}));
+});
 ```
 
 ## License

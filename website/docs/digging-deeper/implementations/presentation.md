@@ -93,38 +93,38 @@ type CacheI = {
 `@foscia/core` provides implementations for `Cache` and `Registry`. Those
 implementations may be used for any Foscia usage (JSON:API, REST, etc.).
 
-- [Registry through `MapRegistry`](/docs/guides/implementations/core#mapregistry)
-- [Cache through `RefsCache`](/docs/guides/implementations/core#refscache)
+- [Registry through `MapRegistry`](/docs/digging-deeper/implementations/core#mapregistry)
+- [Cache through `RefsCache`](/docs/digging-deeper/implementations/core#refscache)
 
 ### HTTP
 
 `@foscia/http` provides implementation of `Adapter` to interact with HTTP data
 sources.
 
-- [Adapter through `HttpAdapter`](/docs/guides/implementations/http#httpadapter)
+- [Adapter through `HttpAdapter`](/docs/digging-deeper/implementations/http#httpadapter)
 
 ### Object
 
 `@foscia/object` provides abstract implementations of `Serializer` and
 `Deserializer` to transform model instances to/from JavaScript literal objects.
 
-- [Serializer through `ObjectSerializer`](/docs/guides/implementations/object#objectserializer)
-- [Deserializer through `ObjectDeserializer`](/docs/guides/implementations/object#objectdeserializer)
+- [Serializer through `ObjectSerializer`](/docs/digging-deeper/implementations/object#objectserializer)
+- [Deserializer through `ObjectDeserializer`](/docs/digging-deeper/implementations/object#objectdeserializer)
 
 ### JSON:API
 
 `@foscia/jsonapi` provides implementations of `Adapter`, `Serializer` and
 `Deserializer` to interact with JSON:API HTTP data sources.
 
-- [Adapter through `JsonApiAdapter`](/docs/guides/implementations/jsonapi#jsonapiadapter)
-- [Serializer through `JsonApiSerializer`](/docs/guides/implementations/jsonapi#jsonapiserializer)
-- [Deserializer through `JsonApiDeserializer`](/docs/guides/implementations/jsonapi#jsonapideserializer)
+- [Adapter through `JsonApiAdapter`](/docs/digging-deeper/implementations/jsonapi#jsonapiadapter)
+- [Serializer through `JsonApiSerializer`](/docs/digging-deeper/implementations/jsonapi#jsonapiserializer)
+- [Deserializer through `JsonApiDeserializer`](/docs/digging-deeper/implementations/jsonapi#jsonapideserializer)
 
 ### REST
 
 `@foscia/rest` provides implementations of `Adapter`, `Serializer` and
 `Deserializer` to interact with JSON REST HTTP data sources.
 
-- [Adapter through `RestAdapter`](/docs/guides/implementations/rest#restadapter)
-- [Serializer through `RestSerializer`](/docs/guides/implementations/rest#restserializer)
-- [Deserializer through `RestDeserializer`](/docs/guides/implementations/rest#restdeserializer)
+- [Adapter through `RestAdapter`](/docs/digging-deeper/implementations/rest#restadapter)
+- [Serializer through `RestSerializer`](/docs/digging-deeper/implementations/rest#restserializer)
+- [Deserializer through `RestDeserializer`](/docs/digging-deeper/implementations/rest#restdeserializer)

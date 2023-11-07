@@ -21,15 +21,15 @@ import ShellCommand from '@site/src/components/ShellCommand';
 :::info
 
 Only here for a simple HTTP client? Check out
-[**the simple HTTP client guide**](/docs/guides/actions/http-client).
+[**the simple HTTP client guide**](/docs/digging-deeper/actions/http).
 
 :::
 
 ## Prerequisites
 
 Before getting started, you must have installed Foscia packages you will need.
-[`@foscia/cli`](/docs/guides/cli) is the recommended way to install and get
-started using Foscia.
+[`@foscia/cli`](/docs/digging-deeper/cli) is the recommended way to install and
+get started using Foscia.
 
 <ShellCommand
   command={[
@@ -147,16 +147,21 @@ looks like:
 >
 
 ```typescript
-import { makeJsonApi } from '@foscia/jsonapi';
+import { makeActionFactory, makeCache } from '@foscia/core';
+import {
+  makeJsonApiAdapter,
+  makeJsonApiDeserializer,
+  makeJsonApiSerializer,
+} from '@foscia/jsonapi';
 
-const { action } = makeJsonApi({
-  models: [],
-  http: {
+export default makeActionFactory({
+  ...makeCache(),
+  ...makeJsonApiDeserializer(),
+  ...makeJsonApiSerializer(),
+  ...makeJsonApiAdapter({
     baseURL: '/api/v1',
-  },
+  }),
 });
-
-export default action;
 ```
 
 </TabItem>
@@ -166,78 +171,33 @@ export default action;
 >
 
 ```typescript
-import { makeJsonRest } from '@foscia/rest';
+import { makeActionFactory, makeCache } from '@foscia/core';
+import {
+  makeJsonRestAdapter,
+  makeJsonRestDeserializer,
+  makeJsonRestSerializer,
+} from '@foscia/rest';
 
-const { action } = makeJsonRest({
-  models: [],
-  http: {
-    baseURL: '/api/v1',
-  },
+export default makeActionFactory({
+  ...makeCache(),
+  ...makeJsonRestDeserializer(),
+  ...makeJsonRestSerializer(),
+  ...makeJsonRestAdapter({
+    baseURL: '/api',
+  }),
 });
-
-export default action;
 ```
 
 </TabItem>
 </Tabs>
-
-##### Notice on blueprints
-
-Using blueprints is a simple and quick way to set up an action factory. However,
-it may have some downsides:
-
-- Only some implementations are available for now, so you may not find something
-  which fits your needs
-- Some dependencies (e.g. serializer in a readonly context) may be imported even
-  if you don't use them, and it may increase your production bundle size
-- Some behaviors may not be configurable
-
-You may configure the behavior or implementation in two ways:
-
-- [**Configure your action factory**](/docs/guides/actions/action-factory-configuration)
-- [**Implement custom action factory**](/docs/guides/actions/custom-action-factory)
-
-#### Registering your models
-
-:::info
-
-If you have opt-in for an automatic registration of models during `@foscia/cli`
-initialization, you can skip this step!
-
-:::
-
-When using Foscia, actions are not aware of models they should use. This means
-Foscia actions cannot resolve a model (e.g. when deserializing) without having
-an explicit mapping between a given type and a model.
-
-To register models, you can pass an array of models you wish to use to your
-action factory blueprint:
-
-```typescript
-import { makeJsonApi } from '@foscia/jsonapi';
-import Post from './models/post';
-import Comment from './models/comment';
-
-const { action } = makeJsonApi({
-  // Register the models.
-  models: [Post, Comment],
-});
-
-export default action;
-```
-
-:::info
-
-If you don't register your models, Foscia will try to resolve models using
-context or relations information (name, model resolver, type, etc.).
-
-:::
 
 #### Builder pattern syntax
 
 If you want to use the builder pattern syntax (e.g. `action().forModel(Post)`
 instead of `action().use(forModel(Post))`), you must provide the extensions you
 want to use during your action factory creation.
+
+Extensions are the second argument passed to `makeActionFactory`.
 
 <Tabs groupId="usage">
   <TabItem
@@ -247,12 +207,15 @@ want to use during your action factory creation.
   >
 
 ```typescript
-import { makeJsonApi, jsonApiStarterExtensions } from '@foscia/jsonapi';
+import { makeActionFactory } from '@foscia/core';
+import { jsonApiStarterExtensions } from '@foscia/jsonapi';
 
-const { action } = makeJsonApi({
-  // Register the extensions.
-  extensions: jsonApiStarterExtensions,
-});
+export default makeActionFactory(
+  {
+    // makeJsonApiAdapter(), ...etc.
+  },
+  jsonApiStarterExtensions,
+);
 ```
 
   </TabItem>
@@ -262,12 +225,15 @@ const { action } = makeJsonApi({
   >
 
 ```typescript
-import { makeJsonRest, jsonRestStarterExtensions } from '@foscia/jsonapi';
+import { makeActionFactory } from '@foscia/core';
+import { jsonRestStarterExtensions } from '@foscia/rest';
 
-const { action } = makeJsonRest({
-  // Register the extensions.
-  extensions: jsonRestStarterExtensions,
-});
+export default makeActionFactory(
+  {
+    // makeJsonRestAdapter(), ...etc.
+  },
+  jsonRestStarterExtensions,
+);
 ```
 
   </TabItem>
@@ -278,17 +244,25 @@ check the [available extensions packs](/docs/reference/actions-extensions). You
 can also manually import enhancers and runners extensions you need:
 
 ```typescript
-import { forModel, include, all, hooksExtensions } from '@foscia/core';
-import { makeJsonApi } from '@foscia/jsonapi';
+import {
+  makeActionFactory,
+  forModel,
+  include,
+  all,
+  hooksExtensions,
+} from '@foscia/core';
 
-const { action } = makeJsonApi({
-  extensions: {
+export default makeActionFactory(
+  {
+    // makeJsonRestAdapter(), ...etc.
+  },
+  {
     ...hooksExtensions,
     ...forModel.extension,
     ...include.extension,
     ...all.extension,
   },
-});
+);
 ```
 
 ### Running simple actions
@@ -359,9 +333,9 @@ import { makePost } from '@foscia/http';
 import Comment from './comment';
 import action from './action';
 
-const comment = await action().use(find(Comment, 'abc-123')).run(oneOrFail());
+const comment = await action().use(find(Comment, '1')).run(oneOrFail());
 
-// Make a POST call to "https://example.com/api/v1/services/comments/1/publish"
+// Make a POST call to "https://example.com/api/v1/comments/1/publish"
 const response = await action()
   .use(
     forInstance(comment),

@@ -126,8 +126,8 @@ const config = {
                 to: '/docs/category/core-concepts',
               },
               {
-                label: 'Guides',
-                to: '/docs/category/guides',
+                label: 'Digging deeper',
+                to: '/docs/category/digging-deeper',
               },
               {
                 label: 'Reference',

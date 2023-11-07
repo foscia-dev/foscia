@@ -38,11 +38,28 @@ your action factory and define expected results and contexts expectation.
 Foscia provide a simple set of functions and objects to help you writing unit
 tests with any testing framework (Jest, Vitest, etc.).
 
-### Mocking action factory
+### Preparation
 
 Start by installing Foscia test helpers.
 
 <ShellCommand command="add dev @foscia/test" />
+
+Once test helpers are installed, you should make your action factory "mockable"
+using `makeActionFactoryMockable`. This will transform the action factory
+function so it can be mocked or unmocked using `mockAction` and `unmockAction`.
+
+```typescript title="action.ts"
+import { makeActionFactory } from '@foscia/core';
+import { makeActionFactoryMockable } from '@foscia/test';
+
+export default makeActionFactoryMockable(
+  makeActionFactory({
+    // configuration...
+  }),
+);
+```
+
+### Mocking action factory
 
 You can mock your action factory using `mockAction` function. It is important to
 just pass your action factory (`action`) and not its return value (`action()`),
@@ -68,26 +85,6 @@ afterEach(() => {
 });
 
 export default actionMock;
-```
-
-#### Making any action factory mockable
-
-When using [blueprints action factories](/docs/getting-started#with-blueprints),
-the action factory function is already a mockable function (a mock can be
-installed on it) and you have nothing else to do.
-
-If you are building your
-[own action factory function](docs/guides/actions/custom-action-factory), you
-can make any factory function mockable using `makeActionFactoryMockable`:
-
-```typescript title="action.ts"
-function action() {
-  // Your custom action factory...
-  return new Action();
-}
-
-// This will return a new function which can be mocked.
-export default makeActionFactoryMockable(action);
 ```
 
 ### Unit tests example

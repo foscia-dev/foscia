@@ -17,7 +17,7 @@ toc_max_heading_level: 4
 
 You may configure your model when creating them through your factory `makeModel`
 or when defining a custom factory such as described in the
-[model composition guide](/docs/guides/models/models-composition#factory).
+[model composition guide](/docs/digging-deeper/models/models-composition#factory).
 
 When using inside a model creation (`makeModel`), the configuration will be
 dedicated to this model. Configuration is the first argument and definition is
@@ -115,7 +115,7 @@ makeModel({
 **Default**: no transformation.
 
 **Recommandation**: use this configuration option inside a
-[custom model factory](/docs/guides/models/models-composition#factory).
+[custom model factory](/docs/digging-deeper/models/models-composition#factory).
 
 `guessPath` transform a model's `type` to guess its `path`.
 
@@ -137,7 +137,7 @@ makeModel({
 **Default**: no transformation.
 
 **Recommandation**: use this configuration option inside a
-[custom model factory](/docs/guides/models/models-composition#factory).
+[custom model factory](/docs/digging-deeper/models/models-composition#factory).
 
 `guessAlias` transform a model's property `key` to guess its `alias`.
 
@@ -159,7 +159,7 @@ makeModel({
 **Default**: pluralize key for "to one" relation.
 
 **Recommandation**: use this configuration option inside a
-[custom model factory](/docs/guides/models/models-composition#factory).
+[custom model factory](/docs/digging-deeper/models/models-composition#factory).
 
 To avoid defining types on all your relations even when necessary (for example
 in some cases with REST implementation), you may configure a type guesser on
@@ -184,7 +184,7 @@ makeModel({
 **Default**: no transformation.
 
 **Recommandation**: use this configuration option inside a
-[custom model factory](/docs/guides/models/models-composition#factory).
+[custom model factory](/docs/digging-deeper/models/models-composition#factory).
 
 `guessRelationPath` transform a model's relation to its "path". This is only
 needed in specific implementation context (such as JSON:API when querying
@@ -214,7 +214,7 @@ makeModel({
 base value.
 
 **Recommandation**: use this configuration option inside a
-[custom model factory](/docs/guides/models/models-composition#factory).
+[custom model factory](/docs/digging-deeper/models/models-composition#factory).
 
 You may have noticed that Foscia provide some model history features. Those
 allow you to know which parts of a model instance changed since its retrieval
@@ -252,7 +252,7 @@ instance state. Keep in mind that:
 **Default**: `false`.
 
 **Recommandation**: use this configuration option inside a
-[custom model factory](/docs/guides/models/models-composition#factory).
+[custom model factory](/docs/digging-deeper/models/models-composition#factory).
 
 Enable all strict policies on model:
 
@@ -263,7 +263,7 @@ Enable all strict policies on model:
 **Default**: `false`.
 
 **Recommandation**: use this configuration option inside a
-[custom model factory](/docs/guides/models/models-composition#factory).
+[custom model factory](/docs/digging-deeper/models/models-composition#factory).
 
 When enabled, getting a model's instance property value will throw an error if
 the value was not retrieved from the store or if the relation is not loaded.

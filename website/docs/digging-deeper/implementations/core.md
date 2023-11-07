@@ -41,10 +41,14 @@ different from the record types returned inside a JSON:API response.
 #### Usage
 
 ```typescript
-import { MapRegistry } from '@foscia/core';
+import { MapRegistry, makeRegistry } from '@foscia/core';
 import Post from './models/post';
 
 const registry = new MapRegistry({
+  /* ...configuration */
+});
+// OR: using blueprint.
+const registry = makeRegistry({
   /* ...configuration */
 });
 
@@ -67,7 +71,7 @@ registry.register([async () => (await import('./models/post')).default]);
 #### Configuration
 
 | Name            | Type                                                | Description                                                |
-|-----------------|-----------------------------------------------------|------------------------------------------------------------|
+| --------------- | --------------------------------------------------- | ---------------------------------------------------------- |
 | `normalizeType` | <code>((type: string) => string) &vert; null</code> | Normalize the type before registering or resolving models. |
 
 #### Defined in
@@ -76,8 +80,8 @@ registry.register([async () => (await import('./models/post')).default]);
 
 ### `RefsCache`
 
-This implementation of the cache stores reference to model instance
-created by a `RefManager`.
+This implementation of the cache stores reference to model instance created by a
+`RefManager`.
 
 The `RefManager` is responsible to:
 
@@ -85,23 +89,27 @@ The `RefManager` is responsible to:
 - Retrieve value for this ref object (may return undefined if the ref has
   expired).
 
-Foscia proposes a simple implementation of a `RefManager`,
-named `weakRefManager`, which will store model instance as
+Foscia proposes a simple implementation of a `RefManager`, named
+`weakRefManager`, which will store model instance as
 [`WeakRef`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/WeakRef).
 With this implementation, only instance that are still stored in your
 application memory (not garbage collected) remains in cache.
 
-You can define another implementation of `RefManager`,
-for example based on an expiration timeout.
+You can define another implementation of `RefManager`, for example based on an
+expiration timeout.
 
 #### Usage
 
 ```typescript
-import { RefsCache, weakRefManager } from '@foscia/core';
+import { RefsCache, weakRefManager, makeCache } from '@foscia/core';
 import Post from './models/post';
 
 const cache = new RefsCache({
   manager: weakRefManager,
+});
+// OR: using blueprint (set manager to "weakRefManager" by default).
+const cache = makeCache({
+  /* ...configuration */
 });
 
 const post = new Post();
@@ -115,7 +123,7 @@ cache.find('posts', '1');
 #### Configuration
 
 | Name      | Type                                                               | Description                                                      |
-|-----------|--------------------------------------------------------------------|------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
 | `manager` | [`RefManager`](/docs/reference/api/modules/foscia_core#refmanager) | Create refs to instances and retrieve/expire those refs' values. |
 
 #### Defined in
