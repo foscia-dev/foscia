@@ -1,11 +1,9 @@
-import { MakeType } from '@foscia/cli/utils/make';
-
 type ComposableForDefTemplateData = {
-  composable: MakeType;
+  composable: string;
 };
 
 export default function renderComposableForDef({ composable }: ComposableForDefTemplateData) {
   return `
-...${composable.name}
+...${composable}
 `.trim();
 }

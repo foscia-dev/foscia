@@ -1,82 +1,51 @@
-import { CLIConfig } from '@foscia/cli/utils/config/config';
 import renderComposableForDef from '@foscia/cli/templates/renderComposableForDef';
 import renderExport from '@foscia/cli/templates/renderExport';
-import renderImport from '@foscia/cli/templates/renderImport';
+import renderImportsList from '@foscia/cli/templates/renderImportsList';
 import renderPropertyForDef from '@foscia/cli/templates/renderPropertyForDef';
+import { CLIConfig } from '@foscia/cli/utils/config/config';
+import { ImportsList } from '@foscia/cli/utils/imports/makeImportsList';
+import { DefinitionProperty } from '@foscia/cli/utils/input/promptForProperties';
 import toIndent from '@foscia/cli/utils/output/toIndent';
-import toJoinMultiline from '@foscia/cli/utils/output/toJoinMultiline';
-import { MakeProperty, MakeType } from '@foscia/cli/utils/make';
-import { sortBy, uniq } from 'lodash-es';
+import { uniq } from 'lodash-es';
 
 type ComposableTemplateData = {
   config: CLIConfig;
-  composables: MakeType[];
-  properties: MakeProperty[];
+  imports: ImportsList;
+  composables: string[];
+  properties: DefinitionProperty[];
 };
-
-export function renderFosciaImports(
-  { config, properties, name }: { config: CLIConfig, properties: MakeProperty[], name: string },
-) {
-  return renderImport({
-    config,
-    name: [name, ...properties.map((p) => p.typology)],
-    from: '@foscia/core',
-  });
-}
-
-export function renderDefinitionImports(
-  { config, types }: { config: CLIConfig, types: (MakeProperty | MakeType)[] },
-  context: 'models' | 'composables',
-) {
-  return toJoinMultiline(sortBy(uniq(
-    types
-      .map((p) => {
-        const isProperty = 'type' in p;
-        const type = (isProperty ? p.type : p) as MakeType;
-
-        return renderImport({
-          config,
-          name: type?.name,
-          from: type?.from,
-          typeOnly: isProperty,
-          context,
-        });
-      })
-      .filter((i) => i) as string[],
-  )));
-}
 
 export function renderDefinition(
   { config, composables, properties }: {
     config: CLIConfig;
-    composables: MakeType[];
-    properties: MakeProperty[];
+    composables: string[];
+    properties: DefinitionProperty[];
   },
 ) {
   const definition = (composables.length + properties.length)
-    ? toJoinMultiline(uniq([
+    ? `${uniq([
       ...composables.map(
-        (c) => `${toIndent(config)}${renderComposableForDef({ composable: c })}`,
+        (composable) => toIndent(config, renderComposableForDef({ composable })),
       ),
       ...properties.map(
-        (p) => `${toIndent(config)}${renderPropertyForDef({ property: p })}`,
+        (property) => toIndent(config, renderPropertyForDef({ property })),
       ),
-    ]), ',\n')
-    : `${toIndent(config)}// TODO Write definition.\n`;
+    ]).join(',\n')},`
+    : `${toIndent(config, '// TODO Write definition.')}`;
 
-  return `{\n${definition}}`.trim();
+  return `{\n${definition}\n}`.trim();
 }
 
 export default function renderComposable(
-  { config, composables, properties }: ComposableTemplateData,
+  { config, imports, composables, properties }: ComposableTemplateData,
 ) {
   const composableDef = renderDefinition({ config, composables, properties });
   const composableObject = `makeComposable(${composableDef})`;
-  const composableTypes = [...composables, ...properties];
+
+  imports.add('makeComposable', '@foscia/core');
 
   return `
-${renderFosciaImports({ config, properties, name: 'makeComposable' })}
-${renderDefinitionImports({ config, types: composableTypes }, 'composables')}
+${renderImportsList({ config, imports, context: 'composables' })}
 ${renderExport({ config, expr: composableObject })}
 `.trim();
 }

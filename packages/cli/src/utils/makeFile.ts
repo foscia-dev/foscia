@@ -17,7 +17,7 @@ export default async function makeFile(
     await promptForOverwrite(filePath);
   }
 
-  const content = await template();
+  const content = `${(await template()).trim()}\n`;
 
   await writeOrPrintFile(name, filePath, content, config.language, show);
 }

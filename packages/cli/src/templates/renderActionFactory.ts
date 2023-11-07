@@ -1,82 +1,114 @@
 import renderExport from '@foscia/cli/templates/renderExport';
-import renderImport from '@foscia/cli/templates/renderImport';
+import renderImportsList from '@foscia/cli/templates/renderImportsList';
 import { CLIConfig } from '@foscia/cli/utils/config/config';
-import type { ActionFactoryOptions } from '@foscia/cli/utils/input/promptForActionFactoryOptions';
-import { sortBy } from 'lodash-es';
+import { ImportsList } from '@foscia/cli/utils/imports/makeImportsList';
+import type {
+  ActionFactoryDependency,
+  ActionFactoryModelRegistration,
+  ActionFactoryOptions,
+} from '@foscia/cli/utils/input/promptForActionFactoryOptions';
+import toIndent from '@foscia/cli/utils/output/toIndent';
 
 type ActionFactoryTemplateData = {
   config: CLIConfig;
+  imports: ImportsList;
   usage: CLIConfig['usage'];
   options: ActionFactoryOptions;
 };
 
-export function renderModelsDefinition({ config, options }: ActionFactoryTemplateData) {
-  if (options.automaticRegistration === 'import.meta.glob') {
-    const modelsCast = config.language === 'ts'
-      ? ' as { [k: string]: Model }'
-      : '';
+export function renderModelsRegistration(
+  { config, registry }: { config: CLIConfig; registry: ActionFactoryModelRegistration; },
+) {
+  let typeAssertion = '';
+  if (registry === 'import.meta.glob') {
+    if (config.language === 'ts') {
+      typeAssertion = ' as { [k: string]: Model }';
+    }
 
     return `
 const models = Object.values(import.meta.glob('./models/*.${config.language}', {
-  import: 'default', eager: true,
-})${modelsCast});
+${toIndent(config, 'import: \'default\', eager: true,')}
+})${typeAssertion});
+`.trim();
+  }
+
+  if (registry === 'require.context') {
+    if (config.language === 'ts') {
+      typeAssertion = ' as Model';
+    }
+
+    return `
+const modelsRequireContext = require.context('./models', /\\.${config.language}/);
+const models = modelsRequireContext.keys().map(
+${toIndent(config, `(key) => modelsRequireContext(key).default${typeAssertion}`)},
+);
 `.trim();
   }
 
   return 'const models = [/* TODO Post, Comment, [...] */];';
 }
 
-function renderBlueprintActionFactory({ config, usage, options }: ActionFactoryTemplateData) {
-  const enableModelFeatures = ['jsonapi', 'jsonrest'].indexOf(usage) !== -1;
-  const factoryFunction = {
-    jsonapi: { name: 'makeJsonApi', package: 'jsonapi' },
-    jsonrest: { name: 'makeJsonRest', package: 'rest' },
-    http: { name: 'makeHttpClient', package: 'http' },
-  }[usage];
-
-  const factoryConfiguration = {
-    ...(enableModelFeatures ? { models: '____models____' } : {}),
-    ...options.config,
-  };
-  const factoryConfigured = Object.values(factoryConfiguration)
-    .filter((o) => o !== undefined)
-    .length > 0;
-  const factoryConfigurationJsonLiteral = factoryConfigured
-    ? JSON.stringify(factoryConfiguration, null, config.tabSize ?? 2).replace(/"([^"]+)":/g, '$1:')
-    : '';
-  const factoryConfigurationLiteral = factoryConfigurationJsonLiteral
-    .replace(/"([^"]+)":/g, '$1:')
-    .replace(/"____([a-z]+)____"/, '$1')
-    .replace('models: models,', 'models,');
-
-  const blueprintImportStatement = renderImport({
-    config,
-    name: `{ ${factoryFunction.name} }`,
-    from: `@foscia/${factoryFunction.package}`,
-  });
-
-  const coreImports = [] as string[];
-  if (enableModelFeatures && options.automaticRegistration) {
-    coreImports.push('Model');
+function renderFactoryOptions(config: CLIConfig, options?: { [K: string]: unknown }) {
+  const emptyOptions = Object.values(options ?? {}).filter((o) => o !== undefined).length === 0;
+  if (emptyOptions) {
+    return '';
   }
 
-  const coreImportStatement = coreImports.length
-    ? `\n${renderImport({
-      config,
-      name: `{ ${sortBy(coreImports).join(', ')} }`,
-      from: '@foscia/core',
-    })}`
-    : '';
-
-  return `
-${blueprintImportStatement}${coreImportStatement}
-${enableModelFeatures ? `\n${renderModelsDefinition({ config, usage, options })}\n` : ''}
-const { action } = ${factoryFunction.name}(${factoryConfigurationLiteral});
-
-${renderExport({ config, expr: 'action' })}
-`.trim();
+  return JSON.stringify(options, null, (config.tabSize ?? 2))
+    .replace(/"([^"]+)":/g, '$1:')
+    .replace(/\\"/g, '\\\'')
+    .replace(/"/g, '\'');
 }
 
-export default function renderActionFactory({ config, usage, options }: ActionFactoryTemplateData) {
-  return renderBlueprintActionFactory({ config, usage, options });
+function renderFactoryDependency(
+  config: CLIConfig,
+  comment: string,
+  dependency?: ActionFactoryDependency,
+) {
+  return dependency
+    ? `${comment}\n...${dependency.name}(${renderFactoryOptions(config, dependency.options)}),`
+    : undefined;
+}
+
+export default function renderActionFactory(
+  { config, imports, options }: ActionFactoryTemplateData,
+) {
+  const modelsRegistration = options.registry
+    ? `\n${renderModelsRegistration({ config, registry: options.registry })}\n`
+    : '';
+
+  const actionFactoryDependencies = [
+    options.cache
+      ? '// Cache stores already retrieved models\' instances\n// and avoid duplicates records to coexists.\n// If you don\'t care about this feature, you can remove it.\n...makeCache(),'
+      : undefined,
+    options.registry
+      ? '// Registry stores a map of type string and models classes.\n// You have this dependency because you\'ve opt-in for it.\n...makeRegistry(models),'
+      : undefined,
+    renderFactoryDependency(
+      config,
+      '// Deserializer transforms data source\'s raw data to model\'s instances.\n// If you don\'t retrieve models from your data store, you can remove it.',
+      options.deserializer,
+    ),
+    renderFactoryDependency(
+      config,
+      '// Serializer transforms model\'s instances to your data source\'s format.\n// If you don\'t send models to your data store, you can remove it.',
+      options.serializer,
+    ),
+    renderFactoryDependency(
+      config,
+      '// Adapter exchanges data with your data source.\n// This is mandatory when using Foscia.',
+      options.adapter,
+    ),
+  ];
+
+  const actionFactory = `
+makeActionFactory({
+${actionFactoryDependencies.filter((d) => d).map((d) => toIndent(config, d!)).join('\n')}
+})
+`.trim();
+
+  return `
+${renderImportsList({ config, imports })}${modelsRegistration}
+${renderExport({ config, expr: actionFactory })}
+`.trim();
 }

@@ -4,6 +4,7 @@ import { Command } from '@foscia/cli/commands/types';
 import renderActionFactory from '@foscia/cli/templates/renderActionFactory';
 import useConfig from '@foscia/cli/utils/config/useConfig';
 import warnMissingDependencies from '@foscia/cli/utils/dependencies/warnMissingDependencies';
+import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import promptForActionFactoryOptions from '@foscia/cli/utils/input/promptForActionFactoryOptions';
 import makeFile from '@foscia/cli/utils/makeFile';
 import logSymbols from '@foscia/cli/utils/output/logSymbols';
@@ -43,10 +44,13 @@ export default {
         pc.bold(`\n${logSymbols.foscia} Lets configure your action factory!\n`),
       );
 
+      const imports = makeImportsList();
+
       return renderActionFactory({
         config,
+        imports,
         usage,
-        options: await promptForActionFactoryOptions(config, usage),
+        options: await promptForActionFactoryOptions(config, imports, usage),
       });
     }, show);
   },

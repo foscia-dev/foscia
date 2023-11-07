@@ -18,6 +18,7 @@ import usePkg from '@foscia/cli/utils/dependencies/usePkg';
 import findUp from '@foscia/cli/utils/files/findUp';
 import resolvePath from '@foscia/cli/utils/files/resolvePath';
 import writeOrPrintFile from '@foscia/cli/utils/files/writeOrPrintFile';
+import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import findChoice from '@foscia/cli/utils/input/findChoice';
 import promptForActionFactoryOptions from '@foscia/cli/utils/input/promptForActionFactoryOptions';
 import promptForOverwrite from '@foscia/cli/utils/input/promptForOverwrite';
@@ -256,8 +257,10 @@ export default {
       await promptForOverwrite(factoryPath, 'Action factory was not generated. You can run "foscia make:action" to generate an action factory.');
     }
 
-    const factoryOptions = await promptForActionFactoryOptions(config, usage);
-    const factoryContent = renderActionFactory({ config, usage, options: factoryOptions });
+    const imports = makeImportsList();
+
+    const factoryOptions = await promptForActionFactoryOptions(config, imports, usage);
+    const factoryContent = renderActionFactory({ config, imports, usage, options: factoryOptions });
     await writeOrPrintFile('Action factory', factoryPath, factoryContent, config.language, show);
   },
 } as Command<InitCommandOptions>;

@@ -1,30 +1,29 @@
-import { CLIConfig } from '@foscia/cli/utils/config/config';
-import {
-  renderFosciaImports,
-  renderDefinition,
-  renderDefinitionImports,
-} from '@foscia/cli/templates/renderComposable';
+import { renderDefinition } from '@foscia/cli/templates/renderComposable';
 import renderExport from '@foscia/cli/templates/renderExport';
-import { MakeProperty, MakeType } from '@foscia/cli/utils/make';
+import renderImportsList from '@foscia/cli/templates/renderImportsList';
+import { CLIConfig } from '@foscia/cli/utils/config/config';
+import { ImportsList } from '@foscia/cli/utils/imports/makeImportsList';
+import { DefinitionProperty } from '@foscia/cli/utils/input/promptForProperties';
 
 type ModelTemplateData = {
   config: CLIConfig;
+  imports: ImportsList;
   className: string;
   typeName: string;
-  composables: MakeType[];
-  properties: MakeProperty[];
+  composables: string[];
+  properties: DefinitionProperty[];
 };
 
 export default function renderModel(
-  { config, className, typeName, composables, properties }: ModelTemplateData,
+  { config, imports, className, typeName, composables, properties }: ModelTemplateData,
 ) {
   const modelDef = renderDefinition({ config, composables, properties });
   const modelClass = `class ${className} extends makeModel('${typeName}', ${modelDef}) {\n}`;
-  const modelTypes = [...composables, ...properties];
+
+  imports.add('makeModel', '@foscia/core');
 
   return `
-${renderFosciaImports({ config, properties, name: 'makeModel' })}
-${renderDefinitionImports({ config, types: modelTypes }, 'models')}
+${renderImportsList({ config, imports, context: 'models' })}
 ${renderExport({ config, expr: modelClass })}
 `.trim();
 }

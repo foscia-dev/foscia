@@ -3,6 +3,7 @@ import { Command } from '@foscia/cli/commands/types';
 import renderComposable from '@foscia/cli/templates/renderComposable';
 import useConfig from '@foscia/cli/utils/config/useConfig';
 import warnMissingDependencies from '@foscia/cli/utils/dependencies/warnMissingDependencies';
+import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import promptForComposables from '@foscia/cli/utils/input/promptForComposables';
 import promptForProperties from '@foscia/cli/utils/input/promptForProperties';
 import makeFile from '@foscia/cli/utils/makeFile';
@@ -43,10 +44,13 @@ export default {
         `${logSymbols.foscia} Lets configure your composable's definition (attributes, etc.).\n`,
       );
 
+      const imports = makeImportsList();
+
       return renderComposable({
         config,
-        composables: await promptForComposables(config),
-        properties: await promptForProperties(config),
+        imports,
+        composables: await promptForComposables(config, imports),
+        properties: await promptForProperties(config, imports),
       });
     }, show);
   },

@@ -1,11 +1,19 @@
-import { MakeProperty } from '@foscia/cli/utils/make';
+import { DefinitionProperty } from '@foscia/cli/utils/input/promptForProperties';
 
 type PropertyForDefTemplateData = {
-  property: MakeProperty;
+  property: DefinitionProperty;
 };
+
+function renderAttributeProperty(property: DefinitionProperty) {
+  return `attr${property.type ? `<${property.type}>` : ''}(${property.transformer ? `${property.transformer}()` : ''})`;
+}
+
+function renderRelationProperty(property: DefinitionProperty) {
+  return `${property.typology}(() => ${property.type})`;
+}
 
 export default function renderPropertyForDef({ property }: PropertyForDefTemplateData) {
   return `
-${property.name}: ${property.typology}${property.type ? `<${property.type.name}>` : ''}()
+${property.name}: ${property.typology === 'attr' ? renderAttributeProperty(property) : renderRelationProperty(property)}
 `.trim();
 }

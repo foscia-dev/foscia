@@ -3,6 +3,7 @@ import { Command } from '@foscia/cli/commands/types';
 import renderModel from '@foscia/cli/templates/renderModel';
 import useConfig from '@foscia/cli/utils/config/useConfig';
 import warnMissingDependencies from '@foscia/cli/utils/dependencies/warnMissingDependencies';
+import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import promptForComposables from '@foscia/cli/utils/input/promptForComposables';
 import promptForProperties from '@foscia/cli/utils/input/promptForProperties';
 import makeFile from '@foscia/cli/utils/makeFile';
@@ -46,12 +47,15 @@ export default {
         `${logSymbols.foscia} Lets configure your model's definition (attributes, etc.).\n`,
       );
 
+      const imports = makeImportsList();
+
       return renderModel({
         config,
+        imports,
         className,
         typeName,
-        composables: await promptForComposables(config),
-        properties: await promptForProperties(config),
+        composables: await promptForComposables(config, imports),
+        properties: await promptForProperties(config, imports),
       });
     }, show);
   },

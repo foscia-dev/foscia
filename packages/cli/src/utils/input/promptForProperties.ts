@@ -1,18 +1,40 @@
 import { CLIConfig } from '@foscia/cli/utils/config/config';
+import { ImportsList } from '@foscia/cli/utils/imports/makeImportsList';
 import promptForModelType from '@foscia/cli/utils/input/promptForModelType';
-import { MAKE_PROPERTY_TYPOLOGIES, MakeProperty } from '@foscia/cli/utils/make';
 import { input, select } from '@inquirer/prompts';
 
 const VALID_NAME_REGEX = /^(?!\d)[\w$]+$/;
 
+export type DefinitionProperty = {
+  typology: 'attr' | 'hasOne' | 'hasMany';
+  name: string;
+  transformer?: string;
+  type?: string;
+};
+
 async function promptForProperty(
   config: CLIConfig,
-  properties: MakeProperty[] = [],
+  imports: ImportsList,
+  properties: DefinitionProperty[] = [],
 ) {
   const typology = await select({
     message: 'What property would you like to add?',
     choices: [
-      ...MAKE_PROPERTY_TYPOLOGIES,
+      {
+        name: 'Attribute',
+        value: 'attr',
+        description: 'An attribute holding a scalar or object value.',
+      },
+      {
+        name: 'Has One',
+        value: 'hasOne',
+        description: 'A relationship to one model\'s instance.',
+      },
+      {
+        name: 'Has Many',
+        value: 'hasMany',
+        description: 'A relationship to many model\'s instance.',
+      },
       {
         name: 'None, stop property definition',
         value: undefined,
@@ -22,6 +44,8 @@ async function promptForProperty(
   if (!typology) {
     return null;
   }
+
+  imports.add(typology, '@foscia/core');
 
   const name = await input({
     message: 'Give a name:',
@@ -38,20 +62,46 @@ async function promptForProperty(
     },
   });
 
-  const property = { name, typology } as MakeProperty;
+  const property = { name, typology } as DefinitionProperty;
 
-  if (config.language === 'ts') {
-    if (typology === 'attr') {
-      const type = await input({
-        message: 'Give a type:',
+  if (typology === 'attr') {
+    const transformer = await select({
+      message: 'Use a transformer?',
+      choices: [
+        {
+          name: 'toDate (ISO-8601 to JavaScript Date)',
+          value: 'toDate',
+        },
+        {
+          name: 'toString',
+          value: 'toString',
+        },
+        {
+          name: 'toNumber',
+          value: 'toString',
+        },
+        {
+          name: 'toBoolean',
+          value: 'toBoolean',
+        },
+        {
+          name: 'None',
+          value: undefined,
+        },
+      ],
+    });
+    if (transformer) {
+      imports.add(transformer, '@foscia/core');
+      property.transformer = transformer;
+    } else if (config.language === 'ts') {
+      property.type = await input({
+        message: 'Use a TypeScript type?',
         default: 'unknown',
         validate: (v) => VALID_NAME_REGEX.test(v) || 'Type must be a valid type name.',
       });
-
-      property.type = { name: type };
-    } else {
-      property.type = await promptForModelType(config);
     }
+  } else {
+    property.type = await promptForModelType(config, imports);
   }
 
   return property;
@@ -59,18 +109,24 @@ async function promptForProperty(
 
 async function promptForPropertiesWhile(
   config: CLIConfig,
-  next: MakeProperty | null,
-  properties: MakeProperty[] = [],
-): Promise<MakeProperty[]> {
+  imports: ImportsList,
+  next: DefinitionProperty | null,
+  properties: DefinitionProperty[] = [],
+): Promise<DefinitionProperty[]> {
   if (!next) {
     return properties;
   }
 
   properties.push(next);
 
-  return promptForPropertiesWhile(config, await promptForProperty(config, properties), properties);
+  return promptForPropertiesWhile(
+    config,
+    imports,
+    await promptForProperty(config, imports, properties),
+    properties,
+  );
 }
 
-export default async function promptForProperties(config: CLIConfig) {
-  return promptForPropertiesWhile(config, await promptForProperty(config));
+export default async function promptForProperties(config: CLIConfig, imports: ImportsList) {
+  return promptForPropertiesWhile(config, imports, await promptForProperty(config, imports));
 }
