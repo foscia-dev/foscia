@@ -4,16 +4,10 @@ description:
   Specificities of the REST implementation and available configuration.
 ---
 
-# REST
+# 🚧 REST
 
-:::info
+:::caution
 
-REST implementation is an extended version of the
-[**HTTP adapter**](/docs/digging-deeper/implementations/http) and
-[**Object (de)serializer**](/docs/digging-deeper/implementations/object). You
-may check out those implementations to learn more about common behavior and
-configuration options.
+This page is a work in progress.
 
 :::
-
-<span className="chip chip--primary">Work in progress</span>

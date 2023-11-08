@@ -4,6 +4,10 @@ description:
   Specificities of the HTTP implementation and available configuration.
 ---
 
-# HTTP
+# 🚧 HTTP
 
-<span className="chip chip--primary">Work in progress</span>
+:::caution
+
+This page is a work in progress.
+
+:::

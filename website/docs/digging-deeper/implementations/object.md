@@ -4,6 +4,10 @@ description:
   Specificities of the "object" implementation and available configuration.
 ---
 
-# Object
+# 🚧 Object
 
-<span className="chip chip--primary">Work in progress</span>
+:::caution
+
+This page is a work in progress.
+
+:::
