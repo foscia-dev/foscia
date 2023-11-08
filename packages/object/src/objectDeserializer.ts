@@ -227,7 +227,7 @@ export default abstract class ObjectDeserializer<
       relation,
     );
 
-    const registry = consumeRegistry(context, null);
+    const registry = await consumeRegistry(context, null);
 
     // Try to resolve the model directly from the type when possible.
     // This will provide support for polymorphism and registry based
@@ -294,7 +294,7 @@ export default abstract class ObjectDeserializer<
     identifier: ObjectNormalizedIdentifier,
     context: {},
   ): Promise<ModelInstance | null> {
-    const cache = consumeCache(context, null);
+    const cache = await consumeCache(context, null);
     if (cache && !isNil(identifier.id)) {
       return cache.find(identifier.type, identifier.id);
     }
@@ -333,7 +333,7 @@ export default abstract class ObjectDeserializer<
 
     await runHook(instance.$model, 'retrieved', instance);
 
-    const cache = consumeCache(context, null);
+    const cache = await consumeCache(context, null);
     if (cache && !isNil(instance.id)) {
       await cache.put(instance.$model.$type, instance.id, instance);
     }

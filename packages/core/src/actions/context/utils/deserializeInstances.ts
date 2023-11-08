@@ -11,6 +11,7 @@ export default async function deserializeInstances<
   C extends {}, AD, DD extends DeserializedData,
 >(action: Action<C & ConsumeDeserializer<AD, DD>>, data: AD) {
   const context = await action.useContext();
+  const deserializer = await consumeDeserializer(context);
 
-  return consumeDeserializer(context).deserialize(data, context);
+  return deserializer.deserialize(data, context);
 }

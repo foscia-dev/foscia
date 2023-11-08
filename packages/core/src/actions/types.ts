@@ -103,21 +103,27 @@ export type ConsumeInclude = {
   include?: string[];
 };
 
-export type ConsumeCache = { cache: CacheI; };
+export type ResolvableContextDependency<T> = T | (() => Awaitable<T>);
 
-export type ConsumeRegistry = { registry: RegistryI; };
+export type ConsumeCache = {
+  cache: ResolvableContextDependency<CacheI>;
+};
+
+export type ConsumeRegistry = {
+  registry: ResolvableContextDependency<RegistryI>;
+};
 
 export type ConsumeAdapter<AdapterData = unknown> = {
-  adapter: AdapterI<AdapterData>;
+  adapter: ResolvableContextDependency<AdapterI<AdapterData>>;
 };
 
 export type ConsumeDeserializer<
   AdapterData = unknown,
   Data extends DeserializedData = DeserializedData,
 > = {
-  deserializer: DeserializerI<AdapterData, Data>;
+  deserializer: ResolvableContextDependency<DeserializerI<AdapterData, Data>>;
 };
 
 export type ConsumeSerializer<Data = unknown> = {
-  serializer: SerializerI<Data>;
+  serializer: ResolvableContextDependency<SerializerI<Data>>;
 };

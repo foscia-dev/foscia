@@ -9,7 +9,9 @@ export default async function normalizeInclude(
 ) {
   const model = await guessContextModel(context, true);
   if (model) {
-    return normalizeDotRelations(model, include, consumeRegistry(context, null));
+    const registry = await consumeRegistry(context, null);
+
+    return normalizeDotRelations(model, include, registry);
   }
 
   logger.warn(

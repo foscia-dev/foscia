@@ -7,6 +7,7 @@ export default async function serializeInstance<C extends {}, SD>(
   instance: ModelInstance,
 ) {
   const context = await action.useContext();
+  const serializer = await consumeSerializer(context);
 
-  return consumeSerializer(context).serialize(instance, context);
+  return serializer.serialize(instance, context);
 }

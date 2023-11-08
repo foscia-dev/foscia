@@ -59,7 +59,7 @@ export default function oneOr<
       }
     } catch (error) {
       const context = await action.useContext();
-      const adapter = consumeAdapter(context);
+      const adapter = await consumeAdapter(context);
       if (!(await adapter.isNotFound(error))) {
         throw error;
       }
