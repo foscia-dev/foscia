@@ -1,14 +1,13 @@
-import { attr, hasMany, makeModel, toDate } from '@foscia/core';
-import type CommentMock from './comment.mock';
+import { attr, makeModel, toDate } from '@foscia/core';
+import commentable from '../composables/commentable';
 
 export default class PostMock extends makeModel('posts', {
+  ...commentable,
   title: attr<string>(),
   body: attr<string | null>(),
-  commentsCount: attr(0).sync('pull'),
-  comments: hasMany<CommentMock>(),
   publishedAt: attr(toDate()).nullable().readOnly(),
+}) {
   get published() {
     return !!this.publishedAt;
-  },
-}) {
+  }
 }
