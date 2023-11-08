@@ -23,7 +23,7 @@ When using inside a model creation (`makeModel`), the configuration will be
 dedicated to this model. Configuration is the first argument and definition is
 the second one:
 
-```typescript title="post.js"
+```typescript title="post.ts"
 import { makeModel } from '@foscia/core';
 
 makeModel(
@@ -41,7 +41,7 @@ When using inside a model factory creation (`makeModelFactory`), the
 configuration will be shared between all models created through this factory.
 Configuration is the first argument and definition is the second one:
 
-```typescript title="makeModel.js"
+```typescript title="makeModel.ts"
 import { attr, makeModelFactory, toDate } from '@foscia/core';
 
 export default makeModelFactory(
@@ -84,7 +84,7 @@ JSON:API the resource types are defined in plural kebab case, such as
 You may define the type as the only configuration of the model or as a
 configuration property (if you want to define other properties):
 
-```typescript title="post.js"
+```typescript title="post.ts"
 import { makeModel } from '@foscia/core';
 
 makeModel('posts');
@@ -101,7 +101,7 @@ The `path` is used to query the model. It defaults to the model's type.
 In an HTTP API, it is used as the endpoint. In a SQL database, it would be the
 table.
 
-```typescript title="post.js"
+```typescript title="post.ts"
 import { makeModel } from '@foscia/core';
 
 makeModel({
@@ -123,7 +123,7 @@ Here is an example of a path guesser using hypothetical `toKebabCase` function.
 If your JSON:API record types are using camel cased types but your endpoint are
 kebab cased:
 
-```typescript title="post.js"
+```typescript title="post.ts"
 import { makeModel, isManyRelationDef } from '@foscia/core';
 
 makeModel({
@@ -145,7 +145,7 @@ Here is an example of a path guesser using hypothetical `toKebabCase` function.
 If your JSON:API record properties are using kebab cased keys but your models
 are camel cased:
 
-```typescript title="post.js"
+```typescript title="post.ts"
 import { makeModel, isManyRelationDef } from '@foscia/core';
 
 makeModel({
@@ -169,7 +169,7 @@ Here is an example of a type guesser using hypothetical `toKebabCase` and
 `pluralize` functions. For example, if a `Comment` model has a `blogPost`
 relation, this would guess the type to `blog-posts`;
 
-```typescript title="post.js"
+```typescript title="post.ts"
 import { makeModel, isPluralRelationDef, ModelRelation } from '@foscia/core';
 
 makeModel({
@@ -194,7 +194,7 @@ Here is an example of a type guesser using hypothetical `toKebabCase` function.
 If your JSON:API record properties are using kebab cased keys but your models
 are camel cased:
 
-```typescript title="post.js"
+```typescript title="post.ts"
 import {
   makeModel,
   isManyRelationDef,
@@ -228,7 +228,7 @@ save, etc.) and will do a strict equal comparison to known if the value changed.
 The following model configuration is equivalent to the default behavior of
 Foscia:
 
-```typescript title="post.js"
+```typescript title="post.ts"
 import { makeModel } from '@foscia/core';
 
 makeModel({
@@ -278,7 +278,7 @@ interacting with JSON:API, JSON REST, etc.).
 You may define a `baseURL` configuration option on your models. It will replace
 the default base URL define on the adapter.
 
-```typescript title="post.js"
+```typescript title="post.ts"
 import { makeModel } from '@foscia/core';
 
 makeModel({

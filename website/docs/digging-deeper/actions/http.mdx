@@ -36,16 +36,15 @@ You can get started for Foscia as an HTTP client using the
 You can use Foscia as a simple HTTP client (just like Axios). For this, you can
 configure an HTTP client action factory.
 
-```typescript title="action.js"
-import { makeHttpClient } from '@foscia/http';
+```typescript title="action.ts"
+import { makeActionFactory } from '@foscia/core';
+import { makeHttpAdapter } from '@foscia/http';
 
-const { action } = makeHttpClient({
-  http: {
+export default makeActionFactory({
+  ...makeHttpAdapter({
     baseURL: 'https://example.com',
-  },
+  }),
 });
-
-export default action;
 ```
 
 ## Using the HTTP client features
@@ -57,7 +56,7 @@ callback to `raw` to retrieve a value from the `Response` object.
 
 ```typescript
 import { makeGet, makePost } from '@foscia/http';
-import { action } from './action';
+import action from './action';
 
 // GET https://example.com/
 const response = await action().use(makeGet('/')).run(raw());

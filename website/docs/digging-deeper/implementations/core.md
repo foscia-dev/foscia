@@ -32,9 +32,9 @@ different from the record types returned inside a JSON:API response.
 
 :::tip
 
-`MapRegistry` is provided by most of the Foscia action factory blueprints (e.g.
-`makeJsonApi`, `makeJsonRest`, etc.). You can register your models using the
-`models` configuration option of those action factory blueprints.
+`MapRegistry` is provided as the default registry in `makeRegistry`. You can
+use it to [**register your models**](/docs/digging-deeper/actions/models-registration)
+when necessary.
 
 :::
 
