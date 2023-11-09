@@ -86,13 +86,13 @@ export default function makeModelClass(type: string, config: ModelConfig) {
         );
       }
 
-      if (!isNil(descriptor.value) && isPropDef(descriptor.value)) {
-        if (!isIdDef(descriptor.value) && ['id', 'lid'].indexOf(key) !== -1) {
-          throw new FosciaError(
-            `\`id\`, \`lid\` are forbidden as attribute, relation or properties (found \`${key}\`). Use \`id()\` factory instead.`,
-          );
-        }
+      if ((key === 'id' || key === 'lid') && !isIdDef(descriptor.value)) {
+        throw new FosciaError(
+          `\`id\` and \`lid\` must be defined with \`id()\` factory (found \`${key}\`).`,
+        );
+      }
 
+      if (!isNil(descriptor.value) && isPropDef(descriptor.value)) {
         ModelClass.$schema[key] = descriptor.value;
       } else {
         Object.defineProperty(ModelClass.prototype, key, descriptor);
