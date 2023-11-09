@@ -80,6 +80,12 @@ export default function makeModelClass(type: string, config: ModelConfig) {
 
   ModelClass.extends = (rawDefinition?: object) => {
     eachDescriptors(rawDefinition ?? {}, (key, descriptor) => {
+      if (key === 'type') {
+        throw new FosciaError(
+          '`type` is forbidden as a definition key because it may be used with some implementations.',
+        );
+      }
+
       if (!isNil(descriptor.value) && isPropDef(descriptor.value)) {
         if (!isIdDef(descriptor.value) && ['id', 'lid'].indexOf(key) !== -1) {
           throw new FosciaError(
