@@ -1,7 +1,7 @@
 import { CLIConfig } from '@foscia/cli/utils/config/config';
 import { ImportsList } from '@foscia/cli/utils/imports/makeImportsList';
 import promptForModelType from '@foscia/cli/utils/input/promptForModelType';
-import { input, select } from '@inquirer/prompts';
+import { checkbox, input, select } from '@inquirer/prompts';
 
 const VALID_NAME_REGEX = /^(?!\d)[\w$]+$/;
 
@@ -10,6 +10,7 @@ export type DefinitionProperty = {
   name: string;
   transformer?: string;
   type?: string;
+  modifiers?: ('readOnly' | 'nullable')[];
 };
 
 async function promptForProperty(
@@ -62,7 +63,17 @@ async function promptForProperty(
     },
   });
 
-  const property = { name, typology } as DefinitionProperty;
+  const property = {
+    name,
+    typology,
+    modifiers: await checkbox({
+      message: 'Give specificities:',
+      choices: [
+        { name: 'Is nullable', value: 'nullable' },
+        { name: 'Is read-only', value: 'readOnly' },
+      ] as const,
+    }),
+  } as DefinitionProperty;
 
   if (typology === 'attr') {
     const transformer = await select({
