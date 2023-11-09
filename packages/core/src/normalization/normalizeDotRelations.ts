@@ -28,7 +28,7 @@ export default function normalizeDotRelations<D extends {}>(
       return normalizedKey;
     }
 
-    const subModel = await guessContextModel({ model, relation: def, registry }, true);
+    const subModel = await guessContextModel({ model, relation: def, registry });
     if (!subModel) {
       logger.debug(
         `Could not detect model for relation \`${model.$type}.${def.key}\`. Skipping sub-keys normalization.`,

@@ -7,7 +7,7 @@ export default async function normalizeInclude(
   context: {},
   include: string[],
 ) {
-  const model = await guessContextModel(context, true);
+  const model = await guessContextModel(context);
   if (model) {
     const registry = await consumeRegistry(context, null);
 

@@ -27,7 +27,7 @@ export default function fields<
 ) {
   return async (action: Action<C>) => {
     const context = await action.useContext();
-    const model = await guessContextModel(context, true);
+    const model = await guessContextModel(context);
 
     if (isNil(model)) {
       throw new FosciaError(

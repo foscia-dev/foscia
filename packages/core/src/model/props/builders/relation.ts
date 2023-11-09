@@ -3,16 +3,27 @@ import {
   Model,
   ModelInstance,
   ModelPropSync,
+  ModelRelationConfig,
   ModelRelationType,
   PendingModelProp,
   RawModelRelation,
 } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_PROP_RELATION } from '@foscia/core/symbols';
-import { Awaitable } from '@foscia/shared';
+import { Awaitable, Constructor } from '@foscia/shared';
+
+export type PendingModelRelationInstance<M extends Model | Model[]> =
+  M extends Constructor<infer I>[] ? I
+    : M extends Constructor<infer I> ? I
+      : never;
+
+export type PendingModelRelationConfig =
+  | string
+  | string[]
+  | ModelRelationConfig
+  | (() => Awaitable<Model | Model[]>);
 
 export type PendingModelRelation<T, R extends boolean> = {
-  to: <NT>(to: PendingModelRelationTo<NT>) => PendingModelRelation<T extends any[] ? NT[] : NT, R>;
-  path: (path: string) => PendingModelRelation<T, R>;
+  config: (config: string | string[] | ModelRelationConfig) => PendingModelRelation<T, R>;
   default: <NT extends T>(value: T | (() => T)) => PendingModelRelation<NT, R>;
   readOnly: <NR extends boolean = true>(readOnly?: NR) => PendingModelRelation<T, NR>;
   nullable: unknown extends T ? never : (() => PendingModelRelation<T | null, R>);
@@ -20,22 +31,20 @@ export type PendingModelRelation<T, R extends boolean> = {
   sync: (alias: boolean | ModelPropSync) => PendingModelRelation<T, R>;
 } & PendingModelProp<RawModelRelation<T, R>>;
 
-export type InferPendingModelRelationModel<I> =
-  I extends any[] ? Model<any, I[number]>
-    : I extends ModelInstance ? Model<any, I>
-      : I;
-
-export type PendingModelRelationTo<I> =
-  | string
-  | (() => Awaitable<InferPendingModelRelationModel<I>>)
-  | { model?: (() => Awaitable<InferPendingModelRelationModel<I>>); type?: string; path?: string; };
-
-export default function relation<I>(
+/**
+ * Make a pending relation definition.
+ *
+ * @param relationType
+ * @param config
+ *
+ * @internal
+ */
+export default function relation(
   relationType: ModelRelationType,
-  config?: PendingModelRelationTo<I>,
+  config?: PendingModelRelationConfig,
 ) {
-  const resolveConfig = (configValue: PendingModelRelationTo<any>) => {
-    if (typeof configValue === 'string') {
+  const resolveConfig = (configValue: PendingModelRelationConfig) => {
+    if (typeof configValue === 'string' || Array.isArray(configValue)) {
       return { type: configValue };
     }
 
@@ -43,18 +52,17 @@ export default function relation<I>(
       return { model: configValue };
     }
 
-    return configValue;
+    return { ...configValue };
   };
 
   const makePendingRelation = makePendingProp({
     ...PROP_MODIFIERS,
-    to: resolveConfig,
-    path: (path: string) => ({ path }),
+    config: resolveConfig,
   });
 
   return makePendingRelation({
     $FOSCIA_TYPE: SYMBOL_MODEL_PROP_RELATION,
     $RELATION_TYPE: relationType,
     ...resolveConfig(config ?? {}),
-  }) as unknown as PendingModelRelation<I, false>;
+  }) as unknown as PendingModelRelation<ModelInstance | ModelInstance[] | null, false>;
 }

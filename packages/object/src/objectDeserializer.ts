@@ -246,7 +246,8 @@ export default abstract class ObjectDeserializer<
       model: (relation ? parent!.$model : model) as Model,
       relation,
       registry,
-    }, true);
+      ensureType: identifier.type,
+    });
 
     if (!guessedModel) {
       if (isNil(identifier.type)) {

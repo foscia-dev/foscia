@@ -2,6 +2,7 @@ import { fill, normalizeDotRelations } from '@foscia/core';
 import { expectTypeOf, test } from 'vitest';
 import CommentMock from '../mocks/models/comment.mock';
 import PostMock from '../mocks/models/post.mock';
+import TagMock from '../mocks/models/tag.mock';
 import UserMock from '../mocks/models/user.mock';
 
 test('Models are type safe', () => {
@@ -51,4 +52,7 @@ test('Models are type safe', () => {
   normalizeDotRelations(PostMock, ['unknown']);
   // @ts-expect-error unknown is not a Comment relation
   normalizeDotRelations(PostMock, ['comments.unknown']);
+
+  const tag = new TagMock();
+  expectTypeOf(tag.taggables).toMatchTypeOf<(PostMock | UserMock)[]>();
 });

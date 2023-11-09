@@ -1,39 +1,52 @@
 import guessRelationType from '@foscia/core/model/relations/guessRelationType';
 import { Model, ModelRelation } from '@foscia/core/model/types';
 import { RegistryI } from '@foscia/core/types';
-import { isNil, Optional } from '@foscia/shared';
+import { isNil, Optional, wrap } from '@foscia/shared';
 
-type GuessedContextModel<LoadModel extends boolean> = LoadModel extends true
-  ? Model | undefined
-  : string | undefined;
+function guessModelIn(
+  model: Optional<Model | Model[]>,
+  ensureType?: Optional<string>,
+) {
+  const models = wrap(model);
+  if (isNil(ensureType)) {
+    if (models.length > 1) {
+      return null;
+    }
 
-export default async function guessContextModel<LoadModel extends boolean>(
+    return models[0] ?? null;
+  }
+
+  return models.find((m) => m.$type === ensureType) ?? null;
+}
+
+export default async function guessContextModel(
   context: {
     model?: Optional<Model>;
     relation?: Optional<ModelRelation>;
     registry?: Optional<RegistryI>;
+    ensureType?: Optional<string>;
   },
-  loadModel: LoadModel,
-): Promise<GuessedContextModel<LoadModel>> {
+) {
   if (context.relation) {
     if (context.relation.model) {
-      return (
-        loadModel ? context.relation.model() : (await context.relation.model()).$type
-      ) as GuessedContextModel<LoadModel>;
+      return guessModelIn(await context.relation.model(), context.ensureType);
     }
 
-    const type = context.relation.type
-      ?? (context.model?.$config.guessRelationType ?? guessRelationType)(context.relation);
-    if (context.registry && !isNil(type)) {
-      return (
-        loadModel ? (await context.registry.modelFor(type)) : type
-      ) as GuessedContextModel<LoadModel>;
+    const { registry } = context;
+    const possibleTypes = wrap(
+      context.relation.type
+      ?? (context.model?.$config.guessRelationType ?? guessRelationType)(context.relation),
+    );
+    if (registry && possibleTypes.length) {
+      const possibleModels = await Promise.all(
+        possibleTypes.map((type) => registry.modelFor(type)),
+      );
+
+      return guessModelIn(possibleModels.filter((m) => !!m) as Model[], context.ensureType);
     }
 
-    return undefined;
+    return null;
   }
 
-  return (
-    loadModel ? (context.model ?? undefined) : context.model?.$type
-  ) as GuessedContextModel<LoadModel>;
+  return guessModelIn(context.model, context.ensureType);
 }

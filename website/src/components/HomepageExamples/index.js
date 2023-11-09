@@ -142,7 +142,7 @@ export default function HomepageExamples() {
       <div className={`${styles.examples} container`}>
         <div className="padding-horiz--md">
           <Example {...definitionExampleMeta}>
-            <Tabs groupId="actionStyle">
+            <Tabs>
               <TabItem
                 value="post"
                 label="post.ts"
@@ -167,17 +167,17 @@ export default function HomepageExamples() {
           <Example {...playExampleMeta}>
             <Tabs groupId="actionStyle">
               <TabItem
-                value="builder"
-                label="Builder pattern style"
-                default
-              >
-                <CodeBlock language="ts">{playBuilderExampleCode}</CodeBlock>
-              </TabItem>
-              <TabItem
                 value="functional"
                 label="Functional style"
+                default
               >
                 <CodeBlock language="ts">{playFunctionalExampleCode}</CodeBlock>
+              </TabItem>
+              <TabItem
+                value="builder"
+                label="Builder pattern style"
+              >
+                <CodeBlock language="ts">{playBuilderExampleCode}</CodeBlock>
               </TabItem>
             </Tabs>
           </Example>

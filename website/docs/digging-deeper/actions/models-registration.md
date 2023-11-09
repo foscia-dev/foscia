@@ -45,6 +45,17 @@ export default makeActionFactory({
 });
 ```
 
+When adding the registry, you can also provide a type normalization
+function to normalize local/data source models' types.
+
+```typescript title="action.ts"
+import { makeRegistry } from '@foscia/core';
+
+makeRegistry(models, {
+  normalizeType: (type: string) => pluralize(toCamelCase(type)),
+});
+```
+
 ## Registering models
 
 Here are some suggestion on how you can register your models classes easily.

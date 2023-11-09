@@ -267,10 +267,11 @@ hasOne(() => User);
 hasOne<User>();
 // With explicit related type.
 hasOne<User>('users');
-// With explicit information object.
+// With config object.
 hasOne<User>({ type: 'users', path: 'author' });
 // With chained modifiers.
 hasOne<User>()
+  .config({ type: 'users', path: 'author' })
   .nullable()
   .default(() => null)
   .readOnly()
@@ -291,13 +292,14 @@ import Comment from './comment';
 // With explicit related model.
 hasMany(() => Comment);
 // With TypeScript type.
-hasMany<Comment>();
+hasMany<Comment[]>();
 // With explicit related type.
-hasMany<Comment>('comments');
-// With explicit information object.
-hasMany<Comment>({ type: 'comments', path: 'comments' });
+hasMany<Comment[]>('comments');
+// With config object.
+hasMany<Comment[]>({ type: 'comments', path: 'comments' });
 // With chained modifiers.
-hasMany<Comment>()
+hasMany<Comment[]>()
+  .config({ type: 'comments', path: 'comments' })
   .nullable()
   .default(() => null)
   .readOnly()
@@ -308,11 +310,30 @@ hasMany<Comment>()
   </TabItem>
 </Tabs>
 
-:::tip
+#### Polymorphism
 
-When using TypeScript, you should define the type of the relation to get a type
-safe model. We suggest you to use `import type` to avoid creating circular
-dependencies when having circular model relations.
+Defining a polymorphic relation is pretty simple:
+
+```typescript
+// With explicit related models.
+hasOne(() => [Post, Comment]);
+hasMany(() => [Post, Comment]);
+// With explicit related types.
+hasOne<Post | Comment>(['posts', 'comments']);
+hasMany<(Post | Comment)[]>(['posts', 'comments']);
+```
+
+:::warning
+
+Polymorphism may require a specific configuration of your action or your data
+source.
+
+For example, polymorphism is supported out of the box with JSON:API, because
+each record have a special `type` property which is resolved by Foscia to
+the correct model.
+
+When implementing polymorphism with a REST data source, your record JSON
+object must contain a `type` property matching your Foscia models' types.
 
 :::
 
@@ -320,7 +341,7 @@ dependencies when having circular model relations.
 
 | Name       | Parameters                                                                                                                                  | Effect                                                                                                                                                         |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `to`       | <code>string &vert; (() => Awaitable&lt;Model&gt;) &vert; \{ type?: string; path?: string; model?: (() => Awaitable&lt;Model&gt;) \}</code> | Specify the relation information (related model/type and custom path).                                                                                         |
+| `config`   | <code>string &vert; string[] &vert; \{ type?: string &vert; string[]; path?: string; \}</code>                                              | Specify the relation configuration: related types and custom implementations related option (such as path for HTTP).                                           |
 | `default`  | <code>unknown &vert; (() => unknown)</code>                                                                                                 | Set a default value on `new` instance.                                                                                                                         |
 | `readOnly` | `boolean`                                                                                                                                   | Set read-only state.                                                                                                                                           |
 | `nullable` | -                                                                                                                                           | Set current type as nullable.                                                                                                                                  |

@@ -127,15 +127,22 @@ export type ModelRelationType =
   | typeof SYMBOL_MODEL_RELATION_HAS_MANY;
 
 /**
+ * Configuration of a model's relation.
+ */
+export type ModelRelationConfig = {
+  type?: string | string[];
+  [K: string]: any;
+};
+
+/**
  * Raw definition for a model's relation.
  */
 export type RawModelRelation<T = any, R extends boolean = boolean> =
   {
     $RELATION_TYPE: ModelRelationType;
-    model?: () => Awaitable<Model>;
-    type?: string;
-    path?: string;
+    model?: () => Awaitable<Model | Model[]>;
   }
+  & ModelRelationConfig
   & RawModelProp<T, R>
   & FosciaObject<typeof SYMBOL_MODEL_PROP_RELATION>;
 
