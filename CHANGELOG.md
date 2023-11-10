@@ -1,5 +1,28 @@
 # Changelog
 
+# [0.5.0](https://github.com/foscia-dev/foscia/compare/v0.4.0...v0.5.0) (2023-11-10)
+
+
+### Bug Fixes
+
+* **core:** `type` cannot be used as a model definition key anymore ([945ad0e](https://github.com/foscia-dev/foscia/commit/945ad0eadaaa7ae3a14e7a25cee666472695d3b1))
+* **core:** check for IDs keys in definition even for non prop descriptor ([51fa358](https://github.com/foscia-dev/foscia/commit/51fa3582b933e9994cc9218b82536fdda93b953e))
+
+
+### Features
+
+* **cli:** add modifiers in make:model and make:composable ([af127d2](https://github.com/foscia-dev/foscia/commit/af127d2c64c73f5d03347ca4d5a5c85a314b6f6c)), closes [#5](https://github.com/foscia-dev/foscia/issues/5)
+* **core:** context dependencies are resolvable using functions ([24c4bb0](https://github.com/foscia-dev/foscia/commit/24c4bb05728e1664ed4b1013fc19e1756ec55247)), closes [#8](https://github.com/foscia-dev/foscia/issues/8)
+* **core:** totally supports polymorphic relations ([dec11a7](https://github.com/foscia-dev/foscia/commit/dec11a7115ca759bd19ea91b7eafc5dae01c7700)), closes [#9](https://github.com/foscia-dev/foscia/issues/9)
+
+
+### BREAKING CHANGES
+
+* **core:** Signature for `guessContextModel` has changed to support guessing model with a type preference (for polymorphism).
+`hasMany` generic type now represent correctly the model's property type (this means that when passing generics, you must pass an array of the type instead of just the type: `hasMany<Comment[]>()` instead of `hasMany<Comment>()`).
+Pending relation method `path` has been removed because it is implementation specific. You must now path a config object to `config` method with a `path` property to define a relation's path.
+* **core:** `consumeAdapter`, `consumeCache`, `consumeDeserializer`, `consumeRegistry` and `consumeSerializer` now return an `Awaitable` dependency instead of a sync value.
+
 # [0.4.0](https://github.com/foscia-dev/foscia/compare/v0.3.0...v0.4.0) (2023-11-07)
 
 
