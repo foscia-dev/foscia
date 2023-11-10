@@ -11,9 +11,12 @@
     "lint": "node scripts/lint.js",
     "build": "node scripts/build.js",
     "release": "node scripts/release.js",
-    "preinstall": "npx only-allow pnpm"
+    "preinstall": "npx only-allow pnpm",
+    "prepare": "husky install"
   },
   "devDependencies": {
+    "@commitlint/cli": "^18.2.0",
+    "@commitlint/config-conventional": "^18.1.0",
     "@release-it/bumper": "^5.1.0",
     "@release-it/conventional-changelog": "^7.0.2",
     "@rollup/plugin-commonjs": "^25.0.7",
@@ -31,6 +34,7 @@
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.0",
     "execa": "^8.0.1",
+    "husky": "^8.0.0",
     "jsdom": "^22.1.0",
     "minimist": "^1.2.8",
     "ora": "^7.0.1",

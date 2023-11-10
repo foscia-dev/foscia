@@ -34,6 +34,17 @@ pnpm: ## Run a PNPM command (e.g. make pnpm c="update").
 	@$(PNPM) $(c)
 
 ##
+## —— Git hooks ————————————————————————————————————————————————————————————————
+
+.PHONY: pre-commit
+pre-commit: ## Pre-commit GIT hook.
+	@$(DOCKER_COMPOSE) exec -T node pnpm lint
+
+.PHONY: commit-msg
+commit-msg: ## Commit-msg GIT hook.
+	@$(DOCKER_COMPOSE) exec -T node pnpm commitlint --edit $(m) --verbose
+
+##
 ## —— Build, lint and tests ————————————————————————————————————————————————————
 
 .PHONY: build
