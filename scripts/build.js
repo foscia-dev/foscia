@@ -36,7 +36,7 @@ async function run(argv) {
       return targets;
     }, {
       text: 'Resolving targets...',
-      successText: 'Resolved target.',
+      successText: 'Resolved targets.',
     });
 
     await oraPromise(async () => {
