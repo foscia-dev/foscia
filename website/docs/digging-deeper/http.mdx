@@ -1,5 +1,5 @@
 ---
-sidebar_position: 10
+sidebar_position: 20
 description: Using Foscia as a simple HTTP client.
 ---
 
@@ -15,14 +15,17 @@ import ShellCommand from '@site/src/components/ShellCommand';
 
 :::
 
+## Creating the action factory
+
+You can use Foscia as a simple HTTP client (just like Axios). For this, you can
+configure an HTTP client action factory.
+
 :::info
 
-If you are using JSON REST or JSON:API blueprints, you can already use your
+If you are using JSON REST or JSON:API implementations, you can already use your
 action factory as an HTTP client.
 
 :::
-
-## Creating the action factory
 
 ### CLI (recommended)
 
@@ -32,9 +35,6 @@ You can get started for Foscia as an HTTP client using the
 <ShellCommand command="foscia init src/http --usage=http" />
 
 ### Manually
-
-You can use Foscia as a simple HTTP client (just like Axios). For this, you can
-configure an HTTP client action factory.
 
 ```typescript title="action.ts"
 import { makeActionFactory } from '@foscia/core';
@@ -47,11 +47,13 @@ export default makeActionFactory({
 });
 ```
 
-## Using the HTTP client features
+## Usage
 
 Once your action factory is ready, sending HTTP request is pretty easy using
-provided enhancers (`makeGet`, `makePost`, etc.). Running a request is done by
-`raw` runner, which will retrieve a fetch `Response` object. You can also pass a
+provided enhancers ([`makeGet`](/docs/reference/actions-enhancers#makeget),
+[`makePost`](/docs/reference/actions-enhancers#makepost), etc.).
+Running a request is done by [`raw`](/docs/reference/actions-runners#raw)
+runner, which will retrieve a fetch `Response` object. You can also pass a
 callback to `raw` to retrieve a value from the `Response` object.
 
 ```typescript
@@ -71,14 +73,7 @@ const data = await action()
   .run(raw((response) => response.json()));
 ```
 
-<Link
-  className="button bg--primary"
-  to="/docs/reference/actions-enhancers#fosciahttp"
->
-  Read the HTTP' enhancers API guide
-</Link>
+## Reference
 
-## Implementation notes
-
-You may learn more about the HTTP adapter capabilities and implementation on
-[the HTTP implementation guide](/docs/digging-deeper/implementations/http).
+- [Dedicated enhancers API](/docs/reference/actions-enhancers#fosciahttp)
+- [Implementation and configuration guide](/docs/digging-deeper/implementations/http)

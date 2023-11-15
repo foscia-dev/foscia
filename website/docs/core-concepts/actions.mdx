@@ -3,6 +3,7 @@ sidebar_position: 200
 description: Build actions, registering hooks, discover enhancers and runners.
 ---
 
+
 import Link from '@docusaurus/Link';
 
 # Actions
@@ -19,24 +20,201 @@ import Link from '@docusaurus/Link';
 
 ## Before reading this guide
 
-This guide is only about how actions work. You can read more about action
-factories setups in
-[the getting started guide](/docs/getting-started#action-factory).
+This guide is only about basic usage and lifecycle of actions.
 
-Using Foscia actions may look different when using one or another
-implementation, even if most basic actions are standardized.
+- You can read more about action factories setups in the
+  [getting started guide](/docs/getting-started#action-factory).
+- Advanced usage is different between the various implementations.
+  You can see advanced usage of actions for your implementation inside the
+  [digging deeper actions guide](/docs/category/actions).
+- If you want to see some concrete examples on how actions could be used, you
+  can check the [examples documentation section](/docs/category/examples).
 
-If you want to see some concrete examples on how actions could be used, you can
-check the [examples documentation section](/docs/category/examples).
+## Usage
 
-## Instantiation
+Once your models and action factory are set up, you are ready to run actions
+through your models.
+
+Foscia uses two typologies of functions to run actions, __enhancers__
+and __runners__, which are described in the [lifecycle guide](#lifecycle).
+
+### Retrieving records
+
+`forModel` will target a records index using a model.
+You can use it in combination with `all` to retrieve
+a list of the model instances.
+
+```typescript
+import { forModel, all } from '@foscia/core';
+
+const posts = await action()
+  .use(forModel(Post))
+  .run(all());
+
+posts.forEach((post) => {
+  console.log(post.title);
+});
+```
+
+`find` will provide a way to target a record using a model and an ID.
+You can use it in combination with `oneOrFail` or `oneOr` to
+retrieve a single record and handle not found errors.
+
+```typescript
+import { find, oneOrFail } from '@foscia/core';
+
+const post = await action()
+  .use(find(Post, '1'))
+  .run(oneOrFail());
+
+const postOrNull = await action()
+  .use(find(Post, '2'))
+  .run(oneOr(() => null));
+```
+
+### Eager loading relations
+
+Some [implementations for Foscia](/docs/category/implementations)
+support eager loading (such as JSON:API). This provides a way to
+retrieve records and eager load related models without further requests.
+Eager loading also alleviates the "N + 1" query problem.
+
+To eager load a relation, you can use the `include` function.
+
+```typescript
+import { forModel, all, include } from '@foscia/core';
+
+const posts = await action()
+  .use(
+    forModel(Post),
+    include('author'),
+  )
+  .run(all());
+```
+
+### Lazy loading relations
+
+Some [implementations for Foscia](/docs/category/implementations)
+support eager loading (such as JSON:API). This provides a way to load
+related records for a relation after having retrieved a record.
+
+```typescript
+import { forModel, forRelation, all, oneOrFail } from '@foscia/core';
+
+const post = await action()
+  .use(find(Post, 1))
+  .run(oneOrFail());
+
+const comments = await action()
+  .use(forRelation(post, 'comments'))
+  .run(all());
+```
+
+:::info
+
+Lazy loading a record's relation won't affect the given record instance.
+
+:::
+
+### Creating and updating records
+
+You can create or update records using `create` and `update` functions.
+As a convenience, Foscia provides a `save` function which will call
+`create` or `update` depending on the existence state of your record.
+
+`oneOrCurrent` is a runner which you can combine with those enhancers
+to always retrieve an instance, even if your data source does not
+return the record on those actions (such as a `204 No Content` on update).
+It will return a record if there is one if your data source response,
+otherwise it will return the initially provided instance.
+
+You can also combine those functions with `none` runner to not
+handle the data source response.
+
+```typescript
+import { create, save, fill, oneOrCurrent, none } from '@foscia/core';
+
+const post = await action()
+  .use(
+    create(fill(new Post(), { title: 'Hello World!' })),
+    include('author'),
+  )
+  .run(oneOrCurrent());
+
+post.title = 'Edited Hello World!';
+
+await action()
+  .use(save(post))
+  .run(none());
+```
+
+### Deleting records
+
+You can use `destroy` to trigger a record deletion. You can combine it with
+`none` to ignore the data source's response (this will not catch errors).
+
+```typescript
+import { destroy, none } from '@foscia/core';
+
+await action()
+  .use(destroy(post))
+  .run(none());
+```
+
+### Conditionals
+
+Sometimes, you may need to conditionally apply an enhancer or run an action. As
+an example, you may want to sort results differently based on the user's defined
+sort's direction. This can be done easily using the `when` helper:
+
+```typescript
+import { when } from '@foscia/core';
+import { sortByDesc } from '@foscia/jsonapi';
+
+action()
+  .use(forModel(Post))
+  .use(when(displayLatestFirst, sortByDesc('createdAt')));
+```
+
+`when` returns a new enhancer or runner based on the given value's _truthiness_.
+It will execute the first enhancer/runner only if its value is _truthy_. You may
+pass the value as a factory function returning the value, and even a promise
+value. You may also pass a second enhancer/runner which will only execute if the
+value is _falsy_. Each callback arguments will receive the action as their first
+argument and the value as their second argument. Each callback may also be
+async, as any enhancers and runners.
+
+Here are further examples:
+
+```typescript
+import { changed, create, oneOrFail, when } from '@foscia/core';
+
+const post = fill(new Post(), userInputData);
+
+action()
+  .use(create(post))
+  .use(when(
+    () => /* compute a special value */,
+    (a, specialTruthyValue) => /* do something */,
+    (a, specialFalsyValue) => /* do something */,
+  ))
+  .run(when(
+    changed(post),
+    oneOrFail(),
+    () => post,
+  ));
+```
+
+## Lifecycle
+
+### Instantiation
 
 As stated in the
 [getting started guide](/docs/getting-started#running-simple-actions), actions
 are instantiated through your action factory. In this guide, we'll admit you
 have a setup action factory.
 
-## Enhancers
+### Enhancers
 
 An action instance can receive multiple enhancements that will build an
 appropriate context to run requests to your data sources.
@@ -64,11 +242,14 @@ action().use(
 );
 ```
 
-<Link className="button bg--primary" to="/docs/reference/actions-enhancers">
+<Link
+  className="button bg--primary"
+  to="/docs/reference/actions-enhancers"
+>
   Available enhancers API guide
 </Link>
 
-## Runners
+### Runners
 
 An action instance can be run using the `run` method. The runner can execute
 multiple enhancers or runners internally.
@@ -77,9 +258,9 @@ When an action run, it does 3 things:
 
 - Dequeue all enhancers since the action instantiation and builds context
 - Execute the runner and each of its internal enhancers/runners (this may update
-  the context)
+the context)
 - Return the runner result (might be any value, including void or an error
-  throwing)
+throwing)
 
 Internally, action running will also trigger [actions hooks](#hooks).
 
@@ -91,9 +272,70 @@ action()
   .run(all());
 ```
 
-<Link className="button bg--primary" to="/docs/reference/actions-runners">
+<Link
+  className="button bg--primary"
+  to="/docs/reference/actions-runners"
+>
   Available runners API guide
 </Link>
+
+### Hooks
+
+You may hook on multiple events which occurs on action instance using the hook
+registration function:
+
+- `onRunning`: after context computation, before context runner execution.
+- `onSuccess`: after context runner successful execution (no error thrown).
+- `onError`: after context runner failed execution (error thrown).
+- `onFinally`: after context runner successful or failed execution.
+
+To register a hook callback, you must use the registration enhancer on your
+building action.
+
+```typescript
+import {
+    onRunning,
+    onSuccess,
+    onError,
+    onFinally,
+} from '@foscia/core';
+
+action().use(onRunning(({ context }) => /* ... */));
+action().use(onSuccess(({ context, result }) => /* ... */));
+action().use(onError(({ context, error }) => /* ... */));
+action().use(onFinally(({ context }) => /* ... */));
+```
+
+:::info
+
+Hooks' callbacks are async and executed in a sequential fashion (one by one, not
+parallelized).
+
+:::
+
+You can temporally disable hook execution for a given action by using the
+`withoutHooks` function.
+
+Be aware that `withoutHooks` will always return a promise, even when your
+callback is a sync function.
+
+```typescript
+import { withoutHooks } from '@foscia/core';
+
+// Retrieve a list of User instances without action hooks running.
+const users = await withoutHooks(action(), async (a) => {
+  return await a.use(forModel(User)).run(all());
+});
+```
+
+:::warning
+
+Foscia may also register hooks internally when using some enhancers. Those
+provide some library features
+([**models hooks**](/docs/core-concepts/models#hooks), etc.). Be careful running
+actions without hooks, as those hooks will also be disable.
+
+:::
 
 ## Extensions
 
@@ -158,107 +400,5 @@ extensions at one time!
 Keep in mind that using extensions will avoid tree-shaking the extended
 enhancers or runners functions (even when those are unused in your codebase),
 because those are imported by their extensions.
-
-:::
-
-## Conditionals
-
-Sometimes, you may need to conditionally apply an enhancer or run an action. As
-an example, you may want to sort results differently based on the user's defined
-sort's direction. This can be done easily using the `when` helper:
-
-```typescript
-import { when } from '@foscia/core';
-import { sortByDesc } from '@foscia/jsonapi';
-
-action()
-  .use(forModel(Post))
-  .use(when(displayLatestFirst, sortByDesc('createdAt')));
-```
-
-`when` returns a new enhancer or runner based on the given value's _truthiness_.
-It will execute the first enhancer/runner only if its value is _truthy_. You may
-pass the value as a factory function returning the value, and even a promise
-value. You may also pass a second enhancer/runner which will only execute if the
-value is _falsy_. Each callback arguments will receive the action as their first
-argument and the value as their second argument. Each callback may also be
-async, as any enhancers and runners.
-
-Here are further examples:
-
-```typescript
-import { changed, create, oneOrFail, when } from '@foscia/core';
-
-const post = fill(new Post(), userInputData);
-
-action()
-    .use(create(post))
-    .use(when(
-        () => /* compute a special value */,
-        (a, specialTruthyValue) => /* do something */,
-        (a, specialFalsyValue) => /* do something */,
-    ))
-    .run(when(
-        changed(post),
-        oneOrFail(),
-        () => post,
-    ));
-```
-
-## Hooks
-
-You may hook on multiple events which occurs on action instance using the hook
-registration function:
-
-- `onRunning`: after context computation, before context runner execution.
-- `onSuccess`: after context runner successful execution (no error thrown).
-- `onError`: after context runner failed execution (error thrown).
-- `onFinally`: after context runner successful or failed execution.
-
-To register a hook callback, you must use the registration enhancer on your
-building action.
-
-```typescript
-import {
-    onRunning,
-    onSuccess,
-    onError,
-    onFinally,
-} from '@foscia/core';
-
-action().use(onRunning(({ context }) => /* ... */));
-action().use(onSuccess(({ context, result }) => /* ... */));
-action().use(onError(({ context, error }) => /* ... */));
-action().use(onFinally(({ context }) => /* ... */));
-```
-
-:::info
-
-Hooks' callbacks are async and executed in a sequential fashion (one by one, not
-parallelized).
-
-:::
-
-You can temporally disable hook execution for a given action by using the
-`withoutHooks` function.
-
-Be aware that `withoutHooks` will always return a promise, even when your
-callback is a sync function.
-
-```typescript
-import { withoutHooks } from '@foscia/core';
-
-// Retrieve a list of User instances without action hooks running.
-const users = await withoutHooks(action(), async (a) => {
-  return await a.use(forModel(User)).run(all());
-});
-```
-
-:::warning
-
-Foscia may also register hooks internally when using some enhancers. Those
-provide some library features
-([**models hooks**](/docs/core-concepts/models#hooks), etc.). Be careful running
-actions without hooks, as those hooks will also be disable.
 
 :::

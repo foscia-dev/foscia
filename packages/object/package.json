@@ -5,7 +5,7 @@
   "license": "MIT",
   "author": "Paul Thébaud",
   "description": "Type safe, modular and intuitive API/data client.",
-  "homepage": "https://paul-thebaud.github.io/foscia",
+  "homepage": "https://foscia.dev",
   "repository": {
     "type": "git",
     "url": "https://github.com/foscia-dev/foscia.git",

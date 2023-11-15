@@ -25,7 +25,7 @@ or TypeScript, and with any data source.
   and JSON REST backends
 - Type safe with generics typings on models, actions, etc.
 - Framework-agnostic and dependency free (HTTP adapters are based on
-  [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API))
+  [`fetch` API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API))
 - Free and open-source under [MIT license](https://opensource.org/licenses/MIT)
 
 ## Starting point

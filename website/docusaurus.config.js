@@ -19,7 +19,7 @@ const config = {
   favicon: '/img/favicon.ico',
   title: 'Foscia',
   tagline: 'Type safe, modular and intuitive API/data client.',
-  url: process.env.URL || 'https://foscia.netlify.app',
+  url: process.env.URL || 'https://foscia.dev',
   baseUrl: process.env.BASE_URL || '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',

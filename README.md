@@ -1,6 +1,6 @@
 <p align="center">
-  <a href="https://foscia.netlify.app">
-    <img width="180" src="https://foscia.netlify.app/img/icon.svg" alt="">
+  <a href="https://foscia.dev">
+    <img width="180" src="https://foscia.dev/img/icon.svg" alt="">
   </a>
 </p>
 
@@ -20,11 +20,11 @@
 </p>
 
 <p align="center">
-<a href="https://foscia.netlify.app">
+<a href="https://foscia.dev">
   Website
 </a>
 •
-<a href="https://foscia.netlify.app/docs/getting-started">
+<a href="https://foscia.dev/docs/getting-started">
   Documentation
 </a>
 •
