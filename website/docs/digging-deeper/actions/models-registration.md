@@ -45,8 +45,8 @@ export default makeActionFactory({
 });
 ```
 
-When adding the registry, you can also provide a type normalization
-function to normalize local/data source models' types.
+When adding the registry, you can also provide a type normalization function to
+normalize local/data source models' types.
 
 ```typescript title="action.ts"
 import { makeRegistry } from '@foscia/core';

@@ -329,24 +329,24 @@ Polymorphism may require a specific configuration of your action or your data
 source.
 
 For example, polymorphism is supported out of the box with JSON:API, because
-each record have a special `type` property which is resolved by Foscia to
-the correct model.
+each record have a special `type` property which is resolved by Foscia to the
+correct model.
 
-When implementing polymorphism with a REST data source, your record JSON
-object must contain a `type` property matching your Foscia models' types.
+When implementing polymorphism with a REST data source, your record JSON object
+must contain a `type` property matching your Foscia models' types.
 
 :::
 
 #### Chained modifiers {#relations-chained-modifiers}
 
-| Name       | Parameters                                                                                                                                  | Effect                                                                                                                                                         |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `config`   | <code>string &vert; string[] &vert; \{ type?: string &vert; string[]; path?: string; \}</code>                                              | Specify the relation configuration: related types and custom implementations related option (such as path for HTTP).                                           |
-| `default`  | <code>unknown &vert; (() => unknown)</code>                                                                                                 | Set a default value on `new` instance.                                                                                                                         |
-| `readOnly` | `boolean`                                                                                                                                   | Set read-only state.                                                                                                                                           |
-| `nullable` | -                                                                                                                                           | Set current type as nullable.                                                                                                                                  |
-| `alias`    | `string`                                                                                                                                    | Set an alias for data source interactions.                                                                                                                     |
-| `sync`     | <code>boolean &vert; 'pull' &vert; 'push'</code>                                                                                            | Set sync state: `true` for always (default), `false` for never, `'pull'` to ignore property when serializing, `'push'` to ignore property when deserializing). |
+| Name       | Parameters                                                                                     | Effect                                                                                                                                                         |
+| ---------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `config`   | <code>string &vert; string[] &vert; \{ type?: string &vert; string[]; path?: string; \}</code> | Specify the relation configuration: related types and custom implementations related option (such as path for HTTP).                                           |
+| `default`  | <code>unknown &vert; (() => unknown)</code>                                                    | Set a default value on `new` instance.                                                                                                                         |
+| `readOnly` | `boolean`                                                                                      | Set read-only state.                                                                                                                                           |
+| `nullable` | -                                                                                              | Set current type as nullable.                                                                                                                                  |
+| `alias`    | `string`                                                                                       | Set an alias for data source interactions.                                                                                                                     |
+| `sync`     | <code>boolean &vert; 'pull' &vert; 'push'</code>                                               | Set sync state: `true` for always (default), `false` for never, `'pull'` to ignore property when serializing, `'push'` to ignore property when deserializing). |
 
 #### Recommandations
 

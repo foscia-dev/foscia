@@ -3,7 +3,6 @@ sidebar_position: 200
 description: Build actions, registering hooks, discover enhancers and runners.
 ---
 
-
 import Link from '@docusaurus/Link';
 
 # Actions
@@ -24,8 +23,8 @@ This guide is only about basic usage and lifecycle of actions.
 
 - You can read more about action factories setups in the
   [getting started guide](/docs/getting-started#action-factory).
-- Advanced usage is different between the various implementations.
-  You can see advanced usage of actions for your implementation inside the
+- Advanced usage is different between the various implementations. You can see
+  advanced usage of actions for your implementation inside the
   [digging deeper actions guide](/docs/category/actions).
 - If you want to see some concrete examples on how actions could be used, you
   can check the [examples documentation section](/docs/category/examples).
@@ -35,37 +34,32 @@ This guide is only about basic usage and lifecycle of actions.
 Once your models and action factory are set up, you are ready to run actions
 through your models.
 
-Foscia uses two typologies of functions to run actions, __enhancers__
-and __runners__, which are described in the [lifecycle guide](#lifecycle).
+Foscia uses two typologies of functions to run actions, **enhancers** and
+**runners**, which are described in the [lifecycle guide](#lifecycle).
 
 ### Retrieving records
 
-`forModel` will target a records index using a model.
-You can use it in combination with `all` to retrieve
-a list of the model instances.
+`forModel` will target a records index using a model. You can use it in
+combination with `all` to retrieve a list of the model instances.
 
 ```typescript
 import { forModel, all } from '@foscia/core';
 
-const posts = await action()
-  .use(forModel(Post))
-  .run(all());
+const posts = await action().use(forModel(Post)).run(all());
 
 posts.forEach((post) => {
   console.log(post.title);
 });
 ```
 
-`find` will provide a way to target a record using a model and an ID.
-You can use it in combination with `oneOrFail` or `oneOr` to
-retrieve a single record and handle not found errors.
+`find` will provide a way to target a record using a model and an ID. You can
+use it in combination with `oneOrFail` or `oneOr` to retrieve a single record
+and handle not found errors.
 
 ```typescript
 import { find, oneOrFail } from '@foscia/core';
 
-const post = await action()
-  .use(find(Post, '1'))
-  .run(oneOrFail());
+const post = await action().use(find(Post, '1')).run(oneOrFail());
 
 const postOrNull = await action()
   .use(find(Post, '2'))
@@ -74,40 +68,31 @@ const postOrNull = await action()
 
 ### Eager loading relations
 
-Some [implementations for Foscia](/docs/category/implementations)
-support eager loading (such as JSON:API). This provides a way to
-retrieve records and eager load related models without further requests.
-Eager loading also alleviates the "N + 1" query problem.
+Some [implementations for Foscia](/docs/category/implementations) support eager
+loading (such as JSON:API). This provides a way to retrieve records and eager
+load related models without further requests. Eager loading also alleviates the
+"N + 1" query problem.
 
 To eager load a relation, you can use the `include` function.
 
 ```typescript
 import { forModel, all, include } from '@foscia/core';
 
-const posts = await action()
-  .use(
-    forModel(Post),
-    include('author'),
-  )
-  .run(all());
+const posts = await action().use(forModel(Post), include('author')).run(all());
 ```
 
 ### Lazy loading relations
 
-Some [implementations for Foscia](/docs/category/implementations)
-support eager loading (such as JSON:API). This provides a way to load
-related records for a relation after having retrieved a record.
+Some [implementations for Foscia](/docs/category/implementations) support eager
+loading (such as JSON:API). This provides a way to load related records for a
+relation after having retrieved a record.
 
 ```typescript
 import { forModel, forRelation, all, oneOrFail } from '@foscia/core';
 
-const post = await action()
-  .use(find(Post, 1))
-  .run(oneOrFail());
+const post = await action().use(find(Post, 1)).run(oneOrFail());
 
-const comments = await action()
-  .use(forRelation(post, 'comments'))
-  .run(all());
+const comments = await action().use(forRelation(post, 'comments')).run(all());
 ```
 
 :::info
@@ -118,34 +103,29 @@ Lazy loading a record's relation won't affect the given record instance.
 
 ### Creating and updating records
 
-You can create or update records using `create` and `update` functions.
-As a convenience, Foscia provides a `save` function which will call
-`create` or `update` depending on the existence state of your record.
+You can create or update records using `create` and `update` functions. As a
+convenience, Foscia provides a `save` function which will call `create` or
+`update` depending on the existence state of your record.
 
-`oneOrCurrent` is a runner which you can combine with those enhancers
-to always retrieve an instance, even if your data source does not
-return the record on those actions (such as a `204 No Content` on update).
-It will return a record if there is one if your data source response,
-otherwise it will return the initially provided instance.
+`oneOrCurrent` is a runner which you can combine with those enhancers to always
+retrieve an instance, even if your data source does not return the record on
+those actions (such as a `204 No Content` on update). It will return a record if
+there is one if your data source response, otherwise it will return the
+initially provided instance.
 
-You can also combine those functions with `none` runner to not
-handle the data source response.
+You can also combine those functions with `none` runner to not handle the data
+source response.
 
 ```typescript
 import { create, save, fill, oneOrCurrent, none } from '@foscia/core';
 
 const post = await action()
-  .use(
-    create(fill(new Post(), { title: 'Hello World!' })),
-    include('author'),
-  )
+  .use(create(fill(new Post(), { title: 'Hello World!' })), include('author'))
   .run(oneOrCurrent());
 
 post.title = 'Edited Hello World!';
 
-await action()
-  .use(save(post))
-  .run(none());
+await action().use(save(post)).run(none());
 ```
 
 ### Deleting records
@@ -156,9 +136,7 @@ You can use `destroy` to trigger a record deletion. You can combine it with
 ```typescript
 import { destroy, none } from '@foscia/core';
 
-await action()
-  .use(destroy(post))
-  .run(none());
+await action().use(destroy(post)).run(none());
 ```
 
 ### Conditionals
@@ -242,10 +220,7 @@ action().use(
 );
 ```
 
-<Link
-  className="button bg--primary"
-  to="/docs/reference/actions-enhancers"
->
+<Link className="button bg--primary" to="/docs/reference/actions-enhancers">
   Available enhancers API guide
 </Link>
 
@@ -258,9 +233,9 @@ When an action run, it does 3 things:
 
 - Dequeue all enhancers since the action instantiation and builds context
 - Execute the runner and each of its internal enhancers/runners (this may update
-the context)
+  the context)
 - Return the runner result (might be any value, including void or an error
-throwing)
+  throwing)
 
 Internally, action running will also trigger [actions hooks](#hooks).
 
@@ -272,10 +247,7 @@ action()
   .run(all());
 ```
 
-<Link
-  className="button bg--primary"
-  to="/docs/reference/actions-runners"
->
+<Link className="button bg--primary" to="/docs/reference/actions-runners">
   Available runners API guide
 </Link>
 

@@ -15,7 +15,7 @@ import ShellCommand from '@site/src/components/ShellCommand';
 
 :::
 
-## Creating the action factory
+## Setup
 
 You can use Foscia as a simple HTTP client (just like Axios). For this, you can
 configure an HTTP client action factory.
@@ -51,10 +51,10 @@ export default makeActionFactory({
 
 Once your action factory is ready, sending HTTP request is pretty easy using
 provided enhancers ([`makeGet`](/docs/reference/actions-enhancers#makeget),
-[`makePost`](/docs/reference/actions-enhancers#makepost), etc.).
-Running a request is done by [`raw`](/docs/reference/actions-runners#raw)
-runner, which will retrieve a fetch `Response` object. You can also pass a
-callback to `raw` to retrieve a value from the `Response` object.
+[`makePost`](/docs/reference/actions-enhancers#makepost), etc.). Running a
+request is done by [`raw`](/docs/reference/actions-runners#raw) runner, which
+will retrieve a fetch `Response` object. You can also pass a callback to `raw`
+to retrieve a value from the `Response` object.
 
 ```typescript
 import { makeGet, makePost } from '@foscia/http';

@@ -32,8 +32,9 @@ different from the record types returned inside a JSON:API response.
 
 :::tip
 
-`MapRegistry` is provided as the default registry in `makeRegistry`. You can
-use it to [**register your models**](/docs/digging-deeper/actions/models-registration)
+`MapRegistry` is provided as the default registry in `makeRegistry`. You can use
+it to
+[**register your models**](/docs/digging-deeper/actions/models-registration)
 when necessary.
 
 :::
@@ -44,11 +45,12 @@ when necessary.
 import { MapRegistry, makeRegistry } from '@foscia/core';
 import Post from './models/post';
 
-const registry = new MapRegistry({
+// Using blueprint (preconfigured with sensible defaults).
+const registry = makeRegistry({
   /* ...configuration */
 });
-// OR: using blueprint.
-const registry = makeRegistry({
+// Using constructor (no default configuration provided).
+const registry = new MapRegistry({
   /* ...configuration */
 });
 
@@ -104,12 +106,13 @@ expiration timeout.
 import { RefsCache, weakRefManager, makeCache } from '@foscia/core';
 import Post from './models/post';
 
-const cache = new RefsCache({
-  manager: weakRefManager,
-});
-// OR: using blueprint (set manager to "weakRefManager" by default).
+// Using blueprint (preconfigured with sensible defaults).
 const cache = makeCache({
   /* ...configuration */
+});
+// Using constructor (no default configuration provided).
+const cache = new RefsCache({
+  manager: weakRefManager,
 });
 
 const post = new Post();

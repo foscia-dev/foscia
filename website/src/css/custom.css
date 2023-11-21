@@ -1,8 +1,8 @@
 /**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
- */
+* Any CSS included here will be global. The classic template
+* bundles Infima by default. Infima is a CSS framework designed to
+* work well for content-centric websites.
+*/
 
 /* You can override the default Infima variables here. */
 :root {
@@ -24,6 +24,8 @@
     --ifm-hero-background-color: transparent;
     --ifm-footer-background-color: #fef7fa;
     --ifm-code-background: #fef7fa;
+    --ifm-details-background: #fef7fa;
+    --ifm-details-code-background: #fdf3f7;
     --ifm-hover-overlay: #fef7fa;
     --ifm-color-primary: #ac1b55;
     --ifm-color-primary-dark: #9b184c;
@@ -44,6 +46,8 @@ html[data-theme="dark"] {
     --ifm-hero-background-color: transparent;
     --ifm-footer-background-color: #0f0a0c;
     --ifm-code-background: #1c1216;
+    --ifm-details-background: #1c1216;
+    --ifm-details-code-background: #1f1418;
     --ifm-hover-overlay: #1c1216;
     --ifm-color-primary: #ff6bc1;
     --ifm-color-primary-dark: #ff47b2;
@@ -132,6 +136,33 @@ table > thead > tr > th:not(:last-child), table > tbody > tr > td:not(:last-chil
 
 .card {
     border: none !important;
+}
+
+details {
+    --ifm-alert-border-radius: var(--ifm-code-border-radius) !important;
+    --ifm-alert-background-color: var(--ifm-details-background) !important;
+    --ifm-alert-background-color-highlight: var(--ifm-details-background) !important;
+    --ifm-alert-foreground-color: var(--ifm-font-color-base) !important;
+    --ifm-alert-border-color: var(--ifm-color-primary) !important;
+    border: none !important;
+}
+
+details > summary {
+    color: var(--ifm-color-primary);
+}
+
+
+details > div > div {
+    margin-top: 0 !important;
+    border: 0 !important;
+}
+
+details > div > div > div[class^="language-"] {
+    background-color: var(--ifm-details-code-background) !important;
+}
+
+details > div > div > :last-child {
+    margin-bottom: 0 !important;
 }
 
 .tabs-container {
