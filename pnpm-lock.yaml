@@ -174,6 +174,9 @@ importers:
       '@foscia/object':
         specifier: 0.5.0
         version: link:../object
+      '@foscia/rest':
+        specifier: 0.5.0
+        version: link:../rest
       '@foscia/shared':
         specifier: 0.5.0
         version: link:../shared
