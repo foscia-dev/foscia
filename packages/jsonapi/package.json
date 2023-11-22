@@ -35,7 +35,7 @@
     "@foscia/core": "0.5.1",
     "@foscia/http": "0.5.1",
     "@foscia/object": "0.5.1",
-    "@foscia/rest": "0.5.0",
+    "@foscia/rest": "0.5.1",
     "@foscia/shared": "0.5.1",
     "@foscia/test": "0.5.1"
   },
