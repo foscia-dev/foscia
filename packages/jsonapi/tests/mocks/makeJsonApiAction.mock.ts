@@ -15,6 +15,11 @@ export default function makeJsonApiActionMock() {
     ...makeJsonApiSerializer(),
     ...makeJsonApiAdapter({
       baseURL: 'https://example.com/api/v1',
+      requestTransformers: [(request) => {
+        request.headers.set('X-Foo-Header', 'bar');
+
+        return request;
+      }],
     }),
   });
 }

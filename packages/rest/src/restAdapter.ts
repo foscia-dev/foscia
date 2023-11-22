@@ -1,5 +1,5 @@
 import { consumeInclude, normalizeInclude } from '@foscia/core';
-import { HttpAdapter, HttpRequestConfig } from '@foscia/http';
+import { HttpAdapter } from '@foscia/http';
 import { RestAdapterConfig } from '@foscia/rest/types';
 import { applyConfig, optionalJoin } from '@foscia/shared';
 
@@ -16,18 +16,17 @@ export default class RestAdapter extends HttpAdapter {
     applyConfig(this, config, override);
   }
 
-  protected async makeRequestURLParams(context: HttpRequestConfig): Promise<string | undefined> {
+  protected async makeRequestURLParams(context: {}): Promise<string | undefined> {
     const params = await super.makeRequestURLParams(context);
-    if (!this.includeQueryParameter) {
+    const include = consumeInclude(context, null) ?? [];
+    if (!this.includeQueryParameter || include.length === 0) {
       return params;
     }
-
-    const include = await normalizeInclude(context, consumeInclude(context, null) ?? []);
 
     return optionalJoin([
       params,
       this.makeRequestURLParamsFromObject({
-        [this.includeQueryParameter]: include.length ? optionalJoin(include, ',') : undefined,
+        [this.includeQueryParameter]: optionalJoin(await normalizeInclude(context, include), ','),
       }),
     ], '&');
   }

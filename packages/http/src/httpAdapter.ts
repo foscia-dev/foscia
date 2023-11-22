@@ -22,7 +22,6 @@ import {
   HttpAdapterConfig,
   HttpMethod,
   HttpParamsSerializer,
-  HttpRequestConfig,
   RequestTransformer,
   ResponseTransformer,
 } from '@foscia/http/types';
@@ -190,13 +189,14 @@ export default class HttpAdapter implements AdapterI<Response> {
     return endpoint.replace(/([^:]\/)\/+/g, '$1');
   }
 
-  protected async makeRequestURLParams(context: HttpRequestConfig) {
-    if (typeof context.params === 'string') {
-      return this.makeRequestURLParamsFromString(context.params);
+  protected async makeRequestURLParams(context: {}) {
+    const config = consumeRequestConfig(context, null);
+    if (typeof config?.params === 'string') {
+      return this.makeRequestURLParamsFromString(config.params);
     }
 
-    if (context.params) {
-      return this.makeRequestURLParamsFromObject(context.params);
+    if (config?.params) {
+      return this.makeRequestURLParamsFromObject(config?.params);
     }
 
     return undefined;
@@ -248,24 +248,24 @@ export default class HttpAdapter implements AdapterI<Response> {
     }
   }
 
-  protected async transformRequest(context: HttpRequestConfig, request: Request) {
+  protected async transformRequest(context: {}, request: Request) {
     return sequentialTransform([
       ...this.requestTransformers,
-      ...(context.requestTransformers ?? []),
+      ...(consumeRequestConfig(context, null)?.requestTransformers ?? []),
     ], request);
   }
 
-  protected async transformResponse(context: HttpRequestConfig, response: Response) {
+  protected async transformResponse(context: {}, response: Response) {
     return sequentialTransform([
       ...this.responseTransformers,
-      ...(context.responseTransformers ?? []),
+      ...(consumeRequestConfig(context, null)?.responseTransformers ?? []),
     ], response);
   }
 
-  protected async transformError(context: HttpRequestConfig, error: unknown) {
+  protected async transformError(context: {}, error: unknown) {
     return sequentialTransform([
       ...this.errorTransformers,
-      ...(context.errorTransformers ?? []),
+      ...(consumeRequestConfig(context, null)?.errorTransformers ?? []),
     ], error);
   }
 }

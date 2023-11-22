@@ -12,6 +12,7 @@ import {
   when,
 } from '@foscia/core';
 import { makeGet } from '@foscia/http';
+import { filterBy, paginate } from '@foscia/jsonapi';
 import { describe, expect, it, vi } from 'vitest';
 import createFetchMock from '../../../../tests/mocks/createFetchMock.mock';
 import createFetchResponse from '../../../../tests/mocks/createFetchResponse.mock';
@@ -60,14 +61,17 @@ describe.concurrent('integration: JSON:API', () => {
     const posts = await action()
       .use(forModel(PostMock))
       .use(include('comments'))
+      .use(filterBy('search', 'foo bar'))
+      .use(paginate({ size: 10, number: 1 }))
       .run(all());
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const request = fetchMock.mock.calls[0][0] as Request;
-    expect(request.url).toStrictEqual('https://example.com/api/v1/posts?include=comments');
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts?filter%5Bsearch%5D=foo+bar&page%5Bsize%5D=10&page%5Bnumber%5D=1&include=comments');
     expect(request.method).toStrictEqual('GET');
     expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
     expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('X-Foo-Header')).toStrictEqual('bar');
     expect(request.body).toBeNull();
 
     expect(posts).toHaveLength(2);
