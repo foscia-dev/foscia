@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/foscia-dev/foscia/compare/v0.5.0...v0.5.1) (2023-11-22)
+
+
+### Bug Fixes
+
+* **core:** reduce typing strictness for hasOne and hasMany ([49e2fce](https://github.com/foscia-dev/foscia/commit/49e2fce15db6e96286fe226080919520be85215d))
+
 # [0.5.0](https://github.com/foscia-dev/foscia/compare/v0.4.0...v0.5.0) (2023-11-10)
 
 
