@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.3](https://github.com/foscia-dev/foscia/compare/v0.5.2...v0.5.3) (2023-11-22)
+
+
+### Bug Fixes
+
+* **http:** query parameters serialization and http hooks ([7bfcb61](https://github.com/foscia-dev/foscia/commit/7bfcb619690222a2b4af3a4cebb434308cdfda4f))
+
 ## [0.5.2](https://github.com/foscia-dev/foscia/compare/v0.5.1...v0.5.2) (2023-11-22)
 
 

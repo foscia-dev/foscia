@@ -1,7 +1,7 @@
 {
   "name": "@foscia/core",
   "type": "module",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "license": "MIT",
   "author": "Paul Thébaud",
   "description": "Type safe, modular and intuitive API/data client.",
@@ -32,7 +32,7 @@
     "release": "release-it"
   },
   "dependencies": {
-    "@foscia/shared": "0.5.2"
+    "@foscia/shared": "0.5.3"
   },
   "publishConfig": {
     "access": "public"
