@@ -1,6 +1,7 @@
 import { fill, normalizeDotRelations } from '@foscia/core';
 import { expectTypeOf, test } from 'vitest';
 import CommentMock from '../mocks/models/comment.mock';
+import FileMock from '../mocks/models/file.mock';
 import PostMock from '../mocks/models/post.mock';
 import TagMock from '../mocks/models/tag.mock';
 import UserMock from '../mocks/models/user.mock';
@@ -55,4 +56,8 @@ test('Models are type safe', () => {
 
   const tag = new TagMock();
   expectTypeOf(tag.taggables).toMatchTypeOf<(PostMock | UserMock)[]>();
+
+  const file = new FileMock();
+  expectTypeOf(file.parent).toMatchTypeOf<FileMock>();
+  expectTypeOf(file.children).toMatchTypeOf<FileMock[]>();
 });

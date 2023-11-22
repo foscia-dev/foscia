@@ -11,7 +11,7 @@ import {
 import { SYMBOL_MODEL_PROP_RELATION } from '@foscia/core/symbols';
 import { Awaitable, Constructor } from '@foscia/shared';
 
-export type PendingModelRelationInstance<M extends Model | Model[]> =
+export type PendingModelRelationInstance<M> =
   M extends Constructor<infer I>[] ? I
     : M extends Constructor<infer I> ? I
       : never;
