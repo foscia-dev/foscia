@@ -5,7 +5,7 @@ import { ObjectTransformer } from '@foscia/core/transformers/types';
 
 type PendingModelId<T extends ModelIdType | null, R extends boolean> = {
   transform: <NT extends T>(
-    transformer: ObjectTransformer<NT | null>,
+    transformer: ObjectTransformer<NT | null, any, any>,
   ) => PendingModelId<NT, R>;
   default: <NT extends T>(value: T | (() => T)) => PendingModelId<NT, R>;
   readOnly: <NR extends boolean = true>(readOnly?: NR) => PendingModelId<T, NR>;
@@ -13,7 +13,7 @@ type PendingModelId<T extends ModelIdType | null, R extends boolean> = {
 } & PendingModelProp<RawModelId<T, R>>;
 
 export default function id<T extends ModelIdType | null>(
-  config?: ObjectTransformer<T | null> | T | (() => T),
+  config?: ObjectTransformer<T | null, any, any> | T | (() => T),
 ) {
   const makePendingId = makePendingProp({
     ...PROP_MODIFIERS,
