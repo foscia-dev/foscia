@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/foscia-dev/foscia/compare/v0.5.1...v0.5.2) (2023-11-22)
+
+
+### Bug Fixes
+
+* **core:** support any serialized type for transformers on id and attr ([6153ef9](https://github.com/foscia-dev/foscia/commit/6153ef9c2274d10dc929bb60e129f535db492a03))
+
 ## [0.5.1](https://github.com/foscia-dev/foscia/compare/v0.5.0...v0.5.1) (2023-11-22)
 
 
