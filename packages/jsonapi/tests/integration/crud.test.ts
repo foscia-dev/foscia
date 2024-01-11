@@ -3,11 +3,13 @@ import {
   changed,
   destroy,
   fill,
+  find,
   forModel,
   include,
   markSynced,
   none,
   one,
+  oneOrFail,
   save,
   when,
 } from '@foscia/core';
@@ -99,6 +101,62 @@ describe.concurrent('integration: JSON:API', () => {
     expect(posts[1].body).toStrictEqual('Bar Body');
     expect(posts[1].publishedAt).toBeNull();
     expect(posts[1].comments).toHaveLength(0);
+  });
+
+  it('should run action: find record', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json({
+      data: {
+        type: 'posts',
+        id: '1',
+        attributes: { title: 'Foo', body: 'Foo Body' },
+      },
+    }));
+
+    const action = makeJsonApiActionMock();
+
+    const post = await action()
+      .use(find(PostMock, '1'))
+      .run(oneOrFail());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1');
+    expect(request.method).toStrictEqual('GET');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+
+    expect(post).toBeInstanceOf(PostMock);
+    expect(post.$exists).toStrictEqual(true);
+    expect(post.id).toStrictEqual('1');
+    expect(post.title).toStrictEqual('Foo');
+    expect(post.body).toStrictEqual('Foo Body');
+    expect(post.comments).toBeUndefined();
+  });
+
+  it('should run action: not found record', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json({
+      errors: [{
+        status: '404',
+        title: 'Not Found',
+      }],
+    }, 404));
+
+    const action = makeJsonApiActionMock();
+
+    const post = await action()
+      .use(find(PostMock, '1'))
+      .run(one());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1');
+    expect(request.method).toStrictEqual('GET');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+
+    expect(post).toBeNull();
   });
 
   it('should run action: create record', async () => {

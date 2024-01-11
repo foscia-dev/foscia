@@ -4,8 +4,8 @@ export default function createFetchResponse(options: Partial<Response> = {}) {
       status: 204,
       ...options,
     }),
-    json: (body: any) => () => Promise.resolve({
-      status: 200,
+    json: (body: any, status = 200) => () => Promise.resolve({
+      status,
       ...options,
       json: () => Promise.resolve(body),
     }),
