@@ -1,6 +1,6 @@
 import HttpAdapterError from '@foscia/http/errors/httpAdapterError';
 
-export default abstract class ResponseError extends HttpAdapterError {
+export default abstract class HttpResponseError extends HttpAdapterError {
   public response: Response;
 
   public constructor(

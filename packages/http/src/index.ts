@@ -11,17 +11,17 @@ import makePut from '@foscia/http/actions/context/enhancers/makePut';
 import makeRequest from '@foscia/http/actions/context/enhancers/makeRequest';
 import param from '@foscia/http/actions/context/enhancers/param';
 import makeHttpAdapter from '@foscia/http/blueprints/makeHttpAdapter';
-import AbortedError from '@foscia/http/errors/abortedError';
-import ConflictError from '@foscia/http/errors/conflictError';
-import ForbiddenError from '@foscia/http/errors/forbiddenError';
+import HttpAbortedError from '@foscia/http/errors/httpAbortedError';
+import HttpConflictError from '@foscia/http/errors/httpConflictError';
+import HttpForbiddenError from '@foscia/http/errors/httpForbiddenError';
 import HttpAdapterError from '@foscia/http/errors/httpAdapterError';
-import InterruptedError from '@foscia/http/errors/interruptedError';
-import InvalidRequestError from '@foscia/http/errors/invalidRequestError';
-import NotFoundError from '@foscia/http/errors/notFoundError';
-import ResponseError from '@foscia/http/errors/responseError';
-import ServerError from '@foscia/http/errors/serverError';
-import TooManyRequestsError from '@foscia/http/errors/tooManyRequestsError';
-import UnauthorizedError from '@foscia/http/errors/unauthorizedError';
+import HttpInterruptedError from '@foscia/http/errors/httpInterruptedError';
+import HttpInvalidRequestError from '@foscia/http/errors/httpInvalidRequestError';
+import HttpNotFoundError from '@foscia/http/errors/httpNotFoundError';
+import HttpResponseError from '@foscia/http/errors/httpResponseError';
+import HttpServerError from '@foscia/http/errors/httpServerError';
+import HttpTooManyRequestsError from '@foscia/http/errors/httpTooManyRequestsError';
+import HttpUnauthorizedError from '@foscia/http/errors/httpUnauthorizedError';
 import HttpAdapter from '@foscia/http/httpAdapter';
 import httpExtensions from '@foscia/http/httpExtensions';
 import bodyAsJson from '@foscia/http/utilities/bodyAsJson';
@@ -36,17 +36,17 @@ export {
   bodyAsJson,
   paramsSerializer,
   deepParamsSerializer,
-  AbortedError,
+  HttpAbortedError,
   HttpAdapterError,
-  InterruptedError,
-  ResponseError,
-  ServerError,
-  InvalidRequestError,
-  UnauthorizedError,
-  ForbiddenError,
-  NotFoundError,
-  ConflictError,
-  TooManyRequestsError,
+  HttpInterruptedError,
+  HttpResponseError,
+  HttpServerError,
+  HttpInvalidRequestError,
+  HttpUnauthorizedError,
+  HttpForbiddenError,
+  HttpNotFoundError,
+  HttpConflictError,
+  HttpTooManyRequestsError,
   makeRequest,
   makeGet,
   makePost,

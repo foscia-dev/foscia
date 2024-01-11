@@ -7,15 +7,15 @@ import {
   consumeRelation,
 } from '@foscia/core';
 import consumeRequestConfig from '@foscia/http/actions/context/consumers/consumeRequestConfig';
-import AbortedError from '@foscia/http/errors/abortedError';
-import ConflictError from '@foscia/http/errors/conflictError';
-import ForbiddenError from '@foscia/http/errors/forbiddenError';
-import InterruptedError from '@foscia/http/errors/interruptedError';
-import InvalidRequestError from '@foscia/http/errors/invalidRequestError';
-import NotFoundError from '@foscia/http/errors/notFoundError';
-import ServerError from '@foscia/http/errors/serverError';
-import TooManyRequestsError from '@foscia/http/errors/tooManyRequestsError';
-import UnauthorizedError from '@foscia/http/errors/unauthorizedError';
+import HttpAbortedError from '@foscia/http/errors/httpAbortedError';
+import HttpConflictError from '@foscia/http/errors/httpConflictError';
+import HttpForbiddenError from '@foscia/http/errors/httpForbiddenError';
+import HttpInterruptedError from '@foscia/http/errors/httpInterruptedError';
+import HttpInvalidRequestError from '@foscia/http/errors/httpInvalidRequestError';
+import HttpNotFoundError from '@foscia/http/errors/httpNotFoundError';
+import HttpServerError from '@foscia/http/errors/httpServerError';
+import HttpTooManyRequestsError from '@foscia/http/errors/httpTooManyRequestsError';
+import HttpUnauthorizedError from '@foscia/http/errors/httpUnauthorizedError';
 import {
   BodyAsTransformer,
   ErrorTransformer,
@@ -212,10 +212,10 @@ export default class HttpAdapter implements AdapterI<Response> {
 
   protected async makeRequestError(request: Request, error: unknown): Promise<unknown> {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      return new AbortedError(error.message, request, error);
+      return new HttpAbortedError(error.message, request, error);
     }
 
-    return new InterruptedError(
+    return new HttpInterruptedError(
       error instanceof Error ? error.message : 'Unknown fetch adapter error',
       request,
       error,
@@ -225,19 +225,19 @@ export default class HttpAdapter implements AdapterI<Response> {
   protected async makeResponseError(request: Request, response: Response): Promise<unknown> {
     switch (true) {
       case response.status >= 500:
-        return new ServerError(request, response);
+        return new HttpServerError(request, response);
       case response.status === 401:
-        return new UnauthorizedError(request, response);
+        return new HttpUnauthorizedError(request, response);
       case response.status === 403:
-        return new ForbiddenError(request, response);
+        return new HttpForbiddenError(request, response);
       case response.status === 404:
-        return new NotFoundError(request, response);
+        return new HttpNotFoundError(request, response);
       case response.status === 409:
-        return new ConflictError(request, response);
+        return new HttpConflictError(request, response);
       case response.status === 429:
-        return new TooManyRequestsError(request, response);
+        return new HttpTooManyRequestsError(request, response);
       default:
-        return new InvalidRequestError(request, response);
+        return new HttpInvalidRequestError(request, response);
     }
   }
 
