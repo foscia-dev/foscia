@@ -63,13 +63,6 @@ export type AdapterI<Data> = {
    * @param context
    */
   execute(context: {}): Awaitable<Data>;
-  /**
-   * Check if an adapter thrown error is a "not found" error,
-   * allowing to throw a generic error on "<x>OrFail" runners.
-   *
-   * @param error
-   */
-  isNotFound(error: unknown): Awaitable<boolean>;
 };
 
 /**

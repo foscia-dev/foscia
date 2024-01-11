@@ -83,13 +83,6 @@ export default class HttpAdapter implements AdapterI<Response> {
     );
   }
 
-  /**
-   * @inheritDoc
-   */
-  public isNotFound(error: unknown) {
-    return error instanceof NotFoundError;
-  }
-
   protected async makeRequest(context: {}): Promise<Request> {
     const config = consumeRequestConfig(context, null);
 

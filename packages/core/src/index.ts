@@ -6,6 +6,7 @@ import weakRefManager from '@foscia/core/cache/weakRefManager';
 import AdapterError from '@foscia/core/errors/adapterError';
 import DeserializerError from '@foscia/core/errors/deserializerError';
 import ExpectedRunFailureError from '@foscia/core/errors/expectedRunFailureError';
+import isNotFoundError from '@foscia/core/errors/flags/isNotFoundError';
 import FosciaError from '@foscia/core/errors/fosciaError';
 import SerializerError from '@foscia/core/errors/serializerError';
 import registerHook from '@foscia/core/hooks/registerHook';
@@ -67,6 +68,7 @@ import toString from '@foscia/core/transformers/toString';
 
 export * from '@foscia/core/actions/types';
 export * from '@foscia/core/cache/types';
+export * from '@foscia/core/errors/flags/types';
 export * from '@foscia/core/hooks/types';
 export * from '@foscia/core/model/types';
 export * from '@foscia/core/registry/types';
@@ -81,6 +83,7 @@ export {
   DeserializerError,
   SerializerError,
   ExpectedRunFailureError,
+  isNotFoundError,
   makeRegistry,
   MapRegistry,
   makeCache,

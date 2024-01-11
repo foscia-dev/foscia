@@ -1,4 +1,3 @@
-import consumeAdapter from '@foscia/core/actions/context/consumers/consumeAdapter';
 import all, { AllData } from '@foscia/core/actions/context/runners/all';
 import { DeserializedDataOf } from '@foscia/core/actions/context/utils/deserializeInstances';
 import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExtension';
@@ -10,6 +9,7 @@ import {
   ContextRunner,
   InferConsumedInstance,
 } from '@foscia/core/actions/types';
+import isNotFoundError from '@foscia/core/errors/flags/isNotFoundError';
 import { ModelInstance } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
@@ -58,9 +58,7 @@ export default function oneOr<
         return result as ND;
       }
     } catch (error) {
-      const context = await action.useContext();
-      const adapter = await consumeAdapter(context);
-      if (!(await adapter.isNotFound(error))) {
+      if (!isNotFoundError(error)) {
         throw error;
       }
     }

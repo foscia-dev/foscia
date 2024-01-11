@@ -13,7 +13,6 @@ describe.concurrent('unit: mocking', () => {
       action: makeActionFactoryMockable((() => new ActionClass().use(context({
         adapter: {
           execute: fetch,
-          isNotFound: () => false,
         } as AdapterI<any>,
       })))),
     };
