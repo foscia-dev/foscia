@@ -24,7 +24,7 @@ up: ## Start containers without building.
 
 .PHONY: down
 down: ## Stop and remove containers.
-	@$(DOCKER_COMPOSE) down --remove-orphans
+	@$(DOCKER_COMPOSE) down --remove-orphans --timeout=2
 
 ##
 ## —— Executables ——————————————————————————————————————————————————————————————
