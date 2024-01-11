@@ -84,14 +84,14 @@ import { attr, makeModelFactory, toDate } from '@foscia/core';
 
 export default makeModelFactory(
   {
+    /* ...common configuration */
+  },
+  {
     createdAt: attr(toDate()),
     updatedAt: attr(toDate()),
     get wasChangedSinceCreation() {
       return this.createdAt.getTime() === this.updatedAt.getTime();
     },
-  },
-  {
-    /* base configuration */
   },
 );
 ```
