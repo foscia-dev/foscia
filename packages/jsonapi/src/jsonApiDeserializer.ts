@@ -14,7 +14,6 @@ import { IdentifiersMap, wrap } from '@foscia/shared';
 export type JsonApiExtractedData = ObjectExtractedData<JsonApiNewResource> & {
   included: IdentifiersMap<string, ModelIdType, JsonApiResource>;
   document: JsonApiDocument;
-  response: Response;
 };
 
 /**
@@ -22,13 +21,13 @@ export type JsonApiExtractedData = ObjectExtractedData<JsonApiNewResource> & {
  */
 export type JsonApiDeserializedData<I extends ModelInstance = ModelInstance> =
   & DeserializedData<I>
-  & { document: JsonApiDocument; response: Response; };
+  & { document: JsonApiDocument; };
 
 /**
  * Deserializer implementation for JSON:API.
  */
 export default class JsonApiDeserializer extends ObjectDeserializer
-  <Response, JsonApiNewResource, JsonApiExtractedData, JsonApiDeserializedData> {
+  <JsonApiNewResource, JsonApiExtractedData, JsonApiDeserializedData> {
   /**
    * @inheritDoc
    */
@@ -39,15 +38,14 @@ export default class JsonApiDeserializer extends ObjectDeserializer
     return {
       instances,
       document: extractedData.document,
-      response: extractedData.response,
     };
   }
 
   /**
    * @inheritDoc
    */
-  protected async extractData(response: Response) {
-    const document: JsonApiDocument = response.status === 204 ? {} : await response.json();
+  protected async extractData(rawData: JsonApiDocument | undefined) {
+    const document: JsonApiDocument = rawData ?? {};
 
     const included = new IdentifiersMap<string, ModelIdType, JsonApiResource>();
     document.included?.map((r) => included.set(r.type, r.id, r));
@@ -56,7 +54,6 @@ export default class JsonApiDeserializer extends ObjectDeserializer
       resources: document.data,
       included,
       document,
-      response,
     };
   }
 

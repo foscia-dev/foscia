@@ -52,8 +52,8 @@ type DeserializedData<I extends ModelInstance = ModelInstance> = {
   instances: I[];
 };
 
-type DeserializerI<AdapterData, Data extends DeserializedData> = {
-  deserialize(data: AdapterData, context: {}): Awaitable<Data>;
+type DeserializerI<Data extends DeserializedData> = {
+  deserialize(data: any, context: {}): Awaitable<Data>;
 };
 ```
 
@@ -64,9 +64,13 @@ source. As an example, it will _translate_ the context to an HTTP request when
 using JSON:API or REST implementations.
 
 ```typescript
-type AdapterI<Data> = {
-  execute(context: {}): Awaitable<Data>;
-  isNotFound(error: unknown): Awaitable<boolean>;
+type AdapterResponseI<RawData, Data = any> = {
+  raw: RawData;
+  read: () => Promise<Data>;
+};
+
+type AdapterI<RawData> = {
+  execute(context: {}): Awaitable<AdapterResponseI<RawData>>;
 };
 ```
 

@@ -29,6 +29,7 @@ export type HttpRequestConfig = {
   bodyAs?: BodyAsTransformer;
   signal?: AbortSignal | null;
   modelPaths?: boolean;
+  responseReader?: HttpResponseReader;
   requestTransformers?: RequestTransformer[];
   responseTransformers?: ResponseTransformer[];
   errorTransformers?: ErrorTransformer[];
@@ -42,12 +43,18 @@ export type ConsumeHttpRequestConfig = {
 };
 
 /**
+ * Read the response's content to a deserializable data.
+ */
+export type HttpResponseReader = (response: Response) => Promise<any>;
+
+/**
  * The configuration for the HTTP adapter implementation.
  */
 export type HttpAdapterConfig = {
   fetch?: typeof fetch;
   baseURL?: string | null;
   serializeParams: HttpParamsSerializer;
+  responseReader?: HttpResponseReader;
   defaultHeaders?: Dictionary<string>;
   defaultBodyAs?: BodyAsTransformer | null;
   requestTransformers?: RequestTransformer[];

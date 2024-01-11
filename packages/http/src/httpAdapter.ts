@@ -16,12 +16,14 @@ import HttpNotFoundError from '@foscia/http/errors/httpNotFoundError';
 import HttpServerError from '@foscia/http/errors/httpServerError';
 import HttpTooManyRequestsError from '@foscia/http/errors/httpTooManyRequestsError';
 import HttpUnauthorizedError from '@foscia/http/errors/httpUnauthorizedError';
+import HttpAdapterResponse from '@foscia/http/httpAdapterResponse';
 import {
   BodyAsTransformer,
   ErrorTransformer,
   HttpAdapterConfig,
   HttpMethod,
   HttpParamsSerializer,
+  HttpResponseReader,
   RequestTransformer,
   ResponseTransformer,
 } from '@foscia/http/types';
@@ -40,6 +42,10 @@ export default class HttpAdapter implements AdapterI<Response> {
   private defaultHeaders: Dictionary<string> = {};
 
   private defaultBodyAs: BodyAsTransformer | null = null;
+
+  private responseReader: HttpResponseReader = async (r) => (
+    r.status === 204 ? undefined : r.json()
+  );
 
   private requestTransformers: RequestTransformer[] = [];
 
@@ -60,7 +66,8 @@ export default class HttpAdapter implements AdapterI<Response> {
   /**
    * @inheritDoc
    */
-  public async execute(context: {}): Promise<Response> {
+  public async execute(context: {}) {
+    const config = consumeRequestConfig(context, null);
     const request = await this.transformRequest(context, await this.makeRequest(context));
 
     let response: Response;
@@ -74,7 +81,10 @@ export default class HttpAdapter implements AdapterI<Response> {
     }
 
     if (response.status >= 200 && response.status < 300) {
-      return this.transformResponse(context, response);
+      return new HttpAdapterResponse(
+        config?.responseReader ?? this.responseReader,
+        await this.transformResponse(context, response),
+      );
     }
 
     throw await this.transformError(

@@ -1,4 +1,5 @@
-import executeContextThroughAdapter from '@foscia/core/actions/context/utils/executeContextThroughAdapter';
+import executeContextThroughAdapter
+  from '@foscia/core/actions/context/utils/executeContextThroughAdapter';
 import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExtension';
 import { Action, ActionParsedExtension, ConsumeAdapter } from '@foscia/core/actions/types';
 import { Awaitable } from '@foscia/shared';
@@ -12,11 +13,11 @@ export default function raw<C extends {}, AD, ND = AD>(
   transform?: (data: AD) => Awaitable<ND>,
 ) {
   return async (action: Action<C & ConsumeAdapter<AD>>) => {
-    const data = await executeContextThroughAdapter(
+    const response = await executeContextThroughAdapter(
       await action.useContext(),
     );
 
-    return (transform ? transform(data) : data) as Awaitable<ND>;
+    return (transform ? transform(response.raw) : response.raw) as Awaitable<ND>;
   };
 }
 

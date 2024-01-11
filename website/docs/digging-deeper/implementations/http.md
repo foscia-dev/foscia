@@ -67,16 +67,17 @@ const response = await adapter.execute({
 
 #### Configuration {#httpadapter-configuration}
 
-| Name                   | Type                                                                                               | Description                                                                       |
-| ---------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `fetch`                | `fetch`                                                                                            | `fetch` implementation to use.                                                    |
-| `baseURL`              | <code>string &vert; null</code>                                                                    | Base URL to merge with path when building the request endpoint.                   |
-| `serializeParams`      | <code>(params: Dictionary) => string &vert; undefined</code>                                       | Function to serialize a query param object.                                       |
-| `defaultHeaders`       | `Dictionary<string>`                                                                               | Default headers to use in the request.                                            |
-| `defaultBodyAs`        | <code>((body: unknown, headers: Dictionary\<string\>) => Awaitable\<BodyInit\>) &vert; null</code> | Default body transformation. If set to null, body won't be transformed.           |
-| `requestTransformers`  | `((request: Request) => Awaitable<Request>)[]`                                                     | Functions to transform a request object before sending.                           |
-| `responseTransformers` | `((response: Response) => Awaitable<Response>)[]`                                                  | Functions to transform a response object after a successful request.              |
-| `errorTransformers`    | `((error: unknown) => Awaitable<unknown>)[]`                                                       | Functions to transform an error after a `fetch` error or an unsuccessful request. |
+| Name                   | Type                                                                                               | Description                                                                                 |
+|------------------------|----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| `fetch`                | `fetch`                                                                                            | `fetch` implementation to use.                                                              |
+| `baseURL`              | <code>string &vert; null</code>                                                                    | Base URL to merge with path when building the request endpoint.                             |
+| `serializeParams`      | <code>(params: Dictionary) => string &vert; undefined</code>                                       | Function to serialize a query param object.                                                 |
+| `responseReader`       | <code>(response: Response) => any &vert; undefined</code>                                          | Function to read the response's data before passing to deserializer (default to `.json()`). |
+| `defaultHeaders`       | `Dictionary<string>`                                                                               | Default headers to use in the request.                                                      |
+| `defaultBodyAs`        | <code>((body: unknown, headers: Dictionary\<string\>) => Awaitable\<BodyInit\>) &vert; null</code> | Default body transformation. If set to null, body won't be transformed.                     |
+| `requestTransformers`  | `((request: Request) => Awaitable<Request>)[]`                                                     | Functions to transform a request object before sending.                                     |
+| `responseTransformers` | `((response: Response) => Awaitable<Response>)[]`                                                  | Functions to transform a response object after a successful request.                        |
+| `errorTransformers`    | `((error: unknown) => Awaitable<unknown>)[]`                                                       | Functions to transform an error after a `fetch` error or an unsuccessful request.           |
 
 #### Defined in
 

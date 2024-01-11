@@ -30,11 +30,10 @@ import {
 import { applyConfig, IdentifiersMap, isNil, isNone, Optional, wrap } from '@foscia/shared';
 
 export default abstract class ObjectDeserializer<
-  AdapterData,
   Resource,
   Extract extends ObjectExtractedData<Resource> = ObjectExtractedData<Resource>,
   Data extends DeserializedData = DeserializedData,
-> implements DeserializerI<AdapterData, Data> {
+> implements DeserializerI<Data> {
   protected static NON_IDENTIFIED_LOCAL_ID = '__foscia_non_identified_local_id__';
 
   public constructor(config?: ObjectDeserializerConfig) {
@@ -45,10 +44,10 @@ export default abstract class ObjectDeserializer<
     applyConfig(this, config, override);
   }
 
-  public async deserialize(data: AdapterData, context: {}) {
+  public async deserialize(rawData: any, context: {}) {
     const instancesMap = await this.initInstancesMap();
 
-    const extractedData = await this.extractData(data, context);
+    const extractedData = await this.extractData(rawData, context);
 
     await this.prepareInstancesMap(extractedData, instancesMap, context);
 
@@ -70,7 +69,7 @@ export default abstract class ObjectDeserializer<
     extractedData: Extract,
   ): Promise<Data>;
 
-  protected abstract extractData(data: AdapterData, context: {}): Promise<Extract>;
+  protected abstract extractData(rawData: any, context: {}): Promise<Extract>;
 
   protected abstract extractOptionalIdentifier(
     resource: Resource,

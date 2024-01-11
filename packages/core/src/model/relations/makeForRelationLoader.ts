@@ -10,7 +10,7 @@ export default function makeForRelationLoader<
   AD,
   DD extends DeserializedData,
 >(
-  action: ActionFactory<[], ConsumeAdapter<AD> & ConsumeDeserializer<AD, DD>, {}>,
+  action: ActionFactory<[], ConsumeAdapter<AD> & ConsumeDeserializer<DD>, {}>,
 ) {
   return async <I extends ModelInstance>(
     instances: Arrayable<I>,

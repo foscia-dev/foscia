@@ -1,7 +1,8 @@
-import raw from '@foscia/core/actions/context/runners/raw';
 import deserializeInstances, {
   DeserializedDataOf,
 } from '@foscia/core/actions/context/utils/deserializeInstances';
+import executeContextThroughAdapter
+  from '@foscia/core/actions/context/utils/executeContextThroughAdapter';
 import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExtension';
 import {
   Action,
@@ -39,8 +40,12 @@ export default function all<
   ND = I[],
 >(transform?: (data: AllData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>) {
   return async (
-    action: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<AD, DD>>,
-  ) => action.run(raw(async (data) => {
+    action: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>>,
+  ) => {
+    const response = await executeContextThroughAdapter(
+      await action.useContext(),
+    );
+    const data = await response.read();
     const deserialized = await deserializeInstances(action, data) as DeserializedDataOf<I, DD>;
 
     return (
@@ -48,7 +53,7 @@ export default function all<
         ? transform({ data, deserialized, instances: deserialized.instances })
         : deserialized.instances
     ) as Awaitable<ND>;
-  }));
+  };
 }
 
 type RunnerExtension = ActionParsedExtension<{
@@ -59,7 +64,7 @@ type RunnerExtension = ActionParsedExtension<{
     DD extends DeserializedData,
     ND = I[],
   >(
-    this: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<AD, DD>>,
+    this: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>>,
     transform?: (data: AllData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>,
   ): Promise<Awaited<ND>>;
 }>;

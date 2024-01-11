@@ -53,16 +53,33 @@ export type CacheI = {
 };
 
 /**
+ * Adapter response data wrapper object.
+ */
+export type AdapterResponseI<RawData, Data = any> = {
+  /**
+   * The raw original data (e.g. a Response object for HttpAdapter).
+   */
+  raw: RawData;
+  /**
+   * Read the original response data.
+   * This will be used to deserialize instances from data.
+   * This method may not support to be called multiple times,
+   * prefer calling it only once and reusing returned value.
+   */
+  read: () => Promise<Data>;
+};
+
+/**
  * Adapter interacting with the data source.
  */
-export type AdapterI<Data> = {
+export type AdapterI<RawData> = {
   /**
    * Execute a given context to retrieve a raw data response.
    * Context data will already be serialized using serializer if available.
    *
    * @param context
    */
-  execute(context: {}): Awaitable<Data>;
+  execute(context: {}): Awaitable<AdapterResponseI<RawData>>;
 };
 
 /**
@@ -88,12 +105,12 @@ export type DeserializedData<I extends ModelInstance = ModelInstance> = {
 /**
  * Deserializer converting adapter data to a deserialized set of instances.
  */
-export type DeserializerI<AdapterData, Data extends DeserializedData> = {
+export type DeserializerI<Data extends DeserializedData> = {
   /**
    * Deserialize adapter data to a deserialized set of instances.
    *
-   * @param data
+   * @param rawData
    * @param context
    */
-  deserialize(data: AdapterData, context: {}): Awaitable<Data>;
+  deserialize(rawData: any, context: {}): Awaitable<Data>;
 };

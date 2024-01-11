@@ -22,7 +22,6 @@ export type RestAdapterConfig = HttpAdapterConfig & {
 };
 
 export type RestDeserializerConfig = ObjectDeserializerConfig & {
-  dataReader: DataReader;
   dataExtractor?: DataExtractor | null;
 };
 
@@ -30,7 +29,6 @@ export type RestSerializerConfig = ObjectSerializerConfig & {
   dataWrapper?: DataWrapper | null;
 };
 
-export type DataReader = (response: Response) => Awaitable<any>;
 export type DataExtractor = (
   document: any,
 ) => Awaitable<RestResource[] | RestResource | RestNewResource | null>;

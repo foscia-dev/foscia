@@ -28,7 +28,7 @@ import {
 type IncludeLoaderOptions<
   AD,
   DD extends DeserializedData,
-  C extends ConsumeAdapter<AD> & ConsumeDeserializer<AD, DD>,
+  C extends ConsumeAdapter<AD> & ConsumeDeserializer<DD>,
 > = {
   chunk?: (instances: ModelInstance[]) => ModelInstance[][];
   prepare?: (
@@ -40,7 +40,7 @@ type IncludeLoaderOptions<
 async function refreshLoad<
   AD,
   DD extends DeserializedData,
-  C extends ConsumeAdapter<AD> & ConsumeDeserializer<AD, DD>,
+  C extends ConsumeAdapter<AD> & ConsumeDeserializer<DD>,
   I extends ModelInstance,
 >(
   action: ActionFactory<[], C, {}>,
@@ -82,7 +82,7 @@ async function refreshLoad<
 export default function makeRefreshIncludeLoader<
   AD,
   DD extends DeserializedData,
-  C extends ConsumeAdapter<AD> & ConsumeDeserializer<AD, DD>,
+  C extends ConsumeAdapter<AD> & ConsumeDeserializer<DD>,
 >(
   action: ActionFactory<[], C, {}>,
   options: IncludeLoaderOptions<AD, DD, C>,

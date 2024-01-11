@@ -35,7 +35,6 @@ It handles multiple features, such as:
 import { ObjectDeserializer } from '@foscia/object';
 
 export default class RestDeserializer extends ObjectDeserializer<
-  Response,
   Record<string, any>
 > {
   /* ...your implementation */

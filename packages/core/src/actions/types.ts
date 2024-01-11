@@ -118,10 +118,9 @@ export type ConsumeAdapter<AdapterData = unknown> = {
 };
 
 export type ConsumeDeserializer<
-  AdapterData = unknown,
   Data extends DeserializedData = DeserializedData,
 > = {
-  deserializer: ResolvableContextDependency<DeserializerI<AdapterData, Data>>;
+  deserializer: ResolvableContextDependency<DeserializerI<Data>>;
 };
 
 export type ConsumeSerializer<Data = unknown> = {

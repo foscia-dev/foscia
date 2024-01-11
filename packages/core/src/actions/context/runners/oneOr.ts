@@ -39,11 +39,11 @@ export default function oneOr<
   RD,
   ND = I,
 >(
-  nilRunner: ContextRunner<C & ConsumeAdapter<AD> & ConsumeDeserializer<AD, DD>, E, Awaitable<RD>>,
+  nilRunner: ContextRunner<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>, E, Awaitable<RD>>,
   transform?: (data: OneData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>,
 ) {
   return async (
-    action: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<AD, DD>, E>,
+    action: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>, E>,
   ) => {
     try {
       const result = await action.run(all((data) => {
@@ -77,8 +77,8 @@ type RunnerExtension = ActionParsedExtension<{
     RD,
     ND = I,
   >(
-    this: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<AD, DD>, E>,
-    nilRunner: ContextRunner<C & ConsumeAdapter<AD> & ConsumeDeserializer<AD, DD>, E, RD>,
+    this: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>, E>,
+    nilRunner: ContextRunner<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>, E, RD>,
     transform?: (data: OneData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>,
   ): Promise<Awaited<ND> | Awaited<RD>>;
 }>;

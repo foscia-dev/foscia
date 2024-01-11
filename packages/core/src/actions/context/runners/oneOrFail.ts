@@ -42,7 +42,7 @@ type RunnerExtension = ActionParsedExtension<{
     DD extends DeserializedData,
     ND = I,
   >(
-    this: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<AD>>,
+    this: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>>,
     transform?: (data: OneData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>,
   ): Promise<ND>;
 }>;

@@ -9,7 +9,7 @@ export type DeserializedDataOf<I extends ModelInstance, DD extends DeserializedD
 
 export default async function deserializeInstances<
   C extends {}, AD, DD extends DeserializedData,
->(action: Action<C & ConsumeDeserializer<AD, DD>>, data: AD) {
+>(action: Action<C & ConsumeDeserializer<DD>>, data: AD) {
   const context = await action.useContext();
   const deserializer = await consumeDeserializer(context);
 

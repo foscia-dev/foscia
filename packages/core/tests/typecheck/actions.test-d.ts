@@ -34,7 +34,7 @@ test('Actions are type safe', async () => {
     return new ActionClass().use(context({
       adapter: null as unknown as AdapterI<Response>,
       cache: null as unknown as CacheI,
-      deserializer: null as unknown as DeserializerI<Response, any>,
+      deserializer: null as unknown as DeserializerI<any>,
     }));
   };
 

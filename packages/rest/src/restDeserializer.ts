@@ -1,22 +1,13 @@
 import { ModelInstance } from '@foscia/core';
 import { ObjectDeserializer, ObjectExtractedData } from '@foscia/object';
-import {
-  DataExtractor,
-  DataReader,
-  RestDeserializerConfig,
-  RestNewResource,
-} from '@foscia/rest/types';
+import { DataExtractor, RestDeserializerConfig, RestNewResource } from '@foscia/rest/types';
 import { applyConfig } from '@foscia/shared';
 
-export default class RestDeserializer extends ObjectDeserializer<Response, RestNewResource> {
-  private dataReader: DataReader;
-
+export default class RestDeserializer extends ObjectDeserializer<RestNewResource> {
   private dataExtractor: DataExtractor | null = null;
 
   public constructor(config: RestDeserializerConfig) {
     super(config);
-
-    this.dataReader = config.dataReader;
 
     this.configure(config);
   }
@@ -35,11 +26,9 @@ export default class RestDeserializer extends ObjectDeserializer<Response, RestN
   /**
    * @inheritDoc
    */
-  protected async extractData(response: Response): Promise<ObjectExtractedData<RestNewResource>> {
-    const document = await this.dataReader(response);
-
+  protected async extractData(rawData: any): Promise<ObjectExtractedData<RestNewResource>> {
     return {
-      resources: this.dataExtractor ? await this.dataExtractor(document) : document,
+      resources: this.dataExtractor ? await this.dataExtractor(rawData) : rawData,
     };
   }
 

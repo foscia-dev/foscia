@@ -12,7 +12,11 @@ describe.concurrent('unit: mocking', () => {
       fetch,
       action: makeActionFactoryMockable((() => new ActionClass().use(context({
         adapter: {
-          execute: fetch,
+          execute: async () => {
+            const rawData = fetch();
+
+            return { raw: rawData, read: () => rawData.json() };
+          },
         } as AdapterI<any>,
       })))),
     };
@@ -112,7 +116,7 @@ describe.concurrent('unit: mocking', () => {
 
   it('should support history, reset and stop', async () => {
     const { action, fetch } = makeAction();
-    const responseMock = { status: 200 };
+    const responseMock = { status: 204 };
     fetch.mockImplementation(() => responseMock);
 
     const mock = mockAction(action);

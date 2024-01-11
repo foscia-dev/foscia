@@ -5,11 +5,10 @@ import { value } from '@foscia/shared';
 
 export default function consumeDeserializer<
   C extends {},
-  AD,
   DD extends DeserializedData,
   D = never,
 >(
-  context: C & Partial<ConsumeDeserializer<AD, DD>>,
+  context: C & Partial<ConsumeDeserializer<DD>>,
   defaultValue?: D,
 ) {
   return value(consumeContext(context, 'deserializer', ['context'], defaultValue));
