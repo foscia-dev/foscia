@@ -14,24 +14,48 @@ description: Creating custom functional or object transformers.
 
 ## Built-in transformers
 
-### `toDate`
+### `toDateTime`
 
-`toDate` converts values to `Date` object using
+`toDateTime` converts values to `Date` object using
 [`Date.parse`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Date/parse).
 It will serialize values to an
-[ISO string date](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString).
+[ISO date and time string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString).
+
+```typescript
+import { attr, makeModel, toDateTime } from '@foscia/core';
+
+makeModel('posts', {
+  createdAt: attr(toDateTime()),
+});
+```
+
+:::info
+
+`toDateTime` will log a warning if a value gets converted to an invalid date.
+
+:::
+
+### `toDate`
+
+`toDate` converts values to `Date` object using a custom parser. It expects
+date to be formatted as ISO date string (`YYYY-MM-DD`, e.g. `2023-12-25`).
+It will serialize values to an ISO string date with the same format.
 
 ```typescript
 import { attr, makeModel, toDate } from '@foscia/core';
 
-makeModel('posts', {
-  createdAt: attr(toDate()),
+makeModel('users', {
+  birthday: attr(toDate()),
 });
 ```
 
 :::info
 
 `toDate` will log a warning if a value gets converted to an invalid date.
+
+`toDate` will also apply an "epoch shift" because serializing to a UTC date.
+This will avoid local date to be serialized to incorrect date due to UTC
+serialization.
 
 :::
 
@@ -70,6 +94,12 @@ makeModel('users', {
 });
 ```
 
+:::info
+
+`toBoolean` won't convert `null` values.
+
+:::
+
 ### `toString`
 
 `toString` converts values to `String` object using
@@ -83,16 +113,22 @@ makeModel('posts', {
 });
 ```
 
+:::info
+
+`toBoolean` won't convert `null` values.
+
+:::
+
 ### `toArrayOf`
 
 `toArrayOf` converts values of an array using the given transformer. This can be
 useful when dealing with array of dates.
 
 ```typescript
-import { attr, makeModel, toArrayOf, toDate } from '@foscia/core';
+import { attr, makeModel, toArrayOf, toDateTime } from '@foscia/core';
 
 makeModel('posts', {
-  openingDates: attr(toArrayOf(toDate())),
+  openingDates: attr(toArrayOf(toDateTime())),
 });
 ```
 
@@ -115,7 +151,7 @@ import { makeTransformer } from '@foscia/core';
 export default () => makeTransformer((value: string) => Number(value));
 ```
 
-```typescript title="transformers/toDate.ts"
+```typescript title="transformers/toDateTimetime.ts"
 import { makeTransformer } from '@foscia/core';
 
 export default () =>
@@ -135,11 +171,11 @@ The return value of `makeTransformer` is a transformer object.
 ```typescript
 import { attr, makeModel } from '@foscia/core';
 import toNumber from '../transformers/toNumber';
-import toDate from '../transformers/toDate';
+import toDateTime from '../transformers/toDateTime';
 
 makeModel('posts', {
   commentsCount: attr(toNumber()),
-  publishedAt: attr(toDate()),
+  publishedAt: attr(toDateTime()),
 });
 ```
 

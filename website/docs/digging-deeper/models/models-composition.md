@@ -32,10 +32,10 @@ rewritten to protect their descriptor. This allows using spread syntax when
 using composable in other models' definition.
 
 ```typescript title="composables/publishable.ts"
-import { attr, makeComposable, toDate } from '@foscia/core';
+import { attr, makeComposable, toDateTime } from '@foscia/core';
 
 export default makeComposable({
-  publishedAt: attr(toDate()).nullable(),
+  publishedAt: attr(toDateTime()).nullable(),
   get published() {
     return !!this.publishedAt;
   },
@@ -80,15 +80,15 @@ When you need to share features across **all** of your models, you should use a
 custom model factory. It will replace the Foscia's `makeModel` function.
 
 ```typescript title="makeModel.ts"
-import { attr, makeModelFactory, toDate } from '@foscia/core';
+import { attr, makeModelFactory, toDateTime } from '@foscia/core';
 
 export default makeModelFactory(
   {
     /* ...common configuration */
   },
   {
-    createdAt: attr(toDate()),
-    updatedAt: attr(toDate()),
+    createdAt: attr(toDateTime()),
+    updatedAt: attr(toDateTime()),
     get wasChangedSinceCreation() {
       return this.createdAt.getTime() === this.updatedAt.getTime();
     },

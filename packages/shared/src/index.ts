@@ -6,6 +6,7 @@ import wrapVariadic from '@foscia/shared/arrays/wrapVariadic';
 import isFosciaType from '@foscia/shared/checks/isFosciaType';
 import isNil from '@foscia/shared/checks/isNil';
 import isNone from '@foscia/shared/checks/isNone';
+import removeTimezoneOffset from '@foscia/shared/dates/removeTimezoneOffset';
 import eachDescriptors from '@foscia/shared/descriptors/eachDescriptors';
 import isDescriptorHolder from '@foscia/shared/descriptors/isDescriptorHolder';
 import makeDescriptorHolder from '@foscia/shared/descriptors/makeDescriptorHolder';
@@ -33,6 +34,7 @@ export {
   optionalJoin,
   pluralize,
   sequentialTransform,
+  removeTimezoneOffset,
   toKebabCase,
   uniqueValues,
   value,

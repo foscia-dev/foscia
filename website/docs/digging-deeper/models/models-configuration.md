@@ -42,7 +42,7 @@ configuration will be shared between all models created through this factory.
 Configuration is the first argument and definition is the second one:
 
 ```typescript title="makeModel.ts"
-import { attr, makeModelFactory, toDate } from '@foscia/core';
+import { attr, makeModelFactory, toDateTime } from '@foscia/core';
 
 export default makeModelFactory(
   {

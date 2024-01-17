@@ -26,14 +26,14 @@ models objects and contexts changes.
 Here are a short example of the capabilities reusing the previous examples:
 
 ```typescript title="post.ts"
-import { makeModel, attr, hasMany, toDate } from '@foscia/core';
+import { makeModel, attr, hasMany, toDateTime } from '@foscia/core';
 import Comment from './comment';
 
 class Post extends makeModel('posts', {
   title: attr({ default: '' }), // Infered to string.
   description: attr<string>(), // Custom types are also supported.
-  createdAt: attr(toDate()), // Infered from transformers.
-  publishedAt: attr(toDate()).nullable(),
+  createdAt: attr(toDateTime()), // Infered from transformers.
+  publishedAt: attr(toDateTime()).nullable(),
   comments: hasMany(() => Comment),
   // `this` context is available and strongly typed in definition methods.
   get isPublished() {

@@ -1,22 +1,22 @@
-import logger from '@foscia/core/logger/logger';
-import makeTransformer from '@foscia/core/transformers/makeTransformer';
+import makeDateTransformer from '@foscia/core/transformers/makeDateTransformer';
+import { removeTimezoneOffset } from '@foscia/shared';
 
-function dateFromUnix(unix: number): Date {
-  const date = new Date();
-
-  date.setTime(unix);
-
-  return date;
-}
-
-export default () => makeTransformer(
+export default makeDateTransformer(
+  'toDate',
   (value: unknown) => {
-    const date = dateFromUnix(typeof value === 'string' ? Date.parse(value) : Number.NaN);
-    if (Number.isNaN(date.getTime())) {
-      logger.warn('Transformer `toDate` transform resulted in NaN date value.', [{ value }]);
-    }
+    const [y, m, d] = typeof value === 'string' ? value.split('-') : [];
 
-    return date;
+    return new Date(
+      Number.parseInt(y, 10),
+      Number.parseInt(m, 10) - 1,
+      Number.parseInt(d, 10),
+      0,
+      0,
+      0,
+      0,
+    );
   },
-  (value: Date) => value.toISOString(),
+  // Removing timezone offset prevent date to shift on another day
+  // when serializing to ISO UTC format.
+  (value: Date) => removeTimezoneOffset(value).toISOString().split('T')[0],
 );

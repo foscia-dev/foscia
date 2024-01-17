@@ -3,14 +3,14 @@ import { describe, expect, it, vi } from 'vitest';
 
 describe.concurrent('unit: toDate', () => {
   it.each([
-    [new Date(Date.UTC(2023, 5, 15, 12, 30, 0)), '2023-06-15T12:30:00.000Z'],
+    [new Date(2023, 5, 15, 12, 30, 0), '2023-06-15'],
   ])('should serialize date to string', (value, expected) => {
     expect(toDate().serialize(value)).toStrictEqual(expected);
     expect(toDate().serialize(value)).toStrictEqual(expected);
   });
 
   it.each([
-    ['2023-06-15T12:30:00.000Z', new Date(Date.UTC(2023, 5, 15, 12, 30, 0))],
+    ['2023-06-15', new Date(2023, 5, 15, 0, 0, 0, 0)],
   ])('should deserialize string to date', (value, expected) => {
     expect(toDate().deserialize(value)).toStrictEqual(expected);
     expect(toDate().deserialize(value)).toStrictEqual(expected);

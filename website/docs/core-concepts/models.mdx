@@ -33,13 +33,13 @@ import Tabs from '@theme/Tabs';
 The attributes and relations definition represents the `schema` of the model.
 
 ```typescript
-import { makeModel, attr, hasMany, toDate } from '@foscia/core';
+import { makeModel, attr, hasMany, toDateTime } from '@foscia/core';
 
 makeModel('posts', {
   /* The model definition */
   title: attr<string>(),
   description: attr<string>(),
-  publishedAt: attr(toDate()).nullable(),
+  publishedAt: attr(toDateTime()).nullable(),
   comments: hasMany(() => Comment),
   get published() {
     return !!this.publishedAt;
@@ -66,7 +66,7 @@ makeModel('posts')
     description: attr<string>(),
   })
   .extends({
-    publishedAt: attr(toDate()),
+    publishedAt: attr(toDateTime()),
     get published() {
       return !!this.publishedAt;
     },
@@ -201,7 +201,7 @@ attributes. You can pass a transformer or a default value to this factory.
 #### Example
 
 ```typescript
-import { attr, toDate } from '@foscia/core';
+import { attr, toDateTime } from '@foscia/core';
 
 // With TypeScript type.
 attr<string>();
@@ -209,9 +209,9 @@ attr<string>();
 attr(null as string | null);
 attr(() => null as string | null);
 // With transformer to infer type.
-attr(toDate());
+attr(toDateTime());
 // With chained modifiers.
-attr(toDate())
+attr(toDateTime())
   .nullable()
   .default(() => null)
   .readOnly()

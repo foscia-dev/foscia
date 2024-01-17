@@ -63,6 +63,7 @@ import makeTransformer from '@foscia/core/transformers/makeTransformer';
 import toArrayOf from '@foscia/core/transformers/toArrayOf';
 import toBoolean from '@foscia/core/transformers/toBoolean';
 import toDate from '@foscia/core/transformers/toDate';
+import toDateTime from '@foscia/core/transformers/toDateTime';
 import toNumber from '@foscia/core/transformers/toNumber';
 import toString from '@foscia/core/transformers/toString';
 
@@ -107,6 +108,7 @@ export {
   toArrayOf,
   toBoolean,
   toDate,
+  toDateTime,
   toNumber,
   toString,
   makeTransformer,

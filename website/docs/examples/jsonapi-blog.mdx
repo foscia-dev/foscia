@@ -28,13 +28,13 @@ export default class Tag extends makeModel('tags', {
 ```
 
 ```typescript title="models/post.ts"
-import { attr, hasMany, makeModel, toDate } from '@foscia/core';
+import { attr, hasMany, makeModel, toDateTime } from '@foscia/core';
 import Tag from './tag';
 
 export default class Post extends makeModel('posts', {
   title: attr<string>(),
   description: attr<string>(),
-  publishedAt: attr(toDate()).nullable(),
+  publishedAt: attr(toDateTime()).nullable(),
   tags: hasMany(() => Tag),
   get published() {
     return !!this.publishedAt;
