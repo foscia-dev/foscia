@@ -21,7 +21,7 @@ export default {
   builder: (argv) => argv
     .usage(`Usage: ${pc.magenta('foscia')} ${pc.bold('make:transformer')} <name> [options]`)
     .example([
-      [`${pc.magenta('foscia')} ${pc.bold('make:transformer')} toDate`, pc.dim('Initialize a toDate transformer.')],
+      [`${pc.magenta('foscia')} ${pc.bold('make:transformer')} toDateTime`, pc.dim('Initialize a toDate transformer.')],
     ])
     .positional('name', {
       type: 'string',

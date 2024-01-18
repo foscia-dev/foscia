@@ -80,7 +80,11 @@ async function promptForProperty(
       message: 'Use a transformer?',
       choices: [
         {
-          name: 'toDate (ISO-8601 to JavaScript Date)',
+          name: 'toDateTime (ISO-8601 date time to JavaScript Date)',
+          value: 'toDateTime',
+        },
+        {
+          name: 'toDate (ISO-8601 date to JavaScript Date)',
           value: 'toDate',
         },
         {
