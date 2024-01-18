@@ -5,30 +5,33 @@
 
 .heroBanner {
     padding: 4rem 0;
+    margin: 0 16px 16px 16px;
     text-align: center;
     position: relative;
     overflow: hidden;
     fill: white;
 }
 
-
-html[data-theme='light'] .heroBanner {
-    margin: 0 16px 16px 16px;
+html[data-theme="light"] .heroBanner {
     border-radius: var(--ifm-global-radius);
     fill: var(--ifm-background-surface-color);
     color: var(--ifm-background-surface-color);
-    background: linear-gradient(45deg, var(--ifm-color-primary) 30%, var(--accent-color));
-    background-size: 200% 200%;
+    background: radial-gradient(circle at top left, var(--ifm-color-primary) 30%, var(--accent-color));
+    background-size: 150% 150%;
 }
 
-.hero__button {
-    border: none;
-}
-
-html[data-theme='dark'] .hero__button {
-    color: var(--ifm-background-surface-color);
-    background: linear-gradient(45deg, var(--ifm-color-primary) 30%, var(--accent-color));
-    background-size: 200% 200%;
+html[data-theme="dark"] .heroBanner:before {
+    position: absolute;
+    content: "";
+    top: 0;
+    left: 50%;
+    height: 75%;
+    width: 256px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, var(--accent-color) 30%, var(--ifm-color-primary) 60%);
+    opacity: 40%;
+    transform: translate(-50%, -25%);
+    filter: blur(96px);
 }
 
 .hero__content {
@@ -46,20 +49,6 @@ html[data-theme='dark'] .hero__button {
     width: 128px;
     z-index: 1;
     fill: linear-gradient(45deg, var(--accent-color) 30%, var(--ifm-color-primary));
-}
-
-html[data-theme='dark'] .hero__logo__bg {
-    position: absolute;
-    content: "";
-    top: 50%;
-    left: 50%;
-    height: 256px;
-    width: 256px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, var(--accent-color) 30%, var(--ifm-color-primary) 60%);
-    opacity: 40%;
-    transform: translate(-50%, -50%);
-    filter: blur(96px);
 }
 
 .hero__title, .hero__subtitle {
@@ -90,6 +79,10 @@ html[data-theme='dark'] .hero__logo__bg {
 
     .heroBanner {
         padding: 2rem;
+    }
+
+    html[data-theme="dark"] .heroBanner:before {
+        transform: translate(-50%, -45%);
     }
 
     .hero__button {

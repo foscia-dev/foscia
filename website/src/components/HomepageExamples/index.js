@@ -125,7 +125,7 @@ function Example({ title, description, link, children }) {
       {children}
       <div className="text--right">
         <Link
-          className={`button bg--primary ${styles.examplesBtn}`}
+          className={`button border--primary ${styles.examplesBtn}`}
           to={link.to}
         >
           {link.text}

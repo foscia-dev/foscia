@@ -42,7 +42,7 @@ function Feature({ Icon, title, description }) {
   return (
     <div className={`${clsx('col col--4')} padding--md`}>
       <div className={`${styles.feature} text--center padding--md`}>
-        <div className={`${styles.featureSvgWrapper} bg--primary margin-bottom--md`}>
+        <div className={`${styles.featureSvgWrapper} border--primary border--large margin-bottom--md`}>
           <Icon className={styles.featureSvg} />
         </div>
         <h2>{title}</h2>
