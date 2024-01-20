@@ -1,4 +1,4 @@
-import { fill, normalizeDotRelations } from '@foscia/core';
+import { attr, fill, makeModel, normalizeDotRelations } from '@foscia/core';
 import { expectTypeOf, test } from 'vitest';
 import CommentMock from '../mocks/models/comment.mock';
 import FileMock from '../mocks/models/file.mock';
@@ -60,4 +60,14 @@ test('Models are type safe', () => {
   const file = new FileMock();
   expectTypeOf(file.parent).toMatchTypeOf<FileMock>();
   expectTypeOf(file.children).toMatchTypeOf<FileMock[]>();
+
+  class ChainedModel extends makeModel('chained', { name: attr<string | null>() })
+    .extends({ email: attr<string>() })
+    .extends({ age: attr<number>() }) {
+  }
+
+  const chained = new ChainedModel();
+  expectTypeOf(chained.name).toMatchTypeOf<string | null>();
+  expectTypeOf(chained.email).toMatchTypeOf<string>();
+  expectTypeOf(chained.age).toMatchTypeOf<number>();
 });
