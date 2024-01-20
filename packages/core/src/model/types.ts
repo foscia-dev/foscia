@@ -221,8 +221,8 @@ export type ModelClass<D extends {} = any> =
     readonly $schema: ModelSchema<D>;
     configure(rawConfig?: ModelConfig, override?: boolean): void;
     extends<ND extends {} = {}>(
-      rawDefinition?: ND & ThisType<ModelInstance<D & ND>>,
-    ): Model<D & ND, ModelInstance<D & ND>>;
+      rawDefinition?: ND & ThisType<ModelInstance<D & ModelParsedDefinition<ND>>>,
+    ): Model<D & ModelParsedDefinition<ND>, ModelInstance<D & ModelParsedDefinition<ND>>>;
   }
   & FosciaObject<typeof SYMBOL_MODEL_CLASS>
   & Hookable<ModelHooksDefinition>;
