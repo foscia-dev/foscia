@@ -24,15 +24,16 @@ function parseOptions(args) {
     args.interactive ? '' : '--ci',
   ].filter((o) => o);
 
-  if (['alpha', 'beta'].indexOf(args.increment) !== -1) {
-    return [
-      `--preRelease=${args.increment}`,
-      '--npm.tag=next',
-      ...options,
-    ];
-  }
-
   if (['patch', 'minor', 'major'].indexOf(args.increment) !== -1) {
+    if (['alpha', 'beta'].indexOf(args.prerelease) !== -1) {
+      return [
+        `--preRelease=${args.prerelease}`,
+        '--npm.tag=next',
+        `--increment=${args.increment}`,
+        ...options,
+      ];
+    }
+
     return [
       `--increment=${args.increment}`,
       ...options,
@@ -40,7 +41,7 @@ function parseOptions(args) {
   }
 
   console.error(pc.red(
-    `Given increment is invalid, valid targets are: alpha, beta, patch, minor, major`,
+    `Given increment is invalid, valid targets are: patch, minor, major`,
   ));
 
   process.exit(1);

@@ -15,6 +15,12 @@ on:
           - patch
           - minor
           - major
+      prerelease:
+        type: choice
+        description: Choose prerelease
+        required: true
+        options:
+          - none
           - alpha
           - beta
       dry:
@@ -60,6 +66,7 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TYPE_ARG: ${{ fromJSON('{"auto":"", "patch":"--increment=patch", "minor":"--increment=minor", "major":"--increment=major", "beta":"--increment=beta", "alpha":"--increment=alpha"}')[github.event.inputs.type] }}
+          TYPE_ARG: ${{ fromJSON('{"patch":"--increment=patch", "minor":"--increment=minor", "major":"--increment=major"}')[github.event.inputs.type] }}
+          PRERELEASE_ARG: ${{ fromJSON('{"none":"", "beta":"--prerelease=beta", "alpha":"--prerelease=alpha"}')[github.event.inputs.prerelease] }}
           DRY_ARG: ${{ github.event.inputs.dry == 'true' && '--dry' || '' }}
-        run: pnpm run release --ci --verbose $TYPE_ARG $DRY_ARG
+        run: pnpm run release $TYPE_ARG $PRERELEASE_ARG $DRY_ARG --ci --verbose
