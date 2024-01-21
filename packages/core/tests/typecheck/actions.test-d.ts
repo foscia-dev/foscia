@@ -21,7 +21,7 @@ import PostMock from '../mocks/models/post.mock';
 
 test('Actions are type safe', async () => {
   const action = () => {
-    const ActionClass = makeActionClass().extends({
+    const ActionClass = makeActionClass().extend({
       ...forModel.extension,
       ...forInstance.extension,
       ...forRelation.extension,

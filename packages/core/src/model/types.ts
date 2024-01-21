@@ -220,7 +220,7 @@ export type ModelClass<D extends {} = any> =
     readonly $config: ModelConfig;
     readonly $schema: ModelSchema<D>;
     configure(config?: ModelConfig, override?: boolean): Model<D, ModelInstance<D>>;
-    extends<ND extends {} = {}>(
+    extend<ND extends {} = {}>(
       rawDefinition?: ND & ThisType<ModelInstance<D & ModelParsedDefinition<ND>>>,
     ): Model<D & ModelParsedDefinition<ND>, ModelInstance<D & ModelParsedDefinition<ND>>>;
   }

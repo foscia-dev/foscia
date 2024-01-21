@@ -42,7 +42,7 @@ export type Action<Context extends {} = {}, Extensions extends {} = {}> =
   & ExtendedAction<Extensions>;
 
 export type ActionClass<Context extends {} = {}, Extensions extends {} = {}> = {
-  extends<NewExtension extends {} = {}>(
+  extend<NewExtension extends {} = {}>(
     newExtensions?: NewExtension & ThisType<Action<Context, Extensions & NewExtension>>,
   ): ActionClass<Context, Extensions & NewExtension>;
 } & Constructor<Action<Context, Extensions>>;

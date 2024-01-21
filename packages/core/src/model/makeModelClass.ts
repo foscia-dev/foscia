@@ -94,7 +94,7 @@ const createModelClass = (
     ModelClass.$hooks,
   );
 
-  ModelClass.extends = (rawDefinition?: object) => createModelClass(
+  ModelClass.extend = (rawDefinition?: object) => createModelClass(
     ModelClass.$type,
     ModelClass.$config,
     { ...definition, ...(rawDefinition ?? {}) },

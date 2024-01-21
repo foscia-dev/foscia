@@ -61,7 +61,7 @@ You may also use the model `extends` method as follows:
 import { makeModel } from '@foscia/core';
 import publishable from '../composables/publishable';
 
-export default class Post extends makeModel('posts').extends(publishable) {}
+export default class Post extends makeModel('posts').extend(publishable) {}
 ```
 
 :::warning

@@ -63,8 +63,8 @@ test('Models are type safe', () => {
 
   class ChainedModel extends makeModel('chained', { name: attr<string | null>() })
     .configure({ strict: true })
-    .extends({ email: attr<string>() })
-    .extends({ age: attr<number>() })
+    .extend({ email: attr<string>() })
+    .extend({ age: attr<number>() })
     .configure({ path: 'chained' }) {
   }
 

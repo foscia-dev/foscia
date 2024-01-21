@@ -61,11 +61,11 @@ already provided to `makeModel`.
 ```typescript
 /* Initial model creation without definition */
 makeModel('posts')
-  .extends({
+  .extend({
     title: attr<string>(),
     description: attr<string>(),
   })
-  .extends({
+  .extend({
     publishedAt: attr(toDateTime()),
     get published() {
       return !!this.publishedAt;

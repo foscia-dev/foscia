@@ -16,7 +16,7 @@ export default function makeModelFactory<ND extends {} = {}>(
     return makeModelClass(type, {
       ...baseConfig,
       ...config,
-    }).extends({
+    }).extend({
       ...baseRawDefinition,
       ...rawDefinition,
     }) as Model<ModelParsedDefinition<ND & D>, ModelInstance<ModelParsedDefinition<ND & D>>>;

@@ -22,7 +22,7 @@ export default function makeActionClass<Extension extends {} = {}>(
 
     private $context: Dictionary;
 
-    public static extends(newExtensions?: Dictionary) {
+    public static extend(newExtensions?: Dictionary) {
       eachDescriptors(newExtensions ?? {}, (key, descriptor) => {
         Object.defineProperty(this.prototype, key, descriptor);
       });
@@ -95,5 +95,5 @@ export default function makeActionClass<Extension extends {} = {}>(
     }
   }
 
-  return CustomActionClass.extends(extensions) as ActionClass<{}, Extension>;
+  return CustomActionClass.extend(extensions) as ActionClass<{}, Extension>;
 }
