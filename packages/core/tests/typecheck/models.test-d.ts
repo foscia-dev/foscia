@@ -62,8 +62,10 @@ test('Models are type safe', () => {
   expectTypeOf(file.children).toMatchTypeOf<FileMock[]>();
 
   class ChainedModel extends makeModel('chained', { name: attr<string | null>() })
+    .configure({ strict: true })
     .extends({ email: attr<string>() })
-    .extends({ age: attr<number>() }) {
+    .extends({ age: attr<number>() })
+    .configure({ path: 'chained' }) {
   }
 
   const chained = new ChainedModel();

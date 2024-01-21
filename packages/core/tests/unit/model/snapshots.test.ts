@@ -103,7 +103,7 @@ describe.concurrent('unit: snapshots', () => {
     const cloneValue = vi.fn((v) => (Array.isArray(v) ? [...v] : v));
     const compareValue = vi.fn((n, p) => n !== p);
 
-    PostMock.configure({
+    const ExtendedPostMock = PostMock.configure({
       cloneValue,
       compareValue,
     });
@@ -111,7 +111,7 @@ describe.concurrent('unit: snapshots', () => {
     expect(cloneValue).not.toHaveBeenCalled();
     expect(compareValue).not.toHaveBeenCalled();
 
-    const post = new PostMock();
+    const post = new ExtendedPostMock();
 
     expect(cloneValue).not.toHaveBeenCalled();
     expect(compareValue).not.toHaveBeenCalled();
@@ -132,10 +132,5 @@ describe.concurrent('unit: snapshots', () => {
     expect(compareValue).toHaveBeenCalledTimes(3);
 
     expect(cloneValue).toHaveBeenCalledTimes(3);
-
-    PostMock.configure({
-      cloneValue: undefined,
-      compareValue: undefined,
-    });
   });
 });

@@ -1,19 +1,19 @@
 /**
  * Merge two config objects.
  *
- * @param original
  * @param config
+ * @param newConfig
  * @param override
  */
 export default function mergeConfig<C extends {}>(
-  original: C,
-  config: Partial<C>,
+  config: C,
+  newConfig: Partial<C>,
   override = true,
 ): C {
   return {
-    ...original,
-    ...(Object.entries(config) as [keyof C, C[keyof C]][]).reduce((keptConfig, [key, value]) => {
-      if (value !== undefined && (override || original[key] === undefined)) {
+    ...config,
+    ...(Object.entries(newConfig) as [keyof C, C[keyof C]][]).reduce((keptConfig, [key, value]) => {
+      if (value !== undefined && (override || config[key] === undefined)) {
         // eslint-disable-next-line no-param-reassign
         keptConfig[key] = value;
       }

@@ -219,7 +219,7 @@ export type ModelClass<D extends {} = any> =
     readonly $type: string;
     readonly $config: ModelConfig;
     readonly $schema: ModelSchema<D>;
-    configure(rawConfig?: ModelConfig, override?: boolean): void;
+    configure(config?: ModelConfig, override?: boolean): Model<D, ModelInstance<D>>;
     extends<ND extends {} = {}>(
       rawDefinition?: ND & ThisType<ModelInstance<D & ModelParsedDefinition<ND>>>,
     ): Model<D & ModelParsedDefinition<ND>, ModelInstance<D & ModelParsedDefinition<ND>>>;

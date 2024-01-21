@@ -50,7 +50,7 @@ async function refreshLoad<
 ) {
   const model = instances[0].$model;
   const refreshedInstances = await action()
-    .use(forModel(model as Model))
+    .use(forModel(model as Model<{}, ModelInstance<{}>>))
     .use(include(wrapVariadic(...relations) as any))
     .use(when(() => options.prepare, async (a, p) => {
       await p(a as Action<C & ConsumeModel>, { instances, relations });
@@ -59,7 +59,7 @@ async function refreshLoad<
 
   const refreshedInstancesMap = refreshedInstances.reduce((instancesMap, instance) => ({
     ...instancesMap,
-    [instance.id]: instance,
+    [instance.id as ModelIdType]: instance,
   }), {} as Record<ModelIdType, I>);
   const relationRootKeys = uniqueValues(relations.map(
     (relation) => relation.split('.')[0],

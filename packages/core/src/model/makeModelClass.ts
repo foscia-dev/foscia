@@ -1,4 +1,5 @@
 import FosciaError from '@foscia/core/errors/fosciaError';
+import { HooksRegistrar } from '@foscia/core/hooks/types';
 import logger from '@foscia/core/logger/logger';
 import isIdDef from '@foscia/core/model/checks/isIdDef';
 import isPropDef from '@foscia/core/model/checks/isPropDef';
@@ -9,23 +10,29 @@ import {
   Model,
   ModelAttribute,
   ModelConfig,
+  ModelHooksDefinition,
   ModelInstance,
   ModelRelation,
 } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_CLASS, SYMBOL_MODEL_INSTANCE } from '@foscia/core/symbols';
-import { applyConfig, eachDescriptors, isNil, value } from '@foscia/shared';
+import { eachDescriptors, isNil, mergeConfig, value } from '@foscia/shared';
 
-export default function makeModelClass(type: string, config: ModelConfig) {
-  const computeDefault = (instance: ModelInstance, def: ModelAttribute | ModelRelation) => {
-    if (def.default && typeof def.default === 'object') {
-      logger.warn(
-        `Default \`${instance.$model.$type}.${def.key}\` object attribute's values must be defined using a factory function.`,
-      );
-    }
+const computeDefault = (instance: ModelInstance, def: ModelAttribute | ModelRelation) => {
+  if (def.default && typeof def.default === 'object') {
+    logger.warn(
+      `Default \`${instance.$model.$type}.${def.key}\` object attribute's values must be defined using a factory function.`,
+    );
+  }
 
-    return value(def.default);
-  };
+  return value(def.default);
+};
 
+const createModelClass = (
+  type: string,
+  config: ModelConfig,
+  definition: object,
+  hooks: HooksRegistrar<ModelHooksDefinition> | null,
+) => {
   const ModelClass = function ModelConstructor(this: ModelInstance) {
     Object.defineProperty(this, '$FOSCIA_TYPE', { value: SYMBOL_MODEL_INSTANCE });
     Object.defineProperty(this, '$model', { value: this.constructor });
@@ -35,7 +42,7 @@ export default function makeModelClass(type: string, config: ModelConfig) {
     Object.defineProperty(this, '$values', { writable: true, value: {} });
     Object.defineProperty(this, '$original', { writable: true, value: takeSnapshot(this) });
 
-    Object.values(ModelClass.$schema).forEach((def) => {
+    Object.values(this.$model.$schema).forEach((def) => {
       Object.defineProperty(this, def.key, {
         enumerable: true,
         get: () => {
@@ -70,42 +77,53 @@ export default function makeModelClass(type: string, config: ModelConfig) {
 
   Object.defineProperty(ModelClass, '$FOSCIA_TYPE', { value: SYMBOL_MODEL_CLASS });
   Object.defineProperty(ModelClass, '$type', { value: type });
-  Object.defineProperty(ModelClass, '$config', { value: config });
+  Object.defineProperty(ModelClass, '$config', { value: { ...config } });
   Object.defineProperty(ModelClass, '$schema', { value: {} });
-  Object.defineProperty(ModelClass, '$hooks', { writable: true, value: {} });
+  Object.defineProperty(ModelClass, '$hooks', {
+    writable: true,
+    value: Object.entries(hooks ?? {}).reduce((newHooks, [hook, callbacks]) => ({
+      ...newHooks,
+      [hook]: [...callbacks],
+    }), {}),
+  });
 
-  ModelClass.configure = (rawConfig: ModelConfig, override = true) => {
-    applyConfig(ModelClass.$config, rawConfig, override);
-  };
+  ModelClass.configure = (newConfig: ModelConfig, override = true) => createModelClass(
+    ModelClass.$type,
+    mergeConfig(ModelClass.$config, newConfig, override),
+    definition,
+    ModelClass.$hooks,
+  );
 
-  ModelClass.extends = (rawDefinition?: object) => {
-    eachDescriptors(rawDefinition ?? {}, (key, descriptor) => {
-      if (key === 'type') {
-        throw new FosciaError(
-          '`type` is forbidden as a definition key because it may be used with some implementations.',
-        );
-      }
+  ModelClass.extends = (rawDefinition?: object) => createModelClass(
+    ModelClass.$type,
+    ModelClass.$config,
+    { ...definition, ...(rawDefinition ?? {}) },
+    ModelClass.$hooks,
+  );
 
-      if ((key === 'id' || key === 'lid') && !isIdDef(descriptor.value)) {
-        throw new FosciaError(
-          `\`id\` and \`lid\` must be defined with \`id()\` factory (found \`${key}\`).`,
-        );
-      }
+  eachDescriptors(makeDefinition(definition), (key, descriptor) => {
+    if (key === 'type') {
+      throw new FosciaError(
+        '`type` is forbidden as a definition key because it may be used with some implementations.',
+      );
+    }
 
-      if (!isNil(descriptor.value) && isPropDef(descriptor.value)) {
-        ModelClass.$schema[key] = descriptor.value;
-      } else {
-        Object.defineProperty(ModelClass.prototype, key, descriptor);
-      }
-    });
+    if ((key === 'id' || key === 'lid') && !isIdDef(descriptor.value)) {
+      throw new FosciaError(
+        `\`id\` and \`lid\` must be defined with \`id()\` factory (found \`${key}\`).`,
+      );
+    }
 
-    return ModelClass;
-  };
-
-  ModelClass.extends(makeDefinition({
-    id: id(),
-    lid: id(),
-  }));
+    if (!isNil(descriptor.value) && isPropDef(descriptor.value)) {
+      ModelClass.$schema[key] = descriptor.value;
+    } else {
+      Object.defineProperty(ModelClass.prototype, key, descriptor);
+    }
+  });
 
   return ModelClass;
+};
+
+export default function makeModelClass(type: string, config: ModelConfig) {
+  return createModelClass(type, config, { id: id(), lid: id() }, {});
 }
