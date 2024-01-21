@@ -1,5 +1,24 @@
 # Changelog
 
+# [0.6.0-beta.0](https://github.com/foscia-dev/foscia/compare/v0.5.3...v0.6.0-beta.0) (2024-01-21)
+
+
+### Bug Fixes
+
+* **core:** model `extends` use parsed definition instead of raw ([62bf3ff](https://github.com/foscia-dev/foscia/commit/62bf3ff6977c9263f9fb4b8eba28e3fb95e37774))
+
+
+### Features
+
+* add `http` prefix to HTTP package errors names ([48bda77](https://github.com/foscia-dev/foscia/commit/48bda77fb210e39d44ad0a164ba9982e823b7249))
+* add error flags to replace `isNotFound` adapter method ([fda8026](https://github.com/foscia-dev/foscia/commit/fda802630abcf2ae5eea25d91c1b0ce7688b077e))
+* **cli:** add `toDateTime` transformer to available transformers ([2aed1db](https://github.com/foscia-dev/foscia/commit/2aed1db842535775dada9969b29c4cac175dab4d))
+* **core:** change `extends` methods to `extend` ([2945940](https://github.com/foscia-dev/foscia/commit/2945940309925671eb1e6bbf055895e3c894a98d))
+* **core:** change `toDate` name, add real `toDate` transformer ([b6e4875](https://github.com/foscia-dev/foscia/commit/b6e4875f06c227a3f915229c4cdc573880d91fc2))
+* **core:** make `extends`/`configure` models return a derivative ([38076d6](https://github.com/foscia-dev/foscia/commit/38076d643fe255ca7520119de5720fa9f27357a4)), closes [#12](https://github.com/foscia-dev/foscia/issues/12)
+* rework adapter response and deserializer input data ([1852934](https://github.com/foscia-dev/foscia/commit/18529340c7c9c2965aced71553f9520ba0df4948))
+* rework dependencies configuration ([a3c478f](https://github.com/foscia-dev/foscia/commit/a3c478f6fad37ee2fb0a36782b33585b4e332cbc))
+
 ## [0.5.3](https://github.com/foscia-dev/foscia/compare/v0.5.2...v0.5.3) (2023-11-22)
 
 
