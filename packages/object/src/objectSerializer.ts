@@ -12,15 +12,15 @@ import {
   shouldSync,
 } from '@foscia/core';
 import { ObjectSerializerConfig } from '@foscia/object/types';
-import { applyConfig } from '@foscia/shared';
+import { makeConfigurable } from '@foscia/shared';
 
 export default abstract class ObjectSerializer<Data> implements SerializerI<Data> {
-  public constructor(config?: ObjectSerializerConfig) {
-    this.configure(config ?? {});
-  }
+  declare public readonly $config: ObjectSerializerConfig;
 
-  public configure(config: ObjectSerializerConfig, override = true) {
-    applyConfig(this, config, override);
+  declare public configure: (config: Partial<ObjectSerializerConfig>, override?: boolean) => this;
+
+  public constructor(config?: ObjectSerializerConfig) {
+    makeConfigurable(this, config ?? {});
   }
 
   public async serialize(instance: ModelInstance, context: {}) {

@@ -1,19 +1,14 @@
 import { ModelInstance } from '@foscia/core';
 import { ObjectDeserializer, ObjectExtractedData } from '@foscia/object';
-import { DataExtractor, RestDeserializerConfig, RestNewResource } from '@foscia/rest/types';
-import { applyConfig } from '@foscia/shared';
+import { RestDeserializerConfig, RestNewResource } from '@foscia/rest/types';
 
 export default class RestDeserializer extends ObjectDeserializer<RestNewResource> {
-  private dataExtractor: DataExtractor | null = null;
+  declare public readonly $config: RestDeserializerConfig;
+
+  declare public configure: (config: Partial<RestDeserializerConfig>, override?: boolean) => this;
 
   public constructor(config: RestDeserializerConfig) {
     super(config);
-
-    this.configure(config);
-  }
-
-  public configure(config: RestDeserializerConfig, override = true) {
-    applyConfig(this, config, override);
   }
 
   /**
@@ -28,7 +23,7 @@ export default class RestDeserializer extends ObjectDeserializer<RestNewResource
    */
   protected async extractData(rawData: any): Promise<ObjectExtractedData<RestNewResource>> {
     return {
-      resources: this.dataExtractor ? await this.dataExtractor(rawData) : rawData,
+      resources: this.$config.dataExtractor ? await this.$config.dataExtractor(rawData) : rawData,
     };
   }
 

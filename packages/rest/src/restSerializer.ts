@@ -1,25 +1,21 @@
 import { ModelInstance, ModelRelation } from '@foscia/core';
 import { ObjectSerializer } from '@foscia/object';
-import { DataWrapper, RestNewResource, RestSerializerConfig } from '@foscia/rest/types';
-import { applyConfig, Dictionary } from '@foscia/shared';
+import { RestNewResource, RestSerializerConfig } from '@foscia/rest/types';
+import { Dictionary } from '@foscia/shared';
 
 export default class RestSerializer extends ObjectSerializer<Dictionary> {
-  private dataWrapper: DataWrapper | null = null;
+  declare public readonly $config: RestSerializerConfig;
+
+  declare public configure: (config: Partial<RestSerializerConfig>, override?: boolean) => this;
 
   public constructor(config?: RestSerializerConfig) {
     super(config);
-
-    this.configure(config ?? {});
-  }
-
-  public configure(config: RestSerializerConfig, override = true) {
-    applyConfig(this, config, override);
   }
 
   public async serialize(instance: ModelInstance, context: {}) {
     const resource = await super.serialize(instance, context);
 
-    return this.dataWrapper ? this.dataWrapper(resource) : resource;
+    return this.$config.dataWrapper ? this.$config.dataWrapper(resource) : resource;
   }
 
   /**

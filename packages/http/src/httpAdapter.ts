@@ -17,50 +17,25 @@ import HttpServerError from '@foscia/http/errors/httpServerError';
 import HttpTooManyRequestsError from '@foscia/http/errors/httpTooManyRequestsError';
 import HttpUnauthorizedError from '@foscia/http/errors/httpUnauthorizedError';
 import HttpAdapterResponse from '@foscia/http/httpAdapterResponse';
+import { HttpAdapterConfig, HttpMethod } from '@foscia/http/types';
 import {
-  BodyAsTransformer,
-  ErrorTransformer,
-  HttpAdapterConfig,
-  HttpMethod,
-  HttpParamsSerializer,
-  HttpResponseReader,
-  RequestTransformer,
-  ResponseTransformer,
-} from '@foscia/http/types';
-import { applyConfig, Dictionary, isNil, optionalJoin, sequentialTransform } from '@foscia/shared';
+  Dictionary,
+  isNil,
+  makeConfigurable,
+  optionalJoin,
+  sequentialTransform,
+} from '@foscia/shared';
 
 /**
  * Adapter implementation for HTTP interaction using fetch.
  */
 export default class HttpAdapter implements AdapterI<Response> {
-  private baseURL: string | null = null;
+  declare public readonly $config: HttpAdapterConfig;
 
-  private fetch = globalThis.fetch;
-
-  private serializeParams: HttpParamsSerializer;
-
-  private defaultHeaders: Dictionary<string> = {};
-
-  private defaultBodyAs: BodyAsTransformer | null = null;
-
-  private responseReader: HttpResponseReader = async (r) => (
-    r.status === 204 ? undefined : r.json()
-  );
-
-  private requestTransformers: RequestTransformer[] = [];
-
-  private responseTransformers: ResponseTransformer[] = [];
-
-  private errorTransformers: ErrorTransformer[] = [];
+  declare public configure: (config: Partial<HttpAdapterConfig>, override?: boolean) => this;
 
   public constructor(config: HttpAdapterConfig) {
-    this.serializeParams = config.serializeParams;
-
-    this.configure(config);
-  }
-
-  public configure(config: HttpAdapterConfig, override = true) {
-    applyConfig(this, config, override);
+    makeConfigurable(this, config);
   }
 
   /**
@@ -82,7 +57,9 @@ export default class HttpAdapter implements AdapterI<Response> {
 
     if (response.status >= 200 && response.status < 300) {
       return new HttpAdapterResponse(
-        config?.responseReader ?? this.responseReader,
+        config?.responseReader
+        ?? this.$config.responseReader
+        ?? (async (r) => (r.status === 204 ? undefined : r.json())),
         await this.transformResponse(context, response),
       );
     }
@@ -118,7 +95,7 @@ export default class HttpAdapter implements AdapterI<Response> {
   protected async makeRequestInit(context: {}) {
     const config = consumeRequestConfig(context, null);
     const method = (await this.makeRequestMethod(context)).toUpperCase();
-    let headers = { ...this.defaultHeaders };
+    let headers = { ...this.$config.defaultHeaders };
     let body = config?.body ?? consumeData(context, null) ?? undefined;
 
     const keepBodyFormat = body instanceof FormData || body instanceof URLSearchParams;
@@ -128,7 +105,7 @@ export default class HttpAdapter implements AdapterI<Response> {
 
     headers = { ...headers, ...config?.headers };
 
-    const bodyAs = config?.bodyAs ?? this.defaultBodyAs;
+    const bodyAs = config?.bodyAs ?? this.$config.defaultBodyAs;
     if (bodyAs && body !== undefined && !keepBodyFormat) {
       body = await bodyAs(body, headers);
     }
@@ -180,7 +157,7 @@ export default class HttpAdapter implements AdapterI<Response> {
     ] : [];
 
     const requestEndpoint = optionalJoin([
-      config?.baseURL ?? model?.$config.baseURL ?? this.baseURL,
+      config?.baseURL ?? model?.$config.baseURL ?? this.$config.baseURL,
       ...modelPaths,
       config?.path,
     ], '/');
@@ -210,14 +187,14 @@ export default class HttpAdapter implements AdapterI<Response> {
   }
 
   protected makeRequestURLParamsFromObject(params: Dictionary) {
-    return this.serializeParams(params);
+    return this.$config.serializeParams(params);
   }
 
   protected runRequest(request: Request) {
     // Destructure to avoid calling fetch with this context.
-    const { fetch } = this;
+    const { fetch } = this.$config;
 
-    return fetch(request);
+    return (fetch ?? globalThis.fetch)(request);
   }
 
   protected async makeRequestError(request: Request, error: unknown): Promise<unknown> {
@@ -253,21 +230,21 @@ export default class HttpAdapter implements AdapterI<Response> {
 
   protected async transformRequest(context: {}, request: Request) {
     return sequentialTransform([
-      ...this.requestTransformers,
+      ...(this.$config.requestTransformers ?? []),
       ...(consumeRequestConfig(context, null)?.requestTransformers ?? []),
     ], request);
   }
 
   protected async transformResponse(context: {}, response: Response) {
     return sequentialTransform([
-      ...this.responseTransformers,
+      ...(this.$config.responseTransformers ?? []),
       ...(consumeRequestConfig(context, null)?.responseTransformers ?? []),
     ], response);
   }
 
   protected async transformError(context: {}, error: unknown) {
     return sequentialTransform([
-      ...this.errorTransformers,
+      ...(this.$config.errorTransformers ?? []),
       ...(consumeRequestConfig(context, null)?.errorTransformers ?? []),
     ], error);
   }

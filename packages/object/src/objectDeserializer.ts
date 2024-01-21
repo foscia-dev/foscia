@@ -27,21 +27,21 @@ import {
   ObjectNormalizedIdentifier,
   ObjectOptionalIdentifier,
 } from '@foscia/object/types';
-import { applyConfig, IdentifiersMap, isNil, isNone, Optional, wrap } from '@foscia/shared';
+import { IdentifiersMap, isNil, isNone, makeConfigurable, Optional, wrap } from '@foscia/shared';
 
 export default abstract class ObjectDeserializer<
   Resource,
   Extract extends ObjectExtractedData<Resource> = ObjectExtractedData<Resource>,
   Data extends DeserializedData = DeserializedData,
 > implements DeserializerI<Data> {
+  declare public readonly $config: ObjectDeserializerConfig;
+
+  declare public configure: (config: Partial<ObjectDeserializerConfig>, override?: boolean) => this;
+
   protected static NON_IDENTIFIED_LOCAL_ID = '__foscia_non_identified_local_id__';
 
   public constructor(config?: ObjectDeserializerConfig) {
-    this.configure(config ?? {});
-  }
-
-  public configure(config: ObjectDeserializerConfig, override = true) {
-    applyConfig(this, config, override);
+    makeConfigurable(this, config ?? {});
   }
 
   public async deserialize(rawData: any, context: {}) {

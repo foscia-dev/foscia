@@ -6,6 +6,8 @@ import wrapVariadic from '@foscia/shared/arrays/wrapVariadic';
 import isFosciaType from '@foscia/shared/checks/isFosciaType';
 import isNil from '@foscia/shared/checks/isNil';
 import isNone from '@foscia/shared/checks/isNone';
+import makeConfigurable from '@foscia/shared/configs/makeConfigurable';
+import mergeConfig from '@foscia/shared/configs/mergeConfig';
 import removeTimezoneOffset from '@foscia/shared/dates/removeTimezoneOffset';
 import eachDescriptors from '@foscia/shared/descriptors/eachDescriptors';
 import isDescriptorHolder from '@foscia/shared/descriptors/isDescriptorHolder';
@@ -23,6 +25,8 @@ export * from '@foscia/shared/types';
 export {
   IS_DEV,
   IS_TEST,
+  makeConfigurable,
+  mergeConfig,
   applyConfig,
   eachDescriptors,
   isDescriptorHolder,

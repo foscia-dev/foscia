@@ -7,21 +7,19 @@ import {
   ModelObjectResolver,
 } from '@foscia/core/registry/types';
 import { RegistryI } from '@foscia/core/types';
-import { applyConfig, Transformer, wrap } from '@foscia/shared';
+import { makeConfigurable, wrap } from '@foscia/shared';
 
 export default class MapRegistry implements RegistryI {
+  declare public readonly $config: MapRegistryConfig;
+
+  declare public configure: (config: Partial<MapRegistryConfig>, override?: boolean) => this;
+
   private readonly resolvers: ModelObjectResolver[] = [];
 
   private readonly models = new Map<string, Model>();
 
-  private normalizeType: Transformer<string> | null = null;
-
   public constructor(config?: MapRegistryConfig) {
-    this.configure(config ?? {});
-  }
-
-  public configure(config: MapRegistryConfig, override = true) {
-    applyConfig(this, config, override);
+    makeConfigurable(this, config ?? {});
   }
 
   public async modelFor(rawType: string) {
@@ -111,6 +109,6 @@ export default class MapRegistry implements RegistryI {
    * @param rawType
    */
   private normalizeRawType(rawType: string) {
-    return (this.normalizeType ?? ((t) => t))(rawType);
+    return (this.$config.normalizeType ?? ((t) => t))(rawType);
   }
 }

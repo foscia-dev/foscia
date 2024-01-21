@@ -1,23 +1,19 @@
-import { RefManager, RefsCacheConfig } from '@foscia/core/cache/types';
+import { RefsCacheConfig } from '@foscia/core/cache/types';
 import { ModelIdType, ModelInstance } from '@foscia/core/model/types';
 import { CacheI } from '@foscia/core/types';
-import { applyConfig, IdentifiersMap } from '@foscia/shared';
+import { IdentifiersMap, makeConfigurable } from '@foscia/shared';
 
 export default class RefsCache implements CacheI {
-  private readonly instances: IdentifiersMap<string, ModelIdType, unknown>;
+  declare public readonly $config: RefsCacheConfig;
 
-  private manager: RefManager<unknown>;
+  declare public configure: (config: Partial<RefsCacheConfig>, override?: boolean) => this;
+
+  private readonly instances: IdentifiersMap<string, ModelIdType, unknown>;
 
   public constructor(config: RefsCacheConfig) {
     this.instances = new IdentifiersMap();
 
-    this.manager = config.manager;
-
-    this.configure(config);
-  }
-
-  public configure(config: RefsCacheConfig, override = true) {
-    applyConfig(this, config, override);
+    makeConfigurable(this, config);
   }
 
   public async find(type: string, id: ModelIdType) {
@@ -26,7 +22,7 @@ export default class RefsCache implements CacheI {
       return null;
     }
 
-    const instance = await this.manager.value(ref);
+    const instance = await this.$config.manager.value(ref);
     if (!instance) {
       await this.forget(type, id);
 
@@ -37,7 +33,7 @@ export default class RefsCache implements CacheI {
   }
 
   public async put(type: string, id: ModelIdType, instance: ModelInstance) {
-    this.instances.set(type, id, await this.manager.ref(instance));
+    this.instances.set(type, id, await this.$config.manager.ref(instance));
   }
 
   public async forget(type: string, id: ModelIdType) {
