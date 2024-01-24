@@ -2,7 +2,7 @@ import forId from '@foscia/core/actions/context/enhancers/forId';
 import forModel from '@foscia/core/actions/context/enhancers/forModel';
 import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
 import { Action, ActionParsedExtension, ConsumeId, ConsumeModel } from '@foscia/core/actions/types';
-import { Model, ModelIdType, ModelInstance } from '@foscia/core/model/types';
+import { Model, ModelIdType } from '@foscia/core/model/types';
 
 /**
  * Target a given model record using its ID.
@@ -14,9 +14,7 @@ import { Model, ModelIdType, ModelInstance } from '@foscia/core/model/types';
  */
 export default function find<
   C extends {},
-  D extends {},
-  I extends ModelInstance<D>,
-  M extends Model<D, I>,
+  M extends Model,
 >(model: M, id: ModelIdType) {
   return (action: Action<C>) => action
     .use(forModel(model))

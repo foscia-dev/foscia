@@ -1,7 +1,7 @@
 import context from '@foscia/core/actions/context/enhancers/context';
 import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
 import { Action, ActionParsedExtension, ConsumeModel } from '@foscia/core/actions/types';
-import { Model, ModelInstance } from '@foscia/core/model/types';
+import { Model } from '@foscia/core/model/types';
 
 /**
  * Target the given model.
@@ -12,9 +12,7 @@ import { Model, ModelInstance } from '@foscia/core/model/types';
  * @category Enhancers
  */
 export default function forModel<
-  D extends {},
-  I extends ModelInstance<D>,
-  M extends Model<D, I>,
+  M extends Model,
 >(model: M) {
   return context({ model });
 }
