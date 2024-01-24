@@ -2,7 +2,7 @@
 import { hasOne, logger, makeModel, MapRegistry, normalizeDotRelations } from '@foscia/core';
 import { describe, expect, it, vi } from 'vitest';
 
-describe.concurrent('unit: normalizeDotRelations', () => {
+describe('unit: normalizeDotRelations', () => {
   it('should normalize only roots without registry', async () => {
     const loggerDebugSpy = vi.spyOn(logger, 'debug');
 

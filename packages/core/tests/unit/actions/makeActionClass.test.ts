@@ -10,8 +10,8 @@ import {
 } from '@foscia/core';
 import { describe, expect, it, vi } from 'vitest';
 
-describe.concurrent('unit: makeActionClass', () => {
-  it('should make an extended action', async () => {
+describe('unit: makeActionClass', () => {
+  it.concurrent('should make an extended action', async () => {
     const dummyEnhancer = (dummy: string) => (action: Action) => action.updateContext({ dummy });
     const dummyRunner = () => async (action: Action<{ dummy: string }>) => (
       (await action.useContext()).dummy
@@ -96,7 +96,7 @@ describe.concurrent('unit: makeActionClass', () => {
     loggerDebugMock.mockRestore();
   });
 
-  it('should dequeue enhancers sequentially', async () => {
+  it.concurrent('should dequeue enhancers sequentially', async () => {
     const defineValue = (value: number) => async (action: Action) => {
       action.use(context({ value }));
     };

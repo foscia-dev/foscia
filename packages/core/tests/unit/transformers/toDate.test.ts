@@ -1,22 +1,22 @@
 import { logger, toDate } from '@foscia/core';
 import { describe, expect, it, vi } from 'vitest';
 
-describe.concurrent('unit: toDate', () => {
-  it.each([
+describe('unit: toDate', () => {
+  it.concurrent.each([
     [new Date(2023, 5, 15, 12, 30, 0), '2023-06-15'],
   ])('should serialize date to string', (value, expected) => {
     expect(toDate().serialize(value)).toStrictEqual(expected);
     expect(toDate().serialize(value)).toStrictEqual(expected);
   });
 
-  it.each([
+  it.concurrent.each([
     ['2023-06-15', new Date(2023, 5, 15, 0, 0, 0, 0)],
   ])('should deserialize string to date', (value, expected) => {
     expect(toDate().deserialize(value)).toStrictEqual(expected);
     expect(toDate().deserialize(value)).toStrictEqual(expected);
   });
 
-  it('should ignore null', () => {
+  it.concurrent('should ignore null', () => {
     expect(toDate().deserialize(null)).toBeNull();
     expect(toDate().deserialize(undefined)).toBeNull();
     expect(toDate().serialize(null)).toBeNull();

@@ -18,7 +18,7 @@ import makeJsonRestActionMock from '../mocks/makeJsonRestAction.mock';
 import CommentMock from '../mocks/models/comment.mock';
 import PostMock from '../mocks/models/post.mock';
 
-describe.concurrent('integration: JSON REST', () => {
+describe('integration: JSON REST', () => {
   it('should run action: all records', async () => {
     const fetchMock = createFetchMock();
     fetchMock.mockImplementationOnce(createFetchResponse().json([

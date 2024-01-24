@@ -1,8 +1,8 @@
 import { logger, toNumber } from '@foscia/core';
 import { describe, expect, it, vi } from 'vitest';
 
-describe.concurrent('unit: toNumber', () => {
-  it.each([
+describe('unit: toNumber', () => {
+  it.concurrent.each([
     [1, 1],
     ['1', 1],
     [1.5, 1.5],
@@ -14,13 +14,13 @@ describe.concurrent('unit: toNumber', () => {
     expect(toNumber().serialize(value as any)).toStrictEqual(expected);
   });
 
-  it('should ignore null', () => {
+  it.concurrent('should ignore null', () => {
     expect(toNumber().deserialize(null)).toBeNull();
     expect(toNumber().deserialize(undefined)).toBeNull();
     expect(toNumber().serialize(null)).toBeNull();
   });
 
-  it('should warn about NaN values', () => {
+  it.concurrent('should warn about NaN values', () => {
     const loggerWarnMock = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
     expect(toNumber().deserialize('foo-bar')).toBeNaN();
     expect(loggerWarnMock.mock.calls).toStrictEqual([
