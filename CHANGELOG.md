@@ -1,6 +1,6 @@
 # Changelog
 
-# [0.6.0-beta.0](https://github.com/foscia-dev/foscia/compare/v0.5.3...v0.6.0-beta.0) (2024-01-21)
+## [0.6.0-beta.0](https://github.com/foscia-dev/foscia/compare/v0.5.3...v0.6.0-beta.0) (2024-01-21)
 
 
 ### Bug Fixes
@@ -18,6 +18,21 @@
 * **core:** make `extends`/`configure` models return a derivative ([38076d6](https://github.com/foscia-dev/foscia/commit/38076d643fe255ca7520119de5720fa9f27357a4)), closes [#12](https://github.com/foscia-dev/foscia/issues/12)
 * rework adapter response and deserializer input data ([1852934](https://github.com/foscia-dev/foscia/commit/18529340c7c9c2965aced71553f9520ba0df4948))
 * rework dependencies configuration ([a3c478f](https://github.com/foscia-dev/foscia/commit/a3c478f6fad37ee2fb0a36782b33585b4e332cbc))
+
+
+### BREAKING CHANGES
+
+* You should now rely on `isNotFoundError` core exported function to check if an error match a "Not Found" error.
+  If you have overwritten the `isNotFound` adapter method to catch specific errors, you should implement `NotFoundErrorI` core interface instead on catched errors.
+* **http**: You should replace import and use of HTTP errors using this new prefix
+  (e.g. change `NotFoundError` to `HttpNotFoundError`).
+* Adapter should now return a wrapper object implementing `AdapterResponseI`.
+  `RestDeserializer` and `JsonApiDeserializer` have been updated to take
+  an `AdapterResponseI` read data instead of an HTTP response object.
+* **core**: `toDate` transformer is renamed to `toDateTime`.
+  `toDate` is now a new transformer converting to ISO date string (without time).
+* **core**: Use of models and actions `extends` calls should be rewritten to the new `extend` name.
+
 
 ## [0.5.3](https://github.com/foscia-dev/foscia/compare/v0.5.2...v0.5.3) (2023-11-22)
 
