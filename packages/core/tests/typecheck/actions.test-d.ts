@@ -80,8 +80,26 @@ test('Actions are type safe', async () => {
   await action().forModel(PostMock).include('title');
   // @ts-expect-error unknown is not a post relation
   await action().forModel(PostMock).include('unknown');
+  // @ts-expect-error postedBy is not a post relation
+  await action().forModel(PostMock).include('postedBy');
   // @ts-expect-error unknown is not a comment relation
   await action().forModel(PostMock).include('comments.unknown');
+  // @ts-expect-error title is not a post relation
+  await action().forInstance(new PostMock()).include('title');
+  // @ts-expect-error unknown is not a post relation
+  await action().forInstance(new PostMock()).include('unknown');
+  // @ts-expect-error postedBy is not a post relation
+  await action().forInstance(new PostMock()).include('postedBy');
+  // @ts-expect-error unknown is not a comment relation
+  await action().forInstance(new PostMock()).include('comments.unknown');
+  // @ts-expect-error body is not a comment relation
+  await action().forRelation(new PostMock(), 'comments').include('body');
+  // @ts-expect-error unknown is not a comment relation
+  await action().forRelation(new PostMock(), 'comments').include('unknown');
+  // @ts-expect-error comments is not a comment relation
+  await action().forRelation(new PostMock(), 'comments').include('comments');
+  // @ts-expect-error postedBy.unknown is not a comment relation
+  await action().forRelation(new PostMock(), 'comments').include('postedBy.unknown');
 
   const commentsUsingFunc = await action()
     .use(forRelation(new PostMock(), 'comments'))

@@ -219,10 +219,6 @@ export type ModelClass<D extends {} = any> =
     readonly $type: string;
     readonly $config: ModelConfig;
     readonly $schema: ModelSchema<D>;
-    configure(config?: ModelConfig, override?: boolean): Model<D, ModelInstance<D>>;
-    extend<ND extends {} = {}>(
-      rawDefinition?: ND & ThisType<ModelInstance<D & ModelParsedDefinition<ND>>>,
-    ): Model<D & ModelParsedDefinition<ND>, ModelInstance<D & ModelParsedDefinition<ND>>>;
   }
   & FosciaObject<typeof SYMBOL_MODEL_CLASS>
   & Hookable<ModelHooksDefinition>;
@@ -234,6 +230,18 @@ export type ModelClass<D extends {} = any> =
 export type Model<D extends {} = any, I extends ModelInstance<D> = any> =
   & ModelClass<D>
   & Constructor<I>;
+
+/**
+ * Model class which can be configured or extended.
+ */
+export type ExtendableModel<D extends {} = any, I extends ModelInstance<D> = any> =
+  & {
+    configure(config?: ModelConfig, override?: boolean): ExtendableModel<D, ModelInstance<D>>;
+    extend<ND extends {} = {}>(
+      rawDefinition?: ND & ThisType<ModelInstance<D & ModelParsedDefinition<ND>>>,
+    ): ExtendableModel<D & ModelParsedDefinition<ND>, ModelInstance<D & ModelParsedDefinition<ND>>>;
+  }
+  & Model<D, I>;
 
 /**
  * Model instance for a dedicated model class.

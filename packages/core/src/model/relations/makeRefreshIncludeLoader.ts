@@ -50,7 +50,7 @@ async function refreshLoad<
 ) {
   const model = instances[0].$model;
   const refreshedInstances = await action()
-    .use(forModel(model as Model<{}, ModelInstance<{}>>))
+    .use(forModel(model as Model))
     .use(include(wrapVariadic(...relations) as any))
     .use(when(() => options.prepare, async (a, p) => {
       await p(a as Action<C & ConsumeModel>, { instances, relations });

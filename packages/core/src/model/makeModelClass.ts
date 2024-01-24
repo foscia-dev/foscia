@@ -7,7 +7,7 @@ import makeDefinition from '@foscia/core/model/makeDefinition';
 import id from '@foscia/core/model/props/builders/id';
 import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
 import {
-  Model,
+  ExtendableModel,
   ModelAttribute,
   ModelConfig,
   ModelHooksDefinition,
@@ -73,7 +73,7 @@ const createModelClass = (
         this.$values[def.key] = computeDefault(this, def);
       }
     });
-  } as unknown as Model;
+  } as unknown as ExtendableModel;
 
   Object.defineProperty(ModelClass, '$FOSCIA_TYPE', { value: SYMBOL_MODEL_CLASS });
   Object.defineProperty(ModelClass, '$type', { value: type });

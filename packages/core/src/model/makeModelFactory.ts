@@ -1,5 +1,10 @@
 import makeModelClass from '@foscia/core/model/makeModelClass';
-import { Model, ModelConfig, ModelInstance, ModelParsedDefinition } from '@foscia/core/model/types';
+import {
+  ExtendableModel,
+  ModelConfig,
+  ModelInstance,
+  ModelParsedDefinition,
+} from '@foscia/core/model/types';
 
 export default function makeModelFactory<ND extends {} = {}>(
   baseConfig?: ModelConfig,
@@ -19,6 +24,7 @@ export default function makeModelFactory<ND extends {} = {}>(
     }).extend({
       ...baseRawDefinition,
       ...rawDefinition,
-    }) as Model<ModelParsedDefinition<ND & D>, ModelInstance<ModelParsedDefinition<ND & D>>>;
+      // eslint-disable-next-line max-len
+    }) as ExtendableModel<ModelParsedDefinition<ND & D>, ModelInstance<ModelParsedDefinition<ND & D>>>;
   };
 }
