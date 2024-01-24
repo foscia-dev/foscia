@@ -55,7 +55,7 @@
 
 * **core:** reduce typing strictness for hasOne and hasMany ([49e2fce](https://github.com/foscia-dev/foscia/commit/49e2fce15db6e96286fe226080919520be85215d))
 
-# [0.5.0](https://github.com/foscia-dev/foscia/compare/v0.4.0...v0.5.0) (2023-11-10)
+## [0.5.0](https://github.com/foscia-dev/foscia/compare/v0.4.0...v0.5.0) (2023-11-10)
 
 
 ### Bug Fixes
@@ -78,7 +78,7 @@
 Pending relation method `path` has been removed because it is implementation specific. You must now path a config object to `config` method with a `path` property to define a relation's path.
 * **core:** `consumeAdapter`, `consumeCache`, `consumeDeserializer`, `consumeRegistry` and `consumeSerializer` now return an `Awaitable` dependency instead of a sync value.
 
-# [0.4.0](https://github.com/foscia-dev/foscia/compare/v0.3.0...v0.4.0) (2023-11-07)
+## [0.4.0](https://github.com/foscia-dev/foscia/compare/v0.3.0...v0.4.0) (2023-11-07)
 
 
 ### Bug Fixes
@@ -112,14 +112,14 @@ Pending relation method `path` has been removed because it is implementation spe
 * **http:** `makeHttpClient` is not exported anymore from `@foscia/http`. You should use  `makeHttpAdapter` combined with `makeActionFactory` instead.
 * **core:** `ConsumeModelPath` and `ConsumeRelationPath` are not exported anymore from `@foscia/core`.
 
-# [0.3.0](https://github.com/foscia-dev/foscia/compare/v0.2.0...v0.3.0) (2023-11-04)
+## [0.3.0](https://github.com/foscia-dev/foscia/compare/v0.2.0...v0.3.0) (2023-11-04)
 
 
 ### Bug Fixes
 
 * unify release number on all packages ([7d86e39](https://github.com/foscia-dev/foscia/commit/7d86e39d547ece2f4b78c9860c901cde499f118d))
 
-# [0.2.0](https://github.com/foscia-dev/foscia/compare/v0.1.1...v0.2.0) (2023-11-04)
+## [0.2.0](https://github.com/foscia-dev/foscia/compare/v0.1.1...v0.2.0) (2023-11-04)
 
 
 ### Bug Fixes
