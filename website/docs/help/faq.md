@@ -1,5 +1,5 @@
 ---
-sidebar_position: 100
+description: Common questions asked about Foscia.
 ---
 
 # FAQ

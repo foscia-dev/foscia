@@ -27,6 +27,11 @@ const sidebars = {
     },
     {
       type: 'doc',
+      label: 'Changelog',
+      id: 'changelog',
+    },
+    {
+      type: 'doc',
       label: 'Getting started',
       id: 'getting-started',
     },
@@ -104,11 +109,6 @@ const sidebars = {
           type: 'doc',
           label: 'FAQ',
           id: 'help/faq',
-        },
-        {
-          type: 'link',
-          label: 'Changelog',
-          href: 'https://github.com/foscia-dev/foscia/releases',
         },
         {
           type: 'link',
