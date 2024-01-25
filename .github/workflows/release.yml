@@ -1,5 +1,5 @@
 name: release
-run-name: "release [${{ inputs.increment }}][${{ inputs.prerelease }}] by @${{ github.actor }}${{ github.event.inputs.dry == 'true' && ' (dry run)' || '' }}"
+run-name: "${{ github.event.inputs.dry == 'true' && '[dry run] ' || '' }}release ${{ inputs.increment }}.${{ inputs.prerelease }} by @${{ github.actor }}"
 
 permissions:
   contents: write
