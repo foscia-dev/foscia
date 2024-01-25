@@ -7,6 +7,7 @@ const headerPartial = fs.readFileSync(
 
 module.exports = {
   hooks: {
+    'after:bump': 'pnpm install',
     'after:release': 'echo Successfully released ${name} v${version} to ${repo.repository}.',
   },
   npm: {
