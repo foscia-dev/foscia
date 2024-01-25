@@ -48,19 +48,21 @@ export default makeComposable({
 `.trim();
 
 const actionExampleCode = `
-import { makeJsonApi } from '@foscia/jsonapi';
-import Post from './post';
-import User from './user';
-import Tag from './tag';
+import { makeActionFactory, makeCache } from '@foscia/core';
+import {
+  makeJsonApiAdapter,
+  makeJsonApiDeserializer,
+  makeJsonApiSerializer,
+} from '@foscia/jsonapi';
 
-const { action } = makeJsonApi({
-  models: [Post, User, Tag],
-  http: {
+export default makeActionFactory({
+  ...makeCache(),
+  ...makeJsonApiDeserializer(),
+  ...makeJsonApiSerializer(),
+  ...makeJsonApiAdapter({
     baseURL: '/api/v1',
-  },
+  }),
 });
-
-export default action;
 `.trim();
 
 const playExampleMeta = {
