@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.0-beta.1](https://github.com/foscia-dev/foscia/compare/v0.6.0-beta.0...v0.6.0-beta.1) (2024-01-25)
+
+
+### Features
+
+* **core:** extract configure/extend method into a dedicated type ([3c4c9d3](https://github.com/foscia-dev/foscia/commit/3c4c9d3b5d09b9dfe71334b2534836753f777ef8))
+
+
+### BREAKING CHANGES
+
+* **core:** `Model` static methods `extend` and `configure` have been moved inside a new extended type.
+If you wish to use this method on typed variable/parameter, use `ExtendableModel` instead.
+
 ## [0.6.0-beta.0](https://github.com/foscia-dev/foscia/compare/v0.5.3...v0.6.0-beta.0) (2024-01-21)
 
 
