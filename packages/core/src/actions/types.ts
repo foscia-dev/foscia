@@ -70,12 +70,17 @@ export type ContextRunner<C extends {}, E extends {}, R> = (
 ) => R;
 
 export type InferConsumedInstance<C extends {}> =
-  C extends { relation: RawModelRelation<Array<infer I>> }
-    ? I extends ModelInstance ? I : never
-    : C extends { relation: RawModelRelation<infer I> }
-      ? I extends ModelInstance ? I : never
-      : C extends { model: Constructor<infer I> }
-        ? I extends ModelInstance ? I : never : never;
+  C extends { relation: RawModelRelation<Array<infer I>> } ? I extends ModelInstance ? I : never
+    : C extends { relation: RawModelRelation<infer I> } ? I extends ModelInstance ? I : never
+      : C extends { instance: infer I } ? I extends ModelInstance ? I : never
+        : C extends { model: Constructor<infer I> } ? I extends ModelInstance ? I : never
+          : never;
+
+export type InferConsumedModelOrInstance<C extends {}> =
+  C extends { relation: RawModelRelation<Array<infer I>> } ? I extends ModelInstance ? I : never
+    : C extends { relation: RawModelRelation<infer I> } ? I extends ModelInstance ? I : never
+      : C extends { model: infer M } ? M
+        : InferConsumedInstance<C>;
 
 export type ConsumeAction = {
   action: 'read' | 'create' | 'update' | 'destroy' | string;

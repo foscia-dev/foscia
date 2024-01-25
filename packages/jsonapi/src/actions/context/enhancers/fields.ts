@@ -3,7 +3,7 @@ import {
   ActionParsedExtension,
   FosciaError,
   guessContextModel,
-  InferConsumedInstance,
+  InferConsumedModelOrInstance,
   makeEnhancersExtension,
   ModelKey,
 } from '@foscia/core';
@@ -19,11 +19,8 @@ import { ArrayableVariadic, isNil } from '@foscia/shared';
  *
  * @category Enhancers
  */
-export default function fields<
-  C extends {},
-  I extends InferConsumedInstance<C>,
->(
-  ...fieldset: ArrayableVariadic<ModelKey<I>>
+export default function fields<C extends {}>(
+  ...fieldset: ArrayableVariadic<ModelKey<InferConsumedModelOrInstance<C>>>
 ) {
   return async (action: Action<C>) => {
     const context = await action.useContext();
@@ -40,9 +37,9 @@ export default function fields<
 }
 
 type FieldsEnhancerExtension = ActionParsedExtension<{
-  fields<C extends {}, E extends {}, I extends InferConsumedInstance<C>>(
+  fields<C extends {}, E extends {}>(
     this: Action<C, E>,
-    ...fieldset: ArrayableVariadic<ModelKey<I>>
+    ...fieldset: ArrayableVariadic<ModelKey<InferConsumedModelOrInstance<C>>>
   ): Action<C, E>;
 }>;
 

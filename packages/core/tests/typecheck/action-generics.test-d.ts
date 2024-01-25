@@ -4,6 +4,7 @@ import {
   all,
   cachedOr,
   CacheI,
+  ConsumeInstance,
   ConsumeModel,
   context,
   DeserializerI,
@@ -18,6 +19,8 @@ import {
   ModelInstance,
   ModelRelationDotKey,
   oneOrFail,
+  save,
+  SerializerI,
   when,
 } from '@foscia/core';
 import { expectTypeOf, test } from 'vitest';
@@ -39,6 +42,7 @@ test('Actions generics are type safe', async () => {
       adapter: null as unknown as AdapterI<Response>,
       cache: null as unknown as CacheI,
       deserializer: null as unknown as DeserializerI<any>,
+      serializer: null as unknown as SerializerI<any>,
     }));
   };
 
@@ -51,7 +55,6 @@ test('Actions generics are type safe', async () => {
     model: M,
     id: ModelIdType,
     relations: ModelRelationDotKey<M>[],
-    // @ts-expect-error FIXME Known limitation of instance type inference.
   ) => action().use(find(model, id), include(relations)).run(oneOrFail());
   const genericCallbackFindModel = <M extends Model>(
     model: M,
@@ -71,4 +74,30 @@ test('Actions generics are type safe', async () => {
   await genericFindModel(PostMock, '1', ['foo']);
   // @ts-expect-error postedBy is not a relation of PostMock
   await genericFindModel(PostMock, '1', ['postedBy']);
+
+  const normalSaveInstance = (
+    instance: ModelInstance,
+    relations: string[],
+  ) => action().use(save(instance), include(relations)).run(oneOrFail());
+  const genericSaveInstance = <I extends ModelInstance>(
+    instance: I,
+    relations: ModelRelationDotKey<I>[],
+  ) => action().use(save(instance), include(relations)).run(oneOrFail());
+  const genericCallbackSaveInstance = <D extends {}, I extends ModelInstance<D>>(
+    instance: I,
+    tap: (action: Action<ConsumeInstance<I>>) => void,
+  ) => action().use(save(instance)).use(tap).run(oneOrFail());
+
+  expectTypeOf(await normalSaveInstance(new PostMock(), ['comments'])).toMatchTypeOf<ModelInstance>();
+  expectTypeOf(await normalSaveInstance(new PostMock(), ['postedBy'])).toMatchTypeOf<ModelInstance>();
+  expectTypeOf(await normalSaveInstance(new PostMock(), ['foo'])).toMatchTypeOf<ModelInstance>();
+  expectTypeOf(await genericSaveInstance(new PostMock(), ['comments'])).toMatchTypeOf<PostMock>();
+  expectTypeOf(
+    await genericCallbackSaveInstance(new PostMock(), (a) => a.use(include('comments'))),
+  ).toMatchTypeOf<PostMock>();
+
+  // @ts-expect-error foo is not a relation of PostMock
+  await genericSaveInstance(new PostMock(), ['foo']);
+  // @ts-expect-error postedBy is not a relation of PostMock
+  await genericSaveInstance(new PostMock(), ['postedBy']);
 });
