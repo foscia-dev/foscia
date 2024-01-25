@@ -3,6 +3,9 @@ import { ModelIdType, ModelInstance } from '@foscia/core/model/types';
 import { CacheI } from '@foscia/core/types';
 import { IdentifiersMap, makeConfigurable } from '@foscia/shared';
 
+/**
+ * @deprecated Use {@link makeRefsCache}.
+ */
 export default class RefsCache implements CacheI {
   declare public readonly $config: RefsCacheConfig;
 

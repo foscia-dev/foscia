@@ -1,11 +1,4 @@
-import {
-  all,
-  makeActionFactory,
-  makeCache,
-  makeRegistry,
-  MapRegistry,
-  RefsCache,
-} from '@foscia/core';
+import { all, CacheI, makeActionFactory, makeCache, makeRegistry, RegistryI } from '@foscia/core';
 import { expectTypeOf, test } from 'vitest';
 
 test('Action factories are type safe', async () => {
@@ -20,6 +13,6 @@ test('Action factories are type safe', async () => {
   const context = await action.useContext();
 
   expectTypeOf(action.all).toMatchTypeOf<Function>();
-  expectTypeOf(context.registry).toMatchTypeOf<MapRegistry>();
-  expectTypeOf(context.cache).toMatchTypeOf<RefsCache>();
+  expectTypeOf(context.registry).toMatchTypeOf<RegistryI>();
+  expectTypeOf(context.cache).toMatchTypeOf<CacheI>();
 });
