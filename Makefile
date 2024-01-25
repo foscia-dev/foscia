@@ -1,8 +1,8 @@
 # Executables
 DOCKER_COMPOSE?=docker compose
 DOCKER_EXEC?=$(DOCKER_COMPOSE) exec -it
-PNPM?=$(DOCKER_EXEC) node pnpm
-DOCS?=$(DOCKER_EXEC) docs
+PNPM?=$(DOCKER_EXEC) foscia-node pnpm
+DOCS?=$(DOCKER_EXEC) foscia-docs
 
 # Misc
 default: help
@@ -38,11 +38,11 @@ pnpm: ## Run a PNPM command (e.g. make pnpm c="update").
 
 .PHONY: pre-commit
 pre-commit: ## Pre-commit GIT hook.
-	@$(DOCKER_COMPOSE) exec -T node pnpm lint
+	@$(DOCKER_COMPOSE) exec -T foscia-node pnpm lint
 
 .PHONY: commit-msg
 commit-msg: ## Commit-msg GIT hook.
-	@$(DOCKER_COMPOSE) exec -T node pnpm commitlint --edit $(m) --verbose
+	@$(DOCKER_COMPOSE) exec -T foscia-node pnpm commitlint --edit $(m) --verbose
 
 ##
 ## —— Build, lint and tests ————————————————————————————————————————————————————
@@ -86,7 +86,7 @@ docs-prettier: ## Run prettier on docs MD files.
 
 .PHONY: sh
 sh: ## Run sh on test container.
-	@$(DOCKER_EXEC) node sh
+	@$(DOCKER_EXEC) foscia-node sh
 
 .PHONY: help
 help: ## Show help for each of the Makefile recipes.
