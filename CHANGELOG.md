@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.0-beta.2](https://github.com/foscia-dev/foscia/compare/v0.6.0-beta.1...v0.6.0-beta.2) (2024-01-25)
+
+
+### Bug Fixes
+
+* **core:** improve model and instance inference ([6fa2c17](https://github.com/foscia-dev/foscia/commit/6fa2c17e9ca98af08909fb3f2770b9b9a7b08e21))
+* **core:** use static type on action hooks property ([d448569](https://github.com/foscia-dev/foscia/commit/d448569bb67320c95499629c8710215ce9684ab5))
+
+
+### Features
+
+* **core:** expose additional typing to public api ([6b3b78c](https://github.com/foscia-dev/foscia/commit/6b3b78c26550c7cd4b2647e9225903ba7ec0d65e))
+
 ## [0.6.0-beta.1](https://github.com/foscia-dev/foscia/compare/v0.6.0-beta.0...v0.6.0-beta.1) (2024-01-25)
 
 
