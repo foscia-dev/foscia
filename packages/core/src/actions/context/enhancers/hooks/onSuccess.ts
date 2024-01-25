@@ -15,7 +15,7 @@ export default function onSuccess<C extends {}>(
   callback: (event: { context: C; result: unknown; }) => Awaitable<void>,
 ) {
   return (action: Action<C>) => {
-    registerHook(action, 'success', callback);
+    registerHook(action, 'success', callback as any);
   };
 }
 

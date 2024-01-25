@@ -17,11 +17,13 @@ import {
 } from '@foscia/core/types';
 import { Awaitable, Constructor, DescriptorHolder } from '@foscia/shared';
 
-export type ActionHooksDefinition<C extends {} = any> = {
-  running: HookCallback<{ context: C; runner: Function; }>;
-  success: HookCallback<{ context: C; result: unknown; }>;
-  error: HookCallback<{ context: C; error: unknown; }>;
-  finally: HookCallback<{ context: C; }>;
+export * from '@foscia/core/actions/actionVariadicUse';
+
+export type ActionHooksDefinition = {
+  running: HookCallback<{ context: {}; runner: Function; }>;
+  success: HookCallback<{ context: {}; result: unknown; }>;
+  error: HookCallback<{ context: {}; error: unknown; }>;
+  finally: HookCallback<{ context: {}; }>;
 };
 
 export type Action<Context extends {} = {}, Extensions extends {} = {}> =
@@ -38,7 +40,7 @@ export type Action<Context extends {} = {}, Extensions extends {} = {}> =
     ): Promise<Awaited<Result>>;
   }
   & ActionVariadicUse<Context, Extensions>
-  & Hookable<ActionHooksDefinition<Context>>
+  & Hookable<ActionHooksDefinition>
   & ExtendedAction<Extensions>;
 
 export type ActionClass<Context extends {} = {}, Extensions extends {} = {}> = {

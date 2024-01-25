@@ -15,7 +15,7 @@ export default function onRunning<C extends {}>(
   callback: (event: { context: C; runner: Function; }) => Awaitable<void>,
 ) {
   return (action: Action<C>) => {
-    registerHook(action, 'running', callback);
+    registerHook(action, 'running', callback as any);
   };
 }
 

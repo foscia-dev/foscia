@@ -15,7 +15,7 @@ export default function onError<C extends {}>(
   callback: (event: { context: C; error: unknown; }) => Awaitable<void>,
 ) {
   return (action: Action<C>) => {
-    registerHook(action, 'error', callback);
+    registerHook(action, 'error', callback as any);
   };
 }
 

@@ -15,7 +15,7 @@ export default function onFinally<C extends {}>(
   callback: (event: { context: C; }) => Awaitable<void>,
 ) {
   return (action: Action<C>) => {
-    registerHook(action, 'finally', callback);
+    registerHook(action, 'finally', callback as any);
   };
 }
 

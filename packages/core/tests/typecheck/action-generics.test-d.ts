@@ -56,7 +56,7 @@ test('Actions generics are type safe', async () => {
   const genericCallbackFindModel = <M extends Model>(
     model: M,
     id: ModelIdType,
-    tap: <C extends ConsumeModel<M>>(action: Action<C>) => void,
+    tap: (action: Action<ConsumeModel<M>>) => void,
   ) => action().use(find(model, id)).use(tap).run(oneOrFail());
 
   expectTypeOf(await normalFindModel(PostMock, '1', ['comments'])).toMatchTypeOf<ModelInstance>();
@@ -64,7 +64,6 @@ test('Actions generics are type safe', async () => {
   expectTypeOf(await normalFindModel(PostMock, '1', ['foo'])).toMatchTypeOf<ModelInstance>();
   expectTypeOf(await genericFindModel(PostMock, '1', ['comments'])).toMatchTypeOf<PostMock>();
   expectTypeOf(
-    // @ts-expect-error FIXME Known limitation of instance type inference.
     await genericCallbackFindModel(PostMock, '1', (a) => a.use(include('comments'))),
   ).toMatchTypeOf<PostMock>();
 
