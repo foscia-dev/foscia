@@ -1,10 +1,10 @@
-import type { ModelPropSync, PendingModelProp } from '@foscia/core/model/types';
+import {
+  PendingDefinition,
+  PendingDefinitionModifiers,
+} from '@foscia/core/model/props/builders/types';
+import type { ModelPropSync } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_PROP_PENDING } from '@foscia/core/symbols';
 import { Dictionary } from '@foscia/shared';
-
-type PendingDefinitionModifiers = Dictionary<(...args: any[]) => PendingDefinition>;
-
-type PendingDefinition = PendingModelProp<Dictionary> & PendingDefinitionModifiers;
 
 export const PROP_MODIFIERS = {
   default: (value: unknown | (() => unknown)) => ({ default: value }),

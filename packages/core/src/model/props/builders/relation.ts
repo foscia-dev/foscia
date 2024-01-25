@@ -1,35 +1,10 @@
 import makePendingProp, { PROP_MODIFIERS } from '@foscia/core/model/props/builders/makePendingProp';
 import {
-  Model,
-  ModelInstance,
-  ModelPropSync,
-  ModelRelationConfig,
-  ModelRelationType,
-  PendingModelProp,
-  RawModelRelation,
-} from '@foscia/core/model/types';
+  PendingModelRelation,
+  PendingModelRelationConfig,
+} from '@foscia/core/model/props/builders/types';
+import { ModelInstance, ModelRelationType } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_PROP_RELATION } from '@foscia/core/symbols';
-import { Awaitable, Constructor } from '@foscia/shared';
-
-export type PendingModelRelationInstance<M> =
-  M extends Constructor<infer I>[] ? I
-    : M extends Constructor<infer I> ? I
-      : never;
-
-export type PendingModelRelationConfig =
-  | string
-  | string[]
-  | ModelRelationConfig
-  | (() => Awaitable<Model | Model[]>);
-
-export type PendingModelRelation<T, R extends boolean> = {
-  config: (config: string | string[] | ModelRelationConfig) => PendingModelRelation<T, R>;
-  default: <NT extends T>(value: T | (() => T)) => PendingModelRelation<NT, R>;
-  readOnly: <NR extends boolean = true>(readOnly?: NR) => PendingModelRelation<T, NR>;
-  nullable: unknown extends T ? never : (() => PendingModelRelation<T | null, R>);
-  alias: (alias: string) => PendingModelRelation<T, R>;
-  sync: (alias: boolean | ModelPropSync) => PendingModelRelation<T, R>;
-} & PendingModelProp<RawModelRelation<T, R>>;
 
 /**
  * Make a pending relation definition.

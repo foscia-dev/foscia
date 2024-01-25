@@ -30,9 +30,9 @@ import include from '@foscia/core/actions/context/enhancers/include';
 import guessContextModel from '@foscia/core/actions/context/guessers/guessContextModel';
 import all, { AllData } from '@foscia/core/actions/context/runners/all';
 import cached from '@foscia/core/actions/context/runners/cached';
-import cachedOr from '@foscia/core/actions/context/runners/cachedOr';
+import cachedOr, { CachedData } from '@foscia/core/actions/context/runners/cachedOr';
 import cachedOrFail from '@foscia/core/actions/context/runners/cachedOrFail';
-import catchIf from '@foscia/core/actions/context/runners/catchIf';
+import catchIf, { CatchCallback } from '@foscia/core/actions/context/runners/catchIf';
 import none from '@foscia/core/actions/context/runners/none';
 import one from '@foscia/core/actions/context/runners/one';
 import oneOr, { OneData } from '@foscia/core/actions/context/runners/oneOr';
@@ -50,7 +50,12 @@ import makeActionClass from '@foscia/core/actions/makeActionClass';
 import makeActionFactory from '@foscia/core/actions/makeActionFactory';
 import when from '@foscia/core/actions/when';
 
-export type { AllData, OneData };
+export type {
+  AllData,
+  OneData,
+  CachedData,
+  CatchCallback,
+};
 
 export {
   none,

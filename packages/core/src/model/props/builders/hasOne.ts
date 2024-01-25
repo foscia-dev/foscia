@@ -1,8 +1,9 @@
-import relation, {
+import relation from '@foscia/core/model/props/builders/relation';
+import {
   PendingModelRelation,
   PendingModelRelationConfig,
   PendingModelRelationInstance,
-} from '@foscia/core/model/props/builders/relation';
+} from '@foscia/core/model/props/builders/types';
 import { ModelInstance, ModelRelationConfig } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_RELATION_HAS_ONE } from '@foscia/core/symbols';
 import { Awaitable } from '@foscia/shared';

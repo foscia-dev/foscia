@@ -2,7 +2,7 @@ import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExt
 import { Action, ActionParsedExtension, ContextRunner } from '@foscia/core/actions/types';
 import { Awaitable } from '@foscia/shared';
 
-type CatchCallback<C extends {}, E extends {}, CD> = (
+export type CatchCallback<C extends {}, E extends {}, CD> = (
   error: unknown,
 ) => Awaitable<ContextRunner<C, E, Awaitable<CD>> | boolean>;
 

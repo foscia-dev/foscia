@@ -11,7 +11,9 @@ import mergeConfig from '@foscia/shared/configs/mergeConfig';
 import removeTimezoneOffset from '@foscia/shared/dates/removeTimezoneOffset';
 import eachDescriptors from '@foscia/shared/descriptors/eachDescriptors';
 import isDescriptorHolder from '@foscia/shared/descriptors/isDescriptorHolder';
-import makeDescriptorHolder from '@foscia/shared/descriptors/makeDescriptorHolder';
+import makeDescriptorHolder, {
+  SYMBOL_DESCRIPTOR_HOLDER,
+} from '@foscia/shared/descriptors/makeDescriptorHolder';
 import { IS_DEV, IS_TEST } from '@foscia/shared/env';
 import IdentifiersMap from '@foscia/shared/identifiersMap';
 import optionalJoin from '@foscia/shared/strings/optionalJoin';
@@ -44,4 +46,5 @@ export {
   value,
   wrap,
   wrapVariadic,
+  SYMBOL_DESCRIPTOR_HOLDER,
 };

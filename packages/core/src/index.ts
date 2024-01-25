@@ -59,6 +59,16 @@ import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
 import normalizeDotRelations from '@foscia/core/normalization/normalizeDotRelations';
 import normalizeKey from '@foscia/core/normalization/normalizeKey';
 import MapRegistry from '@foscia/core/registry/mapRegistry';
+import {
+  SYMBOL_MODEL_CLASS,
+  SYMBOL_MODEL_INSTANCE,
+  SYMBOL_MODEL_PROP_ATTRIBUTE,
+  SYMBOL_MODEL_PROP_ID,
+  SYMBOL_MODEL_PROP_PENDING,
+  SYMBOL_MODEL_PROP_RELATION,
+  SYMBOL_MODEL_RELATION_HAS_MANY,
+  SYMBOL_MODEL_RELATION_HAS_ONE,
+} from '@foscia/core/symbols';
 import makeTransformer from '@foscia/core/transformers/makeTransformer';
 import toArrayOf from '@foscia/core/transformers/toArrayOf';
 import toBoolean from '@foscia/core/transformers/toBoolean';
@@ -71,6 +81,7 @@ export * from '@foscia/core/actions/types';
 export * from '@foscia/core/cache/types';
 export * from '@foscia/core/errors/flags/types';
 export * from '@foscia/core/hooks/types';
+export * from '@foscia/core/model/props/builders/types';
 export * from '@foscia/core/model/types';
 export * from '@foscia/core/registry/types';
 export * from '@foscia/core/transformers/types';
@@ -147,4 +158,12 @@ export {
   normalizeInclude,
   normalizeKey,
   logger,
+  SYMBOL_MODEL_PROP_PENDING,
+  SYMBOL_MODEL_PROP_ID,
+  SYMBOL_MODEL_PROP_ATTRIBUTE,
+  SYMBOL_MODEL_PROP_RELATION,
+  SYMBOL_MODEL_RELATION_HAS_ONE,
+  SYMBOL_MODEL_RELATION_HAS_MANY,
+  SYMBOL_MODEL_CLASS,
+  SYMBOL_MODEL_INSTANCE,
 };
