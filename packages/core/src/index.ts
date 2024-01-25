@@ -59,6 +59,7 @@ import restoreSnapshot from '@foscia/core/model/snapshots/restoreSnapshot';
 import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
 import normalizeDotRelations from '@foscia/core/normalization/normalizeDotRelations';
 import normalizeKey from '@foscia/core/normalization/normalizeKey';
+import makeMapRegistry from '@foscia/core/registry/makeMapRegistry';
 import MapRegistry from '@foscia/core/registry/mapRegistry';
 import {
   SYMBOL_MODEL_CLASS,
@@ -98,6 +99,7 @@ export {
   ExpectedRunFailureError,
   isNotFoundError,
   makeRegistry,
+  makeMapRegistry,
   MapRegistry,
   makeCache,
   makeRefsCache,

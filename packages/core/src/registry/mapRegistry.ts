@@ -9,6 +9,9 @@ import {
 import { RegistryI } from '@foscia/core/types';
 import { makeConfigurable, wrap } from '@foscia/shared';
 
+/**
+ * @deprecated Use {@link makeMapRegistry}.
+ */
 export default class MapRegistry implements RegistryI {
   declare public readonly $config: MapRegistryConfig;
 
