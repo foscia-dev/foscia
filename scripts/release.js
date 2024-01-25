@@ -24,27 +24,39 @@ function parseOptions(args) {
     args.interactive ? '' : '--ci',
   ].filter((o) => o);
 
-  if (['patch', 'minor', 'major'].indexOf(args.increment) !== -1) {
-    if (['alpha', 'beta'].indexOf(args.prerelease) !== -1) {
-      return [
-        `--preRelease=${args.prerelease}`,
-        '--npm.tag=next',
-        `--increment=${args.increment}`,
-        ...options,
-      ];
-    }
+  const invalidArgumentError = (message) => {
+    console.error(pc.red(
+      `Invalid option: ${message}`,
+    ));
 
+    process.exit(1);
+  };
+
+  if ([undefined, 'alpha', 'beta'].indexOf(args.prerelease) === -1) {
+    invalidArgumentError('"prerelease" must be set to "alpha" or "beta" when defined.');
+  }
+
+  if ([undefined, 'patch', 'minor', 'major'].indexOf(args.increment) === -1) {
+    invalidArgumentError('"increment" must be set to "patch", "minor" or "major" when defined.');
+  }
+
+  if (args.increment === undefined && args.prerelease === undefined) {
+    invalidArgumentError('either "increment" or "prerelease" must be set release a new version.');
+  }
+
+  if (args.prerelease !== undefined) {
     return [
-      `--increment=${args.increment}`,
+      `--preRelease=${args.prerelease}`,
+      '--npm.tag=next',
+      ...(args.increment !== undefined ? [`--increment=${args.increment}`] : []),
       ...options,
     ];
   }
 
-  console.error(pc.red(
-    `Given increment is invalid, valid targets are: patch, minor, major`,
-  ));
-
-  process.exit(1);
+  return [
+    `--increment=${args.increment}`,
+    ...options,
+  ];
 }
 
 async function releasePackages(options) {
