@@ -1,5 +1,4 @@
-import { ActionFactory } from '@foscia/core';
-import type ActionFactoryMock from '@foscia/test/actionFactoryMock';
+import { Action, ActionFactory } from '@foscia/core';
 import { Awaitable } from '@foscia/shared';
 
 /**
@@ -30,6 +29,53 @@ export type ActionMockedRunOptions<Context extends {} = any> = {
   expectation?: ActionMockedExpectation<Context>;
   times?: number;
 };
+
+/**
+ * Mocked action run configuration for mocked action factory.
+ */
+export type ActionMockedRun<Context extends {} = any> = {
+  shouldRun: (context: Context) => Promise<boolean>;
+  shouldForget: () => Promise<boolean>;
+  run: (context: Context) => Promise<void>;
+};
+
+/**
+ * History item wrapper for a ran context.
+ */
+export type ActionMockedHistoryItem = {
+  context: any;
+};
+
+/**
+ * Mock for an action factory with mocked results and ran context history.
+ */
+export interface ActionFactoryMock<Args extends any[], Context extends {}, Extension extends {}> {
+  readonly history: readonly ActionMockedHistoryItem[];
+  makeAction: (...args: Args) => Action<Context, Extension>;
+  mockResult: <RC extends {} = any>(
+    result?: ActionMockedResult<RC> | ActionMockedRunOptions<RC>,
+    predicate?: ActionMockedPredicate<RC>,
+  ) => void;
+  mockResultOnce: <RC extends {} = any>(
+    result?: ActionMockedResult<RC>,
+    predicate?: ActionMockedPredicate<RC>,
+    options?: ActionMockedRunOptions<RC>,
+  ) => void;
+  mockResultTwice: <RC extends {} = any>(
+    result?: ActionMockedResult<RC>,
+    predicate?: ActionMockedPredicate<RC>,
+    options?: ActionMockedRunOptions<RC>,
+  ) => void;
+  mockResultTimes: <RC extends {} = any>(
+    times: number,
+    result?: ActionMockedResult<RC>,
+    predicate?: ActionMockedPredicate<RC>,
+    options?: ActionMockedRunOptions<RC>,
+  ) => void;
+  resetMocks: () => void;
+  resetHistory: () => void;
+  reset: () => void;
+}
 
 /**
  * Proxy of an action factory which can easily be mocked.

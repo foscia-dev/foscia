@@ -13,28 +13,33 @@ read/write interactions with JSON REST data sources.
 
 ## Implementations
 
-### `RestAdapter`
+### `makeJsonRestAdapter`
 
 This implementation of the adapter will execute context through HTTP requests
 using the
 [`fetch` API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 
-`RestAdapter` extends the
-[`HttpAdapter`](/docs/digging-deeper/implementations/http#httpadapter).
+`makeJsonRestAdapter` and `makeRestAdapterWith` use
+[`makeHttpAdapterWith`](/docs/digging-deeper/implementations/http#makehttpadapter).
 
 #### Usage
 
 ```typescript
-import { paramsSerializer } from '@foscia/http';
-import { RestAdapter, makeJsonRestAdapter } from '@foscia/rest';
+import { bodyAsJson, paramsSerializer } from '@foscia/http';
+import { makeRestAdapterWith, makeJsonRestAdapter } from '@foscia/rest';
 
 // Using blueprint (preconfigured with sensible defaults).
 const adapter = makeJsonRestAdapter({
   /* ...configuration */
 });
 // Using constructor (no default configuration provided).
-const adapter = new RestAdapter({
+const adapter = makeRestAdapterWith({
   serializeParams: paramsSerializer,
+  defaultBodyAs: bodyAsJson,
+  defaultHeaders: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  },
   /* ...configuration */
 });
 
@@ -43,19 +48,20 @@ const response = await adapter.execute({
 });
 ```
 
-#### Configuration
+#### Configuration {#makejsonrestadapter-configuration}
 
-`RestAdapter` extends its configuration object from:
+`makeJsonRestAdapter` and `makeRestAdapterWith` extend its configuration object from:
 
-- [HttpAdapter](/docs/digging-deeper/implementations/http#httpadapter-configuration)
+-  [`makeHttpAdapter`](/docs/digging-deeper/implementations/http#makehttpadapter-configuration)
 
-| Name                    | Type                            | Description                                                                                  |
-| ----------------------- | ------------------------------- | -------------------------------------------------------------------------------------------- |
-| `includeQueryParameter` | <code>string &vert; null</code> | Define the query parameter to use when relationships inclusion is request through `include`. |
+| Name              | Type                            | Description                                                                                                             |
+|-------------------| ------------------------------- |-------------------------------------------------------------------------------------------------------------------------|
+| `includeParamKey` | <code>string &vert; null</code> | Define the query parameter to append when relationships inclusion is requested through `include`. Default to `include`. |
 
 #### Defined in
 
-[`packages/rest/src/restAdapter.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/rest/src/restAdapter.ts)
+- [`packages/rest/src/blueprints/makeJsonRestAdapter.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/rest/src/blueprints/makeJsonRestAdapter.ts)
+- [`packages/rest/src/makeRestAdapterWith.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/rest/src/makeRestAdapterWith.ts)
 
 ### `RestDeserializer`
 

@@ -1,6 +1,7 @@
 import isModel from '@foscia/core/model/checks/isModel';
 import { Model } from '@foscia/core/model/types';
 import {
+  MapRegistry,
   MapRegistryConfig,
   MapRegistryModelRegistration,
   MapRegistryModelsRegistration,
@@ -9,16 +10,16 @@ import {
 import { wrap } from '@foscia/shared';
 
 /**
- * Create a {@link RegistryI} implementation allowing multiple resolve
+ * Make a {@link RegistryI} implementation allowing multiple resolve
  * capabilities, such as sync/async models and with/without types.
  *
  * @param config
  */
-export default function makeMapRegistry(config: MapRegistryConfig = {}) {
+export default function makeMapRegistryWith(config: MapRegistryConfig): MapRegistry {
   const resolvers = [] as ModelObjectResolver[];
   const modelsMap = new Map<string, Model>();
 
-  const normalizeRawType = (rawType: string) => (config.normalizeType ?? ((t) => t))(rawType);
+  const normalizeRawType = config.normalizeType ?? ((t) => t);
 
   const resolveModelWithType = async (type: string) => {
     const typedResolver = resolvers.find((r) => r.type === type);

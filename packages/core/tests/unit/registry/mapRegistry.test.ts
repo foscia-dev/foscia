@@ -1,4 +1,4 @@
-import { makeMapRegistry, makeModel } from '@foscia/core';
+import { makeMapRegistryWith, makeModel } from '@foscia/core';
 import { describe, expect, it } from 'vitest';
 
 describe.concurrent('unit: mapRegistry', () => {
@@ -8,7 +8,7 @@ describe.concurrent('unit: mapRegistry', () => {
     const modelBaz = makeModel('baz');
     const modelFooBar = makeModel('foo-bar');
 
-    const registry = makeMapRegistry();
+    const registry = makeMapRegistryWith({});
 
     expect(await registry.modelFor('foo')).toBeNull();
     expect(await registry.modelFor('bar')).toBeNull();
@@ -40,7 +40,7 @@ describe.concurrent('unit: mapRegistry', () => {
   it('should normalize types', async () => {
     const modelFooBar = makeModel('foo-bar');
 
-    const registry = makeMapRegistry({ normalizeType: (t) => t.toUpperCase() });
+    const registry = makeMapRegistryWith({ normalizeType: (t) => t.toUpperCase() });
     registry.register({ 'foo-bar': async () => modelFooBar });
 
     const resolvedModel = await registry.modelFor('foo-bar');

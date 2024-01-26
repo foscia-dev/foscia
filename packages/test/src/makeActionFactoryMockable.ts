@@ -1,6 +1,5 @@
 import type { ActionFactory } from '@foscia/core';
-import type ActionFactoryMock from '@foscia/test/actionFactoryMock';
-import type { ActionMockableFactory } from '@foscia/test/types';
+import type { ActionFactoryMock, ActionMockableFactory } from '@foscia/test/types';
 
 /**
  * Creates a proxy of an action factory which can be mocked.

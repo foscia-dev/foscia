@@ -27,9 +27,9 @@ Registry is a map of types and associated model. It is used by deserializer to
 identify which models should map to which types.
 
 ```typescript
-type RegistryI = {
+interface RegistryI {
   modelFor(rawType: string): Promise<Model | null>;
-};
+}
 ```
 
 ### Serializer
@@ -81,54 +81,54 @@ instances of the same record coexisting and allows you to retrieve already
 fetched record without making further requests to your data source.
 
 ```typescript
-type CacheI = {
+interface CacheI {
   find(type: string, id: ModelIdType): Promise<ModelInstance | null>;
   put(type: string, id: ModelIdType, instance: ModelInstance): Promise<void>;
   forget(type: string, id: ModelIdType): Promise<void>;
   forgetAll(type: string): Promise<void>;
   clear(): Promise<void>;
-};
+}
 ```
 
 ## Implementations
 
 ### Core
 
-`@foscia/core` provides implementations for `Cache` and `Registry`. Those
+`@foscia/core` provides implementations for `CacheI` and `RegistryI`. Those
 implementations may be used for any Foscia usage (JSON:API, REST, etc.).
 
-- [Registry through `MapRegistry`](/docs/digging-deeper/implementations/core#mapregistry)
-- [Cache through `RefsCache`](/docs/digging-deeper/implementations/core#refscache)
+- [Registry through `makeMapRegistryWith`](/docs/digging-deeper/implementations/core#makemapregistrywith)
+- [Cache through `makeRefsCacheWith`](/docs/digging-deeper/implementations/core#makerefscachewith)
 
 ### HTTP
 
-`@foscia/http` provides implementation of `Adapter` to interact with HTTP data
+`@foscia/http` provides implementation of `AdapterI` to interact with HTTP data
 sources.
 
-- [Adapter through `HttpAdapter`](/docs/digging-deeper/implementations/http#httpadapter)
+- [Adapter through `makeHttpAdapter`](/docs/digging-deeper/implementations/http#makeHttpAdapter)
 
 ### Object
 
-`@foscia/object` provides abstract implementations of `Serializer` and
-`Deserializer` to transform model instances to/from JavaScript literal objects.
+`@foscia/object` provides abstract implementations of `SerializerI` and
+`DeserializerI` to transform model instances to/from JavaScript literal objects.
 
 - [Serializer through `ObjectSerializer`](/docs/digging-deeper/implementations/object#objectserializer)
 - [Deserializer through `ObjectDeserializer`](/docs/digging-deeper/implementations/object#objectdeserializer)
 
 ### JSON:API
 
-`@foscia/jsonapi` provides implementations of `Adapter`, `Serializer` and
-`Deserializer` to interact with JSON:API HTTP data sources.
+`@foscia/jsonapi` provides implementations of `AdapterI`, `SerializerI` and
+`DeserializerI` to interact with JSON:API data sources.
 
-- [Adapter through `JsonApiAdapter`](/docs/digging-deeper/implementations/jsonapi#jsonapiadapter)
+- [Adapter through `makeJsonApiAdapter`](/docs/digging-deeper/implementations/jsonapi#makejsonapiadapter)
 - [Serializer through `JsonApiSerializer`](/docs/digging-deeper/implementations/jsonapi#jsonapiserializer)
 - [Deserializer through `JsonApiDeserializer`](/docs/digging-deeper/implementations/jsonapi#jsonapideserializer)
 
 ### REST
 
-`@foscia/rest` provides implementations of `Adapter`, `Serializer` and
-`Deserializer` to interact with JSON REST HTTP data sources.
+`@foscia/rest` provides implementations of `AdapterI`, `SerializerI` and
+`DeserializerI` to interact with JSON REST HTTP data sources.
 
-- [Adapter through `RestAdapter`](/docs/digging-deeper/implementations/rest#restadapter)
+- [Adapter through `makeJsonRestAdapter`](/docs/digging-deeper/implementations/rest#makejsonrestadapter)
 - [Serializer through `RestSerializer`](/docs/digging-deeper/implementations/rest#restserializer)
 - [Deserializer through `RestDeserializer`](/docs/digging-deeper/implementations/rest#restdeserializer)

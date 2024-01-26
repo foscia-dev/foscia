@@ -6,7 +6,7 @@ import {
   JsonApiResourceIdentifier,
 } from '@foscia/jsonapi/types';
 import { ObjectDeserializer, ObjectExtractedData } from '@foscia/object';
-import { IdentifiersMap, wrap } from '@foscia/shared';
+import { IdentifiersMap, makeIdentifiersMap, wrap } from '@foscia/shared';
 
 /**
  * Extracted data from a JSON:API backend Response object.
@@ -47,8 +47,8 @@ export default class JsonApiDeserializer extends ObjectDeserializer
   protected async extractData(rawData: JsonApiDocument | undefined) {
     const document: JsonApiDocument = rawData ?? {};
 
-    const included = new IdentifiersMap<string, ModelIdType, JsonApiResource>();
-    document.included?.map((r) => included.set(r.type, r.id, r));
+    const included = makeIdentifiersMap<string, ModelIdType, JsonApiResource>();
+    document.included?.map((r) => included.put(r.type, r.id, r));
 
     return {
       resources: document.data,
@@ -105,7 +105,7 @@ export default class JsonApiDeserializer extends ObjectDeserializer
     extractedData: JsonApiExtractedData,
     identifier: JsonApiResourceIdentifier,
   ) {
-    const includedResource = extractedData.included.get(identifier.type, identifier.id);
+    const includedResource = extractedData.included.find(identifier.type, identifier.id);
     if (includedResource) {
       return includedResource;
     }

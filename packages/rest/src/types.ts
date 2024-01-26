@@ -18,6 +18,7 @@ export type RestNewResource = RestAbstractResource & {
 };
 
 export type RestAdapterConfig = HttpAdapterConfig & {
+  includeParamKey?: string | null;
   includeQueryParameter?: string | null;
 };
 

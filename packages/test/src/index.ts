@@ -1,6 +1,4 @@
-import ActionFactoryMock from '@foscia/test/actionFactoryMock';
-import ActionMockedHistoryItem from '@foscia/test/actionMockedHistoryItem';
-import ActionMockedRun from '@foscia/test/actionMockedRun';
+import makeActionFactoryMock from '@foscia/test/makeActionFactoryMock';
 import makeActionFactoryMockable from '@foscia/test/makeActionFactoryMockable';
 import mockAction from '@foscia/test/mockAction';
 import UnexpectedMockedRunError from '@foscia/test/unexpectedMockedRunError';
@@ -10,10 +8,8 @@ export * from '@foscia/test/types';
 
 export {
   makeActionFactoryMockable,
+  makeActionFactoryMock,
   mockAction,
   unmockAction,
-  ActionFactoryMock,
-  ActionMockedRun,
-  ActionMockedHistoryItem,
   UnexpectedMockedRunError,
 };

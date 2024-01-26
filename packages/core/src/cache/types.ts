@@ -1,4 +1,5 @@
 import { ModelInstance } from '@foscia/core/model/types';
+import { CacheI } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
 
 export type RefManager<R> = {
@@ -9,3 +10,6 @@ export type RefManager<R> = {
 export type RefsCacheConfig<R = unknown> = {
   manager: RefManager<R>;
 };
+
+export interface RefsCache extends CacheI {
+}

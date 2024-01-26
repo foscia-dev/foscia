@@ -45,7 +45,7 @@ export type ConsumeHttpRequestConfig = {
 /**
  * Read the response's content to a deserializable data.
  */
-export type HttpResponseReader = (response: Response) => Promise<any>;
+export type HttpResponseReader<Data = any> = (response: Response) => Promise<Data>;
 
 /**
  * The configuration for the HTTP adapter implementation.
@@ -54,9 +54,11 @@ export type HttpAdapterConfig = {
   fetch?: typeof fetch;
   baseURL?: string | null;
   serializeParams: HttpParamsSerializer;
-  responseReader?: HttpResponseReader;
   defaultHeaders?: Dictionary<string>;
   defaultBodyAs?: BodyAsTransformer | null;
+  appendParams?: (context: {}) => Awaitable<Dictionary<any>>;
+  appendHeaders?: (context: {}) => Awaitable<Dictionary<string>>;
+  responseReader?: HttpResponseReader;
   requestTransformers?: RequestTransformer[];
   responseTransformers?: ResponseTransformer[];
   errorTransformers?: ErrorTransformer[];

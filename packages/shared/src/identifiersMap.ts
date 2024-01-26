@@ -1,3 +1,6 @@
+/**
+ * @deprecated Use {@link makeIdentifiersMap}.
+ */
 export default class IdentifiersMap<Type, Id, T> {
   private readonly valuesByTypes: Map<Type, Map<Id, T>>;
 

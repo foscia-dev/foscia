@@ -4,7 +4,7 @@ import type { Awaitable } from '@foscia/shared';
 /**
  * Registry containing available models for actions.
  */
-export type RegistryI = {
+export interface RegistryI {
   /**
    * Resolve a registered model by its type.
    * Type may be normalized for easier resolve.
@@ -12,12 +12,12 @@ export type RegistryI = {
    * @param rawType
    */
   modelFor(rawType: string): Promise<Model | null>;
-};
+}
 
 /**
  * Cache containing already synced models instances.
  */
-export type CacheI = {
+export interface CacheI {
   /**
    * Retrieve a model instance from cache.
    *
@@ -50,7 +50,7 @@ export type CacheI = {
    * Forget all models' instances.
    */
   clear(): Promise<void>;
-};
+}
 
 /**
  * Adapter response data wrapper object.
@@ -66,7 +66,7 @@ export type AdapterResponseI<RawData, Data = any> = {
    * This method may not support to be called multiple times,
    * prefer calling it only once and reusing returned value.
    */
-  read: () => Promise<Data>;
+  read: () => Promise<Data | undefined>;
 };
 
 /**

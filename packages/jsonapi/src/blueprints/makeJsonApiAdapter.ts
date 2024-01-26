@@ -1,12 +1,10 @@
 import { bodyAsJson, deepParamsSerializer } from '@foscia/http';
-import JsonApiAdapter from '@foscia/jsonapi/jsonApiAdapter';
-import { RestAdapterConfig } from '@foscia/rest';
+import { makeRestAdapterWith, RestAdapterConfig } from '@foscia/rest';
 
 export default function makeJsonApiAdapter(config: Partial<RestAdapterConfig> = {}) {
   return {
-    adapter: new JsonApiAdapter({
+    adapter: makeRestAdapterWith({
       baseURL: '/api/v1',
-      includeQueryParameter: 'include',
       serializeParams: deepParamsSerializer,
       defaultBodyAs: bodyAsJson,
       defaultHeaders: {

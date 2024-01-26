@@ -16,7 +16,7 @@ with, Foscia proposes core implementations of those dependencies.
 
 ## Implementations
 
-### `MapRegistry`
+### `makeMapRegistryWith`
 
 This implementation of the registry stores a map of resolved models keyed by
 their type. Resolvable models can be registered synchronously or asynchronously,
@@ -32,8 +32,8 @@ different from the record types returned inside a JSON:API response.
 
 :::tip
 
-`MapRegistry` is provided as the default registry in `makeRegistry`. You can use
-it to
+`makeMapRegistryWith` is used as the default registry factory in `makeRegistry`.
+You can use it to
 [**register your models**](/docs/digging-deeper/actions/models-registration)
 when necessary.
 
@@ -42,15 +42,16 @@ when necessary.
 #### Usage
 
 ```typescript
-import { MapRegistry, makeRegistry } from '@foscia/core';
+import { makeMapRegistryWith, makeRegistry } from '@foscia/core';
 import Post from './models/post';
 
 // Using blueprint (preconfigured with sensible defaults).
-const registry = makeRegistry({
-  /* ...configuration */
-});
+const registry = makeRegistry(
+  [Post, /* ...registered models */],
+  { /* ...configuration */ },
+);
 // Using constructor (no default configuration provided).
-const registry = new MapRegistry({
+const registry = makeMapRegistryWith({
   /* ...configuration */
 });
 
@@ -78,9 +79,10 @@ registry.register([async () => (await import('./models/post')).default]);
 
 #### Defined in
 
-[`packages/core/src/registry/mapRegistry.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/core/src/registry/mapRegistry.ts)
+- [`packages/core/src/blueprints/makeRegistry.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/core/src/blueprints/makeRegistry.ts)
+- [`packages/core/src/registry/makeMapRegistryWith.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/core/src/registry/makeMapRegistryWith.ts)
 
-### `RefsCache`
+### `makeRefsCacheWith`
 
 This implementation of the cache stores reference to model instance created by a
 `RefManager`.
@@ -103,7 +105,7 @@ expiration timeout.
 #### Usage
 
 ```typescript
-import { RefsCache, weakRefManager, makeCache } from '@foscia/core';
+import { makeCache, makeRefsCacheWith, weakRefManager } from '@foscia/core';
 import Post from './models/post';
 
 // Using blueprint (preconfigured with sensible defaults).
@@ -111,7 +113,7 @@ const cache = makeCache({
   /* ...configuration */
 });
 // Using constructor (no default configuration provided).
-const cache = new RefsCache({
+const cache = makeRefsCacheWith({
   manager: weakRefManager,
 });
 
@@ -131,4 +133,5 @@ cache.find('posts', '1');
 
 #### Defined in
 
-[`packages/core/src/cache/refsCache.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/core/src/cache/refsCache.ts)
+- [`packages/core/src/blueprints/makeCache.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/core/src/blueprints/makeCache.ts)
+- [`packages/core/src/cache/makeRefsCacheWith.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/core/src/cache/makeRefsCacheWith.ts)

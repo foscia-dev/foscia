@@ -14,29 +14,23 @@ source.
 
 ## Implementations
 
-### `JsonApiAdapter`
+### `makeJsonApiAdapter`
 
 This implementation of the adapter will execute context through HTTP requests
 using the
 [`fetch` API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 
-`JsonApiAdapter` extends the
-[`RestAdapter`](/docs/digging-deeper/implementations/rest#restadapter).
+`makeJsonApiAdapter` uses
+[`makeRestAdapterWith`](/docs/digging-deeper/implementations/rest#makejsonrestadapter).
 
 #### Usage
 
 ```typescript
 import { deepParamsSerializer } from '@foscia/http';
-import { JsonApiAdapter, makeJsonApiAdapter } from '@foscia/jsonapi';
+import { makeJsonApiAdapter } from '@foscia/jsonapi';
 
 // Using blueprint (preconfigured with sensible defaults).
 const adapter = makeJsonApiAdapter({
-  /* ...configuration */
-});
-// Using constructor (no default configuration provided).
-const adapter = new JsonApiAdapter({
-  includeQueryParameter: 'include',
-  serializeParams: deepParamsSerializer,
   /* ...configuration */
 });
 
@@ -49,12 +43,12 @@ const response = await adapter.execute({
 
 `JsonApiAdapter` extends its configuration object from:
 
-- [RestAdapter](/docs/digging-deeper/implementations/rest#restadapter-configuration)
-- [HttpAdapter](/docs/digging-deeper/implementations/http#httpadapter-configuration)
+-  [`makeHttpAdapter`](/docs/digging-deeper/implementations/http#makehttpadapter-configuration)
+-  [`makeRestAdapterWith`](/docs/digging-deeper/implementations/rest#makejsonrestadapter-configuration)
 
 #### Defined in
 
-[`packages/jsonapi/src/jsonApiAdapter.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/jsonapi/src/jsonApiAdapter.ts)
+- [`packages/jsonapi/src/blueprints/makeJsonApiAdapter.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/jsonapi/src/blueprints/makeJsonApiAdapter.ts)
 
 ### `JsonApiDeserializer`
 

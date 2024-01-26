@@ -27,7 +27,15 @@ import {
   ObjectNormalizedIdentifier,
   ObjectOptionalIdentifier,
 } from '@foscia/object/types';
-import { IdentifiersMap, isNil, isNone, makeConfigurable, Optional, wrap } from '@foscia/shared';
+import {
+  IdentifiersMap,
+  isNil,
+  isNone,
+  makeConfigurable,
+  makeIdentifiersMap,
+  Optional,
+  wrap,
+} from '@foscia/shared';
 
 export default abstract class ObjectDeserializer<
   Resource,
@@ -79,7 +87,7 @@ export default abstract class ObjectDeserializer<
   ): Promise<ObjectOptionalIdentifier>;
 
   protected async initInstancesMap() {
-    return new IdentifiersMap<string, ModelIdType, Promise<ModelInstance>>();
+    return makeIdentifiersMap<string, ModelIdType, Promise<ModelInstance>>();
   }
 
   protected async prepareInstancesMap(
@@ -99,7 +107,7 @@ export default abstract class ObjectDeserializer<
       const resource = extractedData.resources;
       const identifier = await this.extractIdentifier(resource, context);
 
-      instancesMap.set(
+      instancesMap.put(
         identifier.type,
         await this.extractLocalId(resource, identifier, context),
         this.deserializeResourceOnInstance(
@@ -130,12 +138,12 @@ export default abstract class ObjectDeserializer<
     );
 
     const localId = await this.extractLocalId(resource, identifier, context);
-    let instancePromise = instancesMap.get(identifier.type, localId);
+    let instancePromise = instancesMap.find(identifier.type, localId);
     if (instancePromise) {
       return instancePromise;
     }
 
-    instancesMap.set(
+    instancesMap.put(
       identifier.type,
       localId,
       instancePromise = this.findOrMakeInstance(resource, identifier, context),

@@ -48,8 +48,6 @@ describe('integration: JSON REST', () => {
     ]));
 
     const action = makeJsonRestActionMock();
-    const { adapter } = (await action().useContext());
-    adapter.configure({ includeQueryParameter: 'with' });
 
     const posts = await action()
       .use(forModel(PostMock))
@@ -58,7 +56,7 @@ describe('integration: JSON REST', () => {
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const request = fetchMock.mock.calls[0][0] as Request;
-    expect(request.url).toStrictEqual('https://example.com/api/posts?with=comments');
+    expect(request.url).toStrictEqual('https://example.com/api/posts?include=comments');
     expect(request.method).toStrictEqual('GET');
     expect(request.headers.get('Accept')).toStrictEqual('application/json');
     expect(request.headers.get('Content-Type')).toStrictEqual('application/json');
