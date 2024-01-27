@@ -54,15 +54,6 @@ jobs:
       - name: Build
         run: make build
 
-      - name: NPM config
-        run: npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Git config
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-
       - name: Release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
