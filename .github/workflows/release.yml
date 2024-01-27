@@ -70,4 +70,4 @@ jobs:
           INCREMENT_ARG: ${{ fromJSON('{"bump":"", "patch":"--increment=patch", "minor":"--increment=minor", "major":"--increment=major"}')[github.event.inputs.increment] }}
           PRERELEASE_ARG: ${{ fromJSON('{"stable":"", "beta":"--prerelease=beta", "alpha":"--prerelease=alpha"}')[github.event.inputs.prerelease] }}
           DRY_ARG: ${{ github.event.inputs.dry == 'true' && '--dry' || '' }}
-        run: docker compose exec -it -e NPM_TOKEN -e GITHUB_TOKEN foscia-node pnpm run release $INCREMENT_ARG $PRERELEASE_ARG $DRY_ARG --ci --verbose
+        run: docker compose exec -it -e GITHUB_TOKEN foscia-node sh -c "npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN && pnpm run release $INCREMENT_ARG $PRERELEASE_ARG $DRY_ARG --ci --verbose"
