@@ -12,11 +12,11 @@
     "build": "node scripts/build.js",
     "release": "node scripts/release.js",
     "preinstall": "npx only-allow pnpm",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^18.5.0",
-    "@commitlint/config-conventional": "^18.5.0",
+    "@commitlint/cli": "^18.6.0",
+    "@commitlint/config-conventional": "^18.6.0",
     "@release-it/bumper": "^6.0.1",
     "@release-it/conventional-changelog": "^8.0.1",
     "@rollup/plugin-commonjs": "^25.0.7",
@@ -26,7 +26,7 @@
     "@rollup/plugin-typescript": "^11.1.6",
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",
-    "@vitest/coverage-istanbul": "^1.2.1",
+    "@vitest/coverage-istanbul": "^1.2.2",
     "concurrently": "^8.2.2",
     "eslint": "^8.56.0",
     "eslint-config-airbnb-base": "^15.0.0",
@@ -34,7 +34,7 @@
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
     "execa": "^8.0.1",
-    "husky": "^8.0.3",
+    "husky": "^9.0.6",
     "jsdom": "^24.0.0",
     "minimist": "^1.2.8",
     "ora": "^8.0.1",
@@ -45,7 +45,7 @@
     "tsc-alias": "^1.8.8",
     "tslib": "^2.6.2",
     "typescript": "^5.3.3",
-    "vitest": "^1.2.1"
+    "vitest": "^1.2.2"
   },
   "engines": {
     "node": ">=18"
