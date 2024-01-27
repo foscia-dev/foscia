@@ -44,8 +44,5 @@ describe('unit: makeSerializerWith', () => {
       id: 1,
       comments: [{ id: 2, author: { id: 3 } }],
     });
-
-    const data = await deepSerializer.serializeInstance(post, {});
-    console.log(data);
   });
 });
