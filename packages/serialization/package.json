@@ -1,5 +1,5 @@
 {
-  "name": "@foscia/object",
+  "name": "@foscia/serialization",
   "type": "module",
   "version": "0.6.0-beta.2",
   "license": "MIT",
@@ -9,7 +9,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/foscia-dev/foscia.git",
-    "directory": "packages/object"
+    "directory": "packages/serialization"
   },
   "bugs": {
     "url": "https://github.com/foscia-dev/foscia/issues"

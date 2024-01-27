@@ -1,18 +1,14 @@
-import { bodyAsJson, paramsSerializer } from '@foscia/http';
+import { paramsSerializer } from '@foscia/http';
 import makeRestAdapterWith from '@foscia/rest/makeRestAdapterWith';
 import { RestAdapterConfig } from '@foscia/rest/types';
 
-export default function makeJsonRestAdapter(config: Partial<RestAdapterConfig> = {}) {
+export default function makeJsonRestAdapter<Data = any>(
+  config: Partial<RestAdapterConfig<Data>> = {},
+) {
   return {
     adapter: makeRestAdapterWith({
       baseURL: '/api',
       serializeParams: paramsSerializer,
-      defaultBodyAs: bodyAsJson,
-      defaultHeaders: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        ...config.defaultHeaders,
-      },
       ...config,
     }),
   };

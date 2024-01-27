@@ -15,10 +15,10 @@ import { DeserializedData } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
 
 export type OneData<
-  AD,
-  DD extends DeserializedData,
+  Data,
+  Deserialized extends DeserializedData,
   I extends ModelInstance,
-> = AllData<AD, DD, I> & {
+> = AllData<Data, Deserialized, I> & {
   instance: I;
 };
 
@@ -34,16 +34,19 @@ export default function oneOr<
   C extends {},
   E extends {},
   I extends InferConsumedInstance<C>,
-  AD,
-  DD extends DeserializedData,
-  RD,
-  ND = I,
+  RawData,
+  Data,
+  Deserialized extends DeserializedData,
+  NilData,
+  Next = I,
 >(
-  nilRunner: ContextRunner<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>, E, Awaitable<RD>>,
-  transform?: (data: OneData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>,
+  // eslint-disable-next-line max-len
+  nilRunner: ContextRunner<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, E, Awaitable<NilData>>,
+  transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
 ) {
   return async (
-    action: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>, E>,
+    // eslint-disable-next-line max-len
+    action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, E>,
   ) => {
     try {
       const result = await action.run(all((data) => {
@@ -55,7 +58,7 @@ export default function oneOr<
         return null;
       }));
       if (result !== null) {
-        return result as ND;
+        return result as Next;
       }
     } catch (error) {
       if (!isNotFoundError(error)) {
@@ -72,15 +75,18 @@ type RunnerExtension = ActionParsedExtension<{
     C extends {},
     E extends {},
     I extends InferConsumedInstance<C>,
-    AD,
-    DD extends DeserializedData,
-    RD,
-    ND = I,
+    RawData,
+    Data,
+    Deserialized extends DeserializedData,
+    NilData,
+    Next = I,
   >(
-    this: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>, E>,
-    nilRunner: ContextRunner<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>, E, RD>,
-    transform?: (data: OneData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>,
-  ): Promise<Awaited<ND> | Awaited<RD>>;
+    // eslint-disable-next-line max-len
+    this: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, E>,
+    // eslint-disable-next-line max-len
+    nilRunner: ContextRunner<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, E, NilData>,
+    transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
+  ): Promise<Awaited<Next> | Awaited<NilData>>;
 }>;
 
 oneOr.extension = makeRunnersExtension({ oneOr }) as RunnerExtension;

@@ -5,10 +5,10 @@ import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExt
 import {
   Action,
   ActionParsedExtension,
-  ConsumeAdapter,
   ConsumeDeserializer,
   ConsumeInstance,
   InferConsumedInstance,
+  ConsumeAdapter,
 } from '@foscia/core/actions/types';
 import { ModelInstance } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
@@ -22,15 +22,16 @@ import { Awaitable } from '@foscia/shared';
  */
 export default function oneOrCurrent<
   C extends ConsumeInstance<CI>,
-  CI extends ModelInstance,
   I extends InferConsumedInstance<C>,
-  AD,
-  DD extends DeserializedData,
-  ND = CI,
+  CI extends ModelInstance,
+  RawData,
+  Data,
+  Deserialized extends DeserializedData,
+  Next = CI,
 >(
-  transform?: (data: OneData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>,
+  transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
 ) {
-  return oneOr<C & ConsumeInstance<CI>, any, I, AD, DD, CI, ND>(
+  return oneOr<C & ConsumeInstance<CI>, any, I, RawData, Data, Deserialized, CI, Next>(
     async (action) => consumeInstance(await action.useContext()) as Promise<CI>,
     transform,
   );
@@ -39,15 +40,17 @@ export default function oneOrCurrent<
 type RunnerExtension = ActionParsedExtension<{
   oneOrCurrent<
     C extends ConsumeInstance<CI>,
-    CI extends ModelInstance,
     I extends InferConsumedInstance<C>,
-    AD,
-    DD extends DeserializedData,
-    ND = I,
+    CI extends ModelInstance,
+    RawData,
+    Data,
+    Deserialized extends DeserializedData,
+    Next = CI,
   >(
-    this: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD> & ConsumeInstance<CI>>,
-    transform?: (data: OneData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>,
-  ): Promise<ND | CI>;
+    // eslint-disable-next-line max-len
+    this: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized> & ConsumeInstance<CI>>,
+    transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
+  ): Promise<Next | CI>;
 }>;
 
 oneOrCurrent.extension = makeRunnersExtension({ oneOrCurrent }) as RunnerExtension;

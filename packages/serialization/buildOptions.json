@@ -1,5 +1,5 @@
 {
-  "name": "FosciaObject",
+  "name": "FosciaSerialization",
   "formats": [
     "esm",
     "cjs",

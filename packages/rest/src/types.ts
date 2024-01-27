@@ -1,39 +1,36 @@
-import { ModelIdType } from '@foscia/core';
+import { DeserializedData, ModelIdType } from '@foscia/core';
 import { HttpAdapterConfig } from '@foscia/http';
-import { ObjectDeserializerConfig, ObjectSerializerConfig } from '@foscia/object';
-import { Awaitable, Dictionary } from '@foscia/shared';
-
-export type RestResourceId = ModelIdType;
+import { DeserializerConfig, DeserializerExtract, SerializerConfig } from '@foscia/serialization';
+import { Dictionary } from '@foscia/shared';
 
 export type RestAbstractResource = Dictionary & {
   type?: string;
 };
 
-export type RestResource = RestAbstractResource & {
-  id: RestResourceId;
-};
-
 export type RestNewResource = RestAbstractResource & {
-  id?: RestResourceId;
+  id?: ModelIdType;
 };
 
-export type RestAdapterConfig = HttpAdapterConfig & {
+export type RestAdapterConfig<Data = any> = HttpAdapterConfig<Data> & {
   includeParamKey?: string | null;
   includeQueryParameter?: string | null;
 };
 
-export type RestDeserializerConfig = ObjectDeserializerConfig & {
-  dataExtractor?: DataExtractor | null;
-};
+export type RestDeserializerConfig<
+  Record,
+  Data,
+  Deserialized extends DeserializedData,
+  Extract extends DeserializerExtract<Record>,
+> =
+  & {}
+  & DeserializerConfig<Record, Data, Deserialized, Extract>;
 
-export type RestSerializerConfig = ObjectSerializerConfig & {
-  dataWrapper?: DataWrapper | null;
-};
-
-export type DataExtractor = (
-  document: any,
-) => Awaitable<RestResource[] | RestResource | RestNewResource | null>;
-export type DataWrapper<
-  Resource extends Dictionary = Dictionary,
-  Data extends Dictionary = Dictionary,
-> = (resource: Resource) => Awaitable<Data>;
+export type RestSerializerConfig<
+  Record extends RestNewResource,
+  Related,
+  Data,
+> =
+  & {
+    serializeType?: boolean;
+  }
+  & SerializerConfig<Record, Related, Data>;

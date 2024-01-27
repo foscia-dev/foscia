@@ -52,8 +52,9 @@ Here is an example when using a JSON:API backend with an `ids` filter available.
 ```typescript title="loaders/refreshLoad.ts"
 import { makeRefreshIncludeLoader } from '@foscia/core';
 import { filterBy } from '@foscia/jsonapi';
+import action from './action';
 
-export default makeRefreshIncludeLoader({
+export default makeRefreshIncludeLoader(action, {
   prepare: (action, { instances }) =>
     action.use(filterBy({ ids: instances.map((i) => i.id) })),
 });
@@ -102,8 +103,9 @@ It does not support nested relations keys as it will be dangerously inefficient.
 
 ```typescript title="loaders/forRelationLoad.ts"
 import { makeRefreshIncludeLoader } from '@foscia/core';
+import action from './action';
 
-export default makeForRelationLoader();
+export default makeForRelationLoader(action);
 ```
 
 You can now use the loader on any instance.

@@ -26,22 +26,32 @@ import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/typ
  */
 export default function update<
   C extends {},
-  SD,
   D extends {},
   I extends ModelInstance<D>,
+  Record,
+  Related,
+  Data,
 >(instance: ModelClassInstance<D> & I) {
-  return (action: Action<C & ConsumeSerializer<SD>>) => action
-    .use(forInstance<C & ConsumeSerializer<SD>, D, I>(instance))
-    .use(instanceData(instance))
+  return (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => action
+    .use(forInstance<C & ConsumeSerializer<Record, Related, Data>, D, I>(instance))
     .use(context({ action: 'update' }))
+    .use(instanceData(instance))
     .use(changeInstanceExistence(true))
     .use(onRunning(runInstanceHooks(instance, ['updating', 'saving'])))
     .use(onSuccess(runInstanceHooks(instance, ['updated', 'saved'])));
 }
 
 type EnhancerExtension = ActionParsedExtension<{
-  update<C extends {}, E extends {}, SD, D extends {}, I extends ModelInstance<D>>(
-    this: Action<C & ConsumeSerializer<SD>, E>,
+  update<
+    C extends {},
+    E extends {},
+    D extends {},
+    I extends ModelInstance<D>,
+    Record,
+    Related,
+    Data,
+  >(
+    this: Action<C & ConsumeSerializer<Record, Related, Data>, E>,
     instance: ModelClassInstance<D> & I,
   ): Action<C & ConsumeModel<Model<D, I>> & ConsumeInstance<I> & ConsumeId, E>;
 }>;

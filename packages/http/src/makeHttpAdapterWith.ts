@@ -10,10 +10,10 @@ import HttpServerError from '@foscia/http/errors/httpServerError';
 import HttpTooManyRequestsError from '@foscia/http/errors/httpTooManyRequestsError';
 import HttpUnauthorizedError from '@foscia/http/errors/httpUnauthorizedError';
 import makeHttpAdapterResponse from '@foscia/http/makeHttpAdapterResponse';
-import { HttpAdapterConfig, HttpMethod, HttpRequestConfig } from '@foscia/http/types';
+import { HttpAdapter, HttpAdapterConfig, HttpMethod, HttpRequestConfig } from '@foscia/http/types';
 import { Dictionary, isNil, optionalJoin, sequentialTransform } from '@foscia/shared';
 
-export default function makeHttpAdapterWith(config: HttpAdapterConfig) {
+export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfig<Data>) {
   const transformRequest = (
     contextConfig: HttpRequestConfig,
     request: Request,
@@ -115,14 +115,19 @@ export default function makeHttpAdapterWith(config: HttpAdapterConfig) {
   })().toUpperCase();
 
   const makeRequestInit = async (context: {}, contextConfig: HttpRequestConfig) => {
-    const headers = { ...config.defaultHeaders };
+    const headers: Dictionary<string> = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      ...config.defaultHeaders,
+    };
 
     let body = contextConfig?.body ?? consumeData(context, null) ?? undefined;
-    // TODO Configurable body as raw.
     if (body instanceof FormData || body instanceof URLSearchParams) {
       delete headers['Content-Type'];
     } else {
-      const bodyAs = contextConfig?.bodyAs ?? config.defaultBodyAs;
+      const bodyAs = contextConfig?.bodyAs
+        ?? config.defaultBodyAs
+        ?? ((b) => JSON.stringify(b));
       if (bodyAs && body !== undefined) {
         body = await bodyAs(body, headers);
       }
@@ -176,12 +181,12 @@ export default function makeHttpAdapterWith(config: HttpAdapterConfig) {
 
     if (response.status >= 200 && response.status < 300) {
       return makeHttpAdapterResponse(await transformResponse(context, response), {
-        reader: contextConfig?.responseReader ?? config.responseReader ?? ((r) => r.json()),
+        reader: contextConfig?.responseReader ?? config.defaultResponseReader ?? ((r) => r.json()),
       });
     }
 
     throw await transformError(context, makeResponseError(request, response));
   };
 
-  return { execute };
+  return { execute } as HttpAdapter<Data>;
 }

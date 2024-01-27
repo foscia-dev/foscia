@@ -4,9 +4,9 @@ import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExt
 import {
   Action,
   ActionParsedExtension,
-  ConsumeAdapter,
   ConsumeDeserializer,
   InferConsumedInstance,
+  ConsumeAdapter,
 } from '@foscia/core/actions/types';
 import { DeserializedData } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
@@ -20,26 +20,29 @@ import { Awaitable } from '@foscia/shared';
 export default function one<
   C extends {},
   I extends InferConsumedInstance<C>,
-  AD,
-  DD extends DeserializedData,
-  ND = I,
+  RawData,
+  Data,
+  Deserialized extends DeserializedData,
+  Next = I,
 >(
-  transform?: (data: OneData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>,
+  transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
 ) {
-  return oneOr<C, any, I, AD, DD, null, ND>(() => null, transform);
+  return oneOr<C, any, I, RawData, Data, Deserialized, null, Next>(() => null, transform);
 }
 
 type RunnerExtension = ActionParsedExtension<{
   one<
     C extends {},
     I extends InferConsumedInstance<C>,
-    AD,
-    DD extends DeserializedData,
-    ND = I,
+    RawData,
+    Data,
+    Deserialized extends DeserializedData,
+    Next = I,
   >(
-    this: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>>,
-    transform?: (data: OneData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>,
-  ): Promise<ND | null>;
+    // eslint-disable-next-line max-len
+    this: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>>,
+    transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
+  ): Promise<Next | null>;
 }>;
 
 one.extension = makeRunnersExtension({ one }) as RunnerExtension;

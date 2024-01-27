@@ -7,21 +7,21 @@ import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExt
 import {
   Action,
   ActionParsedExtension,
-  ConsumeAdapter,
   ConsumeDeserializer,
   InferConsumedInstance,
+  ConsumeAdapter,
 } from '@foscia/core/actions/types';
 import { ModelInstance } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
 
 export type AllData<
-  AD,
-  DD extends DeserializedData,
+  Data,
+  Deserialized extends DeserializedData,
   I extends ModelInstance,
 > = {
-  data: AD;
-  deserialized: DD;
+  data: Data;
+  deserialized: Deserialized;
   instances: I[];
 };
 
@@ -35,24 +35,31 @@ export type AllData<
 export default function all<
   C extends {},
   I extends InferConsumedInstance<C>,
-  AD,
-  DD extends DeserializedData,
-  ND = I[],
->(transform?: (data: AllData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>) {
+  RawData,
+  Data,
+  Deserialized extends DeserializedData,
+  Next = I[],
+>(transform?: (
+  data: AllData<Data, DeserializedDataOf<I, Deserialized>, I>,
+) => Awaitable<Next>) {
   return async (
-    action: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>>,
+    // eslint-disable-next-line max-len
+    action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>>,
   ) => {
     const response = await executeContextThroughAdapter(
       await action.useContext(),
     );
     const data = await response.read();
-    const deserialized = await deserializeInstances(action, data) as DeserializedDataOf<I, DD>;
+    const deserialized = await deserializeInstances(
+      action,
+      data,
+    ) as DeserializedDataOf<I, Deserialized>;
 
     return (
       transform
         ? transform({ data, deserialized, instances: deserialized.instances })
         : deserialized.instances
-    ) as Awaitable<ND>;
+    ) as Awaitable<Next>;
   };
 }
 
@@ -60,13 +67,17 @@ type RunnerExtension = ActionParsedExtension<{
   all<
     C extends {},
     I extends InferConsumedInstance<C>,
-    AD,
-    DD extends DeserializedData,
-    ND = I[],
+    RawData,
+    Data,
+    Deserialized extends DeserializedData,
+    NextData = I[],
   >(
-    this: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>>,
-    transform?: (data: AllData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>,
-  ): Promise<Awaited<ND>>;
+    // eslint-disable-next-line max-len
+    this: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>>,
+    transform?: (
+      data: AllData<Data, DeserializedDataOf<I, Deserialized>, I>,
+    ) => Awaitable<NextData>,
+  ): Promise<Awaited<NextData>>;
 }>;
 
 all.extension = makeRunnersExtension({ all }) as RunnerExtension;

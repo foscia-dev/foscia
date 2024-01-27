@@ -1,3 +1,4 @@
+import { AdapterI } from '@foscia/core';
 import { Awaitable, Dictionary } from '@foscia/shared';
 
 /**
@@ -50,19 +51,22 @@ export type HttpResponseReader<Data = any> = (response: Response) => Promise<Dat
 /**
  * The configuration for the HTTP adapter implementation.
  */
-export type HttpAdapterConfig = {
+export type HttpAdapterConfig<Data = any> = {
   fetch?: typeof fetch;
   baseURL?: string | null;
   serializeParams: HttpParamsSerializer;
   defaultHeaders?: Dictionary<string>;
   defaultBodyAs?: BodyAsTransformer | null;
+  defaultResponseReader?: HttpResponseReader<Data>;
   appendParams?: (context: {}) => Awaitable<Dictionary<any>>;
   appendHeaders?: (context: {}) => Awaitable<Dictionary<string>>;
-  responseReader?: HttpResponseReader;
   requestTransformers?: RequestTransformer[];
   responseTransformers?: ResponseTransformer[];
   errorTransformers?: ErrorTransformer[];
 };
+
+export interface HttpAdapter<Data = any> extends AdapterI<Response, Data> {
+}
 
 export type HttpParamsSerializer = (params: Dictionary) => string | undefined;
 

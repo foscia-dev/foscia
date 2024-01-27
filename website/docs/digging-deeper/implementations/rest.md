@@ -25,7 +25,7 @@ using the
 #### Usage
 
 ```typescript
-import { bodyAsJson, paramsSerializer } from '@foscia/http';
+import { paramsSerializer } from '@foscia/http';
 import { makeRestAdapterWith, makeJsonRestAdapter } from '@foscia/rest';
 
 // Using blueprint (preconfigured with sensible defaults).
@@ -35,11 +35,6 @@ const adapter = makeJsonRestAdapter({
 // Using constructor (no default configuration provided).
 const adapter = makeRestAdapterWith({
   serializeParams: paramsSerializer,
-  defaultBodyAs: bodyAsJson,
-  defaultHeaders: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  },
   /* ...configuration */
 });
 
@@ -47,6 +42,26 @@ const response = await adapter.execute({
   /* ...context */
 });
 ```
+
+:::tip
+
+If your REST API interacts with another data type than JSON, such as XML, you
+can configure this behavior as a default on your adapter:
+
+```typescript
+import { objectToXML, objectFromXML } from 'some-xml-library';
+
+makeRestAdapterWith({
+  defaultBodyAs: (body) => objectToXML(body),
+  defaultResponseReader: (response) => objectFromXML(body),
+  defaultHeaders: {
+    Accept: 'application/xml',
+    'Content-Type': 'application/xml',
+  },
+});
+```
+
+:::
 
 #### Configuration {#makejsonrestadapter-configuration}
 
@@ -63,13 +78,13 @@ const response = await adapter.execute({
 - [`packages/rest/src/blueprints/makeJsonRestAdapter.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/rest/src/blueprints/makeJsonRestAdapter.ts)
 - [`packages/rest/src/makeRestAdapterWith.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/rest/src/makeRestAdapterWith.ts)
 
-### `RestDeserializer`
+### `makeJsonRestDeserializer`
 
-This implementation of the deserializer extract model instances from HTTP
-response objects containing REST documents.
+This implementation of the deserializer extract model instances from object
+documents.
 
-`RestDeserializer` extends the
-[`ObjectDeserializer`](/docs/digging-deeper/implementations/object#objectdeserializer).
+`makeJsonRestDeserializer` extends the
+[`makeDeserializerWith`](/docs/digging-deeper/implementations/serialization#makedeserializerwith).
 
 <details>
 
@@ -79,7 +94,7 @@ Deserialized REST document example
 
 </summary>
 
-Here is an example of a REST document which `RestDeserializer` can deserialize
+Here is an example of a REST document which `makeJsonRestDeserializer` can deserialize
 to model instances.
 
 ```json
@@ -116,35 +131,29 @@ to model instances.
 #### Usage
 
 ```typescript
-import { RestDeserializer, makeJsonRestDeserializer } from '@foscia/rest';
+import { makeJsonRestDeserializer } from '@foscia/rest';
 
 // Using blueprint (preconfigured with sensible defaults).
 const deserializer = makeJsonRestDeserializer({
   /* ...configuration */
 });
-// Using constructor (no default configuration provided).
-const deserializer = new RestDeserializer({
-  dataReader: (response) =>
-    response.status === 204 ? undefined : response.json(),
-  /* ...configuration */
-});
 
-const data = await deserializer.deserialize(response, {
+const { instances } = await deserializer.deserialize(data, {
   /* ...context */
 });
 ```
 
 :::tip
 
-If your REST API document nest records inside the response (such as inside a
-`data` property), you can a `dataExtractor` option which will extract records
-from the REST document, such as:
+If your REST API document nest records inside the document (such as inside a
+`data` property), you can add `extractData` option which will extract records
+data using the given transformation function, such as:
 
 ```typescript
-makeJsonRestDeserializer({
-  dataReader: (response) =>
-    response.status === 204 ? undefined : response.json(),
-  dataExtractor: (responseBody) => responseBody?.data,
+import { makeJsonRestDeserializer } from '@foscia/rest';
+
+makeJsonRestSerializer({
+  extractData: (data: { data: any }) => (data.data),
 });
 ```
 
@@ -152,26 +161,21 @@ makeJsonRestDeserializer({
 
 #### Configuration
 
-`RestDeserializer` extends its configuration object from:
+`makeJsonRestDeserializer` extends its configuration object from:
 
-- [ObjectDeserializer](/docs/digging-deeper/implementations/object#objectdeserializer-configuration)
-
-| Name            | Type                                                                                                 | Description                                                                                                                                                    |
-| --------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `dataReader`    | <code>string &vert; null</code>                                                                      | Define the way to extract the REST document from the Response object.                                                                                          |
-| `dataExtractor` | <code>((document) => Awaitable\<RestResource[] &vert; RestResource &vert; null\>) &vert; null</code> | Define the way to extract the records from the REST document returned by `dataReader` (default behavior is to extract records from the root of REST document). |
+- [`makeDeserializerWith`](/docs/digging-deeper/implementations/serialization#makedeserializerwith-configuration)
 
 #### Defined in
 
-[`packages/rest/src/restDeserializer.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/rest/src/restDeserializer.ts)
+- [`packages/rest/src/blueprints/makeJsonRestDeserializer.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/rest/src/blueprints/makeJsonRestDeserializer.ts)
 
-### `RestSerializer`
+### `makeJsonRestSerializer`
 
-This implementation of the serializer creates a REST document from a model's
-instance.
+This implementation of the serializer creates a REST documents from model
+instance and relations.
 
-`RestSerializer` extends the
-[`ObjectSerializer`](/docs/digging-deeper/implementations/object#objectserializer).
+`makeJsonRestSerializer` extends the
+[`makeSerializerWith`](/docs/digging-deeper/implementations/serialization#makeserializerwith).
 
 <details>
 
@@ -181,8 +185,8 @@ Serialized REST document example
 
 </summary>
 
-Here is an example of a REST document which `RestSerializer` can create from a
-model instance.
+Here is an example of a REST document which `makeJsonRestSerializer` can
+create from a model instance.
 
 ```json
 {
@@ -199,18 +203,14 @@ model instance.
 #### Usage
 
 ```typescript
-import { RestSerializer, makeJsonRestSerializer } from '@foscia/rest';
+import { makeJsonRestSerializer } from '@foscia/rest';
 
 // Using blueprint (preconfigured with sensible defaults).
 const serializer = makeJsonRestSerializer({
   /* ...configuration */
 });
-// Using constructor (no default configuration provided).
-const serializer = new RestSerializer({
-  /* ...configuration */
-});
 
-const data = await serializer.serialize(instance, {
+const data = await serializer.serializeInstance(instance, {
   /* ...context */
 });
 ```
@@ -218,12 +218,14 @@ const data = await serializer.serialize(instance, {
 :::tip
 
 If your REST API document expect record data to be nested (such as inside a
-`data` property), you can a `dataWrapper` option which will wrap record data
+`data` property), you can add `createData` option which will wrap records data
 using the given transformation function, such as:
 
 ```typescript
+import { makeJsonRestSerializer } from '@foscia/rest';
+
 makeJsonRestSerializer({
-  dataWrapper: (record) => ({ data: record }),
+  createData: (records) => ({ data: records }),
 });
 ```
 
@@ -231,14 +233,14 @@ makeJsonRestSerializer({
 
 #### Configuration
 
-`RestSerializer` extends its configuration object from:
+`makeJsonRestSerializer` extends its configuration object from:
 
-- [ObjectSerializer](/docs/digging-deeper/implementations/object#objectserializer-configuration)
+- [`makeSerializerWith`](/docs/digging-deeper/implementations/serialization#makeserializerwith-configuration)
 
-| Name          | Type                                                                         | Description                                |
-| ------------- | ---------------------------------------------------------------------------- | ------------------------------------------ |
-| `dataWrapper` | <code>((resource: Dictionary) => Awaitable\<Dictionary\>) &vert; null</code> | Wrap the serialized data before returning. |
+| Name            | Type      | Description                                          |
+|-----------------|-----------|------------------------------------------------------|
+| `serializeType` | `boolean` | Append the instance `type` to the serialized object. |
 
 #### Defined in
 
-[`packages/rest/src/restSerializer.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/rest/src/restSerializer.ts)
+[`packages/rest/src/blueprints/makeJsonRestSerializer.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/rest/src/blueprints/makeJsonRestSerializer.ts)

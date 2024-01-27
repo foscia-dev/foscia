@@ -1,4 +1,4 @@
-import { AdapterI, context, makeActionClass, raw } from '@foscia/core';
+import { context, makeActionClass, AdapterI, raw } from '@foscia/core';
 import { makeActionFactoryMockable, mockAction, unmockAction } from '@foscia/test';
 import { describe, expect, it, vi } from 'vitest';
 

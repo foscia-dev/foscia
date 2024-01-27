@@ -1,4 +1,6 @@
-import { Dictionary } from '@foscia/shared';
+import { DeserializedData, ModelIdType, ModelInstance } from '@foscia/core';
+import { DeserializerConfig, DeserializerExtract, SerializerConfig } from '@foscia/serialization';
+import { Dictionary, IdentifiersMap } from '@foscia/shared';
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-links)
@@ -102,3 +104,35 @@ export type JsonApiDocument = {
     meta?: JsonApiMeta;
   };
 };
+
+/**
+ * Extracted data from a JSON:API backend Response object.
+ */
+export type JsonApiExtractedData<Record extends JsonApiNewResource = JsonApiNewResource> =
+  & {
+    included: IdentifiersMap<string, ModelIdType, Record>;
+    document: JsonApiDocument;
+  }
+  & DeserializerExtract<Record>;
+
+/**
+ * Deserialized data from a JSON:API backend Response object.
+ */
+export type JsonApiDeserializedData<I extends ModelInstance = ModelInstance> =
+  & DeserializedData<I>
+  & { document: JsonApiDocument; };
+
+export type JsonApiDeserializerConfig<
+  Record extends JsonApiNewResource,
+  Data extends JsonApiDocument | undefined,
+  Deserialized extends JsonApiDeserializedData,
+  Extract extends JsonApiExtractedData<Record>,
+> =
+  & {}
+  & DeserializerConfig<Record, Data, Deserialized, Extract>;
+
+export type JsonApiSerializerConfig<
+  Record extends JsonApiNewResource,
+  Related extends JsonApiResourceIdentifier,
+  Data,
+> = SerializerConfig<Record, Related, Data>;

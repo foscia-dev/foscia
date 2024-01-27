@@ -33,6 +33,7 @@ use cases such as:
   [`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController).
 - Errors handling through custom errors classes.
 - Requests/responses/errors transformation.
+- Defaults to JSON data for request/response bodies with appropriate headers.
 
 #### Usage
 
@@ -67,19 +68,19 @@ const response = await adapter.execute({
 
 #### Configuration {#makehttpadapter-configuration}
 
-| Name                   | Type                                                                                               | Description                                                                                        |
-|------------------------|----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
-| `fetch`                | `fetch`                                                                                            | `fetch` implementation to use. Default to `globalThis.fetch`.                                      |
-| `baseURL`              | <code>string &vert; null</code>                                                                    | Base URL to merge with path when building the request endpoint. Default to `/`.                    |
-| `serializeParams`      | <code>(params: Dictionary) => string &vert; undefined</code>                                       | Function to serialize a query param object.                                                        |
-| `defaultHeaders`       | `Dictionary<string>`                                                                               | Default headers to use in the request.                                                             |
-| `defaultBodyAs`        | <code>((body: unknown, headers: Dictionary\<string\>) => Awaitable\<BodyInit\>) &vert; null</code> | Default body transformation. If set to null, body won't be transformed.                            |
-| `appendParams`         | `(context: {}) => Dictionary<any>`                                                                 | Define additional request query parameters based on context.                                       |
-| `appendHeaders`        | `(context: {}) => Dictionary<string>`                                                              | Define additional request headers based on context.                                                |
-| `responseReader`       | <code>(response: Response) => any &vert; undefined</code>                                          | Function to read the response's data before passing to deserializer. Default to `response.json()`. |
-| `requestTransformers`  | `((request: Request) => Awaitable<Request>)[]`                                                     | Functions to transform a request object before sending.                                            |
-| `responseTransformers` | `((response: Response) => Awaitable<Response>)[]`                                                  | Functions to transform a response object after a successful request.                               |
-| `errorTransformers`    | `((error: unknown) => Awaitable<unknown>)[]`                                                       | Functions to transform an error after a `fetch` error or an unsuccessful request.                  |
+| Name                    | Type                                                                                               | Description                                                                                            |
+|-------------------------|----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| `fetch`                 | `fetch`                                                                                            | `fetch` implementation to use. Default to `globalThis.fetch`.                                          |
+| `baseURL`               | <code>string &vert; null</code>                                                                    | Base URL to merge with path when building the request endpoint. Default to `/`.                        |
+| `serializeParams`       | <code>(params: Dictionary) => string &vert; undefined</code>                                       | Function to serialize a query param object.                                                            |
+| `defaultHeaders`        | `Dictionary<string>`                                                                               | Default headers to use in the request.                                                                 |
+| `defaultBodyAs`         | <code>((body: unknown, headers: Dictionary\<string\>) => Awaitable\<BodyInit\>) &vert; null</code> | Default body transformation. Default to `JSON.stringify()`. If set to null, body won't be transformed. |
+| `defaultResponseReader` | <code>(response: Response) => any &vert; undefined</code>                                          | Default reader for the response's data before passing to deserializer. Default to `response.json()`.   |
+| `appendParams`          | `(context: {}) => Dictionary<any>`                                                                 | Define additional request query parameters based on context.                                           |
+| `appendHeaders`         | `(context: {}) => Dictionary<string>`                                                              | Define additional request headers based on context.                                                    |
+| `requestTransformers`   | `((request: Request) => Awaitable<Request>)[]`                                                     | Functions to transform a request object before sending.                                                |
+| `responseTransformers`  | `((response: Response) => Awaitable<Response>)[]`                                                  | Functions to transform a response object after a successful request.                                   |
+| `errorTransformers`     | `((error: unknown) => Awaitable<unknown>)[]`                                                       | Functions to transform an error after a `fetch` error or an unsuccessful request.                      |
 
 #### Defined in
 

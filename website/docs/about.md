@@ -42,13 +42,10 @@ You may start to discover Foscia from different point of view.
 
 ## Available packages
 
-- [`@foscia/core`](/docs/reference/api/modules/foscia_core): core features of
-  Foscia (models, actions, hooks, etc.)
-- [`@foscia/http`](/docs/reference/api/modules/foscia_http): abstract HTTP
-  adapter implementation
-- [`@foscia/object`](/docs/reference/api/modules/foscia_object): abstract raw
-  objects (de)serializer implementations
-- [`@foscia/jsonapi`](/docs/reference/api/modules/foscia_jsonapi):
-  [JSON:API](https://jsonapi.org) implementation
-- [`@foscia/rest`](/docs/reference/api/modules/foscia_rest): REST implementation
-- [`@foscia/test`](/docs/reference/api/modules/foscia_test): Test utilities
+- `@foscia/core`: core features of Foscia (models, actions, hooks, etc.)
+- `@foscia/http`: HTTP adapter implementation
+- `@foscia/jsonapi`: [JSON:API](https://jsonapi.org) implementation
+- `@foscia/rest`: REST implementation
+- `@foscia/serialization`: data serialization and deserialization
+  partial implementation
+- `@foscia/test`: testing utilities

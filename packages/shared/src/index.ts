@@ -1,3 +1,4 @@
+import mapArrayable from '@foscia/shared/arrays/mapArrayable';
 import sequentialTransform from '@foscia/shared/arrays/sequentialTransform';
 import uniqueValues from '@foscia/shared/arrays/uniqueValues';
 import wrap from '@foscia/shared/arrays/wrap';
@@ -14,7 +15,6 @@ import makeDescriptorHolder, {
   SYMBOL_DESCRIPTOR_HOLDER,
 } from '@foscia/shared/descriptors/makeDescriptorHolder';
 import { IS_DEV, IS_TEST } from '@foscia/shared/env';
-import tap from '@foscia/shared/functions/tap';
 import value from '@foscia/shared/functions/value';
 import makeIdentifiersMap from '@foscia/shared/maps/makeIdentifiersMap';
 import optionalJoin from '@foscia/shared/strings/optionalJoin';
@@ -30,9 +30,10 @@ export {
   makeConfigurable,
   mergeConfig,
   eachDescriptors,
-  isDescriptorHolder,
   makeDescriptorHolder,
   makeIdentifiersMap,
+  mapArrayable,
+  isDescriptorHolder,
   isFosciaType,
   isNil,
   isNone,
@@ -43,7 +44,6 @@ export {
   toKebabCase,
   uniqueValues,
   value,
-  tap,
   wrap,
   wrapVariadic,
   SYMBOL_DESCRIPTOR_HOLDER,

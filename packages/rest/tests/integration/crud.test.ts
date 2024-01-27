@@ -99,7 +99,8 @@ describe('integration: JSON REST', () => {
 
     const action = makeJsonRestActionMock();
 
-    const post = fill(new PostMock(), { title: 'Foo', body: 'Foo Body' });
+    const comment = fill(new CommentMock(), { id: '1' });
+    const post = fill(new PostMock(), { title: 'Foo', body: 'Foo Body', comments: [comment] });
 
     const createdPost = await action()
       .use(save(post))
@@ -114,6 +115,7 @@ describe('integration: JSON REST', () => {
     expect(await request.text()).toStrictEqual(JSON.stringify({
       title: 'Foo',
       body: 'Foo Body',
+      comments: ['1'],
     }));
 
     expect(post).toStrictEqual(createdPost);
@@ -122,7 +124,7 @@ describe('integration: JSON REST', () => {
     expect(post.id).toStrictEqual('1');
     expect(post.title).toStrictEqual('Foo');
     expect(post.body).toStrictEqual('Foo Body');
-    expect(post.comments).toBeUndefined();
+    expect(post.comments).toStrictEqual([comment]);
   });
 
   it('should run action: update record', async () => {
