@@ -7,11 +7,11 @@ import { DeserializedData } from '@foscia/core/types';
 import { Arrayable, ArrayableVariadic, wrap, wrapVariadic } from '@foscia/shared';
 
 export default function makeForRelationLoader<
-  AD,
-  DD extends DeserializedData,
->(
-  action: ActionFactory<[], ConsumeAdapter<AD> & ConsumeDeserializer<DD>, {}>,
-) {
+  RawData,
+  Data,
+  Deserialized extends DeserializedData,
+  C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
+>(action: ActionFactory<[], C, any>) {
   return async <I extends ModelInstance>(
     instances: Arrayable<I>,
     ...relations: ArrayableVariadic<ModelRelationKey<I>>

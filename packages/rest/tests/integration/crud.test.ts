@@ -48,8 +48,6 @@ describe('integration: JSON REST', () => {
     ]));
 
     const action = makeJsonRestActionMock();
-    const { adapter } = (await action().useContext());
-    adapter.configure({ includeQueryParameter: 'with' });
 
     const posts = await action()
       .use(forModel(PostMock))
@@ -58,7 +56,7 @@ describe('integration: JSON REST', () => {
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const request = fetchMock.mock.calls[0][0] as Request;
-    expect(request.url).toStrictEqual('https://example.com/api/posts?with=comments');
+    expect(request.url).toStrictEqual('https://example.com/api/posts?include=comments');
     expect(request.method).toStrictEqual('GET');
     expect(request.headers.get('Accept')).toStrictEqual('application/json');
     expect(request.headers.get('Content-Type')).toStrictEqual('application/json');
@@ -101,7 +99,8 @@ describe('integration: JSON REST', () => {
 
     const action = makeJsonRestActionMock();
 
-    const post = fill(new PostMock(), { title: 'Foo', body: 'Foo Body' });
+    const comment = fill(new CommentMock(), { id: '1' });
+    const post = fill(new PostMock(), { title: 'Foo', body: 'Foo Body', comments: [comment] });
 
     const createdPost = await action()
       .use(save(post))
@@ -116,6 +115,7 @@ describe('integration: JSON REST', () => {
     expect(await request.text()).toStrictEqual(JSON.stringify({
       title: 'Foo',
       body: 'Foo Body',
+      comments: ['1'],
     }));
 
     expect(post).toStrictEqual(createdPost);
@@ -124,7 +124,7 @@ describe('integration: JSON REST', () => {
     expect(post.id).toStrictEqual('1');
     expect(post.title).toStrictEqual('Foo');
     expect(post.body).toStrictEqual('Foo Body');
-    expect(post.comments).toBeUndefined();
+    expect(post.comments).toStrictEqual([comment]);
   });
 
   it('should run action: update record', async () => {

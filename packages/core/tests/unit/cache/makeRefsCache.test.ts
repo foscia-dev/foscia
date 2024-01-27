@@ -1,4 +1,4 @@
-import { RefsCache, weakRefManager } from '@foscia/core';
+import { makeRefsCacheWith, weakRefManager } from '@foscia/core';
 import { describe, expect, it, vi } from 'vitest';
 import CommentMock from '../../mocks/models/comment.mock';
 import PostMock from '../../mocks/models/post.mock';
@@ -9,7 +9,7 @@ describe.concurrent('unit: refsCache', () => {
     const secondPost = new PostMock();
     const comment = new CommentMock();
 
-    const cache = new RefsCache({ manager: weakRefManager });
+    const cache = makeRefsCacheWith({ manager: weakRefManager });
 
     expect(await cache.find('posts', '1')).toBeNull();
     expect(await cache.find('posts', '2')).toBeNull();
@@ -64,7 +64,7 @@ describe.concurrent('unit: refsCache', () => {
       value: vi.fn(),
     };
 
-    const cache = new RefsCache({ manager: refManager });
+    const cache = makeRefsCacheWith({ manager: refManager });
 
     expect(await cache.find('posts', '1')).toBeNull();
     expect(refManager.value).not.toHaveBeenCalled();

@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { hasOne, logger, makeModel, MapRegistry, normalizeDotRelations } from '@foscia/core';
+import { hasOne, logger, makeMapRegistryWith, makeModel, normalizeDotRelations } from '@foscia/core';
 import { describe, expect, it, vi } from 'vitest';
 
 describe('unit: normalizeDotRelations', () => {
@@ -32,7 +32,7 @@ describe('unit: normalizeDotRelations', () => {
       foo: hasOne<SubModel>('sub-model').alias('bar'),
     });
 
-    const registry = new MapRegistry();
+    const registry = makeMapRegistryWith({});
     registry.register([model, SubModel]);
 
     expect(await normalizeDotRelations(model, ['foo', 'foo.baz'], registry))

@@ -14,29 +14,23 @@ source.
 
 ## Implementations
 
-### `JsonApiAdapter`
+### `makeJsonApiAdapter`
 
 This implementation of the adapter will execute context through HTTP requests
 using the
 [`fetch` API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 
-`JsonApiAdapter` extends the
-[`RestAdapter`](/docs/digging-deeper/implementations/rest#restadapter).
+`makeJsonApiAdapter` uses
+[`makeRestAdapterWith`](/docs/digging-deeper/implementations/rest#makejsonrestadapter).
 
 #### Usage
 
 ```typescript
 import { deepParamsSerializer } from '@foscia/http';
-import { JsonApiAdapter, makeJsonApiAdapter } from '@foscia/jsonapi';
+import { makeJsonApiAdapter } from '@foscia/jsonapi';
 
 // Using blueprint (preconfigured with sensible defaults).
 const adapter = makeJsonApiAdapter({
-  /* ...configuration */
-});
-// Using constructor (no default configuration provided).
-const adapter = new JsonApiAdapter({
-  includeQueryParameter: 'include',
-  serializeParams: deepParamsSerializer,
   /* ...configuration */
 });
 
@@ -49,20 +43,20 @@ const response = await adapter.execute({
 
 `JsonApiAdapter` extends its configuration object from:
 
-- [RestAdapter](/docs/digging-deeper/implementations/rest#restadapter-configuration)
-- [HttpAdapter](/docs/digging-deeper/implementations/http#httpadapter-configuration)
+-  [`makeHttpAdapter`](/docs/digging-deeper/implementations/http#makehttpadapter-configuration)
+-  [`makeRestAdapterWith`](/docs/digging-deeper/implementations/rest#makejsonrestadapter-configuration)
 
 #### Defined in
 
-[`packages/jsonapi/src/jsonApiAdapter.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/jsonapi/src/jsonApiAdapter.ts)
+- [`packages/jsonapi/src/blueprints/makeJsonApiAdapter.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/jsonapi/src/blueprints/makeJsonApiAdapter.ts)
 
-### `JsonApiDeserializer`
+### `makeJsonApiDeserializer`
 
-This implementation of the deserializer extract model instances from HTTP
-response objects containing JSON:API documents.
+This implementation of the deserializer extract model instances from JSON:API
+documents.
 
-`JsonApiDeserializer` extends the
-[`ObjectDeserializer`](/docs/digging-deeper/implementations/object#objectdeserializer).
+`makeJsonApiDeserializer` extends the
+[`makeDeserializerWith`](/docs/digging-deeper/implementations/serialization#makedeserializerwith).
 
 <details>
 
@@ -72,7 +66,7 @@ Deserialized JSON:API document example
 
 </summary>
 
-Here is an example of a JSON:API document which `JsonApiDeserializer` can
+Here is an example of a JSON:API document which `makeJsonApiDeserializer` can
 deserialize to model instances.
 
 ```json
@@ -140,39 +134,35 @@ deserialize to model instances.
 #### Usage
 
 ```typescript
-import { JsonApiDeserializer, makeJsonApiDeserializer } from '@foscia/jsonapi';
+import { makeJsonApiDeserializer } from '@foscia/jsonapi';
 
 // Using blueprint (preconfigured with sensible defaults).
 const deserializer = makeJsonApiDeserializer({
   /* ...configuration */
 });
-// Using constructor (no default configuration provided).
-const deserializer = new JsonApiDeserializer({
-  /* ...configuration */
-});
 
-const data = await deserializer.deserialize(response, {
+const { instances } = await deserializer.deserialize(data, {
   /* ...context */
 });
 ```
 
 #### Configuration
 
-`JsonApiDeserializer` extends its configuration object from:
+`makeJsonApiDeserializer` extends its configuration object from:
 
-- [ObjectDeserializer](/docs/digging-deeper/implementations/object#objectdeserializer-configuration)
+- [`makeDeserializerWith`](/docs/digging-deeper/implementations/serialization#makedeserializerwith-configuration)
 
 #### Defined in
 
-[`packages/jsonapi/src/jsonApiDeserializer.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/jsonapi/src/jsonApiDeserializer.ts)
+- [`packages/jsonapi/src/blueprints/makeJsonApiDeserializer.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/jsonapi/src/blueprints/makeJsonApiDeserializer.ts)
 
-### `JsonApiSerializer`
+### `makeJsonApiSerializer`
 
-This implementation of the serializer creates a JSON:API document from a model's
-instance.
+This implementation of the serializer creates a JSON:API documents from model
+instance and relations.
 
-`JsonApiSerializer` extends the
-[`ObjectSerializer`](/docs/digging-deeper/implementations/object#objectserializer).
+`makeJsonApiSerializer` extends the
+[`makeSerializerWith`](/docs/digging-deeper/implementations/serialization#makeserializerwith).
 
 <details>
 
@@ -182,8 +172,8 @@ Serialized JSON:API document example
 
 </summary>
 
-Here is an example of a JSON:API document which `JsonApiSerializer` can create
-from a model instance.
+Here is an example of a JSON:API document which `makeJsonApiSerializer` can
+create from a model instance.
 
 ```json
 {
@@ -218,28 +208,24 @@ from a model instance.
 #### Usage
 
 ```typescript
-import { JsonApiSerializer, makeJsonApiSerializer } from '@foscia/jsonapi';
+import { makeJsonApiSerializer } from '@foscia/jsonapi';
 
 // Using blueprint (preconfigured with sensible defaults).
 const serializer = makeJsonApiSerializer({
   /* ...configuration */
 });
-// Using constructor (no default configuration provided).
-const serializer = new JsonApiSerializer({
-  /* ...configuration */
-});
 
-const data = await serializer.serialize(instance, {
+const data = await serializer.serializeInstance(instance, {
   /* ...context */
 });
 ```
 
 #### Configuration
 
-`JsonApiSerializer` extends its configuration object from:
+`makeJsonApiSerializer` extends its configuration object from:
 
-- [ObjectSerializer](/docs/digging-deeper/implementations/object#objectserializer-configuration)
+- [`makeSerializerWith`](/docs/digging-deeper/implementations/serialization#makeserializerwith-configuration)
 
 #### Defined in
 
-[`packages/jsonapi/src/jsonApiSerializer.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/jsonapi/src/jsonApiSerializer.ts)
+- [`packages/jsonapi/src/blueprints/makeJsonApiSerializer.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/jsonapi/src/blueprints/makeJsonApiSerializer.ts)

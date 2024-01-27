@@ -22,6 +22,14 @@ export type OnlyFalsy<T> = T extends Falsy ? T : never;
 
 export type Transformer<T, U = T> = (value: T) => U;
 
+export type IdentifiersMap<Type, Id, T> = {
+  find: (type: Type, id: Id) => T | null;
+  put: (type: Type, id: Id, value: T) => void;
+  forget: (type: Type, id: Id) => void;
+  forgetAll: (type: Type) => void;
+  clear: () => void;
+};
+
 export type FosciaObject<Symbol> = {
   $FOSCIA_TYPE: Symbol;
 };

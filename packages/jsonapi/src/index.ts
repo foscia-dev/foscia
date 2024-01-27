@@ -9,10 +9,7 @@ import usingDocument from '@foscia/jsonapi/actions/context/runners/usingDocument
 import makeJsonApiAdapter from '@foscia/jsonapi/blueprints/makeJsonApiAdapter';
 import makeJsonApiDeserializer from '@foscia/jsonapi/blueprints/makeJsonApiDeserializer';
 import makeJsonApiSerializer from '@foscia/jsonapi/blueprints/makeJsonApiSerializer';
-import JsonApiAdapter from '@foscia/jsonapi/jsonApiAdapter';
-import JsonApiDeserializer from '@foscia/jsonapi/jsonApiDeserializer';
 import jsonApiExtensions from '@foscia/jsonapi/jsonApiExtensions';
-import JsonApiSerializer from '@foscia/jsonapi/jsonApiSerializer';
 import jsonApiStarterExtensions from '@foscia/jsonapi/jsonApiStarterExtensions';
 
 export * from '@foscia/jsonapi/types';
@@ -27,11 +24,8 @@ export {
   paginate,
   usingDocument,
   makeJsonApiAdapter,
-  JsonApiAdapter,
   makeJsonApiDeserializer,
-  JsonApiDeserializer,
   makeJsonApiSerializer,
-  JsonApiSerializer,
   jsonApiExtensions,
   jsonApiStarterExtensions,
 };

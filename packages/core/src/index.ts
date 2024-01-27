@@ -1,7 +1,7 @@
 import normalizeInclude from '@foscia/core/actions/context/utils/normalizeInclude';
 import makeCache from '@foscia/core/blueprints/makeCache';
 import makeRegistry from '@foscia/core/blueprints/makeRegistry';
-import RefsCache from '@foscia/core/cache/refsCache';
+import makeRefsCacheWith from '@foscia/core/cache/makeRefsCacheWith';
 import weakRefManager from '@foscia/core/cache/weakRefManager';
 import AdapterError from '@foscia/core/errors/adapterError';
 import DeserializerError from '@foscia/core/errors/deserializerError';
@@ -58,7 +58,7 @@ import restoreSnapshot from '@foscia/core/model/snapshots/restoreSnapshot';
 import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
 import normalizeDotRelations from '@foscia/core/normalization/normalizeDotRelations';
 import normalizeKey from '@foscia/core/normalization/normalizeKey';
-import MapRegistry from '@foscia/core/registry/mapRegistry';
+import makeMapRegistryWith from '@foscia/core/registry/makeMapRegistryWith';
 import {
   SYMBOL_MODEL_CLASS,
   SYMBOL_MODEL_INSTANCE,
@@ -97,9 +97,9 @@ export {
   ExpectedRunFailureError,
   isNotFoundError,
   makeRegistry,
-  MapRegistry,
+  makeMapRegistryWith,
   makeCache,
-  RefsCache,
+  makeRefsCacheWith,
   weakRefManager,
   attr,
   hasMany,

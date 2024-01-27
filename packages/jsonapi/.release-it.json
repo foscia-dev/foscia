@@ -7,8 +7,8 @@
         "path": [
           "dependencies.@foscia/core",
           "dependencies.@foscia/http",
-          "dependencies.@foscia/object",
           "dependencies.@foscia/rest",
+          "dependencies.@foscia/serialization",
           "dependencies.@foscia/shared",
           "dependencies.@foscia/test"
         ]

@@ -1,4 +1,4 @@
-import applyConfig from '@foscia/shared/applyConfig';
+import mapArrayable from '@foscia/shared/arrays/mapArrayable';
 import sequentialTransform from '@foscia/shared/arrays/sequentialTransform';
 import uniqueValues from '@foscia/shared/arrays/uniqueValues';
 import wrap from '@foscia/shared/arrays/wrap';
@@ -15,11 +15,11 @@ import makeDescriptorHolder, {
   SYMBOL_DESCRIPTOR_HOLDER,
 } from '@foscia/shared/descriptors/makeDescriptorHolder';
 import { IS_DEV, IS_TEST } from '@foscia/shared/env';
-import IdentifiersMap from '@foscia/shared/identifiersMap';
+import value from '@foscia/shared/functions/value';
+import makeIdentifiersMap from '@foscia/shared/maps/makeIdentifiersMap';
 import optionalJoin from '@foscia/shared/strings/optionalJoin';
 import pluralize from '@foscia/shared/strings/pluralize';
 import toKebabCase from '@foscia/shared/strings/toKebabCase';
-import value from '@foscia/shared/value';
 
 export * from '@foscia/shared/descriptors/types';
 export * from '@foscia/shared/types';
@@ -29,11 +29,11 @@ export {
   IS_TEST,
   makeConfigurable,
   mergeConfig,
-  applyConfig,
   eachDescriptors,
-  isDescriptorHolder,
   makeDescriptorHolder,
-  IdentifiersMap,
+  makeIdentifiersMap,
+  mapArrayable,
+  isDescriptorHolder,
   isFosciaType,
   isNil,
   isNone,

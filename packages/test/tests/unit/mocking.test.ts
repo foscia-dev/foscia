@@ -1,4 +1,4 @@
-import { AdapterI, context, makeActionClass, raw } from '@foscia/core';
+import { context, makeActionClass, AdapterI, raw } from '@foscia/core';
 import { makeActionFactoryMockable, mockAction, unmockAction } from '@foscia/test';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -122,19 +122,18 @@ describe.concurrent('unit: mocking', () => {
     const mock = mockAction(action);
     mock.mockResult('foo');
 
-    expect(mock.historyCount).toStrictEqual(0);
+    expect(mock.history.length).toStrictEqual(0);
 
     await action().use(context({ foo: 'bar' })).run(raw());
     await action().use(context({ foo: 'baz' })).run(raw());
 
-    expect(mock.historyCount).toStrictEqual(2);
-    expect(mock.allHistory.length).toStrictEqual(2);
-    expect(mock.historyAt(0)!.context.foo).toStrictEqual('bar');
-    expect(mock.historyAt(1)!.context.foo).toStrictEqual('baz');
+    expect(mock.history.length).toStrictEqual(2);
+    expect(mock.history[0].context.foo).toStrictEqual('bar');
+    expect(mock.history[1].context.foo).toStrictEqual('baz');
 
     mock.reset();
 
-    expect(mock.historyCount).toStrictEqual(0);
+    expect(mock.history.length).toStrictEqual(0);
     await expect(() => action().run(raw()))
       .rejects.toThrowError('Unexpected mocked action run');
 

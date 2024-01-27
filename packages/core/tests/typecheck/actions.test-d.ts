@@ -4,14 +4,15 @@ import {
   cachedOr,
   CacheI,
   context,
-  DeserializerI,
   forInstance,
   forModel,
   forRelation,
   include,
   makeActionClass,
+  DeserializerI,
   one,
   oneOrCurrent,
+  oneOrFail,
   raw,
   when,
 } from '@foscia/core';
@@ -27,6 +28,7 @@ test('Actions are type safe', async () => {
       ...forRelation.extension,
       ...include.extension,
       ...all.extension,
+      ...oneOrFail.extension,
       ...cachedOr.extension,
       ...when.extension,
     });
@@ -72,9 +74,17 @@ test('Actions are type safe', async () => {
     .forInstance(new PostMock())
     .include('comments.postedBy')
     .when(new PostMock().$exists, one());
+  const createdPostUsingFuncOrCurrent = await action()
+    .use(forInstance(new PostMock()))
+    .run(oneOrFail());
+  const createdPostUsingBuildOrCurrent = await action()
+    .forInstance(new PostMock())
+    .oneOrFail();
 
   expectTypeOf(createdPostUsingFunc).toMatchTypeOf<PostMock | null | void>();
   expectTypeOf(createdPostUsingBuild).toMatchTypeOf<PostMock | null | void>();
+  expectTypeOf(createdPostUsingFuncOrCurrent).toMatchTypeOf<PostMock>();
+  expectTypeOf(createdPostUsingBuildOrCurrent).toMatchTypeOf<PostMock>();
 
   // @ts-expect-error title is not a post relation
   await action().use(forModel(PostMock), include('title'));

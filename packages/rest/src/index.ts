@@ -3,19 +3,17 @@ import makeJsonRestDeserializer from '@foscia/rest/blueprints/makeJsonRestDeseri
 import makeJsonRestSerializer from '@foscia/rest/blueprints/makeJsonRestSerializer';
 import jsonRestExtensions from '@foscia/rest/jsonRestExtensions';
 import jsonRestStarterExtensions from '@foscia/rest/jsonRestStarterExtensions';
-import RestAdapter from '@foscia/rest/restAdapter';
-import RestDeserializer from '@foscia/rest/restDeserializer';
-import RestSerializer from '@foscia/rest/restSerializer';
+import makeIncludeParam from '@foscia/rest/makeIncludeParam';
+import makeRestAdapterWith from '@foscia/rest/makeRestAdapterWith';
 
 export * from '@foscia/rest/types';
 
 export {
+  makeRestAdapterWith,
   makeJsonRestAdapter,
-  RestAdapter,
   makeJsonRestDeserializer,
-  RestDeserializer,
   makeJsonRestSerializer,
-  RestSerializer,
+  makeIncludeParam,
   jsonRestExtensions,
   jsonRestStarterExtensions,
 };

@@ -3,9 +3,9 @@ import consumeAdapter from '@foscia/core/actions/context/consumers/consumeAdapte
 import { ConsumeAdapter } from '@foscia/core/actions/types';
 import { AdapterResponseI } from '@foscia/core/types';
 
-export default async function executeContextThroughAdapter<AD>(
-  context: ConsumeAdapter<AD>,
-): Promise<AdapterResponseI<AD>> {
+export default async function executeContextThroughAdapter<RawData, Data>(
+  context: ConsumeAdapter<RawData, Data>,
+): Promise<AdapterResponseI<RawData, Data>> {
   const adapter = await consumeAdapter(context);
   const action = consumeAction(context, 'read');
   if (action in adapter && typeof (adapter as any)[action] === 'function') {

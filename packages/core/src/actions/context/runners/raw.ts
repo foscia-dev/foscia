@@ -9,22 +9,23 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Runners
  */
-export default function raw<C extends {}, AD, ND = AD>(
-  transform?: (data: AD) => Awaitable<ND>,
+export default function raw<C extends {}, RawData, NextData = RawData>(
+  transform?: (data: RawData) => Awaitable<NextData>,
 ) {
-  return async (action: Action<C & ConsumeAdapter<AD>>) => {
+  return async (action: Action<C & ConsumeAdapter<RawData>>) => {
     const response = await executeContextThroughAdapter(
       await action.useContext(),
     );
 
-    return (transform ? transform(response.raw) : response.raw) as Awaitable<ND>;
+    return (transform ? transform(response.raw) : response.raw) as Awaitable<NextData>;
   };
 }
 
 type RunnerExtension = ActionParsedExtension<{
-  raw<C extends {}, AD>(
-    this: Action<C & ConsumeAdapter<AD>>,
-  ): Promise<AD>;
+  raw<C extends {}, RawData, NextData = RawData>(
+    this: Action<C & ConsumeAdapter<RawData>>,
+    transform?: (data: RawData) => Awaitable<NextData>,
+  ): Promise<NextData>;
 }>;
 
 raw.extension = makeRunnersExtension({ raw }) as RunnerExtension;

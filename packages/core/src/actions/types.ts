@@ -120,16 +120,14 @@ export type ConsumeRegistry = {
   registry: ResolvableContextDependency<RegistryI>;
 };
 
-export type ConsumeAdapter<AdapterData = unknown> = {
-  adapter: ResolvableContextDependency<AdapterI<AdapterData>>;
+export type ConsumeAdapter<RawData = unknown, Data = unknown> = {
+  adapter: ResolvableContextDependency<AdapterI<RawData, Data>>;
 };
 
-export type ConsumeDeserializer<
-  Data extends DeserializedData = DeserializedData,
-> = {
-  deserializer: ResolvableContextDependency<DeserializerI<Data>>;
+export type ConsumeDeserializer<Data, Deserialized extends DeserializedData = DeserializedData> = {
+  deserializer: ResolvableContextDependency<DeserializerI<Data, Deserialized>>;
 };
 
-export type ConsumeSerializer<Data = unknown> = {
-  serializer: ResolvableContextDependency<SerializerI<Data>>;
+export type ConsumeSerializer<Record = unknown, Related = unknown, Data = unknown> = {
+  serializer: ResolvableContextDependency<SerializerI<Record, Related, Data>>;
 };

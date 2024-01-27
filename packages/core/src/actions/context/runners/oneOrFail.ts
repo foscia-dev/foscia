@@ -4,9 +4,9 @@ import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExt
 import {
   Action,
   ActionParsedExtension,
-  ConsumeAdapter,
   ConsumeDeserializer,
   InferConsumedInstance,
+  ConsumeAdapter,
 } from '@foscia/core/actions/types';
 import ExpectedRunFailureError from '@foscia/core/errors/expectedRunFailureError';
 import { DeserializedData } from '@foscia/core/types';
@@ -21,13 +21,14 @@ import { Awaitable } from '@foscia/shared';
 export default function oneOrFail<
   C extends {},
   I extends InferConsumedInstance<C>,
-  AD,
-  DD extends DeserializedData,
-  ND = I,
+  RawData,
+  Data,
+  Deserialized extends DeserializedData,
+  Next = I,
 >(
-  transform?: (data: OneData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>,
+  transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
 ) {
-  return oneOr<C, any, I, AD, DD, never, ND>(() => {
+  return oneOr<C, any, I, RawData, Data, Deserialized, never, Next>(() => {
     throw new ExpectedRunFailureError(
       '`oneOrFail` failed. You may handle this error globally as a "not found" record error.',
     );
@@ -38,13 +39,15 @@ type RunnerExtension = ActionParsedExtension<{
   oneOrFail<
     C extends {},
     I extends InferConsumedInstance<C>,
-    AD,
-    DD extends DeserializedData,
-    ND = I,
+    RawData,
+    Data,
+    Deserialized extends DeserializedData,
+    Next = I,
   >(
-    this: Action<C & ConsumeAdapter<AD> & ConsumeDeserializer<DD>>,
-    transform?: (data: OneData<AD, DeserializedDataOf<I, DD>, I>) => Awaitable<ND>,
-  ): Promise<ND>;
+    // eslint-disable-next-line max-len
+    this: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>>,
+    transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
+  ): Promise<Next>;
 }>;
 
 oneOrFail.extension = makeRunnersExtension({ oneOrFail }) as RunnerExtension;

@@ -18,9 +18,9 @@
 </a>
 </p>
 
-## @foscia/object
+## @foscia/serialization
 
-Object serialization tools for [Foscia](https://foscia.dev) actions.
+Serialization tools for [Foscia](https://foscia.dev) actions.
 
 ## License
 

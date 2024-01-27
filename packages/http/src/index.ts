@@ -12,9 +12,9 @@ import makeRequest from '@foscia/http/actions/context/enhancers/makeRequest';
 import param from '@foscia/http/actions/context/enhancers/param';
 import makeHttpAdapter from '@foscia/http/blueprints/makeHttpAdapter';
 import HttpAbortedError from '@foscia/http/errors/httpAbortedError';
+import HttpAdapterError from '@foscia/http/errors/httpAdapterError';
 import HttpConflictError from '@foscia/http/errors/httpConflictError';
 import HttpForbiddenError from '@foscia/http/errors/httpForbiddenError';
-import HttpAdapterError from '@foscia/http/errors/httpAdapterError';
 import HttpInterruptedError from '@foscia/http/errors/httpInterruptedError';
 import HttpInvalidRequestError from '@foscia/http/errors/httpInvalidRequestError';
 import HttpNotFoundError from '@foscia/http/errors/httpNotFoundError';
@@ -22,18 +22,18 @@ import HttpResponseError from '@foscia/http/errors/httpResponseError';
 import HttpServerError from '@foscia/http/errors/httpServerError';
 import HttpTooManyRequestsError from '@foscia/http/errors/httpTooManyRequestsError';
 import HttpUnauthorizedError from '@foscia/http/errors/httpUnauthorizedError';
-import HttpAdapter from '@foscia/http/httpAdapter';
 import httpExtensions from '@foscia/http/httpExtensions';
-import bodyAsJson from '@foscia/http/utilities/bodyAsJson';
+import makeHttpAdapterResponse from '@foscia/http/makeHttpAdapterResponse';
+import makeHttpAdapterWith from '@foscia/http/makeHttpAdapterWith';
 import deepParamsSerializer from '@foscia/http/utilities/deepParamsSerializer';
 import paramsSerializer from '@foscia/http/utilities/paramsSerializer';
 
 export * from '@foscia/http/types';
 
 export {
-  HttpAdapter,
   makeHttpAdapter,
-  bodyAsJson,
+  makeHttpAdapterWith,
+  makeHttpAdapterResponse,
   paramsSerializer,
   deepParamsSerializer,
   HttpAbortedError,

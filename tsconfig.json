@@ -31,11 +31,11 @@
       "@foscia/jsonapi/*": [
         "packages/jsonapi/src/*"
       ],
-      "@foscia/object/*": [
-        "packages/object/src/*"
-      ],
       "@foscia/rest/*": [
         "packages/rest/src/*"
+      ],
+      "@foscia/serialization/*": [
+        "packages/serialization/src/*"
       ],
       "@foscia/shared/*": [
         "packages/shared/src/*"

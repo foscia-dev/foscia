@@ -7,7 +7,6 @@ import {
   ConsumeInstance,
   ConsumeModel,
   context,
-  DeserializerI,
   find,
   forInstance,
   forModel,
@@ -18,6 +17,7 @@ import {
   ModelIdType,
   ModelInstance,
   ModelRelationDotKey,
+  DeserializerI,
   oneOrFail,
   save,
   SerializerI,
@@ -42,7 +42,7 @@ test('Actions generics are type safe', async () => {
       adapter: null as unknown as AdapterI<Response>,
       cache: null as unknown as CacheI,
       deserializer: null as unknown as DeserializerI<any>,
-      serializer: null as unknown as SerializerI<any>,
+      serializer: null as unknown as SerializerI<any, any, any>,
     }));
   };
 

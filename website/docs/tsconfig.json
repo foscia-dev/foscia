@@ -21,14 +21,14 @@
       "@foscia/http": [
         "packages/http/dist/index.d.ts"
       ],
-      "@foscia/object": [
-        "packages/object/dist/index.d.ts"
-      ],
       "@foscia/jsonapi": [
         "packages/jsonapi/dist/index.d.ts"
       ],
       "@foscia/rest": [
         "packages/rest/dist/index.d.ts"
+      ],
+      "@foscia/serialization": [
+        "packages/serialization/dist/index.d.ts"
       ],
       "@foscia/shared": [
         "packages/shared/dist/index.d.ts"

@@ -14,7 +14,7 @@ import {
   when,
 } from '@foscia/core';
 import { makeGet } from '@foscia/http';
-import { filterBy, paginate } from '@foscia/jsonapi';
+import { filterBy, paginate, usingDocument } from '@foscia/jsonapi';
 import { describe, expect, it, vi } from 'vitest';
 import createFetchMock from '../../../../tests/mocks/createFetchMock.mock';
 import createFetchResponse from '../../../../tests/mocks/createFetchResponse.mock';
@@ -60,12 +60,13 @@ describe('integration: JSON:API', () => {
 
     const action = makeJsonApiActionMock();
 
-    const posts = await action()
+    const data = await action()
       .use(forModel(PostMock))
       .use(include('comments'))
       .use(filterBy('search', 'foo bar'))
       .use(paginate({ size: 10, number: 1 }))
-      .run(all());
+      .run(all(usingDocument));
+    const posts = data.instances;
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const request = fetchMock.mock.calls[0][0] as Request;
@@ -171,7 +172,8 @@ describe('integration: JSON:API', () => {
 
     const action = makeJsonApiActionMock();
 
-    const post = fill(new PostMock(), { title: 'Foo', body: 'Foo Body' });
+    const comment = fill(new CommentMock(), { id: '1' });
+    const post = fill(new PostMock(), { title: 'Foo', body: 'Foo Body', comments: [comment] });
 
     const createdPost = await action()
       .use(save(post))
@@ -187,7 +189,11 @@ describe('integration: JSON:API', () => {
       data: {
         type: 'posts',
         attributes: { title: 'Foo', body: 'Foo Body' },
-        relationships: {},
+        relationships: {
+          comments: {
+            data: [{ type: 'comments', id: '1' }],
+          },
+        },
       },
     }));
 
@@ -197,7 +203,7 @@ describe('integration: JSON:API', () => {
     expect(post.id).toStrictEqual('1');
     expect(post.title).toStrictEqual('Foo');
     expect(post.body).toStrictEqual('Foo Body');
-    expect(post.comments).toBeUndefined();
+    expect(post.comments).toStrictEqual([comment]);
   });
 
   it('should run action: update record', async () => {

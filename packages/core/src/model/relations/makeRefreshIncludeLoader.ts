@@ -26,9 +26,10 @@ import {
 } from '@foscia/shared';
 
 type IncludeLoaderOptions<
-  AD,
-  DD extends DeserializedData,
-  C extends ConsumeAdapter<AD> & ConsumeDeserializer<DD>,
+  RawData,
+  Data,
+  Deserialized extends DeserializedData,
+  C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
 > = {
   chunk?: (instances: ModelInstance[]) => ModelInstance[][];
   prepare?: (
@@ -38,13 +39,14 @@ type IncludeLoaderOptions<
 };
 
 async function refreshLoad<
-  AD,
-  DD extends DeserializedData,
-  C extends ConsumeAdapter<AD> & ConsumeDeserializer<DD>,
+  RawData,
+  Data,
+  Deserialized extends DeserializedData,
+  C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
   I extends ModelInstance,
 >(
   action: ActionFactory<[], C, {}>,
-  options: IncludeLoaderOptions<AD, DD, C>,
+  options: IncludeLoaderOptions<RawData, Data, Deserialized, C>,
   instances: I[],
   relations: ModelRelationDotKey<I>[],
 ) {
@@ -80,12 +82,13 @@ async function refreshLoad<
 }
 
 export default function makeRefreshIncludeLoader<
-  AD,
-  DD extends DeserializedData,
-  C extends ConsumeAdapter<AD> & ConsumeDeserializer<DD>,
+  RawData,
+  Data,
+  Deserialized extends DeserializedData,
+  C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
 >(
   action: ActionFactory<[], C, {}>,
-  options: IncludeLoaderOptions<AD, DD, C>,
+  options: IncludeLoaderOptions<RawData, Data, Deserialized, C>,
 ) {
   return async <I extends ModelInstance>(
     instances: Arrayable<I>,
