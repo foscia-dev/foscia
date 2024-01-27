@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import CommentMock from '../../mocks/models/comment.mock';
 import PostMock from '../../mocks/models/post.mock';
 
-describe.concurrent('unit: refsCache', () => {
+describe.concurrent('unit: makeRefsCacheWith', () => {
   it('should put, find and remove from cache', async () => {
     const firstPost = new PostMock();
     const secondPost = new PostMock();

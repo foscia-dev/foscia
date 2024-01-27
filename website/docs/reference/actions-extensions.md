@@ -19,15 +19,14 @@ runners to integrate into your action to get
 - [`forId`](/docs/reference/actions-enhancers#forid)
 - [`find`](/docs/reference/actions-enhancers#find)
 - [`include`](/docs/reference/actions-enhancers#include)
-- [`target`](/docs/reference/actions-enhancers#target)
 - [`context`](/docs/reference/actions-enhancers#context)
 
 ### `crudExtensions`
 
 Combination of:
 
-- [`readExtension`](#readextension)
-- [`writeExtension`](#writeextension)
+- [`readExtensions`](#readextensions)
+- [`writeExtensions`](#writeextensions)
 
 ### `readExtensions`
 
@@ -38,7 +37,6 @@ Combination of:
 - [`oneOr`](/docs/reference/actions-runners#oneor)
 - [`none`](/docs/reference/actions-runners#none)
 - [`raw`](/docs/reference/actions-runners#raw)
-- [`rawUsing`](/docs/reference/actions-runners#rawusing)
 - [`cached`](/docs/reference/actions-runners#cached)
 - [`cachedOrFail`](/docs/reference/actions-runners#cachedorfail)
 - [`cachedOr`](/docs/reference/actions-runners#cachedor)
@@ -94,7 +92,7 @@ Combination of:
 
 ## `@foscia/rest`
 
-### `restExtensions`
+### `jsonRestExtensions`
 
 No enhancers/runners available for now in this extension.
 
@@ -106,4 +104,4 @@ Combination of:
 - [`crudExtensions`](#crudextensions)
 - [`hooksExtensions`](#hooksextensions)
 - [`httpExtensions`](#httpextensions)
-- [`jsonRestExtensions`](#jsonrestextensions)
+- [`jsonRestStarterExtensions`](#jsonreststarterextensions)

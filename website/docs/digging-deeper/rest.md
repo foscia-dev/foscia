@@ -22,7 +22,7 @@ Currently, REST implementations does not support additional features compared to
 generic Foscia features.
 
 If your REST API supports eager loading relations, you should
-[configure your REST adapter](/docs/digging-deeper/implementations/rest#restadapter)
+[configure your REST adapter](/docs/digging-deeper/implementations/rest#makejsonrestadapter)
 to serialize relationships inclusion in every request.
 
 If you need something specific, you can

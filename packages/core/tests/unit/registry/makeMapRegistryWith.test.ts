@@ -1,7 +1,7 @@
 import { makeMapRegistryWith, makeModel } from '@foscia/core';
 import { describe, expect, it } from 'vitest';
 
-describe.concurrent('unit: mapRegistry', () => {
+describe.concurrent('unit: makeMapRegistryWith', () => {
   it('should register and resolve models', async () => {
     const modelFoo = makeModel('foo');
     const modelBar = makeModel('bar');

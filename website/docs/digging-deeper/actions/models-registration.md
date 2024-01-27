@@ -27,7 +27,7 @@ ESLint AirBnB disallow dependency cycle).
 ## Adding a registry
 
 Foscia provides a simple implementation for the registry through
-[`MapRegistry`](/docs/digging-deeper/implementations/core#mapregistry)
+[`makeRegistry`](/docs/digging-deeper/implementations/core#makemapregistrywith)
 (providing using `makeRegistry` factory function).
 
 ```typescript title="action.ts"

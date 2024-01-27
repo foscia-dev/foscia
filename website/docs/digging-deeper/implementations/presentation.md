@@ -229,7 +229,7 @@ implementations may be used for any Foscia usage (JSON:API, REST, etc.).
 `@foscia/http` provides implementation of `AdapterI` to interact with HTTP data
 sources.
 
-- [Adapter through `makeHttpAdapter`](/docs/digging-deeper/implementations/http#makeHttpAdapter)
+- [Adapter through `makeHttpAdapter`](/docs/digging-deeper/implementations/http#makehttpadapter)
 
 ### JSON:API
 
