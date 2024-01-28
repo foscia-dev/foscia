@@ -12,12 +12,13 @@ import FunctionInfo from '@site/src/components/FunctionInfo';
 
 Many actions runners are available. Each may:
 
-- <Chip>depend</Chip> on a minimal package version
-- <Chip color="primary">only</Chip> be available in a given use case (JSON:API, REST,
-  HTTP, etc.)
-- <Chip color="success">provide</Chip> a given context to next enhancers or runners
-- <Chip color="danger">require</Chip> a given context from previous enhancers or
-  runners
+- <Chip>version</Chip>: requires a minimal version of Foscia packages
+- <Chip color="primary">only</Chip>: be available in a specific use case
+  (JSON:API, REST, HTTP, etc.)
+- <Chip color="success">provide</Chip>: provide a given context to next
+  enhancers or runners
+- <Chip color="danger">require</Chip>: require a given context from previous
+  enhancers or runners
 
 Examples of this guide will omit imports of your action factories or models to
 provide shorter examples.

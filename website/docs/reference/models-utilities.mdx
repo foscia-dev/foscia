@@ -3,6 +3,8 @@ sidebar_position: 1
 description: Available models utilities.
 ---
 
+import FunctionInfo from '@site/src/components/FunctionInfo';
+
 # Models utilities
 
 ## Common
@@ -22,15 +24,17 @@ const post = fill(new Post(), { title: 'Hello', description: 'World' });
 #### Arguments
 
 - [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
-  `instance`
+`instance`
 - [`{Partial<ModelWritableValues<I>>}`](/docs/reference/api/modules/foscia_core#modelwritablevalues)
-  `values`
+`values`
 
 #### Returns
 
 `{I}`, the affected instance.
 
 ### `forceFill`
+
+<FunctionInfo version="0.6.1" />
 
 Fill the model instance's values with the given values, even read-only values.
 `forceFill` will temporary disable
@@ -48,9 +52,9 @@ const post = forceFill(new Post(), { author: user });
 #### Arguments
 
 - [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
-  `instance`
+`instance`
 - [`{Partial<ModelValues<I>>}`](/docs/reference/api/modules/foscia_core#modelvalues)
-  `values`
+`values`
 
 #### Returns
 
@@ -108,9 +112,9 @@ if (!isFullyLoaded) {
 #### Arguments
 
 - [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
-  `instance`
+`instance`
 - [`{ArrayableVariadic<ModelRelationDotKey<I>>}`](/docs/reference/api/modules/foscia_core#modelrelationdotkey)
-  `...relations`
+`...relations`
 
 #### Returns
 
@@ -135,9 +139,9 @@ if (wasChanged) {
 #### Arguments
 
 - [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
-  `instance`
+`instance`
 - [`{ArrayableVariadic<ModelKey<I>}`](/docs/reference/api/modules/foscia_core#modelkey)
-  `...only`
+`...only`
 
 #### Returns
 
@@ -159,9 +163,9 @@ markSynced(post, ['title', 'description']);
 #### Arguments
 
 - [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
-  `instance`
+`instance`
 - [`{ArrayableVariadic<ModelKey<I>>}`](/docs/reference/api/modules/foscia_core#modelkey)
-  `...only`
+`...only`
 
 #### Returns
 
@@ -183,9 +187,9 @@ restore(post, ['title', 'description']);
 #### Arguments
 
 - [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
-  `instance`
+`instance`
 - [`{ArrayableVariadic<ModelKey<I>>}`](/docs/reference/api/modules/foscia_core#modelkey)
-  `...only`
+`...only`
 
 #### Returns
 
@@ -206,7 +210,7 @@ const postSnapshot = takeSnapshot(post);
 #### Arguments
 
 - [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
-  `instance`
+`instance`
 
 #### Returns
 
@@ -229,11 +233,11 @@ restoreSnapshot(post, postSnapshot, ['title', 'description']);
 #### Arguments
 
 - [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
-  `instance`
+`instance`
 - [`{ModelSnapshot<I>}`](/docs/reference/api/modules/foscia_core#modelsnapshot)
-  `snapshot`
+`snapshot`
 - [`{ArrayableVariadic<ModelKey<I>>}`](/docs/reference/api/modules/foscia_core#modelkey)
-  `...only`
+`...only`
 
 #### Returns
 
@@ -255,11 +259,11 @@ compareSnapshots(nextSnapshot, prevSnapshot, ['title', 'description']);
 #### Arguments
 
 - [`{ModelSnapshot<I>}`](/docs/reference/api/modules/foscia_core#modelsnapshot)
-  `nextSnapshot`
+`nextSnapshot`
 - [`{ModelSnapshot<I>}`](/docs/reference/api/modules/foscia_core#modelsnapshot)
-  `prevSnapshot`
+`prevSnapshot`
 - [`{ArrayableVariadic<ModelKey<I>>}`](/docs/reference/api/modules/foscia_core#modelkey)
-  `...only`
+`...only`
 
 #### Returns
 
@@ -284,7 +288,7 @@ const PostModel = makeModel('posts', {
 #### Arguments
 
 - [`{ModelConfig | string}`](/docs/reference/api/modules/foscia_core#modelconfig)
-  `config`
+`config`
 - `{ModelDefinition}` `rawDefinition`
 
 #### Returns
@@ -314,7 +318,7 @@ const makeModel = makeModelFactory(
 
 - `{ModelDefinition | undefined}` `baseRawDefinition`
 - [`{ModelConfig | undefined}`](/docs/reference/api/modules/foscia_core#modelconfig)
-  `baseConfig` (omitting `type`)
+`baseConfig` (omitting `type`)
 
 #### Returns
 
