@@ -1,6 +1,29 @@
 # Changelog
 
-## [0.6.0](https://github.com/foscia-dev/foscia/compare/v0.6.0-beta.7...v0.6.0) (2024-01-28)
+## [0.6.0](https://github.com/foscia-dev/foscia/compare/v0.5.3...v0.6.0) (2024-01-28)
+
+Foscia v0.6.0 is out! This is a big step to stability, with totally reworked action dependencies (adapters, etc.).
+Migration should be straight forward if you are not using
+
+### Features
+
+* revised typing for models and actions preventing wrong errors and allowing generic usage.
+* rewritten serialization in a brand new `@foscia/serialization` package which now handle a generic (not
+  object/dictionary specific) serialization.
+* rewritten dependencies as factory functions only instead of classes. This make the internal API more private but still
+  customizable using public configuration objects. Each dependencies will be more maintainable and still provide
+  customization for end users.
+
+### BREAKING CHANGES
+
+* If you are using default blueprints functions without any advanced configuration, this major version's changes should
+  not impact your implementations.
+* If you are configuring serialization dependencies, you should check out code for the new configuration capabilities of
+  new serialization tools. Feature level of serialization is the same but configuration is not backward compatible.
+* If you are extending a dependency (adapter, etc.), you should change your extended class to an existing factory
+  function and use configuration to customize the behavior.
+* If you are using generics typings on actions (inside enhancers/runners) or consumers typings, you should
+  check those usages to ensure they match latest typings.
 
 ## [0.6.0-beta.7](https://github.com/foscia-dev/foscia/compare/v0.6.0-beta.2...v0.6.0-beta.7) (2024-01-28)
 
