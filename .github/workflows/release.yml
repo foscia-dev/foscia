@@ -70,4 +70,5 @@ jobs:
           INCREMENT_ARG: ${{ fromJSON('{"bump":"", "patch":"--increment=patch", "minor":"--increment=minor", "major":"--increment=major"}')[github.event.inputs.increment] }}
           PRERELEASE_ARG: ${{ fromJSON('{"stable":"", "beta":"--prerelease=beta", "alpha":"--prerelease=alpha"}')[github.event.inputs.prerelease] }}
           DRY_ARG: ${{ github.event.inputs.dry == 'true' && '--dry' || '' }}
+          HUSKY: 0
         run: pnpm run release $INCREMENT_ARG $PRERELEASE_ARG $DRY_ARG --ci --verbose
