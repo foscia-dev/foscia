@@ -32,6 +32,14 @@ parameters working:
 - `page[number]` describes the number of the page to fetch
 - `page[size]` describes the count of records to fetch (aka. limit)
 
+:::tip
+
+If you want to create a runner which does not use the action's
+context typing (such as defining a query parameter, etc.), you can
+ignore generic typing.
+
+:::
+
 :::info
 
 This guide is a runner version of the `first` enhancer described in the
@@ -48,23 +56,21 @@ import {
   Action,
   ConsumeAdapter,
   ConsumeDeserializer,
-  ConsumeModel,
-  Model,
   one,
 } from '@foscia/core';
 import { paginate } from '@foscia/jsonapi';
 
 export default function first<
-  Context extends {},
-  ContextModel extends Model,
-  ContextData,
+  C extends {},
+  RawData,
+  Data,
+  Deserialized,
 >() {
   return (
     action: Action<
-      Context &
-        ConsumeAdapter<ContextData> &
-        ConsumeDeserializer<ContextData> &
-        ConsumeModel<ContextModel>
+      C &
+        ConsumeAdapter<RawData, Data> &
+        ConsumeDeserializer<Data, Deserialized>
     >,
   ) => action.use(paginate({ number: 1, size: 1 })).run(one());
 }
@@ -113,8 +119,7 @@ import {
   ActionParsedExtension,
   ConsumeAdapter,
   ConsumeDeserializer,
-  ConsumeModel,
-  Model,
+  InferConsumedInstance,
   makeRunnersExtension,
   one,
 } from '@foscia/core';
@@ -122,30 +127,35 @@ import { paginate } from '@foscia/jsonapi';
 
 // Our previous enhancer code.
 export default function first<
-  Context extends {},
-  ContextModel extends Model,
-  ContextData,
+  C extends {},
+  RawData,
+  Data,
+  Deserialized,
 >() {
   return (
     action: Action<
-      Context &
-        ConsumeAdapter<ContextData> &
-        ConsumeDeserializer<ContextData> &
-        ConsumeModel<ContextModel>
+      C &
+        ConsumeAdapter<RawData, Data> &
+        ConsumeDeserializer<Data, Deserialized>
     >,
   ) => action.use(paginate({ number: 1, size: 1 })).run(one());
 }
 
 // The extension typing.
 type FirstRunnerExtension = ActionParsedExtension<{
-  first<Context extends {}, ContextModel extends Model, ContextData>(
+  first<
+    C extends {},
+    I extends InferConsumedInstance<C>,
+    RawData,
+    Data,
+    Deserialized,
+  >(
     this: Action<
-      Context &
-        ConsumeAdapter<ContextData> &
-        ConsumeDeserializer<ContextData> &
-        ConsumeModel<ContextModel>
+      C &
+        ConsumeAdapter<RawData, Data> &
+        ConsumeDeserializer<Data, Deserialized>
     >,
-  ): Promise<InstanceType<ContextModel> | null>;
+  ): Promise<I | null>;
 }>;
 
 // The extension value.

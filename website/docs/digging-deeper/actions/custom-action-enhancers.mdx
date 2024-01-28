@@ -32,6 +32,14 @@ parameters working:
 - `page[number]` describes the number of the page to fetch
 - `page[size]` describes the count of records to fetch (aka. limit)
 
+:::tip
+
+If you want to create an enhancer which does not use or expand the action's
+context typing (such as defining a query parameter, etc.), you can
+ignore generic typing.
+
+:::
+
 :::info
 
 This guide is an enhancer version of the `first` runner described in the
@@ -44,16 +52,14 @@ This guide is an enhancer version of the `first` runner described in the
 Our implementation of `first` will target the model and paginate the context.
 
 ```typescript title="action/enhancers/first.ts"
-import { Action, Model, ModelInstance, forModel } from '@foscia/core';
+import { Action, Model, forModel } from '@foscia/core';
 import { paginate } from '@foscia/jsonapi';
 
 export default function first<
-  Context extends {},
-  ContextDefinition extends {},
-  ContextInstance extends ModelInstance<ContextDefinition>,
-  ContextModel extends Model<ContextDefinition, ContextInstance>,
->(model: ContextModel) {
-  return (action: Action<Context>) =>
+  C extends {},
+  M extends Model,
+>(model: M) {
+  return (action: Action<C>) =>
     action.use(forModel(model)).use(paginate({ number: 1, size: 1 }));
 }
 ```
@@ -99,32 +105,29 @@ Once your enhancer extension is ready, you will be able to use it
 import {
   Action,
   ActionParsedExtension,
-  ConsumeId,
   ConsumeModel,
   forModel,
   makeEnhancersExtension,
   Model,
-  ModelInstance,
 } from '@foscia/core';
 import { paginate } from '@foscia/jsonapi';
 
 // Our previous enhancer code.
+
 export default function first<
-  Context extends {},
-  ContextDefinition extends {},
-  ContextInstance extends ModelInstance<ContextDefinition>,
-  ContextModel extends Model<ContextDefinition, ContextInstance>,
->(model: ContextModel) {
-  return (action: Action<Context>) =>
+  C extends {},
+  M extends Model,
+>(model: M) {
+  return (action: Action<C>) =>
     action.use(forModel(model)).use(paginate({ number: 1, size: 1 }));
 }
 
 // The extension typing.
 type FirstEnhancerExtension = ActionParsedExtension<{
-  first<Context extends {}, Extension extends {}, ContextModel extends Model>(
-    this: Action<Context, Extension>,
-    model: ContextModel,
-  ): Action<Context & ConsumeModel<ContextModel> & ConsumeId, Extension>;
+  first<C extends {}, E extends {}, M extends Model>(
+    this: Action<C, E>,
+    model: M,
+  ): Action<C & ConsumeModel<M>, E>;
 }>;
 
 // The extension value.
