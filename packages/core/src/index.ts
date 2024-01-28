@@ -24,6 +24,7 @@ import isPropDef from '@foscia/core/model/checks/isPropDef';
 import isRelationDef from '@foscia/core/model/checks/isRelationDef';
 import isSingularRelationDef from '@foscia/core/model/checks/isSingularRelationDef';
 import fill from '@foscia/core/model/fill';
+import forceFill from '@foscia/core/model/forceFill';
 import onCreated from '@foscia/core/model/hooks/onCreated';
 import onCreating from '@foscia/core/model/hooks/onCreating';
 import onDestroyed from '@foscia/core/model/hooks/onDestroyed';
@@ -107,6 +108,7 @@ export {
   id,
   loaded,
   fill,
+  forceFill,
   isSame,
   changed,
   restore,

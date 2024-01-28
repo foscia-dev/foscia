@@ -23,6 +23,32 @@ const post = fill(new Post(), { title: 'Hello', description: 'World' });
 
 - [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
   `instance`
+- [`{Partial<ModelWritableValues<I>>}`](/docs/reference/api/modules/foscia_core#modelwritablevalues)
+  `values`
+
+#### Returns
+
+`{I}`, the affected instance.
+
+### `forceFill`
+
+Fill the model instance's values with the given values, even read-only values.
+`forceFill` will temporary disable
+[`strictReadOnly`](/docs/digging-deeper/models/models-configuration#strictproperties)
+policy on the model.
+
+#### Example
+
+```typescript
+import { forceFill } from '@foscia/core';
+
+const post = forceFill(new Post(), { author: user });
+```
+
+#### Arguments
+
+- [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+  `instance`
 - [`{Partial<ModelValues<I>>}`](/docs/reference/api/modules/foscia_core#modelvalues)
   `values`
 
