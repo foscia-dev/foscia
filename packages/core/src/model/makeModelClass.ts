@@ -49,7 +49,7 @@ const createModelClass = (
           const currentValue = this.$values[def.key];
           if (
             currentValue === undefined
-            && (this.$model.$config.strictProperties ?? this.$model.$config.strict)
+            && (this.$model.$config.strictProperties ?? this.$model.$config.strict ?? false)
           ) {
             throw new FosciaError(
               `\`${this.$model.$type}.${def.key}\` value was not retrieved from the data source and model uses strict properties.`,
@@ -59,7 +59,10 @@ const createModelClass = (
           return currentValue;
         },
         set: (nextValue) => {
-          if (def.readOnly) {
+          if (
+            def.readOnly
+            && (this.$model.$config.strictReadOnly ?? this.$model.$config.strict ?? true)
+          ) {
             throw new FosciaError(
               `\`${this.$model.$type}.${def.key}\` cannot be set because it is read-only.`,
             );

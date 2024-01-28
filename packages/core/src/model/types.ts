@@ -27,6 +27,7 @@ import {
 export type ModelConfig = {
   strict?: boolean;
   strictProperties?: boolean;
+  strictReadOnly?: boolean;
   path?: Optional<string>;
   guessPath?: Transformer<string>;
   guessRelationPath?: Transformer<ModelRelation, string>;

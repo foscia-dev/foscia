@@ -249,14 +249,22 @@ instance state. Keep in mind that:
 
 #### `strict`
 
-**Default**: `false`.
+**Default**: `undefined`.
 
 **Recommandation**: use this configuration option inside a
 [custom model factory](/docs/digging-deeper/models/models-composition#factory).
 
-Enable all strict policies on model:
+Globally enable all strict policies on model:
 
 - [`strictProperties`](#strictproperties)
+- [`strictReadOnly`](#strictreadonly)
+
+:::info
+
+If a specific strict policies is enabled/disabled, it supersedes the global
+strict settings.
+
+:::
 
 #### `strictProperties`
 
@@ -267,6 +275,16 @@ Enable all strict policies on model:
 
 When enabled, getting a model's instance property value will throw an error if
 the value was not retrieved from the store or if the relation is not loaded.
+
+#### `strictReadOnly`
+
+**Default**: `true`.
+
+**Recommandation**: use this configuration option inside a
+[custom model factory](/docs/digging-deeper/models/models-composition#factory).
+
+When enabled, setting a model's instance readonly property value will throw
+an error.
 
 ### HTTP
 
