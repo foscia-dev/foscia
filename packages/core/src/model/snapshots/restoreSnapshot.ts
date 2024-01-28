@@ -1,4 +1,5 @@
 /* eslint-disable no-param-reassign */
+import forceFill from '@foscia/core/model/forceFill';
 import mapProps from '@foscia/core/model/props/mappers/mapProps';
 import cloneModelValue from '@foscia/core/model/snapshots/cloneModelValue';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
@@ -9,6 +10,7 @@ import {
   ModelKey,
   ModelRelation,
   ModelSnapshot,
+  ModelValues,
 } from '@foscia/core/model/types';
 import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
 
@@ -33,7 +35,9 @@ export default function restoreSnapshot<I extends ModelInstance>(
     }
 
     if (Object.prototype.hasOwnProperty.call(snapshot.$values, def.key)) {
-      instance.$values[def.key] = cloneModelValue(instance.$model, snapshot.$values[def.key]);
+      forceFill(instance, {
+        [def.key]: cloneModelValue(instance.$model, snapshot.$values[def.key]),
+      } as Partial<ModelValues<I>>);
     } else {
       delete instance.$values[def.key];
     }

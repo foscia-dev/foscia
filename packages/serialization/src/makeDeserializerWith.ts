@@ -6,6 +6,7 @@ import {
   consumeRegistry,
   DeserializedData,
   DeserializerError,
+  forceFill,
   guessContextModel,
   mapAttributes,
   mapRelations,
@@ -188,7 +189,7 @@ export default function makeDeserializerWith<
     const setInstanceId = (key: 'id' | 'lid') => {
       const newId = identifier[key] ?? instance[key];
       if (newId !== instance[key]) {
-        instance.$values[key] = newId;
+        forceFill(instance, { [key]: newId });
       }
     };
     setInstanceId('id');
@@ -204,7 +205,9 @@ export default function makeDeserializerWith<
         if (await shouldDeserialize(deserializerContext)) {
           const key = await deserializeKey(deserializerContext);
 
-          instance.$values[key] = await deserializeAttributeValue(deserializerContext);
+          forceFill(instance, {
+            [key]: await deserializeAttributeValue(deserializerContext),
+          });
         }
       }),
       ...mapRelations(instance, async (def) => {
@@ -216,7 +219,9 @@ export default function makeDeserializerWith<
         if (await shouldDeserialize(deserializerContext)) {
           const key = await deserializeKey(deserializerContext);
 
-          instance.$values[key] = await deserializeRelationValue(deserializerContext, instancesMap);
+          forceFill(instance, {
+            [key]: await deserializeRelationValue(deserializerContext, instancesMap),
+          });
         }
       }),
     ]);

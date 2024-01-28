@@ -3,6 +3,7 @@ import { HooksRegistrar } from '@foscia/core/hooks/types';
 import logger from '@foscia/core/logger/logger';
 import isIdDef from '@foscia/core/model/checks/isIdDef';
 import isPropDef from '@foscia/core/model/checks/isPropDef';
+import forceFill from '@foscia/core/model/forceFill';
 import makeDefinition from '@foscia/core/model/makeDefinition';
 import id from '@foscia/core/model/props/builders/id';
 import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
@@ -73,7 +74,7 @@ const createModelClass = (
       });
 
       if (def.default !== undefined) {
-        this.$values[def.key] = computeDefault(this, def);
+        forceFill(this, { [def.key]: computeDefault(this, def) });
       }
     });
   } as unknown as ExtendableModel;
