@@ -45,6 +45,9 @@ jobs:
           node-version: 18
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Install
+        run: pnpm install
+
       - name: Test
         run: pnpm run test
 
