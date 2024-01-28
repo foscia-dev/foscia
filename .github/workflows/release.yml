@@ -45,14 +45,20 @@ jobs:
           node-version: 18
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Docker build
-        run: make docker-build
-
       - name: Test
-        run: make test
+        run: pnpm run test
 
       - name: Build
-        run: make build
+        run: pnpm run build
+
+      - name: NPM config
+        run: npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Git config
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
       - name: Release
         env:
@@ -61,4 +67,4 @@ jobs:
           INCREMENT_ARG: ${{ fromJSON('{"bump":"", "patch":"--increment=patch", "minor":"--increment=minor", "major":"--increment=major"}')[github.event.inputs.increment] }}
           PRERELEASE_ARG: ${{ fromJSON('{"stable":"", "beta":"--prerelease=beta", "alpha":"--prerelease=alpha"}')[github.event.inputs.prerelease] }}
           DRY_ARG: ${{ github.event.inputs.dry == 'true' && '--dry' || '' }}
-        run: docker compose exec -it -e GITHUB_TOKEN foscia-node sh -c "npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN && pnpm run release $INCREMENT_ARG $PRERELEASE_ARG $DRY_ARG --ci --verbose"
+        run: pnpm run release $INCREMENT_ARG $PRERELEASE_ARG $DRY_ARG --ci --verbose
