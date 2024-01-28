@@ -1,7 +1,7 @@
 {
   "name": "@foscia/rest",
   "type": "module",
-  "version": "0.6.0-beta.6",
+  "version": "0.6.0-beta.7",
   "license": "MIT",
   "author": "Paul Thébaud",
   "description": "Type safe, modular and intuitive API/data client.",
@@ -32,11 +32,11 @@
     "release": "release-it"
   },
   "dependencies": {
-    "@foscia/core": "0.6.0-beta.6",
-    "@foscia/http": "0.6.0-beta.6",
-    "@foscia/serialization": "0.6.0-beta.6",
-    "@foscia/shared": "0.6.0-beta.6",
-    "@foscia/test": "0.6.0-beta.6"
+    "@foscia/core": "0.6.0-beta.7",
+    "@foscia/http": "0.6.0-beta.7",
+    "@foscia/serialization": "0.6.0-beta.7",
+    "@foscia/shared": "0.6.0-beta.7",
+    "@foscia/test": "0.6.0-beta.7"
   },
   "publishConfig": {
     "access": "public"

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.6.0-beta.7](https://github.com/foscia-dev/foscia/compare/v0.6.0-beta.2...v0.6.0-beta.7) (2024-01-28)
+
+
+### Features
+
+* **core:** rewrite cache ([21b4a03](https://github.com/foscia-dev/foscia/commit/21b4a0367ecb66ab4b012334ff510680935cacac))
+* **core:** rewrite registry ([128be2e](https://github.com/foscia-dev/foscia/commit/128be2e0a2b2683f8faca840a8581ae40c3f0303))
+* rewrite cache, registry and adapters ([c7034d9](https://github.com/foscia-dev/foscia/commit/c7034d9400aa9c4313a74022da3c95d9c6117012))
+* rewrite serialization ([aadf023](https://github.com/foscia-dev/foscia/commit/aadf0234842bd1e4669e8a17d7644eb4df434cfe))
+
 ## [0.6.0-beta.2](https://github.com/foscia-dev/foscia/compare/v0.6.0-beta.1...v0.6.0-beta.2) (2024-01-25)
 
 
