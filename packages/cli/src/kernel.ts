@@ -27,7 +27,7 @@ export default async function kernel(args: string[]) {
 
   yargsInstance
     .usage([
-      boxen('Type safe, modular and intuitive API/data client.', {
+      boxen('Type safe, modular and intuitive API/data client for JS/TS.', {
         title: pc.bold(pc.magenta(`${logSymbols.foscia} foscia`)),
         titleAlignment: 'center',
         borderColor: 'magenta',

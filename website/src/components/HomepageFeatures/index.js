@@ -1,18 +1,22 @@
 import clsx from 'clsx';
 import React from 'react';
 import TypeSafeSvg from '../../icons/alert-decagram-outline.svg';
-import DepsSvg from '../../icons/swap-horizontal.svg';
+import ConsoleSvg from '../../icons/console.svg';
+import CacheSvg from '../../icons/database-outline.svg';
+import ChangesTrackingSvg from '../../icons/history.svg';
+import HooksSvg from '../../icons/magnify-scan.svg';
+import LightweightSvg from '../../icons/package-variant-closed.svg';
+import ImplementationsSvg from '../../icons/swap-horizontal.svg';
 import ModularSvg from '../../icons/toy-brick-outline.svg';
 import styles from './styles.module.css';
 
 const FeatureList = [
   {
-    Icon: DepsSvg,
-    title: 'REST/JSON:API ready',
+    Icon: ImplementationsSvg,
+    title: 'HTTP·REST·JSON:API',
     description: (
       <>
-        REST or JSON:API backend are already covered and you may
-        add your own implementations for any other data sources.
+        Exchange with any HTTP, REST or JSON:API backend.
       </>
     ),
   },
@@ -21,8 +25,16 @@ const FeatureList = [
     title: 'Modular',
     description: (
       <>
-        Foscia is composed of many independent functions, fully
-        tree-shakable and lightweight.
+        Simple configuration and framework-agnostic.
+      </>
+    ),
+  },
+  {
+    Icon: LightweightSvg,
+    title: 'Lightweight',
+    description: (
+      <>
+        Fully tree-shakable for optimal build size.
       </>
     ),
   },
@@ -31,8 +43,43 @@ const FeatureList = [
     title: 'Type safe',
     description: (
       <>
-        The API provides you a safe typing experience, even with edge cases
-        such as dot relations used for eager loading.
+        Strong type your data structure with TS.
+      </>
+    ),
+  },
+  {
+    Icon: ChangesTrackingSvg,
+    title: 'Changes tracking',
+    description: (
+      <>
+        Record changes on data during lifecycle.
+      </>
+    ),
+  },
+  {
+    Icon: HooksSvg,
+    title: 'Hooks',
+    description: (
+      <>
+        Register hooks, such as saving or deleting.
+      </>
+    ),
+  },
+  {
+    Icon: CacheSvg,
+    title: 'Cache',
+    description: (
+      <>
+        Never re-fetch data thanks to the cache system.
+      </>
+    ),
+  },
+  {
+    Icon: ConsoleSvg,
+    title: 'CLI',
+    description: (
+      <>
+        Get started quickly with the built-in CLI.
       </>
     ),
   },
@@ -40,13 +87,13 @@ const FeatureList = [
 
 function Feature({ Icon, title, description }) {
   return (
-    <div className={`${clsx('col col--4')} padding--md`}>
-      <div className={`${styles.feature} text--center padding--md`}>
+    <div className={`${styles.featureCol} ${clsx('col col--3')}`}>
+      <div className={`${styles.feature} text--center`}>
         <div className={`${styles.featureSvgWrapper} border--primary border--large margin-bottom--md`}>
           <Icon className={styles.featureSvg} />
         </div>
-        <h2>{title}</h2>
-        <p>{description}</p>
+        <h3 className={styles.featureTitle}>{title}</h3>
+        <p className={styles.featureText}>{description}</p>
       </div>
     </div>
   );
@@ -54,9 +101,40 @@ function Feature({ Icon, title, description }) {
 
 export default function HomepageFeatures() {
   return (
-    <section className={`${styles.features} padding--md`}>
+    <section className={`padding--md`}>
+      <div className={`${styles.presentationContainer} container`}>
+        <h2>
+          What's Foscia?
+        </h2>
+        <p className={styles.presentation}>
+          <strong>Foscia acts as an intermediary layer</strong> between
+          your application and your data source (API, database).
+        </p>
+        <ul style={{ textAlign: 'left' }}>
+          <li>
+            It keeps your <strong>data structure clear and type
+            safe</strong> with simple models definition and provide a lot of
+            useful tools to make common tasks easier (changes tracking, hooks,
+            serialization, etc.), allowing you to focus on your features!
+          </li>
+          <li>
+            It is built with <strong>functional programming</strong> in mind,
+            has a clear and complete API and is <strong>fully tree-shakable</strong>.
+          </li>
+          <li>
+            It is <strong>framework agnostic</strong> and can integrate inside
+            any app using JavaScript or TypeScript, and with any data source,
+            with already implemented HTTP/REST/JSON:API exchanges.
+          </li>
+        </ul>
+        <p className={styles.presentation}>
+          <strong>
+            Foscia provides all features you would expect from an ORM/data client.
+          </strong>
+        </p>
+      </div>
       <div className="container">
-        <div className="row">
+        <div className={`${styles.featuresRow} row`}>
           {FeatureList.map((props, idx) => (
             <Feature key={idx} {...props} />
           ))}

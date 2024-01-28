@@ -81,40 +81,53 @@ const playExampleMeta = {
 };
 
 const playFunctionalExampleCode = `
-import { find, update, include, oneOrFail, oneOrCurrent } from '@foscia/core';
+import { find, update, include, all, oneOrFail, none } from '@foscia/core';
 import Post from './post';
 import action from './action';
 
-// The functional way!
-const post = await action()
+// List posts.
+const posts = await action()
   .use(
-    find(Post, 123),
-    include('author', 'tags'),
+    forModel(Post),
+    filterBy('published', true),
+    paginate({ size: 10, number: 1 }),
   )
+  .run(all());
+
+// Retrieve a post.
+const post = await action()
+  .use(find(Post, 1), include('author', 'tags'))
   .run(oneOrFail());
 
+// Update it.
 fill(post, { title: 'Hello World!' });
 
-const updatedPost = await action()
-  .use(update(post))
-  .run(oneOrCurrent());
+// Save it.
+await action().use(update(post)).run(none());
 `.trim();
 
 const playBuilderExampleCode = `
 import Post from './post';
 import action from './action';
 
-// The good old builder pattern way!
+// List posts.
+const posts = await action()
+  .forModel(Post)
+  .filterBy('published', true)
+  .paginate({ size: 10, number: 1 })
+  .all();
+
+// Retrieve a post.
 const post = await action()
   .find(Post, 123)
   .include('author', 'tags')
   .oneOrFail();
 
+// Update it.
 fill(post, { title: 'Hello World!' });
 
-const updatedPost = await action()
-  .update(post)
-  .oneOrCurrent();
+// Save it.
+await action().update(post).none();
 `.trim();
 
 function Example({ title, description, link, children }) {

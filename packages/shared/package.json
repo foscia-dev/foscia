@@ -4,7 +4,7 @@
   "version": "0.6.0",
   "license": "MIT",
   "author": "Paul Thébaud",
-  "description": "Type safe, modular and intuitive API/data client.",
+  "description": "Type safe, modular and intuitive API/data client for JS/TS.",
   "homepage": "https://foscia.dev",
   "repository": {
     "type": "git",

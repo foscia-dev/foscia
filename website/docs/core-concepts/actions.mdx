@@ -131,13 +131,44 @@ await action().use(save(post)).run(none());
 ### Deleting records
 
 You can use `destroy` to trigger a record deletion. You can combine it with
-`none` to ignore the data source's response (this will not catch errors).
+`none` to ignore the data source's response (errors are still thrown by the
+adapter).
 
 ```typescript
 import { destroy, none } from '@foscia/core';
 
 await action().use(destroy(post)).run(none());
 ```
+
+### Retrieving cached records
+
+When having a cache enabled on your action, you can use it to retrieve
+an already fetched record without interacting with your data source again
+using `cached` and `cachedOrFail`.
+
+```typescript
+import { find, cached, cachedOrFail } from '@foscia/core';
+
+const post = await action().use(find(Post, 1)).run(cached());
+const post = await action().use(find(Post, 1)).run(cachedOrFail());
+```
+
+Sometimes, you may want to interact with the cache if your record does not
+have been cached already. For this particular case, you can use `cachedOr`.
+
+```typescript
+import { find, cachedOr, oneOrFail } from '@foscia/core';
+
+const post = await action().use(find(Post, 1)).run(cachedOr(oneOrFail()));
+```
+
+:::info
+
+`cached` runners will check for loaded relations if you are requesting
+relations `include`. If some relations (even deep ones) are not loaded,
+it will act as the record is not inside the cache.
+
+:::
 
 ### Conditionals
 

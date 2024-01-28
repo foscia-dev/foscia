@@ -18,7 +18,7 @@ dotenv.config();
 const config = {
   favicon: '/img/favicon.ico',
   title: 'Foscia',
-  tagline: 'Type safe, modular and intuitive API/data client.',
+  tagline: 'Type safe, modular and intuitive API/data client for JS/TS.',
   url: process.env.URL || 'https://foscia.dev',
   baseUrl: process.env.BASE_URL || '/',
   onBrokenLinks: 'throw',

@@ -70,6 +70,25 @@ html[data-theme="dark"] {
     );
 }
 
+.foscia-schema {
+    width: 400px;
+    max-width: 100%;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.foscia-schema path:not([class]) {
+    fill: var(--ifm-font-color-base);
+}
+
+.foscia-schema path.arrow {
+    fill: var(--ifm-color-primary);
+}
+
+.foscia-schema path.icon--foscia, .foscia-schema path.icon--app, .foscia-schema path.icon--data {
+    fill: var(--ifm-color-primary);
+}
+
 .header-github-link:hover {
     opacity: 0.6;
 }

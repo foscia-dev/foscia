@@ -35,17 +35,28 @@
 
 ## Foscia
 
-> Type safe, modular and intuitive API/data client.
+> Type safe, modular and intuitive API/data client for JS/TS.
 
-- Modular, highly extensible and fully tree-shakable thanks to functional
-  programming
-- Ready to use functions to integrate with any
-  [JSON:API](https://jsonapi.org/) and JSON REST backends
-- Strongly typed everywhere, with generics typings on models, actions, etc.
-- Framework-agnostic and dependency free (HTTP adapters are based on
-  [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API))
-- Free and open-source under
-  [MIT license](LICENSE)
+**Foscia acts as an intermediary layer** between your application and
+your data source (API, database). It helps **keeping your data structure clear
+and type safe** with simple models definition and provide a lot of
+useful tools to make common tasks easier (changes tracking, hooks,
+serialization, etc.), allowing you to focus on your features!
+It is built with **functional programming** in mind, has a clear and complete
+API and is **fully tree-shakable**.
+It is **framework-agnostic** and can integrate inside
+any app using JavaScript or TypeScript, and with any data source,
+with already implemented HTTP/REST/JSON:API exchanges.
+
+- Exchange with any REST or JSON:API backend with already implemented adapters.
+- Modular with simple configuration and framework-agnostic.
+- Fully tree-shakable for optimal build size.
+- Strong type your data structure with TS.
+- Record changes on data during lifecycle with instance's snapshots.
+- Register hooks, such as saving or deleting.
+- Never re-fetch data thanks to the cache system.
+- Get started quickly with the built-in CLI.
+- Free and open-source under [MIT license](https://opensource.org/licenses/MIT)
 
 ## Contributing
 
