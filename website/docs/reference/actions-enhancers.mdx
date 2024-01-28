@@ -250,6 +250,25 @@ action().use(instanceData(post));
 - [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
   `instance` an instance of model to serialize
 
+### `relationData`
+
+<FunctionInfo version="0.6.0" requires="Serializer" />
+
+Serialize the given instance's relation as the context's data.
+
+#### Example
+
+```typescript
+import { relationData } from '@foscia/core';
+
+action().use(relationData(post, 'tags'));
+```
+
+#### Arguments
+
+- [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+  `instance` an instance of model to serialize
+
 ### `include`
 
 <FunctionInfo requires="Model" />

@@ -16,6 +16,7 @@ import create from '@foscia/core/actions/context/enhancers/crud/create';
 import destroy from '@foscia/core/actions/context/enhancers/crud/destroy';
 import find from '@foscia/core/actions/context/enhancers/crud/find';
 import instanceData from '@foscia/core/actions/context/enhancers/crud/instanceData';
+import relationData from '@foscia/core/actions/context/enhancers/crud/relationData';
 import save from '@foscia/core/actions/context/enhancers/crud/save';
 import update from '@foscia/core/actions/context/enhancers/crud/update';
 import forId from '@foscia/core/actions/context/enhancers/forId';
@@ -82,6 +83,7 @@ export {
   forRelation,
   include,
   instanceData,
+  relationData,
   onRunning,
   onSuccess,
   onError,
