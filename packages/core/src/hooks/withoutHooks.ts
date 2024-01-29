@@ -1,20 +1,33 @@
 /* eslint-disable no-param-reassign */
 import { Hookable } from '@foscia/core/hooks/types';
-import { Awaitable } from '@foscia/shared';
 
-async function withoutHooks<T extends Hookable<any>, R>(
+export default function withoutHooks<T extends Hookable<any>, R>(
   hookable: T,
-  callback: (hookable: T) => Awaitable<R>,
-) {
+  callback: (hookable: T) => R,
+): R extends Promise<infer A> ? Promise<A> : R {
   const hooksBackup = hookable.$hooks;
+  let restoreHooksImmediately = true;
 
   hookable.$hooks = null;
 
   try {
-    return await callback(hookable);
+    const value = callback(hookable);
+    if (value instanceof Promise) {
+      restoreHooksImmediately = false;
+
+      return new Promise((resolve) => {
+        value
+          .then((v) => resolve(v))
+          .finally(() => {
+            hookable.$hooks = hooksBackup;
+          });
+      }) as any;
+    }
+
+    return value as any;
   } finally {
-    hookable.$hooks = hooksBackup;
+    if (restoreHooksImmediately) {
+      hookable.$hooks = hooksBackup;
+    }
   }
 }
-
-export default withoutHooks;
