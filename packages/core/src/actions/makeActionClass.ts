@@ -6,7 +6,7 @@ import {
   ContextRunner,
 } from '@foscia/core/actions/types';
 import registerHook from '@foscia/core/hooks/registerHook';
-import runHook from '@foscia/core/hooks/runHook';
+import runHooks from '@foscia/core/hooks/runHooks';
 import { HooksRegistrar } from '@foscia/core/hooks/types';
 import withoutHooks from '@foscia/core/hooks/withoutHooks';
 import logger from '@foscia/core/logger/logger';
@@ -61,22 +61,22 @@ export default function makeActionClass<Extension extends {} = {}>(
     public async run(runner: ContextRunner<any, any, any>) {
       const context = await this.useContext();
 
-      await runHook(this, 'running', { context, runner });
+      await runHooks(this, 'running', { context, runner });
 
       try {
         // Context runner might use other context runners, so we must disable
         // hooks at this point to avoid duplicated hooks runs.
         const result = await withoutHooks(this, () => runner(this as any));
 
-        await runHook(this, 'success', { context, result });
+        await runHooks(this, 'success', { context, result });
 
         return result;
       } catch (error) {
-        await runHook(this, 'error', { context, error });
+        await runHooks(this, 'error', { context, error });
 
         throw error;
       } finally {
-        await runHook(this, 'finally', { context });
+        await runHooks(this, 'finally', { context });
       }
     }
 

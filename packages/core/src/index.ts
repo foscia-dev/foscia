@@ -11,6 +11,7 @@ import FosciaError from '@foscia/core/errors/fosciaError';
 import SerializerError from '@foscia/core/errors/serializerError';
 import registerHook from '@foscia/core/hooks/registerHook';
 import runHook from '@foscia/core/hooks/runHook';
+import runHooks from '@foscia/core/hooks/runHooks';
 import unregisterHook from '@foscia/core/hooks/unregisterHook';
 import withoutHooks from '@foscia/core/hooks/withoutHooks';
 import logger from '@foscia/core/logger/logger';
@@ -138,6 +139,7 @@ export {
   restoreSnapshot,
   takeSnapshot,
   runHook,
+  runHooks,
   registerHook,
   unregisterHook,
   withoutHooks,

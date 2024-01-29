@@ -1,4 +1,4 @@
-import { Hookable, registerHook, runHook, unregisterHook, withoutHooks } from '@foscia/core';
+import { Hookable, registerHook, runHooks, unregisterHook, withoutHooks } from '@foscia/core';
 import { Awaitable } from '@foscia/shared';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -16,7 +16,7 @@ describe.concurrent('unit: hooks', () => {
       dummyValue = `${dummyValue}>${value}2`;
     });
 
-    await runHook(dummyHookable, 'dummy', 'foo');
+    await runHooks(dummyHookable, 'dummy', 'foo');
 
     expect(dummyValue).toStrictEqual('');
     expect(firstHookMock).not.toHaveBeenCalled();
@@ -25,7 +25,7 @@ describe.concurrent('unit: hooks', () => {
     const unregisterFirst = registerHook(dummyHookable, 'dummy', firstHookMock);
     registerHook(dummyHookable, 'dummy', secondHookMock);
 
-    await runHook(dummyHookable, 'dummy', 'foo');
+    await runHooks(dummyHookable, 'dummy', 'foo');
 
     expect(dummyValue).toStrictEqual('>foo1>foo2');
     expect(firstHookMock).toHaveBeenCalledOnce();
@@ -36,19 +36,19 @@ describe.concurrent('unit: hooks', () => {
       // Non-existing callback.
     });
 
-    await withoutHooks(dummyHookable, () => {
+    withoutHooks(dummyHookable, () => {
       registerHook(dummyHookable, 'dummy', firstHookMock);
       unregisterHook(dummyHookable, 'dummy', secondHookMock);
     });
 
-    await runHook(dummyHookable, 'dummy', 'foo');
+    await runHooks(dummyHookable, 'dummy', 'foo');
 
     expect(dummyValue).toStrictEqual('>foo1>foo2>foo2');
     expect(firstHookMock).toHaveBeenCalledOnce();
     expect(secondHookMock).toHaveBeenCalledTimes(2);
 
     await withoutHooks(dummyHookable, async () => {
-      await runHook(dummyHookable, 'dummy', 'foo');
+      await runHooks(dummyHookable, 'dummy', 'foo');
     });
 
     expect(dummyValue).toStrictEqual('>foo1>foo2>foo2');

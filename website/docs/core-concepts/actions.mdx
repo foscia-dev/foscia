@@ -317,10 +317,8 @@ parallelized).
 :::
 
 You can temporally disable hook execution for a given action by using the
-`withoutHooks` function.
-
-Be aware that `withoutHooks` will always return a promise, even when your
-callback is a sync function.
+`withoutHooks` function. `withoutHooks` can receive a sync or async
+callback: if an async callback is passed, it will return a `Promise`.
 
 ```typescript
 import { withoutHooks } from '@foscia/core';
@@ -333,7 +331,7 @@ const users = await withoutHooks(action(), async (a) => {
 
 :::warning
 
-Foscia may also register hooks internally when using some enhancers. Those
+**Foscia may also register hooks internally** when using some enhancers. Those
 provide some library features
 ([**models hooks**](/docs/core-concepts/models#hooks), etc.). Be careful running
 actions without hooks, as those hooks will also be disable.

@@ -16,7 +16,7 @@ import {
   ModelInstance,
   ModelRelation,
   normalizeKey,
-  runHook,
+  runHooks,
   shouldSync,
 } from '@foscia/core';
 import {
@@ -231,7 +231,7 @@ export default function makeDeserializerWith<
     instance.$raw = record.raw;
 
     markSynced(instance);
-    await runHook(instance.$model, 'retrieved', instance);
+    await runHooks(instance.$model, ['retrieved'], instance);
 
     const cache = await consumeCache(context, null);
     if (cache && !isNil(instance.id)) {

@@ -6,7 +6,6 @@ import changeInstanceExistence
   from '@foscia/core/actions/context/enhancers/hooks/changeInstanceExistence';
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
-import runInstanceHooks from '@foscia/core/actions/context/enhancers/hooks/runInstanceHooks';
 import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
 import {
   Action,
@@ -16,6 +15,7 @@ import {
   ConsumeModel,
   ConsumeSerializer,
 } from '@foscia/core/actions/types';
+import runHooks from '@foscia/core/hooks/runHooks';
 import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/types';
 
 /**
@@ -39,8 +39,8 @@ export default function create<
     .use(context({ action: 'create' }))
     .use(instanceData(instance))
     .use(changeInstanceExistence(true))
-    .use(onRunning(runInstanceHooks(instance, ['creating', 'saving'])))
-    .use(onSuccess(runInstanceHooks(instance, ['created', 'saved'])));
+    .use(onRunning(() => runHooks(instance.$model, ['creating', 'saving'], instance)))
+    .use(onSuccess(() => runHooks(instance.$model, ['created', 'saved'], instance)));
 }
 
 type EnhancerExtension = ActionParsedExtension<{
