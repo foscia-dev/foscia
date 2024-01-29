@@ -1,16 +1,10 @@
 .presentationContainer {
     max-width: 1000px;
-    text-align: center;
-}
-
-.presentation {
-    font-size: 1.15rem;
 }
 
 .features {
     display: flex;
     align-items: center;
-    text-align: center;
     width: 100%;
 }
 
@@ -59,10 +53,6 @@
 }
 
 @media screen and (max-width: 996px) {
-    .presentation {
-        font-size: 1.05rem;
-    }
-
     .featureCol {
         --ifm-col-width: calc(6 / 12 * 100%) !important;
     }

@@ -113,6 +113,36 @@ html[data-theme="dark"] .header-github-link:before {
     stop-color: var(--accent-color);
 }
 
+.text--large {
+    font-size: 1.15rem;
+}
+
+@media screen and (max-width: 996px) {
+    .text--large {
+        font-size: 1.05rem;
+    }
+}
+
+.title-primary {
+    margin-top: 24px;
+    margin-bottom: 32px;
+}
+
+.title-primary__text {
+    position: relative;
+}
+
+.title-primary__text:after {
+    content: "";
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: -12px;
+    background: radial-gradient(circle at top left, var(--ifm-color-primary), var(--accent-color));
+    border-radius: 3px;
+    height: 6px;
+}
+
 .border--primary {
     --border-primary-background: var(--ifm-background-color);
     position: relative;

@@ -3,6 +3,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import '@fontsource/fira-mono';
 import '@fontsource/poppins';
 import HomepageExamples from '@site/src/components/HomepageExamples';
+import HomepageWhyUse from '@site/src/components/HomepageWhyUse';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import Layout from '@theme/Layout';
 import clsx from 'clsx';
@@ -62,6 +63,7 @@ export default function Home() {
       <HomepageHeader />
       <main>
         <HomepageFeatures />
+        <HomepageWhyUse />
         <HomepageExamples />
       </main>
     </Layout>

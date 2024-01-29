@@ -101,16 +101,18 @@ function Feature({ Icon, title, description }) {
 
 export default function HomepageFeatures() {
   return (
-    <section className={`padding--md`}>
-      <div className={`${styles.presentationContainer} container`}>
-        <h2>
-          What's Foscia?
+    <section>
+      <div className={`${styles.presentationContainer} container text--center`}>
+        <h2 className="title-primary">
+          <span className="title-primary__text">
+            What's Foscia?
+          </span>
         </h2>
-        <p className={styles.presentation}>
+        <p className="text--large">
           <strong>Foscia acts as an intermediary layer</strong> between
           your application and your data source (API, database).
         </p>
-        <ul style={{ textAlign: 'left' }}>
+        <ul className="text--left">
           <li>
             It keeps your <strong>data structure clear and type
             safe</strong> with simple models definition and provide a lot of
@@ -127,13 +129,13 @@ export default function HomepageFeatures() {
             with already implemented HTTP/REST/JSON:API exchanges.
           </li>
         </ul>
-        <p className={styles.presentation}>
+        <p className="text--large">
           <strong>
             Foscia provides all features you would expect from an ORM/data client.
           </strong>
         </p>
       </div>
-      <div className="container">
+      <div className="container text--center">
         <div className={`${styles.featuresRow} row`}>
           {FeatureList.map((props, idx) => (
             <Feature key={idx} {...props} />

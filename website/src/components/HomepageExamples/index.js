@@ -134,7 +134,7 @@ function Example({ title, description, link, children }) {
   return (
     <div className="margin-bottom--lg">
       <div className="text--center">
-        <h2>{title}</h2>
+        <h3>{title}</h3>
         <p>{description}</p>
       </div>
       {children}
@@ -155,7 +155,12 @@ export default function HomepageExamples() {
   return (
     <section>
       <div className={`${styles.examples} container`}>
-        <div className="padding-horiz--md">
+        <h2 className="title-primary text--center">
+          <span className="title-primary__text">
+            Discover Foscia
+          </span>
+        </h2>
+        <div>
           <Example {...definitionExampleMeta}>
             <Tabs>
               <TabItem
