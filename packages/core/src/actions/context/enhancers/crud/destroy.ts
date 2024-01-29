@@ -31,8 +31,8 @@ export default function destroy<
     .use(forInstance<C, D, I>(instance))
     .use(context({ action: 'destroy' }))
     .use(changeInstanceExistence(false))
-    .use(onRunning(() => runHooks(instance.$model, ['destroying'], instance)))
-    .use(onSuccess(() => runHooks(instance.$model, ['destroyed'], instance)));
+    .use(onRunning(() => runHooks(instance.$model, 'destroying', instance)))
+    .use(onSuccess(() => runHooks(instance.$model, 'destroyed', instance)));
 }
 
 type EnhancerExtension = ActionParsedExtension<{

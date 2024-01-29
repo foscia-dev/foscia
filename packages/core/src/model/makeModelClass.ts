@@ -49,8 +49,8 @@ const createModelClass = (
         enumerable: true,
         get: () => {
           const readingHookEvent = { instance: this, def, value: this.$values[def.key] };
-          runHooksSync(this.$model, [`property:reading:${def.key}`], readingHookEvent);
-          runHooksSync(this.$model, ['property:reading'], readingHookEvent);
+          runHooksSync(this.$model, `property:reading:${def.key}`, readingHookEvent);
+          runHooksSync(this.$model, 'property:reading', readingHookEvent);
 
           const currentValue = this.$values[def.key];
           if (
@@ -63,16 +63,16 @@ const createModelClass = (
           }
 
           const readHookEvent = { instance: this, def, value: currentValue };
-          runHooksSync(this.$model, [`property:read:${def.key}`], readHookEvent);
-          runHooksSync(this.$model, ['property:read'], readHookEvent);
+          runHooksSync(this.$model, `property:read:${def.key}`, readHookEvent);
+          runHooksSync(this.$model, 'property:read', readHookEvent);
 
           return currentValue;
         },
         set: (next) => {
           const writeHookEvent = { instance: this, def, prev: this.$values[def.key], next };
 
-          runHooksSync(this.$model, [`property:writing:${def.key}`], writeHookEvent);
-          runHooksSync(this.$model, ['property:writing'], writeHookEvent);
+          runHooksSync(this.$model, `property:writing:${def.key}`, writeHookEvent);
+          runHooksSync(this.$model, 'property:writing', writeHookEvent);
 
           if (
             def.readOnly
@@ -85,8 +85,8 @@ const createModelClass = (
 
           this.$values[def.key] = next;
 
-          runHooksSync(this.$model, [`property:write:${def.key}`], writeHookEvent);
-          runHooksSync(this.$model, ['property:write'], writeHookEvent);
+          runHooksSync(this.$model, `property:write:${def.key}`, writeHookEvent);
+          runHooksSync(this.$model, 'property:write', writeHookEvent);
         },
       });
 
