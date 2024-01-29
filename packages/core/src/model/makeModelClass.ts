@@ -1,4 +1,5 @@
 import FosciaError from '@foscia/core/errors/fosciaError';
+import runHooksSync from '@foscia/core/hooks/runHooksSync';
 import { HooksRegistrar } from '@foscia/core/hooks/types';
 import logger from '@foscia/core/logger/logger';
 import isIdDef from '@foscia/core/model/checks/isIdDef';
@@ -47,6 +48,10 @@ const createModelClass = (
       Object.defineProperty(this, def.key, {
         enumerable: true,
         get: () => {
+          const readingHookEvent = { instance: this, def, value: this.$values[def.key] };
+          runHooksSync(this.$model, [`property:reading:${def.key}`], readingHookEvent);
+          runHooksSync(this.$model, ['property:reading'], readingHookEvent);
+
           const currentValue = this.$values[def.key];
           if (
             currentValue === undefined
@@ -57,9 +62,18 @@ const createModelClass = (
             );
           }
 
+          const readHookEvent = { instance: this, def, value: currentValue };
+          runHooksSync(this.$model, [`property:read:${def.key}`], readHookEvent);
+          runHooksSync(this.$model, ['property:read'], readHookEvent);
+
           return currentValue;
         },
-        set: (nextValue) => {
+        set: (next) => {
+          const writeHookEvent = { instance: this, def, prev: this.$values[def.key], next };
+
+          runHooksSync(this.$model, [`property:writing:${def.key}`], writeHookEvent);
+          runHooksSync(this.$model, ['property:writing'], writeHookEvent);
+
           if (
             def.readOnly
             && (this.$model.$config.strictReadOnly ?? this.$model.$config.strict ?? true)
@@ -69,7 +83,10 @@ const createModelClass = (
             );
           }
 
-          this.$values[def.key] = nextValue;
+          this.$values[def.key] = next;
+
+          runHooksSync(this.$model, [`property:write:${def.key}`], writeHookEvent);
+          runHooksSync(this.$model, ['property:write'], writeHookEvent);
         },
       });
 
@@ -87,7 +104,7 @@ const createModelClass = (
     writable: true,
     value: Object.entries(hooks ?? {}).reduce((newHooks, [hook, callbacks]) => ({
       ...newHooks,
-      [hook]: [...callbacks],
+      [hook]: [...(callbacks ?? [])],
     }), {}),
   });
 

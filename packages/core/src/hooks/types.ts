@@ -1,5 +1,7 @@
 import { Awaitable, Dictionary } from '@foscia/shared';
 
+export type SyncHookCallback<E> = (event: E) => void;
+
 export type HookCallback<E> = (event: E) => Awaitable<void>;
 
 export type HooksDefinition = Dictionary<HookCallback<any>>;

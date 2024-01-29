@@ -1,4 +1,4 @@
-import { Hookable, HookCallback } from '@foscia/core/hooks/types';
+import { Hookable, HookCallback, SyncHookCallback } from '@foscia/core/hooks/types';
 import {
   SYMBOL_MODEL_CLASS,
   SYMBOL_MODEL_INSTANCE,
@@ -194,23 +194,58 @@ export type ModelSchemaRelations<D extends {} = {}> = {
 
 /**
  * Model generic hook callback function.
+ *
+ * @deprecated Use {@link ModelInstanceHookCallback} instead.
  */
 export type ModelHookCallback = HookCallback<ModelInstance>;
 
 /**
+ * Model instance generic hook callback function.
+ */
+export type ModelInstanceHookCallback = HookCallback<ModelInstance>;
+
+/**
+ * Model instance read property generic hook callback function.
+ */
+export type ModelInstancePropertyReadHookCallback = SyncHookCallback<{
+  instance: ModelInstance;
+  def: ModelId | ModelAttribute | ModelRelation;
+  value: unknown;
+}>;
+
+/**
+ * Model instance write property generic hook callback function.
+ */
+export type ModelInstancePropertyWriteHookCallback = SyncHookCallback<{
+  instance: ModelInstance;
+  def: ModelId | ModelAttribute | ModelRelation;
+  prev: unknown;
+  next: unknown;
+}>;
+
+/**
  * Model's hooks definition.
  */
-export type ModelHooksDefinition = {
-  retrieved: ModelHookCallback;
-  creating: ModelHookCallback;
-  created: ModelHookCallback;
-  updating: ModelHookCallback;
-  updated: ModelHookCallback;
-  saving: ModelHookCallback;
-  saved: ModelHookCallback;
-  destroying: ModelHookCallback;
-  destroyed: ModelHookCallback;
-};
+export type ModelHooksDefinition =
+  & {
+    retrieved: ModelInstanceHookCallback;
+    creating: ModelInstanceHookCallback;
+    created: ModelInstanceHookCallback;
+    updating: ModelInstanceHookCallback;
+    updated: ModelInstanceHookCallback;
+    saving: ModelInstanceHookCallback;
+    saved: ModelInstanceHookCallback;
+    destroying: ModelInstanceHookCallback;
+    destroyed: ModelInstanceHookCallback;
+    'property:reading': ModelInstancePropertyReadHookCallback;
+    'property:read': ModelInstancePropertyReadHookCallback;
+    'property:writing': ModelInstancePropertyWriteHookCallback;
+    'property:write': ModelInstancePropertyWriteHookCallback;
+  }
+  & Record<`property:reading:${string}`, ModelInstancePropertyReadHookCallback>
+  & Record<`property:read:${string}`, ModelInstancePropertyReadHookCallback>
+  & Record<`property:writing:${string}`, ModelInstancePropertyWriteHookCallback>
+  & Record<`property:write:${string}`, ModelInstancePropertyWriteHookCallback>;
 
 /**
  * Extendable model class holding the configuration and schema.

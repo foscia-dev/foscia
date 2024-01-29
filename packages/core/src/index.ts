@@ -35,6 +35,10 @@ import onSaved from '@foscia/core/model/hooks/onSaved';
 import onSaving from '@foscia/core/model/hooks/onSaving';
 import onUpdated from '@foscia/core/model/hooks/onUpdated';
 import onUpdating from '@foscia/core/model/hooks/onUpdating';
+import onPropertyRead from '@foscia/core/model/hooks/properties/onPropertyRead';
+import onPropertyReading from '@foscia/core/model/hooks/properties/onPropertyReading';
+import onPropertyWrite from '@foscia/core/model/hooks/properties/onPropertyWrite';
+import onPropertyWriting from '@foscia/core/model/hooks/properties/onPropertyWriting';
 import isSame from '@foscia/core/model/isSame';
 import makeComposable from '@foscia/core/model/makeComposable';
 import makeModel from '@foscia/core/model/makeModel';
@@ -135,6 +139,10 @@ export {
   onSaved,
   onDestroying,
   onDestroyed,
+  onPropertyRead,
+  onPropertyReading,
+  onPropertyWrite,
+  onPropertyWriting,
   compareSnapshots,
   restoreSnapshot,
   takeSnapshot,
