@@ -3,7 +3,7 @@
 ## [0.6.0](https://github.com/foscia-dev/foscia/compare/v0.5.3...v0.6.0) (2024-01-28)
 
 Foscia v0.6.0 is out! This is a big step to stability, with totally reworked action dependencies (adapters, etc.).
-Migration should be straight forward if you are not using
+Migration should be straight forward if you are not using complex configuration options or extending dependencies.
 
 ### Features
 
@@ -11,7 +11,7 @@ Migration should be straight forward if you are not using
 * rewritten serialization in a brand new `@foscia/serialization` package which now handle a generic (not
   object/dictionary specific) serialization.
 * rewritten dependencies as factory functions only instead of classes. This make the internal API more private but still
-  customizable using public configuration objects. Each dependencies will be more maintainable and still provide
+  customizable using public configuration objects. Each dependency will be more maintainable and still provide
   customization for end users.
 
 ### BREAKING CHANGES
