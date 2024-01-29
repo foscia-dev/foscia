@@ -17,10 +17,13 @@ export default function withoutHooks<T extends Hookable<any>, R>(
 
       return new Promise((resolve, reject) => {
         value
-          .then((v) => resolve(v))
-          .catch((e) => reject(e))
-          .finally(() => {
+          .then((v) => {
             hookable.$hooks = hooksBackup;
+            resolve(v);
+          })
+          .catch((e) => {
+            hookable.$hooks = hooksBackup;
+            reject(e);
           });
       }) as any;
     }
