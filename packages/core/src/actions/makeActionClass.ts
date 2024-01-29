@@ -66,7 +66,7 @@ export default function makeActionClass<Extension extends {} = {}>(
       try {
         // Context runner might use other context runners, so we must disable
         // hooks at this point to avoid duplicated hooks runs.
-        const result = await withoutHooks(this, () => runner(this as any));
+        const result = await withoutHooks(this, async () => runner(this as any));
 
         await runHooks(this, 'success', { context, result });
 

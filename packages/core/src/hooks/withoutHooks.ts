@@ -15,9 +15,10 @@ export default function withoutHooks<T extends Hookable<any>, R>(
     if (value instanceof Promise) {
       restoreHooksImmediately = false;
 
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         value
           .then((v) => resolve(v))
+          .catch((e) => reject(e))
           .finally(() => {
             hookable.$hooks = hooksBackup;
           });
