@@ -5,6 +5,7 @@ import {
   fill,
   find,
   forModel,
+  forRelation,
   include,
   markSynced,
   none,
@@ -102,6 +103,55 @@ describe('integration: JSON:API', () => {
     expect(posts[1].body).toStrictEqual('Bar Body');
     expect(posts[1].publishedAt).toBeNull();
     expect(posts[1].comments).toHaveLength(0);
+  });
+
+  it('should run action: relation', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json({
+      data: [
+        {
+          type: 'comments',
+          id: '1',
+          attributes: {
+            body: 'Foo Body',
+          },
+        },
+        {
+          type: 'comments',
+          id: '2',
+          attributes: {
+            body: 'Bar Body',
+          },
+        },
+      ],
+    }));
+
+    const action = makeJsonApiActionMock();
+
+    const post = fill(new PostMock(), { id: '1' });
+    const comments = await action()
+      .use(forRelation(post, 'comments'))
+      .run(all());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/comments');
+    expect(request.method).toStrictEqual('GET');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(request.body).toBeNull();
+
+    expect(comments).toHaveLength(2);
+
+    expect(comments[0]).toBeInstanceOf(CommentMock);
+    expect(comments[0].$exists).toStrictEqual(true);
+    expect(comments[0].id).toStrictEqual('1');
+    expect(comments[0].body).toStrictEqual('Foo Body');
+
+    expect(comments[1]).toBeInstanceOf(CommentMock);
+    expect(comments[1].$exists).toStrictEqual(true);
+    expect(comments[1].id).toStrictEqual('2');
+    expect(comments[1].body).toStrictEqual('Bar Body');
   });
 
   it('should run action: find record', async () => {

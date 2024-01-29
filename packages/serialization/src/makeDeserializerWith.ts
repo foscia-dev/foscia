@@ -4,6 +4,7 @@ import {
   consumeInstance,
   consumeModel,
   consumeRegistry,
+  consumeRelation,
   DeserializedData,
   DeserializerError,
   forceFill,
@@ -67,10 +68,9 @@ export default function makeDeserializerWith<
 
     // When no registry is configured or identifier type was not retrieved,
     // we'll try to resolve the model from the context.
-    const model = consumeModel(context, null);
     const guessedModel = await guessContextModel({
-      model: (record.parent ? record.parent.instance.$model : model) as Model,
-      relation: record.parent?.def,
+      model: (record.parent?.instance.$model ?? consumeModel(context, null)) as Model,
+      relation: record.parent?.def ?? consumeRelation(context, null),
       registry,
       ensureType: identifier.type,
     });
