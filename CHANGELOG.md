@@ -1,7 +1,12 @@
 # Changelog
 
-* feat(cli): sort properties inside rendered definition (b05a183)
-* fix(serialization): correctly mark deserialized relations as loaded (6348115)
+## [0.6.2](https://github.com/foscia-dev/foscia/compare/v0.6.1...v0.6.2) (2024-01-30)
+
+### Bug Fixes
+* **serialization**: correctly mark deserialized relations as loaded (6348115)
+
+### Features
+* **cli**: sort properties inside rendered definition (b05a183)
 
 ## [0.6.1](https://github.com/foscia-dev/foscia/compare/v0.6.0...v0.6.1) (2024-01-30)
 
