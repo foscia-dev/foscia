@@ -3,7 +3,5 @@ type ComposableForDefTemplateData = {
 };
 
 export default function renderComposableForDef({ composable }: ComposableForDefTemplateData) {
-  return `
-...${composable}
-`.trim();
+  return composable;
 }

@@ -2,10 +2,12 @@ import FosciaError from '@foscia/core/errors/fosciaError';
 import runHooksSync from '@foscia/core/hooks/runHooksSync';
 import { HooksRegistrar } from '@foscia/core/hooks/types';
 import logger from '@foscia/core/logger/logger';
+import isComposable from '@foscia/core/model/checks/isComposable';
 import isIdDef from '@foscia/core/model/checks/isIdDef';
 import isPropDef from '@foscia/core/model/checks/isPropDef';
 import forceFill from '@foscia/core/model/forceFill';
 import makeDefinition from '@foscia/core/model/makeDefinition';
+import makeModelSetup from '@foscia/core/model/makeModelSetup';
 import id from '@foscia/core/model/props/builders/id';
 import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
 import {
@@ -15,9 +17,10 @@ import {
   ModelHooksDefinition,
   ModelInstance,
   ModelRelation,
+  ModelSetup,
 } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_CLASS, SYMBOL_MODEL_INSTANCE } from '@foscia/core/symbols';
-import { eachDescriptors, isNil, mergeConfig, value } from '@foscia/shared';
+import { eachDescriptors, mergeConfig, value } from '@foscia/shared';
 
 const computeDefault = (instance: ModelInstance, def: ModelAttribute | ModelRelation) => {
   if (def.default && typeof def.default === 'object') {
@@ -34,7 +37,10 @@ const createModelClass = (
   config: ModelConfig,
   definition: object,
   hooks: HooksRegistrar<ModelHooksDefinition> | null,
+  setup: ModelSetup,
 ) => {
+  const modelSetup = makeModelSetup(setup);
+
   const ModelClass = function ModelConstructor(this: ModelInstance) {
     Object.defineProperty(this, '$FOSCIA_TYPE', { value: SYMBOL_MODEL_INSTANCE });
     Object.defineProperty(this, '$model', { value: this.constructor });
@@ -94,35 +100,39 @@ const createModelClass = (
         forceFill(this, { [def.key]: computeDefault(this, def) });
       }
     });
+
+    modelSetup.init.forEach((callback) => callback(this));
   } as unknown as ExtendableModel;
 
   Object.defineProperty(ModelClass, '$FOSCIA_TYPE', { value: SYMBOL_MODEL_CLASS });
   Object.defineProperty(ModelClass, '$type', { value: type });
   Object.defineProperty(ModelClass, '$config', { value: { ...config } });
   Object.defineProperty(ModelClass, '$schema', { value: {} });
+  Object.defineProperty(ModelClass, '$setup', { value: makeModelSetup(setup) });
   Object.defineProperty(ModelClass, '$hooks', {
     writable: true,
-    value: Object.entries(hooks ?? {}).reduce((newHooks, [hook, callbacks]) => ({
-      ...newHooks,
-      [hook]: [...(callbacks ?? [])],
-    }), {}),
+    value: hooks ?? {},
   });
 
   ModelClass.configure = (newConfig: ModelConfig, override = true) => createModelClass(
     ModelClass.$type,
     mergeConfig(ModelClass.$config, newConfig, override),
     definition,
-    ModelClass.$hooks,
+    {},
+    modelSetup,
   );
 
   ModelClass.extend = (rawDefinition?: object) => createModelClass(
     ModelClass.$type,
     ModelClass.$config,
     { ...definition, ...(rawDefinition ?? {}) },
-    ModelClass.$hooks,
-  );
+    {},
+    modelSetup,
+  ) as any;
 
-  eachDescriptors(makeDefinition(definition), (key, descriptor) => {
+  const applyDefinition = (
+    currentDefinition: object,
+  ) => eachDescriptors(currentDefinition, (key, descriptor) => {
     if (key === 'type') {
       throw new FosciaError(
         '`type` is forbidden as a definition key because it may be used with some implementations.',
@@ -135,16 +145,25 @@ const createModelClass = (
       );
     }
 
-    if (!isNil(descriptor.value) && isPropDef(descriptor.value)) {
+    if (isComposable(descriptor.value)) {
+      applyDefinition(descriptor.value.$definition);
+
+      modelSetup.boot.push(...descriptor.value.$setup.boot);
+      modelSetup.init.push(...descriptor.value.$setup.init);
+    } else if (isPropDef(descriptor.value)) {
       ModelClass.$schema[key] = descriptor.value;
     } else {
       Object.defineProperty(ModelClass.prototype, key, descriptor);
     }
   });
 
+  applyDefinition(makeDefinition(definition));
+
+  modelSetup.boot.forEach((callback) => callback(ModelClass));
+
   return ModelClass;
 };
 
-export default function makeModelClass(type: string, config: ModelConfig) {
-  return createModelClass(type, config, { id: id(), lid: id() }, {});
+export default function makeModelClass(type: string, config: ModelConfig, setup: ModelSetup) {
+  return createModelClass(type, config, { id: id(), lid: id() }, {}, setup);
 }
