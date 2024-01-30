@@ -20,7 +20,12 @@ export default function relationData<C extends {}, I extends ModelInstance, Reco
     action: Action<C & ConsumeSerializer<Record, Related, Data>>,
   ) => action.use(context({
     data: await serializeWith(action, async (serializer, ctx) => serializer.serialize(
-      await serializer.serializeRelation(instance, instance.$model.$schema[key], ctx),
+      await serializer.serializeRelation(
+        instance,
+        instance.$model.$schema[key],
+        instance[key],
+        ctx,
+      ),
       ctx,
     )),
   }));

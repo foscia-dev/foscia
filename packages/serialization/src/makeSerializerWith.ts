@@ -138,10 +138,15 @@ export default function makeSerializerWith<Record, Related, Data>(
   ) => (config.createData ? config.createData(records, context) : records) as Data;
 
   serializer = {
-    serializeRelation: async (instance: ModelInstance, def: ModelRelation, context: {}) => {
+    serializeRelation: async (
+      instance: ModelInstance,
+      def: ModelRelation,
+      value: Arrayable<ModelInstance> | null,
+      context: {},
+    ) => {
       const serializerContext = makeSerializerContext(instance, def, context);
 
-      return serializeRelationWith(serializerContext, serializeRelated, []);
+      return serializeRelationWith({ ...serializerContext, value }, serializeRelated, []);
     },
     serializeInstance,
     serialize,
