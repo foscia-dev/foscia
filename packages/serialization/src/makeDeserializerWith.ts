@@ -222,6 +222,8 @@ export default function makeDeserializerWith<
           forceFill(instance, {
             [key]: await deserializeRelationValue(deserializerContext, instancesMap),
           });
+
+          instance.$loaded[def.key] = true;
         }
       }),
     ]);
