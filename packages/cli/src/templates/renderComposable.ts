@@ -6,7 +6,7 @@ import { CLIConfig } from '@foscia/cli/utils/config/config';
 import { ImportsList } from '@foscia/cli/utils/imports/makeImportsList';
 import { DefinitionProperty } from '@foscia/cli/utils/input/promptForProperties';
 import toIndent from '@foscia/cli/utils/output/toIndent';
-import { uniq } from 'lodash-es';
+import { orderBy, uniq } from 'lodash-es';
 
 type ComposableTemplateData = {
   config: CLIConfig;
@@ -27,7 +27,7 @@ export function renderDefinition(
       ...composables.map(
         (composable) => toIndent(config, renderComposableForDef({ composable })),
       ),
-      ...properties.map(
+      ...orderBy(properties, [(p) => ['attr', 'hasOne', 'hasMany'].indexOf(p.typology)]).map(
         (property) => toIndent(config, renderPropertyForDef({ property })),
       ),
     ]).join(',\n')},`
