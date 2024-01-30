@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.6.1](https://github.com/foscia-dev/foscia/compare/v0.6.0...v0.6.1) (2024-01-30)
+
+### Bug Fixes
+* **core:** async withoutHooks error rejection ([16e57a9](https://github.com/foscia-dev/foscia/commit/16e57a9e569e24fb62267b4b93415c07f73b4fcb))
+* **core:** ignore undefined values inside snapshots ([9059f43](https://github.com/foscia-dev/foscia/commit/9059f432762c23163341ff84d6d600eb9132dd6b))
+* **core:** run execute instead of adapter read when no action provided ([79148c3](https://github.com/foscia-dev/foscia/commit/79148c38b2f2f908ca3b24f1f3bf43d057da9ee4))
+* **core:** withoutHooks will correctly restore hooks ([780aeeb](https://github.com/foscia-dev/foscia/commit/780aeebbb7503840f716f7ce2225d26b1a3e1458))
+* **serialization:** context relation not correctly infered ([06200a6](https://github.com/foscia-dev/foscia/commit/06200a6e10dc632e85d8ebb4350f1b50612dcfdd))
+* write model values using setter instead of $values object ([3b80ed4](https://github.com/foscia-dev/foscia/commit/3b80ed487b394e0af36ff7fb2a58fd93318ebbf3))
+
+### Features
+* **core:** add ability to disable readonly protection on models ([63dd154](https://github.com/foscia-dev/foscia/commit/63dd1546c30c5f32475e8c5e940b1a2f930f8c58))
+* **core:** add forceFill function to write all properties on model ([82ffde0](https://github.com/foscia-dev/foscia/commit/82ffde08313c7b347adeb8b8d512b5a4b5abec0a))
+* **core:** add properties hooks ([e8738c3](https://github.com/foscia-dev/foscia/commit/e8738c36816a6147f128f63c89cbc7ac62777680))
+* **core:** add relationData enhancer to serialize relation's value ([9721856](https://github.com/foscia-dev/foscia/commit/9721856310c92bb18fea194640c211277fe6b278))
+* **core:** add runHooks, deprecate runHook ([56b50ff](https://github.com/foscia-dev/foscia/commit/56b50ff68340536f10396a37d78680c001f14eb1))
+* **core:** add sync callback support for withoutHooks ([22df8d6](https://github.com/foscia-dev/foscia/commit/22df8d627ea9d42ae07e53bc35e8bc834a2be025))
+
 ## [0.6.0](https://github.com/foscia-dev/foscia/compare/v0.5.3...v0.6.0) (2024-01-28)
 
 Foscia v0.6.0 is out! This is a big step to stability, with totally reworked action dependencies (adapters, etc.).
