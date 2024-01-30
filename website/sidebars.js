@@ -75,7 +75,7 @@ const sidebars = {
         {
           type: 'link',
           label: 'JSON REST Playground',
-          href: 'https://stackblitz.com/edit/foscia?file=playground.ts',
+          href: 'https://codesandbox.io/p/sandbox/boring-hoover-9n3ylg?file=%2Fsrc%2Fplayground.ts%3A11%2C42',
         },
       ],
       link: {

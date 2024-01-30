@@ -42,7 +42,7 @@ function HomepageHeader() {
             </Link>
             <Link
               className={clsx('button button--secondary button--lg margin--sm', styles.hero__button)}
-              to="https://stackblitz.com/edit/foscia?file=playground.ts"
+              to="https://codesandbox.io/p/sandbox/boring-hoover-9n3ylg?file=%2Fsrc%2Fplayground.ts%3A11%2C42"
             >
               Playground
             </Link>

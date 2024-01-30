@@ -96,7 +96,7 @@ const config = {
             position: 'right',
           },
           {
-            href: 'https://stackblitz.com/edit/foscia?file=playground.ts',
+            href: 'https://codesandbox.io/p/sandbox/boring-hoover-9n3ylg?file=%2Fsrc%2Fplayground.ts%3A11%2C42',
             label: 'Playground',
             position: 'right',
           },
@@ -144,7 +144,7 @@ const config = {
             items: [
               {
                 label: 'Playground',
-                href: 'https://stackblitz.com/edit/foscia?file=playground.ts',
+                href: 'https://codesandbox.io/p/sandbox/boring-hoover-9n3ylg?file=%2Fsrc%2Fplayground.ts%3A11%2C42',
               },
               {
                 label: 'GitHub',

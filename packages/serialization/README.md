@@ -13,7 +13,7 @@
   Documentation
 </a>
 •
-<a href="https://stackblitz.com/edit/foscia?file=playground.ts">
+<a href="https://codesandbox.io/p/sandbox/boring-hoover-9n3ylg?file=%2Fsrc%2Fplayground.ts%3A11%2C42">
   Playground
 </a>
 </p>
