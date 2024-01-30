@@ -1,3 +1,4 @@
+import isComposable from '@foscia/core/model/checks/isComposable';
 import isPendingPropDef from '@foscia/core/model/checks/isPendingPropDef';
 import isPropDef from '@foscia/core/model/checks/isPropDef';
 import { ModelParsedDefinition } from '@foscia/core/model/types';
@@ -5,6 +6,10 @@ import { Dictionary, eachDescriptors, makeDescriptorHolder } from '@foscia/share
 
 function parseDescriptor(key: string, descriptor: PropertyDescriptor) {
   if (descriptor.value) {
+    if (isComposable(descriptor.value)) {
+      return descriptor.value;
+    }
+
     if (isPropDef(descriptor.value)) {
       return { ...descriptor.value, key };
     }
