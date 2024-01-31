@@ -26,7 +26,7 @@ import {
   wrapVariadic,
 } from '@foscia/shared';
 
-type IncludeLoaderOptions<
+type RefreshIncludeLoaderOptions<
   RawData,
   Data,
   Deserialized extends DeserializedData,
@@ -47,7 +47,7 @@ async function refreshLoad<
   I extends ModelInstance,
 >(
   action: ActionFactory<[], C, {}>,
-  options: IncludeLoaderOptions<RawData, Data, Deserialized, C>,
+  options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C>,
   instances: I[],
   relations: ModelRelationDotKey<I>[],
 ) {
@@ -89,7 +89,7 @@ export default function makeRefreshIncludeLoader<
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
 >(
   action: ActionFactory<[], C, {}>,
-  options: IncludeLoaderOptions<RawData, Data, Deserialized, C>,
+  options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C>,
 ) {
   return async <I extends ModelInstance>(
     instances: Arrayable<I>,

@@ -49,7 +49,7 @@ supports nested relations keys if your data source supports them.
 
 Here is an example when using a JSON:API backend with an `ids` filter available.
 
-```typescript title="loaders/refreshLoad.ts"
+```typescript title="loaders/loadWithRefresh.ts"
 import { makeRefreshIncludeLoader } from '@foscia/core';
 import { filterBy } from '@foscia/jsonapi';
 import action from './action';
@@ -63,10 +63,10 @@ export default makeRefreshIncludeLoader(action, {
 You can now use the loader on any instance.
 
 ```typescript
-import refreshLoad from './loaders/refreshLoad';
+import loadWithRefresh from './loaders/loadWithRefresh';
 
-await refreshLoad(myPost, 'comments');
-await refreshLoad(myPostsArray, ['comments', 'comments.author']);
+await loadWithRefresh(myPost, 'comments');
+await loadWithRefresh(myPostsArray, ['comments', 'comments.author']);
 ```
 
 :::info
@@ -101,7 +101,7 @@ such as JSON:API.
 
 It does not support nested relations keys as it will be dangerously inefficient.
 
-```typescript title="loaders/forRelationLoad.ts"
+```typescript title="loaders/loadWithQuery.ts"
 import { makeQueryRelationLoader } from '@foscia/core';
 import action from './action';
 
@@ -111,9 +111,9 @@ export default makeQueryRelationLoader(action);
 You can now use the loader on any instance.
 
 ```typescript
-import forRelationLoad from './loaders/forRelationLoad';
+import loadWithQuery from './loaders/loadWithQuery';
 
-await forRelationLoad(myPost, 'comments');
+await loadWithQuery(myPost, 'comments');
 ```
 
 :::warning
