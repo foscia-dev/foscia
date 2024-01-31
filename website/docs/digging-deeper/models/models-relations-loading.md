@@ -80,8 +80,6 @@ useless records fetching).
 
 #### Options
 
-`makeRefreshIncludeLoader` provides multiple options:
-
 ##### `chunk: (instances: ModelInstance[]): ModelInstance[][]`
 
 A function to split the instances array to multiple arrays (e.g. to avoid
@@ -122,3 +120,13 @@ Because this loader will run one action per instance and relation, it is only
 recommended for one instance's relation loading, not many.
 
 :::
+
+#### Options
+
+##### `disablePerformanceWarning: boolean`
+
+`makeQueryRelationLoader` will log a warning if you are using it to
+load multiple instances relations in one call, because it may cause
+performance issues (multiple actions would run).
+
+You can pass this option with `true` to avoid this warning.
