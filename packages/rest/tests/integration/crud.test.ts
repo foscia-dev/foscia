@@ -3,12 +3,11 @@ import {
   changed,
   destroy,
   fill,
-  forModel,
-  forRelation,
   include,
   markSynced,
   none,
   one,
+  query,
   save,
   when,
 } from '@foscia/core';
@@ -51,7 +50,7 @@ describe('integration: JSON REST', () => {
     const action = makeJsonRestActionMock();
 
     const posts = await action()
-      .use(forModel(PostMock))
+      .use(query(PostMock))
       .use(include('comments'))
       .run(all());
 
@@ -106,8 +105,9 @@ describe('integration: JSON REST', () => {
     const action = makeJsonRestActionMock();
 
     const post = fill(new PostMock(), { id: '1' });
+    post.$exists = true;
     const comments = await action()
-      .use(forRelation(post, 'comments'))
+      .use(query(post, 'comments'))
       .run(all());
 
     expect(fetchMock).toHaveBeenCalledOnce();

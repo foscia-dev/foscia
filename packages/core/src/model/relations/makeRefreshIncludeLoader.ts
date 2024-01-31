@@ -1,4 +1,5 @@
-import { all, forModel, include, when } from '@foscia/core/actions';
+import { all, include, when } from '@foscia/core/actions';
+import query from '@foscia/core/actions/context/enhancers/query';
 import {
   Action,
   ActionFactory,
@@ -52,7 +53,7 @@ async function refreshLoad<
 ) {
   const model = instances[0].$model;
   const refreshedInstances = await action()
-    .use(forModel(model as Model))
+    .use(query(model as Model))
     .use(include(wrapVariadic(...relations) as any))
     .use(when(() => options.prepare, async (a, p) => {
       await p(a as Action<C & ConsumeModel>, { instances, relations });

@@ -3,14 +3,12 @@ import {
   changed,
   destroy,
   fill,
-  find,
-  forModel,
-  forRelation,
   include,
   markSynced,
   none,
   one,
   oneOrFail,
+  query,
   save,
   when,
 } from '@foscia/core';
@@ -62,7 +60,7 @@ describe('integration: JSON:API', () => {
     const action = makeJsonApiActionMock();
 
     const data = await action()
-      .use(forModel(PostMock))
+      .use(query(PostMock))
       .use(include('comments'))
       .use(filterBy('search', 'foo bar'))
       .use(paginate({ size: 10, number: 1 }))
@@ -129,8 +127,9 @@ describe('integration: JSON:API', () => {
     const action = makeJsonApiActionMock();
 
     const post = fill(new PostMock(), { id: '1' });
+    post.$exists = true;
     const comments = await action()
-      .use(forRelation(post, 'comments'))
+      .use(query(post, 'comments'))
       .run(all());
 
     expect(fetchMock).toHaveBeenCalledOnce();
@@ -167,7 +166,7 @@ describe('integration: JSON:API', () => {
     const action = makeJsonApiActionMock();
 
     const post = await action()
-      .use(find(PostMock, '1'))
+      .use(query(PostMock, '1'))
       .run(oneOrFail());
 
     expect(fetchMock).toHaveBeenCalledOnce();
@@ -197,7 +196,7 @@ describe('integration: JSON:API', () => {
     const action = makeJsonApiActionMock();
 
     const post = await action()
-      .use(find(PostMock, '1'))
+      .use(query(PostMock, '1'))
       .run(one());
 
     expect(fetchMock).toHaveBeenCalledOnce();
@@ -359,7 +358,7 @@ describe('integration: JSON:API', () => {
 
     const [post] = await action()
       .use(
-        forModel(PostMock),
+        query(PostMock),
         makeGet('-actions/most-viewed'),
       )
       .run(all());

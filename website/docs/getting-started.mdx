@@ -193,8 +193,8 @@ export default makeActionFactory({
 
 #### Builder pattern syntax
 
-If you want to use the builder pattern syntax (e.g. `action().forModel(Post)`
-instead of `action().use(forModel(Post))`), you must provide the extensions you
+If you want to use the builder pattern syntax (e.g. `action().query(Post)`
+instead of `action().use(query(Post))`), you must provide the extensions you
 want to use during your action factory creation.
 
 Extensions are the second argument passed to `makeActionFactory`.
@@ -246,7 +246,7 @@ can also manually import enhancers and runners extensions you need:
 ```typescript
 import {
   makeActionFactory,
-  forModel,
+  query,
   include,
   all,
   hooksExtensions,
@@ -258,7 +258,7 @@ export default makeActionFactory(
   },
   {
     ...hooksExtensions,
-    ...forModel.extension,
+    ...query.extension,
     ...include.extension,
     ...all.extension,
   },
@@ -273,11 +273,11 @@ modify the action context. When you are ready, you can `run` the action with a
 given **context runner**.
 
 ```typescript
-import { all, forModel } from '@foscia/core';
+import { all, query } from '@foscia/core';
 import Post from './models/post';
 import action from './action';
 
-const posts = await action().use(forModel(Post)).run(all());
+const posts = await action().use(query(Post)).run(all());
 ```
 
 In Foscia, the context enhancers are doing the majority of work to customize the
@@ -285,16 +285,16 @@ action you will run. Context runners only exists to tell how you wish to run the
 action and retrieve the result (raw result, model instance, etc.).
 
 A great example of this is when finding a model using its ID. You'll not use a
-`find` context runner. Instead, you will need to use a `find` context enhancer
+"find" context runner. Instead, you will need to use a `query` context enhancer
 and a `oneOrFail` context runner. This way, you are able to do a find query and
 retrieve a raw result when needed.
 
 ```typescript
-import { find, oneOrFail } from '@foscia/core';
+import { query, oneOrFail } from '@foscia/core';
 import Post from './models/post';
 import action from './action';
 
-const post = await action().use(find(Post, 'abc-123')).run(oneOrFail());
+const post = await action().use(query(Post, 'abc-123')).run(oneOrFail());
 ```
 
 This works the same to send write operations through actions. In the following
@@ -328,17 +328,17 @@ This way, you can standardize all API calls across your application, even when
 those are non JSON:API/REST related.
 
 ```typescript
-import { forInstance, raw } from '@foscia/core';
+import { query, raw, oneOrFail } from '@foscia/core';
 import { makePost } from '@foscia/http';
 import Comment from './comment';
 import action from './action';
 
-const comment = await action().use(find(Comment, '1')).run(oneOrFail());
+const comment = await action().use(query(Comment, '1')).run(oneOrFail());
 
 // Make a POST call to "https://example.com/api/v1/comments/1/publish"
 const response = await action()
   .use(
-    forInstance(comment),
+    query(comment),
     makePost('publish', {
       data: { publishedAt: new Date() },
     }),

@@ -39,31 +39,42 @@ Foscia uses two typologies of functions to run actions, **enhancers** and
 
 ### Retrieving records
 
-`forModel` will target a records index using a model. You can use it in
+`query` can target a records index using a model. You can use it in
 combination with `all` to retrieve a list of the model instances.
 
 ```typescript
-import { forModel, all } from '@foscia/core';
+import { query, all } from '@foscia/core';
 
-const posts = await action().use(forModel(Post)).run(all());
+const posts = await action().use(query(Post)).run(all());
 
 posts.forEach((post) => {
   console.log(post.title);
 });
 ```
 
-`find` will provide a way to target a record using a model and an ID. You can
-use it in combination with `oneOrFail` or `oneOr` to retrieve a single record
-and handle not found errors.
+In addition, `query` also provide a way to target a record using a model and
+an ID. You can use it in combination with `oneOrFail` or `oneOr` to retrieve
+a single record and handle not found errors.
 
 ```typescript
-import { find, oneOrFail } from '@foscia/core';
+import { query, oneOrFail } from '@foscia/core';
 
-const post = await action().use(find(Post, '1')).run(oneOrFail());
+const post = await action().use(query(Post, '1')).run(oneOrFail());
 
 const postOrNull = await action()
-  .use(find(Post, '2'))
+  .use(query(Post, '2'))
   .run(oneOr(() => null));
+```
+
+Finally, `query` can also be used to target a record using an instance.
+If the instance does not exist, this will target the records index, otherwise
+it will target the record. This can be used when writing a record (e.g. update)
+or when [lazy loading a relation](#lazy-loading-relations).
+
+```typescript
+import { query, oneOrFail } from '@foscia/core';
+
+const post = await action().use(query(somePost)).run(oneOrFail());
 ```
 
 ### Eager loading relations
@@ -76,23 +87,24 @@ load related models without further requests. Eager loading also alleviates the
 To eager load a relation, you can use the `include` function.
 
 ```typescript
-import { forModel, all, include } from '@foscia/core';
+import { query, all, include } from '@foscia/core';
 
-const posts = await action().use(forModel(Post), include('author')).run(all());
+const posts = await action().use(query(Post), include('author')).run(all());
 ```
 
 ### Lazy loading relations
 
-Some [implementations for Foscia](/docs/category/implementations) support eager
-loading (such as JSON:API). This provides a way to load related records for a
-relation after having retrieved a record.
+Some [implementations for Foscia](/docs/category/implementations) support lazy
+loading (such as JSON:API). This provides a way to fetch related records for a
+relation with an already retrieved a record.
 
 ```typescript
-import { forModel, forRelation, all, oneOrFail } from '@foscia/core';
+import { query, all, oneOrFail } from '@foscia/core';
 
-const post = await action().use(find(Post, 1)).run(oneOrFail());
-
-const comments = await action().use(forRelation(post, 'comments')).run(all());
+// Fetch a post without relations.
+const post = await action().use(query(Post, 1)).run(oneOrFail());
+// Fetch "comments" relation.
+const comments = await action().use(query(post, 'comments')).run(all());
 ```
 
 :::info
@@ -147,19 +159,19 @@ an already fetched record without interacting with your data source again
 using `cached` and `cachedOrFail`.
 
 ```typescript
-import { find, cached, cachedOrFail } from '@foscia/core';
+import { query, cached, cachedOrFail } from '@foscia/core';
 
-const post = await action().use(find(Post, 1)).run(cached());
-const post = await action().use(find(Post, 1)).run(cachedOrFail());
+const post = await action().use(query(Post, 1)).run(cached());
+const post = await action().use(query(Post, 1)).run(cachedOrFail());
 ```
 
 Sometimes, you may want to interact with the cache if your record does not
 have been cached already. For this particular case, you can use `cachedOr`.
 
 ```typescript
-import { find, cachedOr, oneOrFail } from '@foscia/core';
+import { query, cachedOr, oneOrFail } from '@foscia/core';
 
-const post = await action().use(find(Post, 1)).run(cachedOr(oneOrFail()));
+const post = await action().use(query(Post, 1)).run(cachedOr(oneOrFail()));
 ```
 
 :::info
@@ -177,11 +189,11 @@ an example, you may want to sort results differently based on the user's defined
 sort's direction. This can be done easily using the `when` helper:
 
 ```typescript
-import { when } from '@foscia/core';
+import { query, when } from '@foscia/core';
 import { sortByDesc } from '@foscia/jsonapi';
 
 action()
-  .use(forModel(Post))
+  .use(query(Post))
   .use(when(displayLatestFirst, sortByDesc('createdAt')));
 ```
 
@@ -235,7 +247,7 @@ run step (or context computation).
 ```typescript
 action()
   // Enhance the action.
-  .use(forModel(Post))
+  .use(query(Post))
   .use(include('comments'));
 ```
 
@@ -244,7 +256,7 @@ check the function signature for details.
 
 ```typescript
 action().use(
-  forModel(Post),
+  query(Post),
   include('comments'),
   sortByDesc('publishedAt'),
   // etc.
@@ -272,7 +284,7 @@ Internally, action running will also trigger [actions hooks](#hooks).
 
 ```typescript
 action()
-  .use(forModel(Post))
+  .use(query(Post))
   .use(include('comments'))
   // Run the action.
   .run(all());
@@ -321,11 +333,11 @@ You can temporally disable hook execution for a given action by using the
 callback: if an async callback is passed, it will return a `Promise`.
 
 ```typescript
-import { withoutHooks } from '@foscia/core';
+import { query, all, withoutHooks } from '@foscia/core';
 
 // Retrieve a list of User instances without action hooks running.
 const users = await withoutHooks(action(), async (a) => {
-  return await a.use(forModel(User)).run(all());
+  return await a.use(query(User)).run(all());
 });
 ```
 
@@ -353,7 +365,7 @@ which you should provide a second parameter.
 ```typescript title="action.ts"
 import {
   makeActionFactory,
-  forModel,
+  query,
   include,
   all,
   hooksExtensions,
@@ -365,7 +377,7 @@ export default makeActionFactory(
   },
   {
     ...hooksExtensions,
-    ...forModel.extension,
+    ...query.extension,
     ...include.extension,
     ...all.extension,
   },
@@ -378,7 +390,7 @@ You can now use the extended enhancers and runners without calling `use` or
 ```typescript
 import action from './action';
 
-await action().forModel(Post).include('tags').all();
+await action().query(Post).include('tags').all();
 ```
 
 Every enhancers and runners of Foscia provide a `.extension` property which is

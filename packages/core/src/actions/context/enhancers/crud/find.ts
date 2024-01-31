@@ -11,6 +11,8 @@ import { Model, ModelIdType } from '@foscia/core/model/types';
  * @param id
  *
  * @category Enhancers
+ *
+ * @deprecated Use {@link query} instead.
  */
 export default function find<
   C extends {},

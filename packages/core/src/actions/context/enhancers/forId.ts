@@ -9,6 +9,8 @@ import { ModelIdType } from '@foscia/core/model/types';
  * @param id
  *
  * @category Enhancers
+ *
+ * @deprecated Use {@link query} instead.
  */
 export default function forId(id: ModelIdType | undefined) {
   return context({ id });

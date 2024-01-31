@@ -4,15 +4,13 @@ import {
   cachedOr,
   CacheI,
   context,
-  forInstance,
-  forModel,
-  forRelation,
+  DeserializerI,
   include,
   makeActionClass,
-  DeserializerI,
   one,
   oneOrCurrent,
   oneOrFail,
+  query,
   raw,
   when,
 } from '@foscia/core';
@@ -23,9 +21,7 @@ import PostMock from '../mocks/models/post.mock';
 test('Actions are type safe', async () => {
   const action = () => {
     const ActionClass = makeActionClass().extend({
-      ...forModel.extension,
-      ...forInstance.extension,
-      ...forRelation.extension,
+      ...query.extension,
       ...include.extension,
       ...all.extension,
       ...oneOrFail.extension,
@@ -41,15 +37,15 @@ test('Actions are type safe', async () => {
   };
 
   const postsUsingFunc = await action()
-    .use(forModel(PostMock))
+    .use(query(PostMock))
     .use(include('comments.postedBy'))
     .run(all());
   const postsUsingBuild = await action()
-    .forModel(PostMock)
+    .query(PostMock)
     .include('comments.postedBy')
     .all();
   const postsUsingVariadic = await action()
-    .use(forModel(PostMock), include('comments.postedBy'))
+    .use(query(PostMock), include('comments.postedBy'))
     .run(all());
 
   expectTypeOf(postsUsingFunc).toMatchTypeOf<PostMock[]>();
@@ -57,28 +53,28 @@ test('Actions are type safe', async () => {
   expectTypeOf(postsUsingVariadic).toMatchTypeOf<PostMock[]>();
 
   const postUsingFunc = await action()
-    .use(forInstance(new PostMock()))
+    .use(query(new PostMock()))
     .run(cachedOr(oneOrCurrent()));
   const postUsingBuild = await action()
-    .forInstance(new PostMock())
+    .query(new PostMock())
     .cachedOr(oneOrCurrent());
 
   expectTypeOf(postUsingFunc).toMatchTypeOf<PostMock>();
   expectTypeOf(postUsingBuild).toMatchTypeOf<PostMock>();
 
   const createdPostUsingFunc = await action()
-    .use(forInstance(new PostMock()))
+    .use(query(new PostMock()))
     .use(include('comments.postedBy'))
     .run(when(new PostMock().$exists, one()));
   const createdPostUsingBuild = await action()
-    .forInstance(new PostMock())
+    .query(new PostMock())
     .include('comments.postedBy')
     .when(new PostMock().$exists, one());
   const createdPostUsingFuncOrCurrent = await action()
-    .use(forInstance(new PostMock()))
+    .use(query(new PostMock()))
     .run(oneOrFail());
   const createdPostUsingBuildOrCurrent = await action()
-    .forInstance(new PostMock())
+    .query(new PostMock())
     .oneOrFail();
 
   expectTypeOf(createdPostUsingFunc).toMatchTypeOf<PostMock | null | void>();
@@ -87,60 +83,60 @@ test('Actions are type safe', async () => {
   expectTypeOf(createdPostUsingBuildOrCurrent).toMatchTypeOf<PostMock>();
 
   // @ts-expect-error title is not a post relation
-  await action().use(forModel(PostMock), include('title'));
+  await action().use(query(PostMock), include('title'));
   // @ts-expect-error unknown is not a post relation
-  await action().use(forModel(PostMock), include('unknown'));
+  await action().use(query(PostMock), include('unknown'));
   // @ts-expect-error postedBy is not a post relation
-  await action().use(forModel(PostMock), include('postedBy'));
+  await action().use(query(PostMock), include('postedBy'));
   // @ts-expect-error unknown is not a comment relation
-  await action().use(forModel(PostMock), include('comments.unknown'));
+  await action().use(query(PostMock), include('comments.unknown'));
   // @ts-expect-error title is not a post relation
-  await action().use(forInstance(new PostMock()), include('title'));
+  await action().use(query(new PostMock()), include('title'));
   // @ts-expect-error unknown is not a post relation
-  await action().use(forInstance(new PostMock()), include('unknown'));
+  await action().use(query(new PostMock()), include('unknown'));
   // @ts-expect-error postedBy is not a post relation
-  await action().use(forInstance(new PostMock()), include('postedBy'));
+  await action().use(query(new PostMock()), include('postedBy'));
   // @ts-expect-error unknown is not a comment relation
-  await action().use(forInstance(new PostMock()), include('comments.unknown'));
+  await action().use(query(new PostMock()), include('comments.unknown'));
   // @ts-expect-error body is not a comment relation
-  await action().use(forRelation(new PostMock(), 'comments'), include('body'));
+  await action().use(query(new PostMock(), 'comments'), include('body'));
   // @ts-expect-error unknown is not a comment relation
-  await action().use(forRelation(new PostMock(), 'comments'), include('unknown'));
+  await action().use(query(new PostMock(), 'comments'), include('unknown'));
   // @ts-expect-error comments is not a comment relation
-  await action().use(forRelation(new PostMock(), 'comments'), include('comments'));
+  await action().use(query(new PostMock(), 'comments'), include('comments'));
   // @ts-expect-error postedBy.unknown is not a comment relation
-  await action().use(forRelation(new PostMock(), 'comments'), include('postedBy.unknown'));
+  await action().use(query(new PostMock(), 'comments'), include('postedBy.unknown'));
 
   // @ts-expect-error title is not a post relation
-  await action().forModel(PostMock).include('title');
+  await action().query(PostMock).include('title');
   // @ts-expect-error unknown is not a post relation
-  await action().forModel(PostMock).include('unknown');
+  await action().query(PostMock).include('unknown');
   // @ts-expect-error postedBy is not a post relation
-  await action().forModel(PostMock).include('postedBy');
+  await action().query(PostMock).include('postedBy');
   // @ts-expect-error unknown is not a comment relation
-  await action().forModel(PostMock).include('comments.unknown');
+  await action().query(PostMock).include('comments.unknown');
   // @ts-expect-error title is not a post relation
-  await action().forInstance(new PostMock()).include('title');
+  await action().query(new PostMock()).include('title');
   // @ts-expect-error unknown is not a post relation
-  await action().forInstance(new PostMock()).include('unknown');
+  await action().query(new PostMock()).include('unknown');
   // @ts-expect-error postedBy is not a post relation
-  await action().forInstance(new PostMock()).include('postedBy');
+  await action().query(new PostMock()).include('postedBy');
   // @ts-expect-error unknown is not a comment relation
-  await action().forInstance(new PostMock()).include('comments.unknown');
+  await action().query(new PostMock()).include('comments.unknown');
   // @ts-expect-error body is not a comment relation
-  await action().forRelation(new PostMock(), 'comments').include('body');
+  await action().query(new PostMock(), 'comments').include('body');
   // @ts-expect-error unknown is not a comment relation
-  await action().forRelation(new PostMock(), 'comments').include('unknown');
+  await action().query(new PostMock(), 'comments').include('unknown');
   // @ts-expect-error comments is not a comment relation
-  await action().forRelation(new PostMock(), 'comments').include('comments');
+  await action().query(new PostMock(), 'comments').include('comments');
   // @ts-expect-error postedBy.unknown is not a comment relation
-  await action().forRelation(new PostMock(), 'comments').include('postedBy.unknown');
+  await action().query(new PostMock(), 'comments').include('postedBy.unknown');
 
   const commentsUsingFunc = await action()
-    .use(forRelation(new PostMock(), 'comments'))
+    .use(query(new PostMock(), 'comments'))
     .run(all());
   const commentsUsingBuild = await action()
-    .forRelation(new PostMock(), 'comments')
+    .query(new PostMock(), 'comments')
     .all();
 
   expectTypeOf(commentsUsingFunc).toMatchTypeOf<CommentMock[]>();

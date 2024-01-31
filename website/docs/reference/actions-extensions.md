@@ -14,10 +14,11 @@ runners to integrate into your action to get
 ### `coreExtensions`
 
 - [`when`](/docs/reference/actions-enhancers#when)
-- [`forModel`](/docs/reference/actions-enhancers#formodel)
-- [`forInstance`](/docs/reference/actions-enhancers#forinstance)
-- [`forId`](/docs/reference/actions-enhancers#forid)
-- [`find`](/docs/reference/actions-enhancers#find)
+- [`query`](/docs/reference/actions-enhancers#query)
+- [~~`forModel`~~ (deprecated, use `query` instead)](/docs/reference/actions-enhancers#formodel)
+- [~~`forInstance`~~ (deprecated, use `query` instead)](/docs/reference/actions-enhancers#forinstance)
+- [~~`forId`~~ (deprecated, use `query` instead)](/docs/reference/actions-enhancers#forid)
+- [~~`find`~~ (deprecated, use `query` instead)](/docs/reference/actions-enhancers#find)
 - [`include`](/docs/reference/actions-enhancers#include)
 - [`context`](/docs/reference/actions-enhancers#context)
 

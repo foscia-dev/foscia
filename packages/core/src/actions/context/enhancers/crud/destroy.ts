@@ -1,9 +1,9 @@
 import context from '@foscia/core/actions/context/enhancers/context';
-import forInstance from '@foscia/core/actions/context/enhancers/forInstance';
 import changeInstanceExistence
   from '@foscia/core/actions/context/enhancers/hooks/changeInstanceExistence';
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
+import query from '@foscia/core/actions/context/enhancers/query';
 import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
 import {
   Action,
@@ -24,12 +24,18 @@ import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/typ
  */
 export default function destroy<
   C extends {},
+  E extends {},
   D extends {},
   I extends ModelInstance<D>,
 >(instance: ModelClassInstance<D> & I) {
-  return (action: Action<C>) => action
-    .use(forInstance<C, D, I>(instance))
-    .use(context({ action: 'destroy' }))
+  return (action: Action<C, E>) => action
+    .use(query<C, E, D, I>(instance))
+    .use(context({
+      action: 'destroy',
+      // Rewrite ID to ensure destroy targets the record termination point
+      // even if $exists is false.
+      id: instance.id,
+    }))
     .use(changeInstanceExistence(false))
     .use(onRunning(() => runHooks(instance.$model, 'destroying', instance)))
     .use(onSuccess(() => runHooks(instance.$model, 'destroyed', instance)));

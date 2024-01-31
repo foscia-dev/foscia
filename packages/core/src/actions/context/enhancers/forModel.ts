@@ -10,6 +10,8 @@ import { Model } from '@foscia/core/model/types';
  * @param model
  *
  * @category Enhancers
+ *
+ * @deprecated Use {@link query} instead.
  */
 export default function forModel<
   M extends Model,

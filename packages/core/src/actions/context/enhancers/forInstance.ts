@@ -12,6 +12,8 @@ import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/typ
  * @param instance
  *
  * @category Enhancers
+ *
+ * @deprecated Use {@link query} instead.
  */
 export default function forInstance<
   C extends {},

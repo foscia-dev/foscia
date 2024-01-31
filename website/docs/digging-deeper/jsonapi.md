@@ -25,9 +25,9 @@ Foscia supports
 Internally, it will use the JSON:API relationships inclusion features.
 
 ```typescript
-import { forModel, all, include } from '@foscia/core';
+import { query, all, include } from '@foscia/core';
 
-const posts = await action().use(forModel(Post), include('author')).run(all());
+const posts = await action().use(query(Post), include('author')).run(all());
 ```
 
 ### Filtering requests
@@ -37,12 +37,12 @@ You can filter your request using the
 both supports key-value or object parameters.
 
 ```typescript
-import { forModel, all } from '@foscia/core';
+import { query, all } from '@foscia/core';
 import { filterBy } from '@foscia/jsonapi';
 
 const posts = await action()
   .use(
-    forModel(Post),
+    query(Post),
     // Key-value pair.
     filterBy('published', true),
     // Object.
@@ -61,12 +61,12 @@ both object and arrays parameters and will apply ascending sorting by default.
 `sortByAsc` and `sortByDesc` supports variadic keys parameter.
 
 ```typescript
-import { forModel, all } from '@foscia/core';
+import { query, all } from '@foscia/core';
 import { sortBy, sortByDesc } from '@foscia/jsonapi';
 
 const posts = await action()
   .use(
-    forModel(Post),
+    query(Post),
     // Ascending sorting.
     sortBy(['publishedAt', 'createdAt']),
     // Custom sorting.
@@ -90,12 +90,12 @@ properties' aliases if they are set.
 for the given model.
 
 ```typescript
-import { forModel, all, include } from '@foscia/core';
+import { query, all, include } from '@foscia/core';
 import { sortBy, sortByDesc } from '@foscia/jsonapi';
 
 const posts = await action()
   .use(
-    forModel(Post),
+    query(Post),
     include('author'),
     fields('title', 'author'),
     fieldsFor(User, 'username'),
@@ -115,12 +115,12 @@ function to retrieve the whole JSON:API document (for example when your server
 serialize pagination metadata in it).
 
 ```typescript
-import { forModel, all } from '@foscia/core';
+import { query, all } from '@foscia/core';
 import { paginate, usingDocument } from '@foscia/jsonapi';
 
 const data = await action()
   .use(
-    forModel(Post),
+    query(Post),
     // A standard pagination.
     paginate({ size: 10, number: 1 }),
     // A cursor pagination.

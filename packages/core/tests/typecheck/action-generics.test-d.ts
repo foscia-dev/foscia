@@ -7,18 +7,15 @@ import {
   ConsumeInstance,
   ConsumeModel,
   context,
-  find,
-  forInstance,
-  forModel,
-  forRelation,
+  DeserializerI,
   include,
   makeActionClass,
   Model,
   ModelIdType,
   ModelInstance,
   ModelRelationDotKey,
-  DeserializerI,
   oneOrFail,
+  query,
   save,
   SerializerI,
   when,
@@ -29,9 +26,7 @@ import PostMock from '../mocks/models/post.mock';
 test('Actions generics are type safe', async () => {
   const action = () => {
     const ActionClass = makeActionClass().extend({
-      ...forModel.extension,
-      ...forInstance.extension,
-      ...forRelation.extension,
+      ...query.extension,
       ...include.extension,
       ...all.extension,
       ...cachedOr.extension,
@@ -50,17 +45,17 @@ test('Actions generics are type safe', async () => {
     model: Model,
     id: ModelIdType,
     relations: string[],
-  ) => action().use(find(model, id), include(relations)).run(oneOrFail());
+  ) => action().use(query(model, id), include(relations)).run(oneOrFail());
   const genericFindModel = <M extends Model>(
     model: M,
     id: ModelIdType,
     relations: ModelRelationDotKey<M>[],
-  ) => action().use(find(model, id), include(relations)).run(oneOrFail());
+  ) => action().use(query(model, id), include(relations)).run(oneOrFail());
   const genericCallbackFindModel = <M extends Model>(
     model: M,
     id: ModelIdType,
     tap: (action: Action<ConsumeModel<M>>) => void,
-  ) => action().use(find(model, id)).use(tap).run(oneOrFail());
+  ) => action().use(query(model, id)).use(tap).run(oneOrFail());
 
   expectTypeOf(await normalFindModel(PostMock, '1', ['comments'])).toMatchTypeOf<ModelInstance>();
   expectTypeOf(await normalFindModel(PostMock, '1', ['postedBy'])).toMatchTypeOf<ModelInstance>();

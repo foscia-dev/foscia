@@ -67,14 +67,14 @@ export default makeActionFactory({
 ### View many
 
 ```typescript
-import { forModel, when, all } from '@foscia/core';
+import { query, when, all } from '@foscia/core';
 import { filterBy, sortByDesc, paginate, usingDocument } from '@foscia/jsonapi';
 import action from './action';
 import Post from './models/post';
 
 export default async function fetchAllPost(query = {}) {
   return action()
-    .use(forModel(Post))
+    .use(query(Post))
     .use(when(query.search, (a, s) => a.use(filterBy('search', s))))
     .use(sortByDesc('createdAt'))
     .use(paginate({ number: query.page ?? 1 }))
@@ -87,12 +87,12 @@ const { instances, document } = await fetchAllPost({ search: 'Hello' });
 ### View one
 
 ```typescript
-import { find, include, oneOrFail } from '@foscia/core';
+import { query, include, oneOrFail } from '@foscia/core';
 import action from './action';
 import Post from './models/post';
 
 export default async function fetchOnePost(id) {
-  return action().use(find(Post, id)).use(include('tags')).run(oneOrFail());
+  return action().use(query(Post, id)).use(include('tags')).run(oneOrFail());
 }
 
 const post = await fetchOnePost('123-abc');
@@ -155,21 +155,21 @@ Thanks to functional programming, you can easily combine non-standard action
 with classical context enhancers and runners.
 
 ```typescript
-import { forModel, forInstance, include, when, oneOrFail } from '@foscia/core';
+import { query, include, when, all, oneOrFail } from '@foscia/core';
 import { makeGet, makePost } from '@foscia/http';
 import action from './action';
 import Post from './models/post';
 
 export default function bestPosts() {
   return action()
-    .use(forModel(Post))
+    .use(query(Post))
     .use(makeGet('actions/best-posts'))
     .run(all());
 }
 
 export default function publishPost(post, query = {}) {
   return action()
-    .use(forInstance(post))
+    .use(query(post))
     .use(when(query.include, (a, i) => a.use(include(i))))
     .use(
       makePost('actions/publish', {

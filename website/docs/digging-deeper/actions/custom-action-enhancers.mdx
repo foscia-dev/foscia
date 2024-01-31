@@ -23,7 +23,7 @@ from any existing Foscia enhancers.
 Since Foscia is pagination agnostic, providing a `first` enhancer is not
 possible. Here is what we want our new `first` enhancer to do:
 
-- Select the model just like the `find` enhancer, but not a record ID
+- Select the model just like the `query` enhancer, but not a record ID
 - Limit the pagination to the first page and one record only
 
 In this example, we will admit a JSON:API is used with the following query
@@ -52,7 +52,7 @@ This guide is an enhancer version of the `first` runner described in the
 Our implementation of `first` will target the model and paginate the context.
 
 ```typescript title="action/enhancers/first.ts"
-import { Action, Model, forModel } from '@foscia/core';
+import { Action, Model, query } from '@foscia/core';
 import { paginate } from '@foscia/jsonapi';
 
 export default function first<
@@ -60,7 +60,7 @@ export default function first<
   M extends Model,
 >(model: M) {
   return (action: Action<C>) =>
-    action.use(forModel(model)).use(paginate({ number: 1, size: 1 }));
+    action.use(query(model)).use(paginate({ number: 1, size: 1 }));
 }
 ```
 
@@ -106,7 +106,7 @@ import {
   Action,
   ActionParsedExtension,
   ConsumeModel,
-  forModel,
+  query,
   makeEnhancersExtension,
   Model,
 } from '@foscia/core';
@@ -119,7 +119,7 @@ export default function first<
   M extends Model,
 >(model: M) {
   return (action: Action<C>) =>
-    action.use(forModel(model)).use(paginate({ number: 1, size: 1 }));
+    action.use(query(model)).use(paginate({ number: 1, size: 1 }));
 }
 
 // The extension typing.

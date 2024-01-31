@@ -28,6 +28,7 @@ import onFinally from '@foscia/core/actions/context/enhancers/hooks/onFinally';
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import include from '@foscia/core/actions/context/enhancers/include';
+import query from '@foscia/core/actions/context/enhancers/query';
 import guessContextModel from '@foscia/core/actions/context/guessers/guessContextModel';
 import all, { AllData } from '@foscia/core/actions/context/runners/all';
 import cached from '@foscia/core/actions/context/runners/cached';
@@ -77,6 +78,7 @@ export {
   when,
   catchIf,
   context,
+  query,
   forId,
   forInstance,
   forModel,

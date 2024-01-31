@@ -5,10 +5,12 @@ import forInstance from '@foscia/core/actions/context/enhancers/forInstance';
 import forModel from '@foscia/core/actions/context/enhancers/forModel';
 import forRelation from '@foscia/core/actions/context/enhancers/forRelation';
 import include from '@foscia/core/actions/context/enhancers/include';
+import query from '@foscia/core/actions/context/enhancers/query';
 import catchIf from '@foscia/core/actions/context/runners/catchIf';
 import when from '@foscia/core/actions/when';
 
 export default {
+  ...query.extension,
   ...forModel.extension,
   ...forInstance.extension,
   ...forRelation.extension,

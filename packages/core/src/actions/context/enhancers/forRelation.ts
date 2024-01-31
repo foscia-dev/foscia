@@ -26,6 +26,8 @@ import {
  * @param relationKey
  *
  * @category Enhancers
+ *
+ * @deprecated Use {@link query} instead.
  */
 export default function forRelation<
   C extends {},

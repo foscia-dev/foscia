@@ -55,9 +55,53 @@ action().use(
 - `{{}}` `contextToMerge` a context object to merge into the action's current
   context
 
-### `forModel`
+### `query`
+
+<FunctionInfo version="0.6.3" provides="Model, Instance?, ID?, Relation?" />
+
+Query the given model, instance or instance's relation.
+
+#### Example
+
+```typescript
+import { query } from '@foscia/core';
+
+// Query model.
+action().use(query(Post));
+// Query model's record by ID.
+action().use(query(Post, '123'));
+// Query model's instance.
+action().use(query(myPost));
+// Query model's instance's relation.
+action().use(query(myPost, 'comments'));
+```
+
+#### Arguments
+
+##### Model signature
+
+- [`{Model}`](/docs/reference/api/modules/foscia_core#model) `query`
+the model to query
+- [`{ModelIdType | undefined}`](/docs/reference/api/modules/foscia_core#modelidtype) `id`
+the record's ID to query
+
+##### Instance signature
+
+- [`{ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance) `instance`
+the instance to query
+- [`{ModelRelationKey | undefined}`](/docs/reference/api/modules/foscia_core#modelrelationkey) `relation`
+the optional instance's relation to query
+
+### ~~`forModel`~~
 
 <FunctionInfo provides="Model" />
+
+:::warning
+
+**Deprecated**, will be removed in a next major release.
+**[Use `query` with a model instead.](#query)**
+
+:::
 
 Target the given model.
 
@@ -74,9 +118,16 @@ action().use(forModel(Post));
 - [`{M extends Model}`](/docs/reference/api/modules/foscia_core#model) `model`
   the model class to use
 
-### `forInstance`
+### ~~`forInstance`~~
 
 <FunctionInfo provides="Model, Instance, ID" />
+
+:::warning
+
+**Deprecated**, will be removed in a next major release.
+**[Use `query` with an instance instead.](#query)**
+
+:::
 
 Target the given model's instance.
 
@@ -93,9 +144,16 @@ action().use(forInstance(post));
 - [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
   `instance` the instance to use
 
-### `forRelation`
+### ~~`forRelation`~~
 
 <FunctionInfo provides="Model, Instance, ID, Relation" />
+
+:::warning
+
+**Deprecated**, will be removed in a next major release.
+**[Use `query` with an instance and relation instead.](#query)**
+
+:::
 
 Target the given model instance's relation.
 
@@ -114,9 +172,16 @@ action().use(forRelation(post, 'comments'));
 - [`{ModelRelationKey<I>}`](/docs/reference/api/modules/foscia_core#modelrelationkey)
   `relationKey` the relation to use
 
-### `forId`
+### ~~`forId`~~
 
 <FunctionInfo provides="ID" />
+
+:::warning
+
+**Deprecated**, will be removed in a next major release.
+**[Use `query` with an instance or a model and ID instead.](#query)**
+
+:::
 
 Target the given ID.
 
@@ -133,9 +198,16 @@ action().use(forId('123'));
 - [`{ModelId | undefined}`](/docs/reference/api/modules/foscia_core#modelid)
   `id` the ID to use
 
-### `find`
+### ~~`find`~~
 
 <FunctionInfo provides="Model, ID" />
+
+:::warning
+
+**Deprecated**, will be removed in a next major release.
+**[Use `query` with a model and ID instead.](#query)**
+
+:::
 
 Target a given model and ID.
 

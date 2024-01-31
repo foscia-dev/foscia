@@ -53,7 +53,7 @@ parameters.
 ```typescript
 const posts = await action()
   // We are telling the action context is now for the Post model.
-  .use(forModel(Post))
+  .use(query(Post))
   // We can now use this action context to strongly type context enhancer params.
   // As an example, `include` is typed for deep dotted relations, such as:
   // "comments", "comments.author", "comments.author.favoritePosts", etc.
@@ -81,7 +81,7 @@ this factory yourself with the things you need: an adapter, a serializer, etc.
 Don't worry, the process is still pretty simple thanks to blueprints.
 
 In addition, you will need a supplementary step to be able to use
-`action().forModel(Post).all()`, because those functions must be imported to be
+`action().query(Post).all()`, because those functions must be imported to be
 used. This is possible through actions' extensions, which will plug functions to
 your action instance and allow you to use a builder pattern call style.
 

@@ -89,12 +89,12 @@ context propagation through other enhancers and runners.
 Once your runner is ready, you may use it like any other Foscia runner.
 
 ```typescript
-import { forModel } from '@foscia/core';
+import { query } from '@foscia/core';
 import action from './action';
 import first from './action/runners/first';
 import Post from './models/post';
 
-const post = await action().use(forModel(Post)).run(first());
+const post = await action().use(query(Post)).run(first());
 ```
 
 ## Defining the extension
