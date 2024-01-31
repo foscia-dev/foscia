@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.3](https://github.com/foscia-dev/foscia/compare/v0.6.2...v0.6.3) (2024-01-31)
+
+
+### Bug Fixes
+
+* **core:** relation loading won't trigger readonly error anymore ([ce7bb7e](https://github.com/foscia-dev/foscia/commit/ce7bb7e25bd667e7628834091f262f01ea303eb6))
+* **jsonapi:** handle recursive records when not inside included ([a7cf22e](https://github.com/foscia-dev/foscia/commit/a7cf22e7ff7226a70fa9191a52ca9f472582fd5e))
+
+
+### Features
+
+* **core:** add `makeQueryRelationLoader` ([2cade74](https://github.com/foscia-dev/foscia/commit/2cade7459654329707c8e8b65cf2715d20d8c72e))
+* **core:** add `query` generic context enhancer ([eb18ab4](https://github.com/foscia-dev/foscia/commit/eb18ab4ee417e97fb9a13d188b80707a20758d64))
+
 ## [0.6.2](https://github.com/foscia-dev/foscia/compare/v0.6.1...v0.6.2) (2024-01-30)
 
 ### Bug Fixes
