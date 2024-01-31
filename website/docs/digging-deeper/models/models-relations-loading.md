@@ -102,10 +102,10 @@ such as JSON:API.
 It does not support nested relations keys as it will be dangerously inefficient.
 
 ```typescript title="loaders/forRelationLoad.ts"
-import { makeRefreshIncludeLoader } from '@foscia/core';
+import { makeQueryRelationLoader } from '@foscia/core';
 import action from './action';
 
-export default makeForRelationLoader(action);
+export default makeQueryRelationLoader(action);
 ```
 
 You can now use the loader on any instance.
