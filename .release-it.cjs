@@ -29,6 +29,9 @@ module.exports = {
       preset: 'angular',
       infile: 'CHANGELOG.md',
       header: '# Changelog',
+      parserOpts: {
+        noteKeywords: ['BREAKING CHANGE', 'DEPRECATED'],
+      },
       writerOpts: {
         headerPartial,
       },

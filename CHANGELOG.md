@@ -14,6 +14,12 @@
 * **core:** add `makeQueryRelationLoader` ([2cade74](https://github.com/foscia-dev/foscia/commit/2cade7459654329707c8e8b65cf2715d20d8c72e))
 * **core:** add `query` generic context enhancer ([eb18ab4](https://github.com/foscia-dev/foscia/commit/eb18ab4ee417e97fb9a13d188b80707a20758d64))
 
+### DEPRECATED
+
+* **core:** `makeForRelationLoader`, use `makeQueryRelationLoader` instead ([2cade74](https://github.com/foscia-dev/foscia/commit/2cade7459654329707c8e8b65cf2715d20d8c72e))
+* **core:** `forModel`, `forInstance`, `forId`, `forRelation` and `find`, use `query` instead ([eb18ab4](https://github.com/foscia-dev/foscia/commit/eb18ab4ee417e97fb9a13d188b80707a20758d64))
+
+
 ## [0.6.2](https://github.com/foscia-dev/foscia/compare/v0.6.1...v0.6.2) (2024-01-30)
 
 ### Bug Fixes
@@ -39,6 +45,11 @@
 * **core:** add relationData enhancer to serialize relation's value ([9721856](https://github.com/foscia-dev/foscia/commit/9721856310c92bb18fea194640c211277fe6b278))
 * **core:** add runHooks, deprecate runHook ([56b50ff](https://github.com/foscia-dev/foscia/commit/56b50ff68340536f10396a37d78680c001f14eb1))
 * **core:** add sync callback support for withoutHooks ([22df8d6](https://github.com/foscia-dev/foscia/commit/22df8d627ea9d42ae07e53bc35e8bc834a2be025))
+
+### DEPRECATED
+
+* **core:** `runHook`, use `runHooks` instead ([56b50ff](https://github.com/foscia-dev/foscia/commit/56b50ff68340536f10396a37d78680c001f14eb1))
+* **core:** `ModelHookCallback`, use `ModelInstanceHookCallback` instead ([e8738c3](https://github.com/foscia-dev/foscia/commit/e8738c36816a6147f128f63c89cbc7ac62777680))
 
 ## [0.6.0](https://github.com/foscia-dev/foscia/compare/v0.5.3...v0.6.0) (2024-01-28)
 
