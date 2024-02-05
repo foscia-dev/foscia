@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.7.0-beta.0](https://github.com/foscia-dev/foscia/compare/v0.6.3...v0.7.0-beta.0) (2024-02-05)
+
 ## [0.6.3](https://github.com/foscia-dev/foscia/compare/v0.6.2...v0.6.3) (2024-01-31)
 
 
