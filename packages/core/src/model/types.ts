@@ -228,6 +228,13 @@ export type ModelFlattenDefinition<D extends {}> =
   & OmitNever<{ [K in keyof D]: D[K] extends ModelComposable<any> ? never : D[K] }>;
 
 /**
+ The flatten and parsed model definition from a composable object type.
+ */
+export type ModelComposableDefinition<C extends ModelComposable<C>> = ModelFlattenDefinition<{
+  composable: C;
+}>;
+
+/**
  * Extract model's IDs, attributes and relations from the whole definition.
  */
 export type ModelSchema<D extends {} = {}> = {
@@ -319,6 +326,12 @@ export type ModelClass<D extends {} = any> =
 export type Model<D extends {} = any, I extends ModelInstance<D> = any> =
   & ModelClass<D>
   & Constructor<I>;
+
+/**
+ * Model class using a given composable.
+ */
+export type ModelUsing<C extends ModelComposable<any>> =
+  Model<ModelComposableDefinition<C>, ModelInstanceUsing<C>>;
 
 /**
  * Model class which can be configured or extended.
@@ -425,6 +438,12 @@ export type ModelInstance<D extends {} = any> =
   & ModelDefinitionValues<D>
   & ModelDefinitionDescriptors<D>
   & FosciaObject<typeof SYMBOL_MODEL_INSTANCE>;
+
+/**
+ * Model instance using a given composable.
+ */
+export type ModelInstanceUsing<C extends ModelComposable<any>> =
+  ModelInstance<ModelComposableDefinition<C>>;
 
 /**
  * Model class or instance snapshot.
