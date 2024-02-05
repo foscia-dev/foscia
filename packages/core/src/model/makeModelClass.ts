@@ -109,6 +109,7 @@ const createModelClass = (
   Object.defineProperty(ModelClass, '$config', { value: { ...config } });
   Object.defineProperty(ModelClass, '$schema', { value: {} });
   Object.defineProperty(ModelClass, '$setup', { value: makeModelSetup(setup) });
+  Object.defineProperty(ModelClass, '$composables', { value: [] });
   Object.defineProperty(ModelClass, '$hooks', {
     writable: true,
     value: hooks ?? {},
@@ -146,6 +147,8 @@ const createModelClass = (
     }
 
     if (isComposable(descriptor.value)) {
+      ModelClass.$composables.push(descriptor.value);
+
       applyDefinition(descriptor.value.$definition);
 
       modelSetup.boot.push(...descriptor.value.$setup.boot);

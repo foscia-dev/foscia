@@ -4,6 +4,6 @@ import { isFosciaType } from '@foscia/shared';
 
 export default function isComposable(
   value: unknown,
-): value is ModelComposable<any> {
+): value is ModelComposable {
   return isFosciaType(value, SYMBOL_MODEL_COMPOSABLE);
 }

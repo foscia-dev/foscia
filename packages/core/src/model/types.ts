@@ -71,7 +71,7 @@ export type ModelSetup<D extends {} = any> = {
 /**
  * Model composable definition which can be included on any models.
  */
-export type ModelComposable<D extends {}> =
+export type ModelComposable<D extends {} = any> =
   & {
     $definition: D;
     $setup: ModelSetup<D>;
@@ -202,7 +202,7 @@ export type ModelParsedDefinitionProp<K, V> =
   V extends RawModelAttribute<any, any> ? V & ModelPropNormalized<K>
     : V extends RawModelRelation<any, any> ? V & ModelPropNormalized<K>
       : V extends RawModelId<any, any> ? V & ModelPropNormalized<K>
-        : V extends ModelComposable<any> ? never
+        : V extends ModelComposable ? never
           : V extends DescriptorHolder<any> ? V
             : DescriptorHolder<V>;
 
@@ -211,7 +211,7 @@ export type ModelParsedDefinitionProp<K, V> =
  * properties' descriptors wrapped in holders.
  */
 export type ModelParsedDefinition<D extends {} = {}> = {
-  [K in keyof D]: D[K] extends ModelComposable<any>
+  [K in keyof D]: D[K] extends ModelComposable
     ? D[K] : D[K] extends PendingModelProp<RawModelProp<any, any>>
       ? ModelParsedDefinitionProp<K, D[K]['definition']> : ModelParsedDefinitionProp<K, D[K]>;
 };
@@ -225,7 +225,7 @@ export type ModelFlattenDefinition<D extends {}> =
     [K in keyof D]: D[K] extends ModelComposable<infer CD>
       ? ModelFlattenDefinition<CD> : never;
   }[keyof D]>
-  & OmitNever<{ [K in keyof D]: D[K] extends ModelComposable<any> ? never : D[K] }>;
+  & OmitNever<{ [K in keyof D]: D[K] extends ModelComposable ? never : D[K] }>;
 
 /**
  The flatten and parsed model definition from a composable object type.
@@ -315,6 +315,7 @@ export type ModelClass<D extends {} = any> =
     readonly $type: string;
     readonly $config: ModelConfig;
     readonly $schema: ModelSchema<D>;
+    readonly $composables: ModelComposable[];
   }
   & FosciaObject<typeof SYMBOL_MODEL_CLASS>
   & Hookable<ModelHooksDefinition>;
@@ -330,7 +331,7 @@ export type Model<D extends {} = any, I extends ModelInstance<D> = any> =
 /**
  * Model class using a given composable.
  */
-export type ModelUsing<C extends ModelComposable<any>> =
+export type ModelUsing<C extends ModelComposable> =
   Model<ModelComposableDefinition<C>, ModelInstanceUsing<C>>;
 
 /**
@@ -442,7 +443,7 @@ export type ModelInstance<D extends {} = any> =
 /**
  * Model instance using a given composable.
  */
-export type ModelInstanceUsing<C extends ModelComposable<any>> =
+export type ModelInstanceUsing<C extends ModelComposable> =
   ModelInstance<ModelComposableDefinition<C>>;
 
 /**
