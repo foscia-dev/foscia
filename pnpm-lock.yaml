@@ -151,64 +151,64 @@ importers:
   packages/core:
     dependencies:
       '@foscia/shared':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../shared
 
   packages/http:
     dependencies:
       '@foscia/core':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../core
       '@foscia/shared':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../shared
 
   packages/jsonapi:
     dependencies:
       '@foscia/core':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../core
       '@foscia/http':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../http
       '@foscia/rest':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../rest
       '@foscia/serialization':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../serialization
       '@foscia/shared':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../shared
       '@foscia/test':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../test
 
   packages/rest:
     dependencies:
       '@foscia/core':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../core
       '@foscia/http':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../http
       '@foscia/serialization':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../serialization
       '@foscia/shared':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../shared
       '@foscia/test':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../test
 
   packages/serialization:
     dependencies:
       '@foscia/core':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../core
       '@foscia/shared':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../shared
 
   packages/shared: {}
@@ -216,10 +216,10 @@ importers:
   packages/test:
     dependencies:
       '@foscia/core':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../core
       '@foscia/shared':
-        specifier: 0.7.0-beta.1
+        specifier: 0.7.0-beta.2
         version: link:../shared
 
   website:

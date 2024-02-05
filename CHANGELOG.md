@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.7.0-beta.2](https://github.com/foscia-dev/foscia/compare/v0.7.0-beta.1...v0.7.0-beta.2) (2024-02-05)
+
+
+### Features
+
+* **core:** add model and instance composables usage check functions ([66a60fe](https://github.com/foscia-dev/foscia/commit/66a60fe365d84b40b16964442ea5974768be4a21))
+* **core:** add model setup method and correct class inheritance ([4ffd4b9](https://github.com/foscia-dev/foscia/commit/4ffd4b97997ced397f0eb232c9eb3b78137e8f04))
+* **core:** add tools to extract typings for composable ([f1e1153](https://github.com/foscia-dev/foscia/commit/f1e1153974b258c615faef2772fd2f7650ff6be8))
+
+
+### BREAKING CHANGES
+
+* **core:** Model `configure` method first argument is now required.
+
 ## [0.7.0-beta.1](https://github.com/foscia-dev/foscia/compare/v0.7.0-beta.0...v0.7.0-beta.1) (2024-02-05)
 
 
