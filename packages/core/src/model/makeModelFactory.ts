@@ -29,16 +29,21 @@ export default function makeModelFactory<ND extends {} = {}>(
       ? { type: rawConfig }
       : rawConfig;
 
-    return makeModelClass(type, {
-      ...baseConfig,
-      ...config,
-    }, {
-      boot: [...baseSetup.boot, ...setup.boot],
-      init: [...baseSetup.init, ...setup.init],
-    }).extend({
-      ...baseRawDefinition,
-      ...rawDefinition,
+    return makeModelClass(
+      type,
+      {
+        ...baseConfig,
+        ...config,
+      },
+      {
+        boot: [...baseSetup.boot, ...setup.boot],
+        init: [...baseSetup.init, ...setup.init],
+      },
+      {
+        ...baseRawDefinition,
+        ...rawDefinition,
+      },
       // eslint-disable-next-line max-len
-    }) as ExtendableModel<ModelFlattenDefinition<ModelParsedDefinition<ND & D>>, ModelInstance<ModelFlattenDefinition<ModelParsedDefinition<ND & D>>>>;
+    ) as ExtendableModel<ModelFlattenDefinition<ModelParsedDefinition<ND & D>>, ModelInstance<ModelFlattenDefinition<ModelParsedDefinition<ND & D>>>>;
   };
 }

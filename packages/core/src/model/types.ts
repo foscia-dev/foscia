@@ -316,6 +316,7 @@ export type ModelClass<D extends {} = any> =
     readonly $config: ModelConfig;
     readonly $schema: ModelSchema<D>;
     readonly $composables: ModelComposable[];
+    readonly $setup: ModelSetup;
   }
   & FosciaObject<typeof SYMBOL_MODEL_CLASS>
   & Hookable<ModelHooksDefinition>;
@@ -339,7 +340,8 @@ export type ModelUsing<C extends ModelComposable> =
  */
 export type ExtendableModel<D extends {} = any, I extends ModelInstance<D> = any> =
   & {
-    configure(config?: ModelConfig, override?: boolean): ExtendableModel<D, ModelInstance<D>>;
+    configure(config: ModelConfig, override?: boolean): ExtendableModel<D, ModelInstance<D>>;
+    setup(rawSetup: ModelRawSetup<D>): ExtendableModel<D, ModelInstance<D>>;
     extend<ND extends {} = {}>(
       // eslint-disable-next-line max-len
       rawDefinition?: ND & ThisType<ModelInstance<ModelFlattenDefinition<D & ModelParsedDefinition<ND>>>>,
