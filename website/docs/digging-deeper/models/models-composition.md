@@ -24,6 +24,8 @@ this, you may use one of the two solutions proposed by Foscia:
 When you need to share features across **some** of your models, you should use
 composition.
 
+### Defining a composable
+
 The first step is to create a composable with the features you want to share.
 This is done through `makeComposable` and uses the same syntax as `makeModel`.
 
@@ -42,6 +44,8 @@ export default makeComposable({
 });
 ```
 
+### Using a composable
+
 The easiest way to use your composable is to object-spread it inside your
 model's definition.
 
@@ -50,7 +54,7 @@ import { makeModel } from '@foscia/core';
 import publishable from '../composables/publishable';
 
 export default class Post extends makeModel('posts', {
-  ...publishable,
+  publishable,
   /** post definition */
 }) {}
 ```
@@ -64,15 +68,26 @@ import publishable from '../composables/publishable';
 export default class Post extends makeModel('posts').extend(publishable) {}
 ```
 
-:::warning
+### Defining setup tasks
 
-Please note that when using the object spread syntax, you won't be able to get a
-correctly typed `this` context _inside the current definition object_ (it is
-still available in next/previous definition or in class body). This is because
-of an
-[**issue due to a TypeScript limitation**](https://github.com/foscia-dev/foscia/issues/2).
+Just like [models setup](/docs/core-concepts/models#setup), composables
+can also provide setup behaviors for models and their instances by passing
+a second argument to `makeComposable`.
 
-:::
+```typescript title="composables/uuidID.ts"
+import { attr, makeComposable, onCreating } from '@foscia/core';
+import { v4 as uuidV4 } from 'uuid';
+
+export default makeComposable({
+  id: attr<string | null>(),
+}, {
+  boot: (model) => {
+    onCreating(model, (instance) => {
+      instance.id = instance.id ?? uuidV4();
+    });
+  },
+});
+```
 
 ## Factory
 
@@ -82,22 +97,21 @@ custom model factory. It will replace the Foscia's `makeModel` function.
 ```typescript title="makeModel.ts"
 import { attr, makeModelFactory, toDateTime } from '@foscia/core';
 
-export default makeModelFactory(
-  {
-    /* ...common configuration */
+export default makeModelFactory({
+  /* ...common configuration */
+}, {
+  createdAt: attr(toDateTime()),
+  updatedAt: attr(toDateTime()),
+  get wasChangedSinceCreation() {
+    return this.createdAt.getTime() === this.updatedAt.getTime();
   },
-  {
-    createdAt: attr(toDateTime()),
-    updatedAt: attr(toDateTime()),
-    get wasChangedSinceCreation() {
-      return this.createdAt.getTime() === this.updatedAt.getTime();
-    },
-  },
-);
+}, {
+  /* ...common setup */
+});
 ```
 
-Once your factory is ready, you can use in replacement of the classical
-`makeModel`, as it will have the same features.
+Once your factory is ready, you can use it in replacement of the default
+`makeModel` provided by Foscia.
 
 ```typescript
 import makeModel from './makeModel';

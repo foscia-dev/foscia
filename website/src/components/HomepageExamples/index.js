@@ -27,7 +27,7 @@ import User from './user';
 import Tag from './tag';
 
 export default class Post extends makeModel('posts', {
-  ...publishable,
+  publishable,
   title: attr<string>(),
   content: attr<string>(),
   tags: hasMany(() => Tag),

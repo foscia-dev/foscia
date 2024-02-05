@@ -23,12 +23,15 @@ import Tabs from '@theme/Tabs';
 ### Model factory
 
 `makeModel` is the default model factory function. It defines a new model using
-2 arguments and returns an ES6 class:
+3 arguments and returns an ES6 class:
 
 - The string `type` or a
-  [configuration object](/docs/digging-deeper/models/models-configuration).
-- The optional `definition` of the model: an object map containing
-  IDs/attributes/relations definitions and custom properties and methods.
+[configuration object](/docs/digging-deeper/models/models-configuration).
+- The [optional `definition` of the model](#definition): an object map
+containing IDs/attributes/relations definitions, custom properties, custom
+methods and composables.
+- The [optional `setup` of the model](#setup): an object describing setup
+tasks for the model and created instances.
 
 The attributes and relations definition represents the `schema` of the model.
 
@@ -600,6 +603,64 @@ unregisterHook(User, 'property:reading', registeredCallback);
 unregisterHook(User, 'property:read', registeredCallback);
 unregisterHook(User, 'property:writing', registeredCallback);
 unregisterHook(User, 'property:write', registeredCallback);
+```
+
+## Setup
+
+As stated at the start of this guide, you can pass a third argument to your
+model factory. It is called the setup, and allow you to give one or more
+`boot` and `init` callbacks:
+
+- `boot` occurs at the end of a model creation, just before it is returned
+by `makeModel`.
+- `init` occurs at the end of a new model instance construction (calling `new`).
+
+```typescript
+import { attr, makeModel } from '@foscia/core';
+
+export default class Post extends makeModel('posts', {
+  title: attr<string>(),
+}, {
+  boot: (model) => {
+  // Do something with model.
+  },
+  init: (instance) => {
+  // Do something with instance.
+  },
+}) {}
+```
+
+:::tip
+
+[**Setup can be used inside composable**](/docs/digging-deeper/models/models-composition#with-setup-client-side-generated-id)
+to share common `boot` or `init` behaviors between models, such as generating
+an ID before creation.
+
+:::
+
+It is important to note that in this previous example, where our `makeModel`
+return value is extended by a class, that model setup functions won't
+receive a `Post` class and a `Post` class instance, because those do not exist
+at the time of model setup. They only receive the original Foscia class.
+
+If you really need to interact with those objects instead of the non-extended
+ones, you should prefer running your code after the class definition
+and overriding the class constructor.
+
+```typescript
+import { attr, makeModel } from '@foscia/core';
+
+export default class Post extends makeModel('posts', {
+  title: attr<string>(),
+}) {
+  public constructor() {
+    super();
+
+    // Do something with instance.
+  }
+}
+
+// Do something with model.
 ```
 
 ## Special properties
