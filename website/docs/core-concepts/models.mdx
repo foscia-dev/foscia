@@ -73,6 +73,12 @@ makeModel('posts')
     get published() {
       return !!this.publishedAt;
     },
+  })
+  .configure({
+    /* ...configuration */
+  })
+  .setup({
+    /* ...setup */
   });
 ```
 
@@ -82,6 +88,13 @@ timestamps, client side ID generation, etc.
 If you wish to learn more about the composition capabilities of models, you
 should read the
 [advanced guide about models composition](/docs/digging-deeper/models/models-composition).
+
+:::info
+
+Each call to `extend`, `configure` or `setup` will return a child class of the
+original model class.
+
+:::
 
 #### Note on exported value
 
