@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.7.0-beta.1](https://github.com/foscia-dev/foscia/compare/v0.7.0-beta.0...v0.7.0-beta.1) (2024-02-05)
+
+
+### Features
+
+* **core:** add models setup and improve composables ([82cde5a](https://github.com/foscia-dev/foscia/commit/82cde5a540ac9627b122bb0317364f748b174c67)), closes [#2](https://github.com/foscia-dev/foscia/issues/2)
+* **serialization:** serializer `serializeRelation` use given value ([4db9b80](https://github.com/foscia-dev/foscia/commit/4db9b80179ace18b14ac07931e4fba37ee755507)), closes [#17](https://github.com/foscia-dev/foscia/issues/17)
+
+
+### BREAKING CHANGES
+
+* **serialization:** `SerializerI.serializeRelation` signature has changed:
+if you are implementing your own serializer, you should add and use this
+value parameter as the value to serialize instead of retrieving it from the instance.
+* **core:** composable are now dedicated objects and
+should not be object-spread in your definition anymore. Instead of
+doing `{ ...publishable }` you must use `{ publishable }`.
+
 ## [0.7.0-beta.0](https://github.com/foscia-dev/foscia/compare/v0.6.3...v0.7.0-beta.0) (2024-02-05)
 
 ## [0.6.3](https://github.com/foscia-dev/foscia/compare/v0.6.2...v0.6.3) (2024-01-31)
