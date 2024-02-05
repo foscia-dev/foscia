@@ -14,7 +14,7 @@ module.exports = {
     publish: false,
   },
   git: {
-    requireBranch: 'main',
+    requireBranch: ['main', 'next'],
     commitMessage: 'chore: release v${version}',
     tagName: 'v${version}',
     tagAnnotation: 'Release v${version}',
