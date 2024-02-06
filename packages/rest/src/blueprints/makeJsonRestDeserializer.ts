@@ -27,7 +27,3 @@ export default function makeJsonRestDeserializer<
     }),
   };
 }
-
-makeJsonRestDeserializer({
-  extractData: (data: { data: any }) => (data?.data),
-});
