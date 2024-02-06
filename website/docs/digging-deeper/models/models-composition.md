@@ -89,6 +89,43 @@ export default makeComposable({
 });
 ```
 
+### Typechecking composables
+
+You can easily typecheck for models or instances using some of your composables
+by defining type aliases. You can also use `isModelUsing` or `isInstanceUsing`
+functions to check for composition existing on a model or instance:
+
+```typescript title="composables/publishable.ts"
+import { attr, makeComposable, toDateTime, isInstanceUsing, isModelUsing, ModelInstanceUsing, ModelUsing } from '@foscia/core';
+
+const publishable = makeComposable({
+  publishedAt: attr(toDateTime()).nullable(),
+});
+
+// Defining type aliases for your composable.
+export type PublishableInstance = ModelInstanceUsing<typeof publishable>;
+export type PublishableModel = ModelUsing<typeof publishable>;
+
+export default publishable;
+
+// Use type aliases for your function.
+function somethingRequiringAPublishable(instance: PublishableInstance) {
+  console.log(instance.publishedAt);
+}
+
+// Checking if a model/instance is implementing a composable.
+isInstanceUsing(someInstance, publishable); // `someInstance` extends `publishable`.
+isModelUsing(SomeModel, publishable); // `SomeModel` extends `publishable`.
+```
+
+:::warning
+
+`isInstanceUsing` and `isModelUsing` will only check that the model definition
+contain *at some time* the composable, but won't guaranty that the composable
+properties are not overwritten afterward.
+
+:::
+
 ## Factory
 
 When you need to share features across **all** of your models, you should use a
