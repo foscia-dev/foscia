@@ -156,6 +156,11 @@ export type SerializerRecordFactory<Record, Related, Data> = (
  */
 export type SerializerParents = { instance: ModelInstance; def: ModelRelation }[];
 
+/**
+ * Behavior when encountering a circular relation.
+ */
+export type SerializerCircularRelationBehavior = 'throw' | 'skip' | 'keep';
+
 export type SerializerConfig<Record, Related, Data> = {
   createRecord: SerializerRecordFactory<Record, Related, Data>;
   createData?: (records: Arrayable<Record> | null, context: {}) => Awaitable<Data>;
@@ -178,6 +183,14 @@ export type SerializerConfig<Record, Related, Data> = {
     related: ModelInstance,
     parents: SerializerParents,
   ) => Awaitable<Arrayable<Related> | null>;
+  isCircularRelation?: (
+    serializerContext: SerializerContext<Record, Related, Data, ModelRelation>,
+    parents: SerializerParents,
+  ) => Awaitable<boolean>;
+  circularRelationBehavior?: (
+    serializerContext: SerializerContext<Record, Related, Data, ModelRelation>,
+    parents: SerializerParents,
+  ) => Awaitable<SerializerCircularRelationBehavior>;
 };
 
 export interface Serializer<Record, Related, Data> extends SerializerI<Record, Related, Data> {

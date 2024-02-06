@@ -77,6 +77,26 @@ export default function makeSerializerWith<Record, Related, Data>(
       : related.id
   );
 
+  const isCircularRelation = async (
+    context: SerializerContext<Record, Related, Data, ModelRelation>,
+    parents: SerializerParents,
+  ) => (
+    config.isCircularRelation
+      ? config.isCircularRelation(context, parents)
+      : parents.some((parent) => (
+        parent.instance.$model === context.instance.$model && parent.def === context.def
+      ))
+  );
+
+  const circularRelationBehavior = async (
+    context: SerializerContext<Record, Related, Data, ModelRelation>,
+    parents: SerializerParents,
+  ) => (
+    config.circularRelationBehavior
+      ? config.circularRelationBehavior(context, parents)
+      : 'skip'
+  );
+
   let serializer: Serializer<Record, Related, Data>;
 
   const makeSerializerContext = <Def extends ModelAttribute | ModelRelation>(
@@ -88,7 +108,7 @@ export default function makeSerializerWith<Record, Related, Data>(
   const serializeInstance = async (
     instance: ModelInstance,
     context: {},
-    parents?: SerializerParents,
+    parents: SerializerParents = [],
   ) => {
     const record = await config.createRecord(instance, context);
 
@@ -103,27 +123,34 @@ export default function makeSerializerWith<Record, Related, Data>(
         }
       }),
       ...mapRelations(instance, async (def) => {
-        const isCircular = parents && parents.some((parent) => (
-          parent.instance === instance && parent.def === def
-        ));
+        const serializerContext = makeSerializerContext(instance, def, context);
+        const isCircular = await isCircularRelation(serializerContext, parents);
         if (isCircular) {
-          throw new SerializerCircularRelationError(`Circular relation detected on \`${instance.$model.$type}.${def.key}\``);
+          const circularBehavior = await circularRelationBehavior(serializerContext, parents);
+          if (circularBehavior === 'keep') {
+            return;
+          }
+
+          throw new SerializerCircularRelationError(instance, def, circularBehavior);
         }
 
-        const serializerContext = makeSerializerContext(instance, def, context);
         if (await shouldSerialize(serializerContext)) {
           const key = await serializeKey(serializerContext);
           try {
             const value = await serializeRelationWith(serializerContext, serializeRelation, [
-              ...(parents ?? []),
+              ...parents,
               { instance, def },
             ]);
 
             await record.put({ ...serializerContext, key, value });
           } catch (error) {
-            if (!(error instanceof SerializerCircularRelationError)) {
-              throw error;
+            if (error instanceof SerializerCircularRelationError) {
+              if (error.behavior === 'skip') {
+                return;
+              }
             }
+
+            throw error;
           }
         }
       }),
@@ -146,7 +173,11 @@ export default function makeSerializerWith<Record, Related, Data>(
     ) => {
       const serializerContext = makeSerializerContext(instance, def, context);
 
-      return serializeRelationWith({ ...serializerContext, value }, serializeRelated, []);
+      return serializeRelationWith(
+        { ...serializerContext, value },
+        serializeRelated,
+        [{ instance, def }],
+      );
     },
     serializeInstance,
     serialize,
