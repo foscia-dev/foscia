@@ -32,6 +32,7 @@ export default defineConfig({
     typescript({
       tsconfig: path.resolve(rootDirname, 'tsconfig.json'),
       sourceMap: true,
+      sourceRoot: rootDirname,
       inlineSources: true,
     }),
   ],
