@@ -1,0 +1,31 @@
+---
+description: Upgrading Foscia packages to latest version.
+sidebar_position: 0
+---
+
+import ShellCommand from '@site/src/components/ShellCommand';
+
+# Dependencies
+
+You can upgrade all Foscia packages to latest or next version using a single
+command.
+
+:::warning
+
+All major release of Foscia may contain breaking changes!
+You should check the [**migration guides**](/docs/upgrade/migration)
+and update relevant parts of your code according to those guides.
+
+:::
+
+## Latest
+
+`latest` tagged versions contain the stable major release of Foscia packages.
+
+<ShellCommand command="upgrade @foscia/*@latest" />
+
+## Next
+
+`next` tagged versions contain the next major release of Foscia packages.
+
+<ShellCommand command="upgrade @foscia/*@next" />

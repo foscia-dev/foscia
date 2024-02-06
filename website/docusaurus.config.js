@@ -159,7 +159,7 @@ const config = {
         ],
       },
       prism: {
-        additionalLanguages: ['bash', 'json'],
+        additionalLanguages: ['bash', 'json', 'diff'],
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
       },
