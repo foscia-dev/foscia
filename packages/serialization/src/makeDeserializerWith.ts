@@ -31,6 +31,7 @@ import {
 } from '@foscia/serialization/types';
 import {
   type Arrayable,
+  Awaitable,
   isNil,
   isNone,
   makeIdentifiersMap,
@@ -173,11 +174,29 @@ export default function makeDeserializerWith<
 
   const makeInstancesMap = () => makeIdentifiersMap() as DeserializerInstancesMap;
 
-  const makeDeserializerContext = <Def extends ModelAttribute | ModelRelation>(
+  const makeDeserializerContext = async <Def extends ModelAttribute | ModelRelation, Value>(
     instance: ModelInstance,
     def: Def,
+    pull: (context: DeserializerContext<Record, Data, Deserialized, Def>) => Awaitable<Value>,
     context: {},
-  ) => ({ instance, def, key: def.key, value: instance[def.key], context, deserializer });
+  ) => {
+    const deserializerContext = {
+      instance,
+      def,
+      key: def.key,
+      value: instance[def.key],
+      context,
+      deserializer,
+    };
+
+    const key = await deserializeKey(deserializerContext);
+
+    return {
+      ...deserializerContext,
+      key,
+      value: await pull({ ...deserializerContext, key }),
+    };
+  };
 
   const deserializeRecordIn = async (
     record: DeserializerRecord<Record, Data, Deserialized>,
@@ -197,30 +216,28 @@ export default function makeDeserializerWith<
 
     await Promise.all([
       ...mapAttributes(instance, async (def) => {
-        const initialDeserializerContext = makeDeserializerContext(instance, def, context);
-        const deserializerContext = {
-          ...initialDeserializerContext,
-          value: await record.pullAttribute(initialDeserializerContext),
-        };
+        const deserializerContext = await makeDeserializerContext(
+          instance,
+          def,
+          record.pullAttribute,
+          context,
+        );
         if (await shouldDeserialize(deserializerContext)) {
-          const key = await deserializeKey(deserializerContext);
-
           forceFill(instance, {
-            [key]: await deserializeAttributeValue(deserializerContext),
+            [def.key]: await deserializeAttributeValue(deserializerContext),
           });
         }
       }),
       ...mapRelations(instance, async (def) => {
-        const initialDeserializerContext = makeDeserializerContext(instance, def, context);
-        const deserializerContext = {
-          ...initialDeserializerContext,
-          value: await record.pullRelation(initialDeserializerContext),
-        };
+        const deserializerContext = await makeDeserializerContext(
+          instance,
+          def,
+          record.pullRelation,
+          context,
+        );
         if (await shouldDeserialize(deserializerContext)) {
-          const key = await deserializeKey(deserializerContext);
-
           forceFill(instance, {
-            [key]: await deserializeRelationValue(deserializerContext, instancesMap),
+            [def.key]: await deserializeRelationValue(deserializerContext, instancesMap),
           });
 
           instance.$loaded[def.key] = true;
