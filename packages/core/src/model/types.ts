@@ -1,6 +1,7 @@
 import { Hookable, HookCallback, SyncHookCallback } from '@foscia/core/hooks/types';
 import {
   SYMBOL_MODEL_CLASS,
+  SYMBOL_MODEL_COMPOSABLE,
   SYMBOL_MODEL_INSTANCE,
   SYMBOL_MODEL_PROP_ATTRIBUTE,
   SYMBOL_MODEL_PROP_ID,
@@ -11,14 +12,17 @@ import {
 } from '@foscia/core/symbols';
 import { ObjectTransformer } from '@foscia/core/transformers/types';
 import {
+  Arrayable,
   Awaitable,
   Constructor,
   DescriptorHolder,
   Dictionary,
   FosciaObject,
+  OmitNever,
   Optional,
   Prev,
   Transformer,
+  UnionToIntersection,
 } from '@foscia/shared';
 
 /**
@@ -37,6 +41,42 @@ export type ModelConfig = {
   cloneValue?: <T>(value: T) => T;
   [K: string]: any;
 };
+
+/**
+ * Callback run after the model factory tasks (definition parsing, etc.).
+ */
+export type ModelBootCallback<D extends {}> = (model: Model<D, ModelInstance<D>>) => void;
+
+/**
+ * Callback run after the model constructor tasks (properties setup, etc.).
+ */
+export type ModelInitCallback<D extends {}> = (instance: ModelInstance<D>) => void;
+
+/**
+ * Raw model setup configuration.
+ */
+export type ModelRawSetup<D extends {} = any> = {
+  boot?: Arrayable<ModelBootCallback<D>>;
+  init?: Arrayable<ModelInitCallback<D>>;
+};
+
+/**
+ * Parsed model setup configuration.
+ */
+export type ModelSetup<D extends {} = any> = {
+  boot: ModelBootCallback<D>[];
+  init: ModelInitCallback<D>[];
+};
+
+/**
+ * Model composable definition which can be included on any models.
+ */
+export type ModelComposable<D extends {} = any> =
+  & {
+    $definition: D;
+    $setup: ModelSetup<D>;
+  }
+  & FosciaObject<typeof SYMBOL_MODEL_COMPOSABLE>;
 
 /**
  * Model instance ID default typing.
@@ -162,17 +202,37 @@ export type ModelParsedDefinitionProp<K, V> =
   V extends RawModelAttribute<any, any> ? V & ModelPropNormalized<K>
     : V extends RawModelRelation<any, any> ? V & ModelPropNormalized<K>
       : V extends RawModelId<any, any> ? V & ModelPropNormalized<K>
-        : V extends DescriptorHolder<any> ? V
-          : DescriptorHolder<V>;
+        : V extends ModelComposable ? never
+          : V extends DescriptorHolder<any> ? V
+            : DescriptorHolder<V>;
 
 /**
- * The parsed model definition with non attributes/relations properties'
- * descriptors wrapped in holders.
+ * The parsed model definition with non composables/attributes/relations
+ * properties' descriptors wrapped in holders.
  */
 export type ModelParsedDefinition<D extends {} = {}> = {
-  [K in keyof D]: D[K] extends PendingModelProp<RawModelProp<any, any>>
-    ? ModelParsedDefinitionProp<K, D[K]['definition']> : ModelParsedDefinitionProp<K, D[K]>;
+  [K in keyof D]: D[K] extends ModelComposable
+    ? D[K] : D[K] extends PendingModelProp<RawModelProp<any, any>>
+      ? ModelParsedDefinitionProp<K, D[K]['definition']> : ModelParsedDefinitionProp<K, D[K]>;
 };
+
+/**
+ * The flatten and parsed model definition with composables properties
+ * flattened to the definition root.
+ */
+export type ModelFlattenDefinition<D extends {}> =
+  & UnionToIntersection<{} | {
+    [K in keyof D]: D[K] extends ModelComposable<infer CD>
+      ? ModelFlattenDefinition<CD> : never;
+  }[keyof D]>
+  & OmitNever<{ [K in keyof D]: D[K] extends ModelComposable ? never : D[K] }>;
+
+/**
+ The flatten and parsed model definition from a composable object type.
+ */
+export type ModelComposableDefinition<C extends ModelComposable<C>> = ModelFlattenDefinition<{
+  composable: C;
+}>;
 
 /**
  * Extract model's IDs, attributes and relations from the whole definition.
@@ -255,6 +315,8 @@ export type ModelClass<D extends {} = any> =
     readonly $type: string;
     readonly $config: ModelConfig;
     readonly $schema: ModelSchema<D>;
+    readonly $composables: ModelComposable[];
+    readonly $setup: ModelSetup;
   }
   & FosciaObject<typeof SYMBOL_MODEL_CLASS>
   & Hookable<ModelHooksDefinition>;
@@ -268,14 +330,23 @@ export type Model<D extends {} = any, I extends ModelInstance<D> = any> =
   & Constructor<I>;
 
 /**
+ * Model class using a given composable.
+ */
+export type ModelUsing<C extends ModelComposable> =
+  Model<ModelComposableDefinition<C>, ModelInstanceUsing<C>>;
+
+/**
  * Model class which can be configured or extended.
  */
 export type ExtendableModel<D extends {} = any, I extends ModelInstance<D> = any> =
   & {
-    configure(config?: ModelConfig, override?: boolean): ExtendableModel<D, ModelInstance<D>>;
+    configure(config: ModelConfig, override?: boolean): ExtendableModel<D, ModelInstance<D>>;
+    setup(rawSetup: ModelRawSetup<D>): ExtendableModel<D, ModelInstance<D>>;
     extend<ND extends {} = {}>(
-      rawDefinition?: ND & ThisType<ModelInstance<D & ModelParsedDefinition<ND>>>,
-    ): ExtendableModel<D & ModelParsedDefinition<ND>, ModelInstance<D & ModelParsedDefinition<ND>>>;
+      // eslint-disable-next-line max-len
+      rawDefinition?: ND & ThisType<ModelInstance<ModelFlattenDefinition<D & ModelParsedDefinition<ND>>>>,
+      // eslint-disable-next-line max-len
+    ): ExtendableModel<ModelFlattenDefinition<D & ModelParsedDefinition<ND>>, ModelInstance<ModelFlattenDefinition<D & ModelParsedDefinition<ND>>>>;
   }
   & Model<D, I>;
 
@@ -370,6 +441,12 @@ export type ModelInstance<D extends {} = any> =
   & ModelDefinitionValues<D>
   & ModelDefinitionDescriptors<D>
   & FosciaObject<typeof SYMBOL_MODEL_INSTANCE>;
+
+/**
+ * Model instance using a given composable.
+ */
+export type ModelInstanceUsing<C extends ModelComposable> =
+  ModelInstance<ModelComposableDefinition<C>>;
 
 /**
  * Model class or instance snapshot.

@@ -22,6 +22,13 @@ export type OnlyFalsy<T> = T extends Falsy ? T : never;
 
 export type Transformer<T, U = T> = (value: T) => U;
 
+export type OmitNever<T> = {
+  [K in keyof T as T[K] extends never ? never : K]: T[K]
+};
+
+export type UnionToIntersection<U> =
+  (U extends any ? (x: U) => void : never) extends ((x: infer I) => void) ? I : never;
+
 export type IdentifiersMap<Type, Id, T> = {
   find: (type: Type, id: Id) => T | null;
   put: (type: Type, id: Id, value: T) => void;

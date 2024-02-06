@@ -6,3 +6,4 @@ export const SYMBOL_MODEL_RELATION_HAS_ONE: unique symbol = Symbol('foscia: mode
 export const SYMBOL_MODEL_RELATION_HAS_MANY: unique symbol = Symbol('foscia: model relation has many');
 export const SYMBOL_MODEL_CLASS: unique symbol = Symbol('foscia: model class');
 export const SYMBOL_MODEL_INSTANCE: unique symbol = Symbol('foscia: model instance');
+export const SYMBOL_MODEL_COMPOSABLE: unique symbol = Symbol('foscia: model composable');

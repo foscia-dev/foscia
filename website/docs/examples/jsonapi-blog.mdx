@@ -20,7 +20,7 @@ Vue, etc.).
 ## Models
 
 ```typescript title="models/tag.ts"
-import { attr, hasMany, makeModel } from '@foscia/core';
+import { attr, makeModel } from '@foscia/core';
 
 export default class Tag extends makeModel('tags', {
   name: attr<string>(),

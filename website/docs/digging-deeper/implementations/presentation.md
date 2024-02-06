@@ -113,23 +113,25 @@ Serializer will serialize instances to the data source format.
  */
 export interface SerializerI<Record, Related, Data> {
   /**
-   * Serialize a given instance.
+   * Serialize a given instance value.
    *
-   * @param instance
+   * @param value
    * @param context
    */
-  serializeInstance(instance: ModelInstance, context: {}): Awaitable<Record>;
+  serializeInstance(value: ModelInstance, context: {}): Awaitable<Record>;
 
   /**
-   * Serialize a given instance's relation.
+   * Serialize a given instance's relation value.
    *
    * @param instance
    * @param def
+   * @param value
    * @param context
    */
   serializeRelation(
     instance: ModelInstance,
     def: ModelRelation,
+    value: Arrayable<ModelInstance> | null,
     context: {},
   ): Awaitable<Arrayable<Related> | null>;
 

@@ -18,7 +18,9 @@ import logger from '@foscia/core/logger/logger';
 import isAttributeDef from '@foscia/core/model/checks/isAttributeDef';
 import isIdDef from '@foscia/core/model/checks/isIdDef';
 import isInstance from '@foscia/core/model/checks/isInstance';
+import isInstanceUsing from '@foscia/core/model/checks/isInstanceUsing';
 import isModel from '@foscia/core/model/checks/isModel';
+import isModelUsing from '@foscia/core/model/checks/isModelUsing';
 import isPendingPropDef from '@foscia/core/model/checks/isPendingPropDef';
 import isPluralRelationDef from '@foscia/core/model/checks/isPluralRelationDef';
 import isPropDef from '@foscia/core/model/checks/isPropDef';
@@ -161,6 +163,8 @@ export {
   isSingularRelationDef,
   isModel,
   isInstance,
+  isModelUsing,
+  isInstanceUsing,
   isPendingPropDef,
   mapIds,
   mapAttributes,
