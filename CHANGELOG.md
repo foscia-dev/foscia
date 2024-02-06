@@ -2,6 +2,8 @@
 
 ## [0.7.0](https://github.com/foscia-dev/foscia/compare/v0.6.3...v0.7.0) (2024-02-06)
 
+[**Migration from 0.6.x to 0.7.x**](https://foscia.dev/docs/upgrade/migration#07x-from-06x)
+
 ### Features
 
 * **core:** add model and instance composables usage check functions ([66a60fe](https://github.com/foscia-dev/foscia/commit/66a60fe365d84b40b16964442ea5974768be4a21))
