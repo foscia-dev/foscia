@@ -1,36 +1,28 @@
-.presentationContainer {
-    max-width: 1000px;
+.homeFeatureSection {
+    margin: 48px 0;
 }
 
-.features {
-    display: flex;
-    align-items: center;
-    width: 100%;
+.homeFeatureCol {
+    padding: 16px;
 }
 
-.featuresRow {
-    margin: -6px;
-}
-
-.feature {
+.homeFeatureCard {
     --feature-icon-size: 48px;
     --feature-radius: 24px;
 
     border-radius: var(--ifm-global-radius);
     background: var(--ifm-code-background);
+    box-shadow: var(--ifm-global-shadow-lw);
     height: 100%;
     padding: 16px 8px;
+    transition: all 250ms ease-in-out;
 }
 
-.featureCol {
-    padding: 6px;
+.homeFeatureCard:hover {
+    transform: scale(110%);
 }
 
-.feature p {
-    margin-bottom: 0;
-}
-
-.featureSvgWrapper {
+.homeFeatureCardSvgWrapper {
     --border-primary-background: var(--ifm-code-background);
     display: inline-flex;
     align-items: center;
@@ -40,38 +32,35 @@
     width: calc(var(--feature-icon-size) * 1.6);
 }
 
-.featureSvg {
+.homeFeatureCardSvg {
     height: var(--feature-icon-size);
     width: var(--feature-icon-size);
 }
 
-.featureTitle {
+.homeFeatureCardTitle {
     margin-bottom: 8px !important;
 }
 
-.featureText {
-}
-
 @media screen and (max-width: 996px) {
-    .featureCol {
+    .homeFeatureCol {
         --ifm-col-width: calc(6 / 12 * 100%) !important;
     }
 
-    .featureTitle {
+    .homeFeatureCardTitle {
         font-size: 1.1rem;
     }
 
-    .featureText {
+    .homeFeatureCardDescription {
         font-size: 0.88rem;
     }
 }
 
 @media screen and (max-width: 550px) {
-    .featureCol {
+    .homeFeatureCol {
         --ifm-col-width: 100% !important;
     }
 
-    .feature {
+    .homeFeatureCard {
         --feature-icon-size: 32px;
         --feature-radius: 18px;
     }

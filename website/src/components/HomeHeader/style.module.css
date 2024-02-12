@@ -1,8 +1,3 @@
-/**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
- */
-
 .heroBanner {
     padding: 4rem 0;
     margin: 0 16px 16px 16px;
@@ -16,7 +11,7 @@ html[data-theme="light"] .heroBanner {
     border-radius: var(--ifm-global-radius);
     fill: var(--ifm-background-surface-color);
     color: var(--ifm-background-surface-color);
-    background: radial-gradient(circle at top left, var(--ifm-color-primary) 30%, var(--accent-color));
+    background: radial-gradient(circle at top left, var(--ifm-color-primary) 30%, var(--ifm-color-accent));
     background-size: 150% 150%;
 }
 
@@ -28,52 +23,59 @@ html[data-theme="dark"] .heroBanner:before {
     height: 75%;
     width: 256px;
     border-radius: 50%;
-    background: linear-gradient(45deg, var(--accent-color) 30%, var(--ifm-color-primary) 60%);
+    background: linear-gradient(45deg, var(--ifm-color-accent) 30%, var(--ifm-color-primary) 60%);
     opacity: 40%;
     transform: translate(-50%, -25%);
     filter: blur(96px);
 }
 
-.hero__content {
+.heroContent {
     position: relative;
     z-index: 1;
 }
 
-.hero__logo__wrapper {
+.heroLogoWrapper {
     position: relative;
 }
 
-.hero__logo {
+.heroLogo {
     position: relative;
     height: 128px;
     width: 128px;
     z-index: 1;
-    fill: linear-gradient(45deg, var(--accent-color) 30%, var(--ifm-color-primary));
+    fill: linear-gradient(45deg, var(--ifm-color-accent) 30%, var(--ifm-color-primary));
 }
 
-.hero__title, .hero__subtitle {
+.heroTitle, .heroSubtitle {
     font-family: var(--ifm-font-family-monospace) !important;
 }
 
-.hero__title {
+.heroTitle {
     font-size: 3rem;
 }
 
-.hero__subtitle {
+.heroSubtitle {
     font-size: 1.8rem;
 }
 
+.heroButtons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 @media screen and (max-width: 996px) {
-    .hero__logo {
+    .heroLogo {
         height: 96px;
         width: 96px;
     }
 
-    .hero__title {
+    .heroTitle {
         font-size: 2rem;
     }
 
-    .hero__subtitle {
+    .heroSubtitle {
         font-size: 1.2rem;
     }
 
@@ -85,14 +87,7 @@ html[data-theme="dark"] .heroBanner:before {
         transform: translate(-50%, -45%);
     }
 
-    .hero__button {
+    .heroButton {
         font-size: 1.1rem;
     }
-}
-
-.buttons {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
 }

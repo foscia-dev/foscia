@@ -7,7 +7,6 @@
 /* You can override the default Infima variables here. */
 :root {
     --nav-background-color: 255, 255, 255;
-    --accent-color: #ffc107;
 
     --ifm-font-family-monospace: "Fira Mono", monospace;
     --ifm-font-family-base: "Poppins", sans-serif;
@@ -28,6 +27,7 @@
     --ifm-details-background: #fef7fa;
     --ifm-details-code-background: #fdf3f7;
     --ifm-hover-overlay: #fef7fa;
+    --ifm-color-accent: #ffc013;
     --ifm-color-primary: #ac1b55;
     --ifm-color-primary-dark: #9b184c;
     --ifm-color-primary-darker: #921748;
@@ -50,6 +50,7 @@ html[data-theme="dark"] {
     --ifm-details-background: #1c1216;
     --ifm-details-code-background: #1f1418;
     --ifm-hover-overlay: #1c1216;
+    --ifm-color-accent: #07eeff;
     --ifm-color-primary: #ff6bc1;
     --ifm-color-primary-dark: #ff47b2;
     --ifm-color-primary-darker: #ff35aa;
@@ -110,7 +111,7 @@ html[data-theme="dark"] .header-github-link:before {
 }
 
 .svg-gradient-primary__end {
-    stop-color: var(--accent-color);
+    stop-color: var(--ifm-color-accent);
 }
 
 .text--large {
@@ -138,7 +139,7 @@ html[data-theme="dark"] .header-github-link:before {
     left: 16px;
     right: 16px;
     bottom: -12px;
-    background: radial-gradient(circle at top left, var(--ifm-color-primary), var(--accent-color));
+    background: radial-gradient(circle at top left, var(--ifm-color-primary), var(--ifm-color-accent));
     border-radius: 3px;
     height: 6px;
 }
@@ -149,7 +150,7 @@ html[data-theme="dark"] .header-github-link:before {
     fill: var(--ifm-font-color-base);
     color: var(--ifm-font-color-base);
     border: solid 2px transparent;
-    background-image: linear-gradient(var(--border-primary-background), var(--border-primary-background)), radial-gradient(circle at top left, var(--ifm-color-primary), var(--accent-color));
+    background-image: linear-gradient(var(--border-primary-background), var(--border-primary-background)), radial-gradient(circle at top left, var(--ifm-color-primary), var(--ifm-color-accent));
     background-origin: border-box;
     background-clip: padding-box, border-box;
     z-index: 1;
@@ -320,4 +321,15 @@ aside, .table-of-contents__left-border {
     background: var(--ifm-code-background);
     border: none;
     box-shadow: var(--ifm-global-shadow-lw);
+}
+
+.footer {
+    background-color: transparent;
+    padding: 16px 32px 0 32px;
+}
+
+.footer > .container {
+    background-color: var(--ifm-footer-background-color);
+    padding: 32px;
+    border-radius: 32px 32px 0 0;
 }

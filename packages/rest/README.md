@@ -12,10 +12,6 @@
 <a href="https://foscia.dev/docs/getting-started">
   Documentation
 </a>
-•
-<a href="https://codesandbox.io/p/sandbox/boring-hoover-9n3ylg?file=%2Fsrc%2Fplayground.ts%3A11%2C42">
-  Playground
-</a>
 </p>
 
 ## @foscia/rest

@@ -86,19 +86,39 @@ const config = {
         },
         items: [
           {
-            to: '/docs/about',
-            label: 'About',
-            position: 'right',
-          },
-          {
-            to: '/docs/getting-started',
+            type: 'dropdown',
             label: 'Documentation',
-            position: 'right',
-          },
-          {
-            href: 'https://codesandbox.io/p/sandbox/boring-hoover-9n3ylg?file=%2Fsrc%2Fplayground.ts%3A11%2C42',
-            label: 'Playground',
-            position: 'right',
+            position: 'left',
+            items: [
+              {
+                to: '/docs/about',
+                label: 'About',
+              },
+              {
+                label: 'Installation',
+                to: '/docs/installation',
+              },
+              {
+                label: 'Getting started',
+                to: '/docs/getting-started',
+              },
+              {
+                label: 'Core concepts',
+                to: '/docs/category/core-concepts',
+              },
+              {
+                label: 'Digging deeper',
+                to: '/docs/category/digging-deeper',
+              },
+              {
+                label: 'Examples',
+                to: '/docs/category/examples',
+              },
+              {
+                label: 'Reference',
+                to: '/docs/category/reference',
+              },
+            ],
           },
           {
             href: 'https://github.com/foscia-dev/foscia',
@@ -142,10 +162,6 @@ const config = {
           {
             title: 'More',
             items: [
-              {
-                label: 'Playground',
-                href: 'https://codesandbox.io/p/sandbox/boring-hoover-9n3ylg?file=%2Fsrc%2Fplayground.ts%3A11%2C42',
-              },
               {
                 label: 'GitHub',
                 href: 'https://github.com/foscia-dev/foscia',

@@ -27,10 +27,6 @@
 <a href="https://foscia.dev/docs/getting-started">
   Documentation
 </a>
-•
-<a href="https://codesandbox.io/p/sandbox/boring-hoover-9n3ylg?file=%2Fsrc%2Fplayground.ts%3A11%2C42">
-  Playground
-</a>
 </p>
 
 ## Foscia
@@ -38,7 +34,8 @@
 > Type safe, modular and intuitive API/data client for JS/TS.
 
 **Foscia acts as an intermediary layer** between your application and
-your data source (API, database). It helps **keeping your data structure clear
+your data source (API, database), just like an ORM would.
+It helps **keeping your data structure clear
 and type safe** with simple models definition and provide a lot of
 useful tools to make common tasks easier (changes tracking, hooks,
 serialization, etc.), allowing you to focus on your features!
