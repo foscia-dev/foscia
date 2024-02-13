@@ -25,12 +25,12 @@ import promptForOverwrite from '@foscia/cli/utils/input/promptForOverwrite';
 import logSymbols from '@foscia/cli/utils/output/logSymbols';
 import { confirm, input, select } from '@inquirer/prompts';
 import { execa } from 'execa';
-import { resolve } from 'node:path';
+import { normalize, resolve } from 'node:path';
 import ora from 'ora';
 import pc from 'picocolors';
 
 export type InitCommandOptions = {
-  path: string;
+  path?: string;
   manual?: boolean;
 } & UsageOptions & ShowableOptions;
 
@@ -187,14 +187,13 @@ export default {
   command: 'init <path>',
   describe: pc.dim('Initialize foscia configuration and files.'),
   builder: (argv) => argv
-    .usage(`Usage: ${pc.magenta('foscia')} ${pc.bold('init')} <path> [options]`)
+    .usage(`Usage: ${pc.magenta('foscia')} ${pc.bold('init')} [path] [options]`)
     .example([
       [`${pc.magenta('foscia')} ${pc.bold('init')} src/data`, pc.dim('Initialize foscia files inside "src/data" directory and write configuration to ".fosciarc.json".')],
       [`${pc.magenta('foscia')} ${pc.bold('init')} src/api --config .fosciarc.api.json`, pc.dim('Initialize foscia files inside "src/api" directory and write configuration to ".fosciarc.api.json".')],
     ])
     .positional('path', {
       type: 'string',
-      demandOption: true,
       normalize: true,
       description: pc.dim('Directory to put new Foscia files in.'),
     })
@@ -228,6 +227,10 @@ export default {
         },
       ],
     }));
+    const path = normalize(args.path ?? await input({
+      message: 'Where do you want to store your foscia files (action, models, etc.)?',
+      default: 'src/data',
+    }));
     const { packageManager, language, modules } = await resolveEnvironment(args);
     const alias = await resolveAlias(args);
 
@@ -236,7 +239,7 @@ export default {
       packageManager,
       language,
       modules,
-      path: args.path,
+      path,
       alias: alias || undefined,
       tabSize: 2,
     };

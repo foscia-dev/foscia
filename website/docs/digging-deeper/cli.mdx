@@ -41,17 +41,17 @@ your package runner.
 
 ## Commands
 
-### `init <path>`
+### `init [path]`
 
 Initialize the Foscia CLI configuration file and create an action factory. The
 command will ask you multiple things about your project to set up an adapted
-Foscia CLI environment.
+Foscia environment.
 
 #### Examples
 
 <ShellCommand
   command={[
-    'foscia init src/api',
+    'foscia init src/data',
     '# Init with specific usage and write to dedicated configuration.',
     'foscia init src/api --config=.fosciarc.api.json --usage=jsonapi',
   ]}
@@ -59,7 +59,8 @@ Foscia CLI environment.
 
 #### Arguments
 
-- `<path>` Directory to put new Foscia files in (models, composables, actions)
+- `[path]` Directory to put new Foscia files in (models, composables, actions).
+  If absent, will be requested during initialization process.
 
 #### Options
 
@@ -67,7 +68,7 @@ Foscia CLI environment.
 - `--manual` Disable environment detection (language and modules organizations)
 - `--show` Output the files instead of writing them on filesystem
 
-### `foscia make:model <name>`
+### `make:model <name>`
 
 Create a Foscia model using the name argument.
 
@@ -155,7 +156,7 @@ all `make:*` commands using many options, such as:
 - Modules organization (ESM or CommonJS)
 - etc.
 
-This configuration can be set up using [`foscia init <path>`](#init-path)
+This configuration can be set up using [`foscia init [path]`](#init-path)
 command and will be stored in a `.fosciarc.json`.
 
 :::tip
