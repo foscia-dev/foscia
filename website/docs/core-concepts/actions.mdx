@@ -79,7 +79,7 @@ const post = await action().use(query(somePost)).run(oneOrFail());
 
 ### Eager loading relations
 
-Some [implementations for Foscia](/docs/category/implementations) support eager
+Some [implementations for Foscia](/docs/category/implementations-and-configuration) support eager
 loading (such as JSON:API). This provides a way to retrieve records and eager
 load related models without further requests. Eager loading also alleviates the
 "N + 1" query problem.
@@ -94,7 +94,7 @@ const posts = await action().use(query(Post), include('author')).run(all());
 
 ### Lazy loading relations
 
-Some [implementations for Foscia](/docs/category/implementations) support lazy
+Some [implementations for Foscia](/docs/category/implementations-and-configuration) support lazy
 loading (such as JSON:API). This provides a way to fetch related records for a
 relation with an already retrieved a record.
 

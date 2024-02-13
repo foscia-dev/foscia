@@ -3,7 +3,7 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
-export default function ShellCommand({ command }) {
+export default function ShellCommand({ command, ...props }) {
   const commands = Array.isArray(command) ? command : [command];
   const code = (runPrefix, installPrefix, devSuffix) => commands.map((c) => (
     c.startsWith('#') ? c : [
@@ -14,7 +14,7 @@ export default function ShellCommand({ command }) {
   )).join('\n');
 
   return (
-    <Tabs groupId="packageManager">
+    <Tabs groupId="packageManager" {...props}>
       <TabItem
         value="npm"
         label="NPM"

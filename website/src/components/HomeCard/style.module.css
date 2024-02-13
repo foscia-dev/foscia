@@ -35,7 +35,9 @@
     opacity: 1;
 }
 
-.homeCard > div {
+.homeCard > div,
+.homeCard div[class^="language-"],
+.homeCard div[class^="tabs-container"] {
     border-top-left-radius: 0 !important;
     border-top-right-radius: 0 !important;
     border-bottom-left-radius: 16px !important;
@@ -44,15 +46,14 @@
     margin: 0 !important;
 }
 
-.homeCardWrapperReverse .homeCard {
-    padding-left: 0;
+.homeCard div[class^="language-"]:not(:last-child),
+.homeCard div[class^="tabs-container"]:not(:last-child) {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
 }
 
-.homeCardWrapperReverse .homeCard > div {
-    border-top-left-radius: 0 !important;
-    border-top-right-radius: 0 !important;
-    border-bottom-left-radius: 16px !important;
-    border-bottom-right-radius: 16px !important;
+.homeCardWrapperReverse .homeCard {
+    padding-left: 0;
 }
 
 .homeCardTextCol {
@@ -100,18 +101,47 @@
         margin-left: auto;
     }
 
-    .homeCard > div {
-        border-top-left-radius: 12px !important;
+    .homeCard > div,
+    .homeCard div[class^="language-"],
+    .homeCard div[class^="tabs-container"] {
         border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+    }
+
+    .homeCard > div,
+    .homeCard div[class^="language-"]:first-child,
+    .homeCard div[class^="tabs-container"]:first-child {
+        border-top-left-radius: 12px !important;
+    }
+
+    .homeCard > div,
+    .homeCard div[class^="language-"]:last-child,
+    .homeCard div[class^="tabs-container"]:last-child {
+        border-bottom-right-radius: 16px !important;
     }
 
     .homeCardWrapperReverse .homeCard {
         padding-right: 16px;
     }
 
-    .homeCardWrapperReverse .homeCard > div {
-        border-top-right-radius: 12px !important;
+    .homeCardWrapperReverse .homeCard > div,
+    .homeCardWrapperReverse .homeCard div[class^="language-"],
+    .homeCardWrapperReverse .homeCard div[class^="tabs-container"] {
+        border-bottom-left-radius: 0 !important;
         border-bottom-right-radius: 0 !important;
+    }
+
+    .homeCardWrapperReverse .homeCard > div,
+    .homeCardWrapperReverse .homeCard div[class^="language-"]:first-child,
+    .homeCardWrapperReverse .homeCard div[class^="tabs-container"]:first-child {
+        border-top-right-radius: 12px !important;
+        border-top-left-radius: 0 !important;
+    }
+
+    .homeCardWrapperReverse .homeCard > div,
+    .homeCardWrapperReverse .homeCard div[class^="language-"]:last-child,
+    .homeCardWrapperReverse .homeCard div[class^="tabs-container"]:last-child {
+        border-bottom-left-radius: 16px !important;
     }
 
     .homeCardText {

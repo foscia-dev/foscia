@@ -1,5 +1,6 @@
 ---
-sidebar_position: 40
+sidebar_label: Using REST
+sidebar_position: 4000
 description: Using Foscia to interact with a JSON:API.
 ---
 
@@ -22,7 +23,7 @@ Currently, REST implementations does not support additional features compared to
 generic Foscia features.
 
 If your REST API supports eager loading relations, you should
-[configure your REST adapter](/docs/digging-deeper/implementations/rest#makejsonrestadapter)
+[configure your REST adapter](/docs/reference/implementations/rest#makejsonrestadapter)
 to serialize relationships inclusion in every request.
 
 If you need something specific, you can
@@ -30,4 +31,4 @@ If you need something specific, you can
 
 ## Reference
 
-- [Implementation and configuration guide](/docs/digging-deeper/implementations/rest)
+- [Implementation and configuration guide](/docs/reference/implementations/rest)

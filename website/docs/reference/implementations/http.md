@@ -10,8 +10,8 @@ description:
 
 HTTP implementation provides `makeHttpAdapter`/`makeHttpAdapterWith` and
 multiple other features which help using Foscia as an HTTP client. It is also
-the foundation of [JSON:API](/docs/digging-deeper/implementations/jsonapi) and
-[REST](/docs/digging-deeper/implementations/rest) implementations.
+the foundation of [JSON:API](/docs/reference/implementations/jsonapi) and
+[REST](/docs/reference/implementations/rest) implementations.
 
 ## Implementations
 

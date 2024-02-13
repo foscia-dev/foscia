@@ -20,7 +20,7 @@ using the
 [`fetch` API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 
 `makeJsonRestAdapter` and `makeRestAdapterWith` use
-[`makeHttpAdapterWith`](/docs/digging-deeper/implementations/http#makehttpadapter).
+[`makeHttpAdapterWith`](/docs/reference/implementations/http#makehttpadapter).
 
 #### Usage
 
@@ -67,7 +67,7 @@ makeRestAdapterWith({
 
 `makeJsonRestAdapter` and `makeRestAdapterWith` extend its configuration object from:
 
--  [`makeHttpAdapter`](/docs/digging-deeper/implementations/http#makehttpadapter-configuration)
+-  [`makeHttpAdapter`](/docs/reference/implementations/http#makehttpadapter-configuration)
 
 | Name              | Type                            | Description                                                                                                             |
 |-------------------| ------------------------------- |-------------------------------------------------------------------------------------------------------------------------|
@@ -84,7 +84,7 @@ This implementation of the deserializer extract model instances from object
 documents.
 
 `makeJsonRestDeserializer` extends the
-[`makeDeserializerWith`](/docs/digging-deeper/implementations/serialization#makedeserializerwith).
+[`makeDeserializerWith`](/docs/reference/implementations/serialization#makedeserializerwith).
 
 <details>
 
@@ -163,7 +163,7 @@ makeJsonRestSerializer({
 
 `makeJsonRestDeserializer` extends its configuration object from:
 
-- [`makeDeserializerWith`](/docs/digging-deeper/implementations/serialization#makedeserializerwith-configuration)
+- [`makeDeserializerWith`](/docs/reference/implementations/serialization#makedeserializerwith-configuration)
 
 #### Defined in
 
@@ -175,7 +175,7 @@ This implementation of the serializer creates a REST documents from model
 instance and relations.
 
 `makeJsonRestSerializer` extends the
-[`makeSerializerWith`](/docs/digging-deeper/implementations/serialization#makeserializerwith).
+[`makeSerializerWith`](/docs/reference/implementations/serialization#makeserializerwith).
 
 <details>
 
@@ -235,7 +235,7 @@ makeJsonRestSerializer({
 
 `makeJsonRestSerializer` extends its configuration object from:
 
-- [`makeSerializerWith`](/docs/digging-deeper/implementations/serialization#makeserializerwith-configuration)
+- [`makeSerializerWith`](/docs/reference/implementations/serialization#makeserializerwith-configuration)
 
 | Name            | Type      | Description                                          |
 |-----------------|-----------|------------------------------------------------------|

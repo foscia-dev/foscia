@@ -223,38 +223,38 @@ export interface RegistryI {
 `@foscia/core` provides implementations for `CacheI` and `RegistryI`. Those
 implementations may be used for any Foscia usage (JSON:API, REST, etc.).
 
-- [Registry through `makeMapRegistryWith`](/docs/digging-deeper/implementations/core#makemapregistrywith)
-- [Cache through `makeRefsCacheWith`](/docs/digging-deeper/implementations/core#makerefscachewith)
+- [Registry through `makeMapRegistryWith`](/docs/reference/implementations/core#makemapregistrywith)
+- [Cache through `makeRefsCacheWith`](/docs/reference/implementations/core#makerefscachewith)
 
 ### HTTP
 
 `@foscia/http` provides implementation of `AdapterI` to interact with HTTP data
 sources.
 
-- [Adapter through `makeHttpAdapter`](/docs/digging-deeper/implementations/http#makehttpadapter)
+- [Adapter through `makeHttpAdapter`](/docs/reference/implementations/http#makehttpadapter)
 
 ### JSON:API
 
 `@foscia/jsonapi` provides implementations of `AdapterI`, `SerializerI` and
 `DeserializerI` to interact with JSON:API data sources.
 
-- [Adapter through `makeJsonApiAdapter`](/docs/digging-deeper/implementations/jsonapi#makejsonapiadapter)
-- [Serializer through `makeJsonApiSerializer`](/docs/digging-deeper/implementations/jsonapi#makejsonapiserializer)
-- [Deserializer through `makeJsonApiDeserializer`](/docs/digging-deeper/implementations/jsonapi#makejsonapideserializer)
+- [Adapter through `makeJsonApiAdapter`](/docs/reference/implementations/jsonapi#makejsonapiadapter)
+- [Serializer through `makeJsonApiSerializer`](/docs/reference/implementations/jsonapi#makejsonapiserializer)
+- [Deserializer through `makeJsonApiDeserializer`](/docs/reference/implementations/jsonapi#makejsonapideserializer)
 
 ### REST
 
 `@foscia/rest` provides implementations of `AdapterI`, `SerializerI` and
 `DeserializerI` to interact with JSON REST HTTP data sources.
 
-- [Adapter through `makeJsonRestAdapter`](/docs/digging-deeper/implementations/rest#makejsonrestadapter)
-- [Serializer through `makeJsonRestSerializer`](/docs/digging-deeper/implementations/rest#makejsonrestserializer)
-- [Deserializer through `makeJsonRestDeserializer`](/docs/digging-deeper/implementations/rest#makejsonrestdeserializer)
+- [Adapter through `makeJsonRestAdapter`](/docs/reference/implementations/rest#makejsonrestadapter)
+- [Serializer through `makeJsonRestSerializer`](/docs/reference/implementations/rest#makejsonrestserializer)
+- [Deserializer through `makeJsonRestDeserializer`](/docs/reference/implementations/rest#makejsonrestdeserializer)
 
 ### Serialization
 
 `@foscia/serialization` provides partial implementations of `SerializerI` and
 `DeserializerI` to transform model instances to/from record generic values.
 
-- [Serializer through `makeSerializerWith`](/docs/digging-deeper/implementations/serialization#makeserializerwith)
-- [Deserializer through `makeDeserializerWith`](/docs/digging-deeper/implementations/serialization#makedeserializerwith)
+- [Serializer through `makeSerializerWith`](/docs/reference/implementations/serialization#makeserializerwith)
+- [Deserializer through `makeDeserializerWith`](/docs/reference/implementations/serialization#makedeserializerwith)

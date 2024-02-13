@@ -50,7 +50,7 @@ html[data-theme="dark"] {
     --ifm-details-background: #1c1216;
     --ifm-details-code-background: #1f1418;
     --ifm-hover-overlay: #1c1216;
-    --ifm-color-accent: #07eeff;
+    --ifm-color-accent: #ffc013;
     --ifm-color-primary: #ff6bc1;
     --ifm-color-primary-dark: #ff47b2;
     --ifm-color-primary-darker: #ff35aa;
@@ -311,6 +311,16 @@ aside, .table-of-contents__left-border {
 
 .navbar .navbar-sidebar {
     z-index: 2;
+}
+
+div[class^='announcementBar'] {
+    margin: 0 16px;
+    border: none !important;
+    border-radius: 0 0 24px 24px;
+}
+
+div[class^='announcementBar'] > div {
+    padding: 4px 8px;
 }
 
 .button > p {

@@ -1,4 +1,5 @@
 import HomeCard from '@site/src/components/HomeCard';
+import ShellCommand from '@site/src/components/ShellCommand';
 import TypeSafeSvg from '@site/src/icons/alert-decagram-outline.svg';
 import ConsoleSvg from '@site/src/icons/console.svg';
 import CacheSvg from '@site/src/icons/database-outline.svg';
@@ -180,6 +181,31 @@ function HomeFeaturesPresentation() {
   </>;
 }
 
+function HomeGetStarted() {
+  const title = <>
+    Get started <span className={clsx('text--primary')}>now</span>
+    <br />
+    Install <span className={clsx('text--primary')}>Foscia CLI</span>
+  </>;
+
+  const description = <>
+    <strong>Foscia CLI allow you to quickly setup Foscia on your project.</strong> It
+    will automatically detect your environment and install required Foscia packages.
+    Once installed, just run <code>init</code> command with your destination directory.
+  </>;
+
+  return <HomeCard
+    title={title}
+    description={description}
+    action={{ to: '/docs/getting-started', label: 'Get started' }}
+    illustration={<div className={styles.homeFeatureGettingStartedCommands}>
+      <ShellCommand command="add dev @foscia/cli" />
+      <ShellCommand command="foscia init" />
+    </div>}
+    reverse
+  />;
+}
+
 export default function HomeFeatures() {
   return (
     <div className={clsx('container')}>
@@ -191,6 +217,9 @@ export default function HomeFeatures() {
       </section>
       <section className={clsx(styles.homeFeatureSection)}>
         <HomeFeaturesPresentation />
+      </section>
+      <section className={clsx(styles.homeFeatureSection)}>
+        <HomeGetStarted />
       </section>
     </div>
   );

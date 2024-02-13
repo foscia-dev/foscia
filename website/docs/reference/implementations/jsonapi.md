@@ -21,7 +21,7 @@ using the
 [`fetch` API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 
 `makeJsonApiAdapter` uses
-[`makeRestAdapterWith`](/docs/digging-deeper/implementations/rest#makejsonrestadapter).
+[`makeRestAdapterWith`](/docs/reference/implementations/rest#makejsonrestadapter).
 
 #### Usage
 
@@ -43,8 +43,8 @@ const response = await adapter.execute({
 
 `JsonApiAdapter` extends its configuration object from:
 
--  [`makeHttpAdapter`](/docs/digging-deeper/implementations/http#makehttpadapter-configuration)
--  [`makeRestAdapterWith`](/docs/digging-deeper/implementations/rest#makejsonrestadapter-configuration)
+-  [`makeHttpAdapter`](/docs/reference/implementations/http#makehttpadapter-configuration)
+-  [`makeRestAdapterWith`](/docs/reference/implementations/rest#makejsonrestadapter-configuration)
 
 #### Defined in
 
@@ -56,7 +56,7 @@ This implementation of the deserializer extract model instances from JSON:API
 documents.
 
 `makeJsonApiDeserializer` extends the
-[`makeDeserializerWith`](/docs/digging-deeper/implementations/serialization#makedeserializerwith).
+[`makeDeserializerWith`](/docs/reference/implementations/serialization#makedeserializerwith).
 
 <details>
 
@@ -150,7 +150,7 @@ const { instances } = await deserializer.deserialize(data, {
 
 `makeJsonApiDeserializer` extends its configuration object from:
 
-- [`makeDeserializerWith`](/docs/digging-deeper/implementations/serialization#makedeserializerwith-configuration)
+- [`makeDeserializerWith`](/docs/reference/implementations/serialization#makedeserializerwith-configuration)
 
 #### Defined in
 
@@ -162,7 +162,7 @@ This implementation of the serializer creates a JSON:API documents from model
 instance and relations.
 
 `makeJsonApiSerializer` extends the
-[`makeSerializerWith`](/docs/digging-deeper/implementations/serialization#makeserializerwith).
+[`makeSerializerWith`](/docs/reference/implementations/serialization#makeserializerwith).
 
 <details>
 
@@ -224,7 +224,7 @@ const data = await serializer.serializeInstance(instance, {
 
 `makeJsonApiSerializer` extends its configuration object from:
 
-- [`makeSerializerWith`](/docs/digging-deeper/implementations/serialization#makeserializerwith-configuration)
+- [`makeSerializerWith`](/docs/reference/implementations/serialization#makeserializerwith-configuration)
 
 #### Defined in
 

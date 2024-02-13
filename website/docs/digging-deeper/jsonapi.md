@@ -1,5 +1,6 @@
 ---
-sidebar_position: 30
+sidebar_label: Using JSON:API
+sidebar_position: 3000
 description: Using Foscia to interact with a JSON:API.
 ---
 
@@ -140,4 +141,4 @@ console.log(data.document.meta!.page.hasMore);
 
 - [Dedicated enhancers API](/docs/reference/actions-enhancers#fosciajsonapi)
 - [Dedicated runners API](/docs/reference/actions-runners#fosciajsonapi)
-- [Implementation and configuration guide](/docs/digging-deeper/implementations/jsonapi)
+- [Implementation and configuration guide](/docs/reference/implementations/jsonapi)

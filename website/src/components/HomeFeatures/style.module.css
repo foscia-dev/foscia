@@ -41,6 +41,10 @@
     margin-bottom: 8px !important;
 }
 
+.homeFeatureGettingStartedCommands > div:last-child > ul:first-child {
+    display: none;
+}
+
 @media screen and (max-width: 996px) {
     .homeFeatureCol {
         --ifm-col-width: calc(6 / 12 * 100%) !important;

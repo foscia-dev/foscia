@@ -59,16 +59,16 @@ const config = {
         .filter((pkg) => pkg.name !== 'cli')
         .map((pkg) => `../packages/${pkg.name}`),
       tsconfig: path.resolve(__dirname, '../tsconfig.json'),
-      sidebar: { fullNames: true, position: 5, categoryLabel: 'API' },
+      sidebar: { fullNames: true, position: 1000, categoryLabel: 'API' },
     }],
   ],
   themeConfig:
   /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       algolia: {
-        appId: 'AK1H2HG8VZ',
-        apiKey: '5b22541919060b702fe9c7bb5711807c',
-        indexName: 'foscia',
+        appId: '4ARIHUOKRG',
+        apiKey: '6d3fe07374328ce4bff0593085a71797',
+        indexName: 'fosciadev',
       },
       announcementBar: {
         id: '0.1.0-announcement',
