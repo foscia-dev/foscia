@@ -69,6 +69,7 @@ export default function makeDeserializerWith<
 
     // When no registry is configured or identifier type was not retrieved,
     // we'll try to resolve the model from the context.
+    // This will also ensure guessed model type matches deserializing record.
     const guessedModel = await guessContextModel({
       model: (record.parent?.instance.$model ?? consumeModel(context, null)) as Model,
       relation: record.parent?.def ?? consumeRelation(context, null),
@@ -78,23 +79,23 @@ export default function makeDeserializerWith<
 
     if (!guessedModel) {
       if (isNil(identifier.type)) {
-        throw new DeserializerError(
-          `No alternative found to resolve model of resource with ID \`${identifier.id}\`. You should either: target a model, give an explicit type to your relation or configure/extends the deserializer to manage types extraction.`,
-        );
+        throw new DeserializerError(`
+No alternative found to resolve model of resource with ID \`${identifier.id}\`.
+You should either:
+  - Query a model/instance/relation using \`query\` enhancer.
+  - Define explicit related model/type on your relations.
+  - Define a registry to hold types to models mapping.
+  - Manage type extraction in the deserialization process.
+`.trim());
       }
 
-      throw new DeserializerError(
-        `No alternative found to resolve model of resource with ID \`${identifier.id}\` and type \`${identifier.type}\`. You should verify there is a registered model which matches this type in your action factory.`,
-      );
-    }
-
-    // In some case, a type may be defined in identifier but there
-    // was no registry to lookup for model, so we should ensure
-    // the looked up model match this type before returning it.
-    if (!isNil(identifier.type) && identifier.type !== guessedModel.$type) {
-      throw new DeserializerError(
-        `Resolved model has type \`${guessedModel.$type}\` but resource with ID \`${identifier.id}\` has type \`${identifier.type}\`. There is probably an error with the context values of your action. If not, you should verify there is a registered model which matches this type in your action factory.`,
-      );
+      throw new DeserializerError(`
+No alternative found to resolve model of resource with ID \`${identifier.id}\` and type \`${identifier.type}\`.
+You should either:
+  - Query a model/instance/relation using \`query\` enhancer.
+  - Define explicit related model/type on your relations.
+  - Define a registry to hold types to models mapping.
+`.trim());
     }
 
     return { ...identifier, type: identifier.type ?? guessedModel.$type, model: guessedModel };

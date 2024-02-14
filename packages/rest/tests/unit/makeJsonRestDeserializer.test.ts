@@ -1,5 +1,5 @@
 import {
-  attr,
+  attr, fill,
   hasMany,
   hasOne,
   makeComposable,
@@ -174,4 +174,97 @@ describe.concurrent('unit: makeJsonRestSerializer', () => {
       });
     })();
   })();
+
+  it('should fail when no model found using context only', () => {
+    const { deserializer } = makeJsonRestDeserializer();
+
+    expect(deserializer.deserialize({ id: '1' }, {})).rejects.toThrow(
+      /No alternative found to resolve model of resource with ID `1`\./,
+    );
+  });
+
+  it('should fail when no model found using context and type', () => {
+    const { deserializer } = makeJsonRestDeserializer();
+
+    expect(deserializer.deserialize({ id: '1', type: 'categories' }, {})).rejects.toThrow(
+      /No alternative found to resolve model of resource with ID `1` and type `categories`\./,
+    );
+  });
+
+  it('should fail when model found but not matching', () => {
+    const model = makeModel('comments');
+
+    const { deserializer } = makeJsonRestDeserializer();
+
+    expect(deserializer.deserialize({ id: '1', type: 'categories' }, { model })).rejects.toThrow(
+      /No alternative found to resolve model of resource with ID `1` and type `categories`\./,
+    );
+  });
+
+  it('should deserialize unique records only once', async () => {
+    const User = makeModel('users', {
+      name: attr(),
+    });
+    const Post = makeModel('posts', {
+      author: hasOne(() => User),
+    });
+
+    const { deserializer } = makeJsonRestDeserializer();
+    const { instances } = await deserializer.deserialize([
+      {
+        id: '1',
+        type: 'posts',
+        author: {
+          id: '3',
+          type: 'users',
+        },
+      },
+      {
+        id: '2',
+        type: 'posts',
+        author: {
+          id: '3',
+          type: 'users',
+        },
+      },
+    ], { model: Post });
+
+    expect(instances).toHaveLength(2);
+    expect(instances[0]).toBeInstanceOf(Post);
+    expect(instances[0].author).toBeInstanceOf(User);
+    expect(instances[1]).toBeInstanceOf(Post);
+    expect(instances[1].author).toBeInstanceOf(User);
+    expect(instances[0] !== instances[1]).toBeTruthy();
+    expect(instances[0].author === instances[1].author).toBeTruthy();
+  });
+
+  it('should deserialize creating instance', async () => {
+    const Post = makeModel('posts');
+    const post = new Post();
+
+    const { deserializer } = makeJsonRestDeserializer();
+    const { instances } = await deserializer.deserialize({
+      id: '1',
+      type: 'posts',
+    }, { model: Post, instance: post, action: 'create' });
+
+    expect(instances).toHaveLength(1);
+    expect(instances[0]).toBeInstanceOf(Post);
+    expect(instances[0] === post).toBeTruthy();
+  });
+
+  it('should deserialize updating instance', async () => {
+    const Post = makeModel('posts');
+    const post = fill(new Post(), { id: '1' });
+
+    const { deserializer } = makeJsonRestDeserializer();
+    const { instances } = await deserializer.deserialize({
+      id: '1',
+      type: 'posts',
+    }, { model: Post, instance: post, action: 'update' });
+
+    expect(instances).toHaveLength(1);
+    expect(instances[0]).toBeInstanceOf(Post);
+    expect(instances[0] === post).toBeTruthy();
+  });
 });
