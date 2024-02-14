@@ -64,6 +64,7 @@ html[data-theme="dark"] {
 .DocSearch {
     --docsearch-modal-background: var(--ifm-background-surface-color);
     --docsearch-footer-background: var(--ifm-background-color);
+    --docsearch-searchbox-background: var(--ifm-code-background);
     --docsearch-key-gradient: linear-gradient(
             -26.5deg,
             var(--ifm-color-emphasis-200) 0%,

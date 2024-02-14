@@ -67,7 +67,7 @@ const config = {
     ({
       algolia: {
         appId: '4ARIHUOKRG',
-        apiKey: '6d3fe07374328ce4bff0593085a71797',
+        apiKey: '216b2058f40470b073a59c2867d9d51a',
         indexName: 'fosciadev',
       },
       announcementBar: {
@@ -86,14 +86,39 @@ const config = {
         },
         items: [
           {
-            type: 'dropdown',
-            label: 'Documentation',
             position: 'left',
+            label: 'Installation',
+            to: '/docs/installation',
+          },
+          {
+            position: 'left',
+            label: 'Getting started',
+            to: '/docs/getting-started',
+          },
+          {
+            position: 'left',
+            label: 'API',
+            to: '/docs/category/reference',
+          },
+          {
+            position: 'right',
+            label: 'Documentation',
+            to: '/docs/category/core-concepts',
+            className: 'button border--primary',
+          },
+          {
+            href: 'https://github.com/foscia-dev/foscia',
+            title: 'GitHub repository (open in new tab)',
+            position: 'right',
+            className: 'header-github-link',
+          },
+        ],
+      },
+      footer: {
+        links: [
+          {
+            title: 'Documentation',
             items: [
-              {
-                to: '/docs/about',
-                label: 'About',
-              },
               {
                 label: 'Installation',
                 to: '/docs/installation',
@@ -110,65 +135,31 @@ const config = {
                 label: 'Digging deeper',
                 to: '/docs/category/digging-deeper',
               },
+            ],
+          },
+          {
+            title: 'Getting help',
+            items: [
               {
-                label: 'Examples',
-                to: '/docs/category/examples',
+                label: 'FAQ',
+                to: '/docs/help/faq',
               },
               {
-                label: 'Reference',
-                to: '/docs/category/reference',
+                label: 'GitHub issues',
+                href: 'https://github.com/foscia-dev/foscia/issues',
               },
             ],
           },
           {
-            href: 'https://github.com/foscia-dev/foscia',
-            title: 'GitHub repository (open in new tab)',
-            position: 'right',
-            className: 'header-github-link',
-          },
-        ],
-      },
-      footer: {
-        links: [
-          {
-            title: 'Docs',
+            title: 'Links',
             items: [
-              {
-                label: 'About',
-                to: '/docs/about',
-              },
-              {
-                label: 'Getting started',
-                to: '/docs/getting-started',
-              },
-              {
-                label: 'Core concepts',
-                to: '/docs/category/core-concepts',
-              },
-              {
-                label: 'Digging deeper',
-                to: '/docs/category/digging-deeper',
-              },
-              {
-                label: 'Reference',
-                to: '/docs/category/reference',
-              },
-              {
-                label: 'Help',
-                to: '/docs/category/help',
-              },
-            ],
-          },
-          {
-            title: 'More',
-            items: [
-              {
-                label: 'GitHub',
-                href: 'https://github.com/foscia-dev/foscia',
-              },
               {
                 href: 'https://www.npmjs.com/package/foscia',
                 label: 'NPM',
+              },
+              {
+                label: 'GitHub repository',
+                href: 'https://github.com/foscia-dev/foscia',
               },
             ],
           },
