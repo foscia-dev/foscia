@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.1](https://github.com/foscia-dev/foscia/compare/v0.7.0...v0.7.1) (2024-02-15)
+
+
+### Bug Fixes
+
+* **serialization:** deserializer with aliased keys ([f88d9d6](https://github.com/foscia-dev/foscia/commit/f88d9d6a765221ba5fb7ec14b6305a79141b1c59))
+
+
+### Features
+
+* **cli:** make init path optional as an argument ([47eccdd](https://github.com/foscia-dev/foscia/commit/47eccdda6a6b704bc5038cde36e574175f4fecf9))
+* **serialization:** add new options to `makeSerializerWith` ([18fb6fb](https://github.com/foscia-dev/foscia/commit/18fb6fbf7261631235e93ca80bfc485d387cbcbd))
+
 ## [0.7.0](https://github.com/foscia-dev/foscia/compare/v0.6.3...v0.7.0) (2024-02-06)
 
 [**Migration from 0.6.x to 0.7.x**](https://foscia.dev/docs/upgrade/migration#07x-from-06x)
