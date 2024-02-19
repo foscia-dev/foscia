@@ -10,7 +10,13 @@ import HttpServerError from '@foscia/http/errors/httpServerError';
 import HttpTooManyRequestsError from '@foscia/http/errors/httpTooManyRequestsError';
 import HttpUnauthorizedError from '@foscia/http/errors/httpUnauthorizedError';
 import makeHttpAdapterResponse from '@foscia/http/makeHttpAdapterResponse';
-import { HttpAdapter, HttpAdapterConfig, HttpMethod, HttpRequestConfig } from '@foscia/http/types';
+import {
+  HttpAdapter,
+  HttpAdapterConfig,
+  HttpMethod,
+  HttpRequestConfig,
+  HttpRequestInitPickKey,
+} from '@foscia/http/types';
 import { Dictionary, isNil, optionalJoin, sequentialTransform } from '@foscia/shared';
 
 export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfig<Data>) {
@@ -135,11 +141,24 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
 
     const appendHeaders = config.appendHeaders ?? (() => ({}));
 
+    const init = {
+      cache: contextConfig?.cache,
+      credentials: contextConfig?.credentials,
+      integrity: contextConfig?.integrity,
+      keepalive: contextConfig?.keepalive,
+      mode: contextConfig?.mode,
+      redirect: contextConfig?.redirect,
+      referrer: contextConfig?.referrer,
+      referrerPolicy: contextConfig?.referrerPolicy,
+      signal: contextConfig?.signal,
+      window: contextConfig?.window,
+    } as { [K in HttpRequestInitPickKey]: RequestInit[K]; };
+
     return {
       body,
       headers: { ...headers, ...await appendHeaders(context), ...contextConfig?.headers },
       method: makeRequestMethod(context, contextConfig),
-      signal: contextConfig?.signal,
+      ...init,
     } as RequestInit;
   };
 

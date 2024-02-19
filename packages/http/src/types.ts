@@ -17,24 +17,40 @@ export type HttpMethod =
   | 'unlink' | 'UNLINK';
 
 /**
+ * Keys which are simply inherited from request init.
+ */
+export type HttpRequestInitPickKey =
+  | 'cache'
+  | 'credentials'
+  | 'integrity'
+  | 'keepalive'
+  | 'mode'
+  | 'redirect'
+  | 'referrer'
+  | 'referrerPolicy'
+  | 'signal'
+  | 'window';
+
+/**
  * Context value representing a HTTP request config.
  */
-export type HttpRequestConfig = {
-  request?: Request;
-  method?: HttpMethod;
-  baseURL?: string;
-  path?: string;
-  params?: Dictionary<any> | string;
-  headers?: Dictionary<string>;
-  body?: unknown;
-  bodyAs?: BodyAsTransformer;
-  signal?: AbortSignal | null;
-  modelPaths?: boolean;
-  responseReader?: HttpResponseReader;
-  requestTransformers?: RequestTransformer[];
-  responseTransformers?: ResponseTransformer[];
-  errorTransformers?: ErrorTransformer[];
-};
+export type HttpRequestConfig =
+  & {
+    request?: Request;
+    method?: HttpMethod;
+    baseURL?: string;
+    path?: string;
+    params?: Dictionary<any> | string;
+    headers?: Dictionary<string>;
+    body?: unknown;
+    bodyAs?: BodyAsTransformer;
+    modelPaths?: boolean;
+    responseReader?: HttpResponseReader;
+    requestTransformers?: RequestTransformer[];
+    responseTransformers?: ResponseTransformer[];
+    errorTransformers?: ErrorTransformer[];
+  }
+  & Pick<RequestInit, HttpRequestInitPickKey>;
 
 /**
  * Context containing a HTTP request config.
