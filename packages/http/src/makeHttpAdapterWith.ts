@@ -170,13 +170,16 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
 
   const execute = async (context: {}) => {
     const contextConfig = consumeRequestConfig(context, null) ?? {};
-    const request = await transformRequest(context, await makeRequest(context, contextConfig));
+    const request = await transformRequest(
+      contextConfig,
+      await makeRequest(context, contextConfig),
+    );
 
     let response: Response;
     try {
       response = await runRequest(request);
     } catch (error) {
-      throw await transformError(context, makeRequestError(request, error));
+      throw await transformError(contextConfig, makeRequestError(request, error));
     }
 
     if (response.status >= 200 && response.status < 300) {
@@ -185,7 +188,7 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
       });
     }
 
-    throw await transformError(context, makeResponseError(request, response));
+    throw await transformError(contextConfig, makeResponseError(request, response));
   };
 
   return { execute } as HttpAdapter<Data>;
