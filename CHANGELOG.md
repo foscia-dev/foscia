@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.2](https://github.com/foscia-dev/foscia/compare/v0.7.1...v0.7.2) (2024-02-20)
+
+
+### Bug Fixes
+
+* **http:** `configureRequest` will now correctly merge options ([63e7300](https://github.com/foscia-dev/foscia/commit/63e730014ba8b4b8be1947a1ba09ab8675436477)), closes [#20](https://github.com/foscia-dev/foscia/issues/20)
+* **http:** correctly run context transformers on http adapter ([8e0a335](https://github.com/foscia-dev/foscia/commit/8e0a33529800286b576818a862110b0b841abe0b))
+
+
+### Features
+
+* **http:** add support for other http request init in http adapter ([8df48d2](https://github.com/foscia-dev/foscia/commit/8df48d2c8e4119c93bc9d3f0dab3be8b76aabb6b)), closes [#20](https://github.com/foscia-dev/foscia/issues/20)
+
 ## [0.7.1](https://github.com/foscia-dev/foscia/compare/v0.7.0...v0.7.1) (2024-02-15)
 
 
