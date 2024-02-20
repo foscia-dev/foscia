@@ -4,7 +4,7 @@ sidebar_position: 2000
 description: Using Foscia as a simple HTTP client.
 ---
 
-import Link from '@docusaurus/Link';
+
 import ShellCommand from '@site/src/components/ShellCommand';
 
 # HTTP
@@ -50,6 +50,8 @@ export default makeActionFactory({
 
 ## Usage
 
+### Basic usage
+
 Once your action factory is ready, sending HTTP request is pretty easy using
 provided enhancers ([`makeGet`](/docs/reference/actions-enhancers#makeget),
 [`makePost`](/docs/reference/actions-enhancers#makepost), etc.). Running a
@@ -61,16 +63,73 @@ to retrieve a value from the `Response` object.
 import { makeGet, makePost } from '@foscia/http';
 import action from './action';
 
-// GET https://example.com/
+// GET https://example.com/ (and get Response object)
 const response = await action().use(makeGet('/')).run(raw());
 
-// GET https://example.com/api/posts (and get JSON payload)
+// POST https://example.com/api/posts (and get JSON payload)
 const data = await action()
-  .use(
-    makePost('/api/posts', {
-      data: { title: 'Hello World!' },
+  .use(makePost('/api/posts', {
+    data: { title: 'Hello World!' },
+  }))
+  .run(raw((response) => response.json()));
+```
+
+### Advanced usage
+
+You can pass a lot of options to each request enhancers, from `headers` and
+`params` options to any other
+[Fetch `Request` options](https://developer.mozilla.org/docs/Web/API/Request/Request#options):
+
+```typescript
+import { makePost } from '@foscia/http';
+import action from './action';
+
+const abortController = new AbortController();
+
+const data = await action()
+  .use(makePost('/api/posts', {
+    data: { title: 'Hello World!' },
+  }, {
+    headers: { 'Accept-Language': 'fr-FR' },
+    params: { include: 'comments' },
+    credentials: 'same-origin',
+    abortSignal: abortController.signal,
+    // cache, redirect, referrer, etc.
+    requestTransformers: [(request) => {
+      // Do something with `request`.
+
+      return request;
+    }],
+    responseTransformers: [(response) => {
+      // Do something with `response`.
+
+      return response;
+    }],
+    errorTransformers: [(error) => {
+      // Do something with `error`.
+
+      return error;
+    }],
+  }))
+  .run(raw((response) => response.json()));
+```
+
+### Custom `Request` object
+
+You can even pass a custom
+[Fetch `Request` object](https://developer.mozilla.org/docs/Web/API/Request/Request):
+
+```typescript
+import { configureRequest } from '@foscia/http';
+import action from './action';
+
+const data = await action()
+  .use(configureRequest({
+    request: new Request('https://example.com', {
+      headers: {},
+      /* Other init... */
     }),
-  )
+  }))
   .run(raw((response) => response.json()));
 ```
 
