@@ -8,6 +8,7 @@ import React from 'react';
 
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
+
   return (
     <Layout
       title="Home"

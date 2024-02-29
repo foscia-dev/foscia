@@ -101,6 +101,11 @@ const config = {
             to: '/docs/category/reference',
           },
           {
+            position: 'left',
+            label: 'Playground',
+            to: '/playground',
+          },
+          {
             position: 'right',
             label: 'Documentation',
             to: '/docs/category/core-concepts',

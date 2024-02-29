@@ -1,0 +1,34 @@
+.playgroundContainer {
+    padding: 0 16px;
+    width: 100%;
+    height: calc(100vh - 116px);
+}
+
+.playgroundContainer > div {
+    height: 100%;
+    width: 100%;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.playgroundContainer > div > ul {
+    border-bottom-color: var(--ifm-tabs-color-active-border) !important;
+}
+
+.playgroundContainer > div > div {
+    width: 100%;
+    flex-grow: 1;
+}
+
+.playgroundContainer > div > div > div:not([hidden]) {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.playgroundIframe {
+    width: 100%;
+    flex-grow: 1;
+    border-radius: 0 0 8px 8px;
+}

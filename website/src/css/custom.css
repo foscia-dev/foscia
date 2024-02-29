@@ -91,6 +91,11 @@ html[data-theme="dark"] {
     fill: var(--ifm-color-primary);
 }
 
+.header-github-link {
+    padding: 0;
+    margin: 0 8px;
+}
+
 .header-github-link:hover {
     opacity: 0.6;
 }
