@@ -7,6 +7,7 @@ export default function makeRestAdapterWith<Data = any>(config: RestAdapterConfi
     ...config,
     appendParams: async (context) => ({
       ...await makeIncludeParam(context, config.includeParamKey),
+      ...(await config.appendParams?.(context)),
     }),
   });
 }
