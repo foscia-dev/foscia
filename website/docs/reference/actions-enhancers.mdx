@@ -304,6 +304,123 @@ action().use(destroy(post));
 - [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
   `instance` an instance of model to delete
 
+### `associate`
+
+<FunctionInfo version="0.8.0" requires="Serializer" provides="Model, Instance, ID, Relation" />
+
+Prepare context for an instance's `hasOne` relation associate operation.
+
+#### Example
+
+```typescript
+import { associate } from '@foscia/core';
+
+action().use(associate(post, 'author', user));
+```
+
+#### Arguments
+
+- [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+  `instance` an instance of model to update relation on
+- [`{ModelRelationKey<M>}`](/docs/reference/api/modules/foscia_core#modelrelationkey)
+  `relation` a relation to update
+- [`{ModelInferPropValue<R>}`](/docs/reference/api/modules/foscia_core#modelinferpropvalue)
+  `value` an instance to associate
+
+### `dissociate`
+
+<FunctionInfo version="0.8.0" requires="Serializer" provides="Model, Instance, ID, Relation" />
+
+Prepare context for an instance's `hasOne` relation dissociate operation.
+
+#### Example
+
+```typescript
+import { dissociate } from '@foscia/core';
+
+action().use(dissociate(post, 'author'));
+```
+
+#### Arguments
+
+- [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+  `instance` an instance of model to update relation on
+- [`{ModelRelationKey<M>}`](/docs/reference/api/modules/foscia_core#modelrelationkey)
+  `relation` a relation to update
+
+### `attach`
+
+<FunctionInfo version="0.8.0" requires="Serializer" provides="Model, Instance, ID, Relation" />
+
+Prepare context for an instance's `hasMany` relation attach operation.
+
+#### Example
+
+```typescript
+import { attach } from '@foscia/core';
+
+action().use(attach(post, 'tags', [tag1, tag2]));
+```
+
+#### Arguments
+
+- [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+  `instance` an instance of model to update relation on
+- [`{ModelRelationKey<M>}`](/docs/reference/api/modules/foscia_core#modelrelationkey)
+  `relation` a relation to update
+- [`{ModelInferPropValue<R> | ModelInferPropValue<R>[number]}`](/docs/reference/api/modules/foscia_core#modelinferpropvalue)
+  `value` one or many instance to attach
+
+### `detach`
+
+<FunctionInfo version="0.8.0" requires="Serializer" provides="Model, Instance, ID, Relation" />
+
+Prepare context for an instance's `hasMany` relation detach operation.
+
+#### Example
+
+```typescript
+import { detach } from '@foscia/core';
+
+action().use(detach(post, 'tags', [tag1, tag2]));
+```
+
+#### Arguments
+
+- [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+  `instance` an instance of model to update relation on
+- [`{ModelRelationKey<M>}`](/docs/reference/api/modules/foscia_core#modelrelationkey)
+  `relation` a relation to update
+- [`{ModelInferPropValue<R> | ModelInferPropValue<R>[number]}`](/docs/reference/api/modules/foscia_core#modelinferpropvalue)
+  `value` one or many instance to detach
+
+### `updateRelation`
+
+<FunctionInfo version="0.8.0" requires="Serializer" provides="Model, Instance, ID, Relation" />
+
+Prepare context for an instance's `hasOne` or `hasMany` relation update.
+
+#### Example
+
+```typescript
+import { ActionName, updateRelation } from '@foscia/core';
+
+action().use(updateRelation(post, 'author', user));
+action().use(updateRelation(post, 'tags', [tag1, tag2]));
+action().use(updateRelation(post, 'tags', [tag1, tag2], ActionName.ATTACH_RELATION));
+```
+
+#### Arguments
+
+- [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
+  `instance` an instance of model to update relation on
+- [`{ModelRelationKey<M>}`](/docs/reference/api/modules/foscia_core#modelrelationkey)
+  `relation` a relation to update
+- [`{ModelInferPropValue<R> | ModelInferPropValue<R>[number]}`](/docs/reference/api/modules/foscia_core#modelinferpropvalue)
+  `value` one or many instance to set as the relation's value
+- `{ActionName.UPDATE_RELATION | ActionName.ATTACH_RELATION | ActionName.DETACH_RELATION}`
+  `actionName` the action name to run (defaults to `ActionName.UPDATE_RELATION`)
+
 ### `instanceData`
 
 <FunctionInfo requires="Serializer" />
@@ -341,6 +458,8 @@ action().use(relationData(post, 'tags'));
 
 - [`{I extends ModelInstance}`](/docs/reference/api/modules/foscia_core#modelinstance)
   `instance` an instance of model to serialize
+- [`{ModelRelationKey<M>}`](/docs/reference/api/modules/foscia_core#modelrelationkey)
+  `relation` a relation to serialize
 
 ### `include`
 

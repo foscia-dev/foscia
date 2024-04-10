@@ -195,6 +195,11 @@ export type ModelRelation<K = string, T = any, R extends boolean = boolean> =
   & RawModelRelation<T, R>;
 
 /**
+ * Infer a model's property type from the property raw definition.
+ */
+export type ModelInferPropValue<P> = P extends RawModelProp<infer T> ? T : never;
+
+/**
  * A parsed model definition's prop with non attributes/relations properties'
  * descriptors wrapped in holders.
  */

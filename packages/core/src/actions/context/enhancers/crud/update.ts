@@ -1,7 +1,7 @@
 import context from '@foscia/core/actions/context/enhancers/context';
 import instanceData from '@foscia/core/actions/context/enhancers/crud/instanceData';
-import changeInstanceExistence
-  from '@foscia/core/actions/context/enhancers/hooks/changeInstanceExistence';
+import syncInstanceExistenceOnSuccess
+  from '@foscia/core/actions/context/enhancers/hooks/syncInstanceExistenceOnSuccess';
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import query from '@foscia/core/actions/context/enhancers/query';
@@ -16,6 +16,7 @@ import {
 } from '@foscia/core/actions/types';
 import runHooks from '@foscia/core/hooks/runHooks';
 import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/types';
+import ActionName from '../../../actionName';
 
 /**
  * Prepare context for an instance update.
@@ -36,13 +37,13 @@ export default function update<
   return (action: Action<C & ConsumeSerializer<Record, Related, Data>, E>) => action
     .use(query<C & ConsumeSerializer<Record, Related, Data>, E, D, I>(instance))
     .use(context({
-      action: 'update',
+      action: ActionName.UPDATE,
       // Rewrite ID to ensure update targets the record termination point
       // even if $exists is false.
       id: instance.id,
     }))
     .use(instanceData(instance))
-    .use(changeInstanceExistence(true))
+    .use(syncInstanceExistenceOnSuccess(true))
     .use(onRunning(() => runHooks(instance.$model, ['updating', 'saving'], instance)))
     .use(onSuccess(() => runHooks(instance.$model, ['updated', 'saved'], instance)));
 }

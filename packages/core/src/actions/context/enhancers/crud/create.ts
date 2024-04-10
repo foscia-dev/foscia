@@ -1,7 +1,8 @@
+import ActionName from '@foscia/core/actions/actionName';
 import context from '@foscia/core/actions/context/enhancers/context';
 import instanceData from '@foscia/core/actions/context/enhancers/crud/instanceData';
-import changeInstanceExistence
-  from '@foscia/core/actions/context/enhancers/hooks/changeInstanceExistence';
+import syncInstanceExistenceOnSuccess
+  from '@foscia/core/actions/context/enhancers/hooks/syncInstanceExistenceOnSuccess';
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import query from '@foscia/core/actions/context/enhancers/query';
@@ -36,13 +37,13 @@ export default function create<
   return (action: Action<C & ConsumeSerializer<Record, Related, Data>, E>) => action
     .use(query<C & ConsumeSerializer<Record, Related, Data>, E, D, I>(instance))
     .use(context({
-      action: 'create',
+      action: ActionName.CREATE,
       // Rewrite ID to ensure create targets the index termination point
       // even if $exists is true.
       id: undefined,
     }))
     .use(instanceData(instance))
-    .use(changeInstanceExistence(true))
+    .use(syncInstanceExistenceOnSuccess(true))
     .use(onRunning(() => runHooks(instance.$model, ['creating', 'saving'], instance)))
     .use(onSuccess(() => runHooks(instance.$model, ['created', 'saved'], instance)));
 }

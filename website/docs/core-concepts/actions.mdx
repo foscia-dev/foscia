@@ -77,42 +77,6 @@ import { query, oneOrFail } from '@foscia/core';
 const post = await action().use(query(somePost)).run(oneOrFail());
 ```
 
-### Eager loading relations
-
-Some [implementations for Foscia](/docs/category/implementations-and-configuration) support eager
-loading (such as JSON:API). This provides a way to retrieve records and eager
-load related models without further requests. Eager loading also alleviates the
-"N + 1" query problem.
-
-To eager load a relation, you can use the `include` function.
-
-```typescript
-import { query, all, include } from '@foscia/core';
-
-const posts = await action().use(query(Post), include('author')).run(all());
-```
-
-### Lazy loading relations
-
-Some [implementations for Foscia](/docs/category/implementations-and-configuration) support lazy
-loading (such as JSON:API). This provides a way to fetch related records for a
-relation with an already retrieved a record.
-
-```typescript
-import { query, all, oneOrFail } from '@foscia/core';
-
-// Fetch a post without relations.
-const post = await action().use(query(Post, 1)).run(oneOrFail());
-// Fetch "comments" relation.
-const comments = await action().use(query(post, 'comments')).run(all());
-```
-
-:::info
-
-Lazy loading a record's relation won't affect the given record instance.
-
-:::
-
 ### Creating and updating records
 
 You can create or update records using `create` and `update` functions. As a
@@ -152,9 +116,120 @@ import { destroy, none } from '@foscia/core';
 await action().use(destroy(post)).run(none());
 ```
 
-### Retrieving cached records
+### Relationships
 
-When having a cache enabled on your action, you can use it to retrieve
+### Eager loading relations
+
+Some [implementations of Foscia](/docs/category/implementations-and-configuration)
+support dedicated relationships operations (such as JSON:API).
+With those, you may read and write relationships.
+
+#### Eager loading relations
+
+Eager loading provides a way to retrieve records and eager
+load related models without further requests. It also alleviates the
+"N + 1" query problem.
+
+To eager load a relation, you can use the `include` function.
+
+```typescript
+import { query, all, include } from '@foscia/core';
+
+const posts = await action().use(query(Post), include('author')).run(all());
+```
+
+#### Lazy loading relations
+
+Lazy loading provides a way to fetch related records for a
+relation with an already retrieved a record.
+
+```typescript
+import { query, all, oneOrFail } from '@foscia/core';
+
+// Fetch a post without relations.
+const post = await action().use(query(Post, 1)).run(oneOrFail());
+// Fetch "comments" relation.
+const comments = await action().use(query(post, 'comments')).run(all());
+```
+
+:::info
+
+Lazy loading a record's relation won't affect the given record instance.
+
+:::
+
+#### Writing relations
+
+##### To one
+
+For `hasOne` relationship, you can use `associate` and `dissociate`
+to change the relation value.
+
+```typescript
+import { associate, dissociate, none } from '@foscia/core';
+
+// Associate myUser as myPost's author.
+await action()
+  .use(associate(myPost, 'author', myUser))
+  .run(none());
+console.log(myPost.author); // myUser
+
+// Dissociate author of myPost.
+await action()
+  .use(dissociate(myPost, 'author'))
+  .run(none());
+console.log(myPost.author); // null
+```
+
+:::info
+
+Using `associate` and `dissociate` **will update** the model's property and mark
+it synced.
+
+:::
+
+##### To many
+
+For `hasMany` relationship, you can use `attach`, `detach` and `updateRelation`
+to change the relation value:
+
+- `attach` will attach one or many related records, without touching existing
+  related records;
+- `detach` will detach one or many related records, without touching attaching
+  other records;
+- `updateRelation` will sync related records to the given records (detach past
+  records, attach given records);
+
+```typescript
+import { attach, detach, updateRelation, none } from '@foscia/core';
+
+// Attach myUser1 and myUser2 to myTeam's members.
+await action()
+  .use(attach(myTeam, 'members', [myUser1, myUser2]))
+  .run(none());
+
+// Detach myUser1 and myUser2 from myTeam's members.
+await action()
+  .use(detach(myTeam, 'members', [myUser1, myUser2]))
+  .run(none());
+
+// Sync myUser1 and myUser2 as myTeam's members.
+await action()
+  .use(updateRelation(myTeam, 'members', [myUser1, myUser2]))
+  .run(none());
+```
+
+:::warning
+
+Using `attach`, `detach` and `updateRelation` **will not update** the model's
+property.
+
+:::
+
+### Caching
+
+When having a cache enabled on your action, all fetched records are cached
+when deserializing. You can use the cache to retrieve
 an already fetched record without interacting with your data source again
 using `cached` and `cachedOrFail`.
 

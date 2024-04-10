@@ -1,7 +1,11 @@
 import {
   all,
+  associate,
+  attach,
   changed,
   destroy,
+  detach,
+  dissociate,
   fill,
   include,
   markSynced,
@@ -10,6 +14,7 @@ import {
   oneOrFail,
   query,
   save,
+  updateRelation,
   when,
 } from '@foscia/core';
 import { makeGet } from '@foscia/http';
@@ -103,7 +108,7 @@ describe('integration: JSON:API', () => {
     expect(posts[1].comments).toHaveLength(0);
   });
 
-  it('should run action: relation', async () => {
+  it('should run action: read relation', async () => {
     const fetchMock = createFetchMock();
     fetchMock.mockImplementationOnce(createFetchResponse().json({
       data: [
@@ -151,6 +156,192 @@ describe('integration: JSON:API', () => {
     expect(comments[1].$exists).toStrictEqual(true);
     expect(comments[1].id).toStrictEqual('2');
     expect(comments[1].body).toStrictEqual('Bar Body');
+  });
+
+  it('should run action: associate relation', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().noContent());
+
+    const action = makeJsonApiActionMock();
+
+    const post = fill(new PostMock(), { id: '1' });
+    const comment = fill(new CommentMock(), { id: '2' });
+    post.$exists = true;
+    await action()
+      .use(associate(post, 'bestComment', comment))
+      .run(none());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/relationships/bestComment');
+    expect(request.method).toStrictEqual('PATCH');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(await request.text()).toStrictEqual(JSON.stringify({
+      data: {
+        type: 'comments',
+        id: '2',
+      },
+    }));
+
+    expect(post.bestComment).toStrictEqual(comment);
+    expect(changed(post, 'bestComment')).toBeFalsy();
+  });
+
+  it('should run action: associate relation with null', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().noContent());
+
+    const action = makeJsonApiActionMock();
+
+    const post = fill(new PostMock(), { id: '1' });
+    post.$exists = true;
+    await action()
+      .use(associate(post, 'bestComment', null))
+      .run(none());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/relationships/bestComment');
+    expect(request.method).toStrictEqual('PATCH');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(await request.text()).toStrictEqual(JSON.stringify({
+      data: null,
+    }));
+
+    expect(post.bestComment).toStrictEqual(null);
+    expect(changed(post, 'bestComment')).toBeFalsy();
+  });
+
+  it('should run action: dissociate relation', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().noContent());
+
+    const action = makeJsonApiActionMock();
+
+    const post = fill(new PostMock(), { id: '1' });
+    post.bestComment = fill(new CommentMock(), { id: '2' });
+    post.$exists = true;
+    markSynced(post);
+    await action()
+      .use(dissociate(post, 'bestComment'))
+      .run(none());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/relationships/bestComment');
+    expect(request.method).toStrictEqual('PATCH');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(await request.text()).toStrictEqual(JSON.stringify({
+      data: null,
+    }));
+
+    expect(post.bestComment).toStrictEqual(null);
+    expect(changed(post, 'bestComment')).toBeFalsy();
+  });
+
+  it('should run action: attach relation', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().noContent());
+
+    const action = makeJsonApiActionMock();
+
+    const post = fill(new PostMock(), { id: '1' });
+    const comment = fill(new CommentMock(), { id: '2' });
+    post.comments = [];
+    post.$exists = true;
+    markSynced(post);
+    await action()
+      .use(attach(post, 'comments', comment))
+      .run(none());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/relationships/comments');
+    expect(request.method).toStrictEqual('POST');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(await request.text()).toStrictEqual(JSON.stringify({
+      data: [
+        {
+          type: 'comments',
+          id: '2',
+        },
+      ],
+    }));
+
+    expect(post.comments).toStrictEqual([]);
+    expect(changed(post, 'comments')).toBeFalsy();
+  });
+
+  it('should run action: detach relation', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().noContent());
+
+    const action = makeJsonApiActionMock();
+
+    const post = fill(new PostMock(), { id: '1' });
+    const comment = fill(new CommentMock(), { id: '2' });
+    post.comments = [comment];
+    post.$exists = true;
+    markSynced(post);
+    await action()
+      .use(detach(post, 'comments', [comment]))
+      .run(none());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/relationships/comments');
+    expect(request.method).toStrictEqual('DELETE');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(await request.text()).toStrictEqual(JSON.stringify({
+      data: [
+        {
+          type: 'comments',
+          id: '2',
+        },
+      ],
+    }));
+
+    expect(post.comments).toStrictEqual([comment]);
+    expect(changed(post, 'comments')).toBeFalsy();
+  });
+
+  it('should run action: update relation', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().noContent());
+
+    const action = makeJsonApiActionMock();
+
+    const post = fill(new PostMock(), { id: '1' });
+    const comment = fill(new CommentMock(), { id: '2' });
+    post.comments = [];
+    post.$exists = true;
+    markSynced(post);
+    await action()
+      .use(updateRelation(post, 'comments', [comment]))
+      .run(none());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/relationships/comments');
+    expect(request.method).toStrictEqual('PATCH');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(await request.text()).toStrictEqual(JSON.stringify({
+      data: [
+        {
+          type: 'comments',
+          id: '2',
+        },
+      ],
+    }));
+
+    expect(post.comments).toStrictEqual([]);
+    expect(changed(post, 'comments')).toBeFalsy();
   });
 
   it('should run action: find record', async () => {
