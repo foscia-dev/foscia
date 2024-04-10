@@ -40,7 +40,7 @@ export default function update<
       action: ActionName.UPDATE,
       // Rewrite ID to ensure update targets the record termination point
       // even if $exists is false.
-      id: instance.id,
+      id: (instance as ModelInstance).id,
     }))
     .use(instanceData(instance))
     .use(syncInstanceExistenceOnSuccess(true))

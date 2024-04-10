@@ -1,4 +1,4 @@
-FROM node:18-alpine as dependencies
+FROM node:20-alpine as dependencies
 
 RUN apk update && apk add --no-cache zip git curl
 

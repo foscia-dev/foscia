@@ -16,10 +16,10 @@
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
-    "@docusaurus/core": "0.0.0-5814",
-    "@docusaurus/preset-classic": "0.0.0-5814",
-    "@fontsource/fira-mono": "^5.0.8",
-    "@fontsource/poppins": "^5.0.8",
+    "@docusaurus/core": "^3.2.1",
+    "@docusaurus/preset-classic": "^3.2.1",
+    "@fontsource/fira-mono": "^5.0.12",
+    "@fontsource/poppins": "^5.0.13",
     "@mdx-js/react": "^3.0.1",
     "clsx": "^2.1.0",
     "docusaurus-plugin-typedoc": "^0.22.0",
@@ -27,12 +27,12 @@
     "prism-react-renderer": "^2.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "typedoc": "^0.25.9",
+    "typedoc": "^0.25.13",
     "typedoc-plugin-markdown": "^3.17.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.5"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "0.0.0-5814",
+    "@docusaurus/module-type-aliases": "^3.2.1",
     "docusaurus-mdx-checker": "^3.0.0",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5"

@@ -35,7 +35,7 @@ export default function destroy<
       action: ActionName.DESTROY,
       // Rewrite ID to ensure destroy targets the record termination point
       // even if $exists is false.
-      id: instance.id,
+      id: (instance as ModelInstance).id,
     }))
     .use(syncInstanceExistenceOnSuccess(false))
     .use(onRunning(() => runHooks(instance.$model, 'destroying', instance)))
