@@ -1,4 +1,11 @@
-import { consumeAction, consumeData, consumeId, consumeModel, consumeRelation } from '@foscia/core';
+import {
+  ActionName,
+  consumeAction,
+  consumeData,
+  consumeId,
+  consumeModel,
+  consumeRelation,
+} from '@foscia/core';
 import consumeRequestConfig from '@foscia/http/actions/context/consumers/consumeRequestConfig';
 import HttpAbortedError from '@foscia/http/errors/httpAbortedError';
 import HttpConflictError from '@foscia/http/errors/httpConflictError';
@@ -17,6 +24,7 @@ import {
   HttpRequestConfig,
   HttpRequestInitPickKey,
 } from '@foscia/http/types';
+import clearEndpoint from '@foscia/http/utilities/clearEndpoint';
 import { Dictionary, isNil, optionalJoin, sequentialTransform } from '@foscia/shared';
 
 export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfig<Data>) {
@@ -73,32 +81,34 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
     }
   };
 
-  const clearRequestEndpoint = (url: string) => url.replace(/([^:]\/)\/+/g, '$1');
-
   const makeRequestEndpoint = (context: {}, contextConfig: HttpRequestConfig) => {
     const model = consumeModel(context, null);
     const id = consumeId(context, null);
     const relation = consumeRelation(context, null);
 
-    const modelPaths = contextConfig?.modelPaths !== false ? [
-      isNil(model)
-        ? undefined
-        : (model.$config.path ?? (model.$config.guessPath ?? ((t) => t))(model.$type)),
-      isNil(id)
-        ? undefined
-        : String(id),
-      isNil(relation)
-        ? undefined
-        : (relation.path ?? (model?.$config.guessRelationPath ?? ((r) => r.key))(relation)),
-    ] : [];
+    const buildURL = config.buildURL ?? ((ctx) => clearEndpoint(optionalJoin([
+      ctx.baseURL,
+      ctx.modelPath,
+      ctx.idPath,
+      ctx.relationPath,
+      ctx.additionalPath,
+    ], '/')));
 
-    const requestURL = optionalJoin([
-      contextConfig?.baseURL ?? model?.$config.baseURL ?? config.baseURL ?? '/',
-      ...modelPaths,
-      contextConfig?.path,
-    ], '/');
-
-    return clearRequestEndpoint(requestURL);
+    return buildURL({
+      baseURL: contextConfig?.baseURL ?? model?.$config.baseURL ?? config.baseURL ?? '/',
+      additionalPath: contextConfig?.path,
+      ...(contextConfig?.modelPaths !== false ? {
+        modelPath: isNil(model)
+          ? undefined
+          : (model.$config.path ?? (model.$config.guessPath ?? ((t) => t))(model.$type)),
+        idPath: isNil(id)
+          ? undefined
+          : String(id),
+        relationPath: isNil(relation)
+          ? undefined
+          : (relation.path ?? (model?.$config.guessRelationPath ?? ((r) => r.key))(relation)),
+      } : {}),
+    }, context);
   };
 
   const makeRequestMethod = (context: {}, contextConfig: HttpRequestConfig) => (() => {
@@ -108,10 +118,13 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
 
     const action = consumeAction(context, null);
     const actionsMethodsMap: Dictionary = {
-      read: 'GET',
-      create: 'POST',
-      update: 'PATCH',
-      destroy: 'DELETE',
+      [ActionName.READ]: 'GET',
+      [ActionName.CREATE]: 'POST',
+      [ActionName.UPDATE]: 'PATCH',
+      [ActionName.DESTROY]: 'DELETE',
+      [ActionName.ATTACH_RELATION]: 'POST',
+      [ActionName.UPDATE_RELATION]: 'PATCH',
+      [ActionName.DETACH_RELATION]: 'DELETE',
     };
     if (action && actionsMethodsMap[action]) {
       return actionsMethodsMap[action] as HttpMethod;

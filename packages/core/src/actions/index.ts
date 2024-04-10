@@ -50,6 +50,7 @@ import readExtensions from '@foscia/core/actions/extensions/readExtensions';
 import writeExtensions from '@foscia/core/actions/extensions/writeExtensions';
 import makeActionClass from '@foscia/core/actions/makeActionClass';
 import makeActionFactory from '@foscia/core/actions/makeActionFactory';
+import ActionName from '@foscia/core/actions/actionName';
 import when from '@foscia/core/actions/when';
 
 export type {
@@ -113,4 +114,5 @@ export {
   hooksExtensions,
   readExtensions,
   writeExtensions,
+  ActionName,
 };

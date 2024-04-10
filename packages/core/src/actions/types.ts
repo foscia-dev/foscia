@@ -1,3 +1,4 @@
+import ActionName from '@foscia/core/actions/actionName';
 import { ActionVariadicUse } from '@foscia/core/actions/actionVariadicUse';
 import { Hookable, HookCallback } from '@foscia/core/hooks/types';
 import {
@@ -83,7 +84,7 @@ export type InferConsumedModelOrInstance<C extends {}> =
         : InferConsumedInstance<C>;
 
 export type ConsumeAction = {
-  action: 'read' | 'create' | 'update' | 'destroy' | string;
+  action: ActionName | string;
 };
 
 export type ConsumeData = {

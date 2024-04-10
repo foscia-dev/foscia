@@ -25,6 +25,7 @@ import HttpUnauthorizedError from '@foscia/http/errors/httpUnauthorizedError';
 import httpExtensions from '@foscia/http/httpExtensions';
 import makeHttpAdapterResponse from '@foscia/http/makeHttpAdapterResponse';
 import makeHttpAdapterWith from '@foscia/http/makeHttpAdapterWith';
+import clearEndpoint from '@foscia/http/utilities/clearEndpoint';
 import deepParamsSerializer from '@foscia/http/utilities/deepParamsSerializer';
 import paramsSerializer from '@foscia/http/utilities/paramsSerializer';
 
@@ -36,6 +37,7 @@ export {
   makeHttpAdapterResponse,
   paramsSerializer,
   deepParamsSerializer,
+  clearEndpoint,
   HttpAbortedError,
   HttpAdapterError,
   HttpInterruptedError,

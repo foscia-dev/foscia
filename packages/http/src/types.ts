@@ -60,6 +60,17 @@ export type ConsumeHttpRequestConfig = {
 };
 
 /**
+ * Prepared context for URL building.
+ */
+export type HttpURLContext = {
+  baseURL: string;
+  modelPath?: string;
+  idPath?: string;
+  relationPath?: string;
+  additionalPath?: string;
+};
+
+/**
  * Read the response's content to a deserializable data.
  */
 export type HttpResponseReader<Data = any> = (response: Response) => Promise<Data>;
@@ -70,6 +81,7 @@ export type HttpResponseReader<Data = any> = (response: Response) => Promise<Dat
 export type HttpAdapterConfig<Data = any> = {
   fetch?: typeof fetch;
   baseURL?: string | null;
+  buildURL?: (urlContext: HttpURLContext, context: {}) => string;
   serializeParams: HttpParamsSerializer;
   defaultHeaders?: Dictionary<string>;
   defaultBodyAs?: BodyAsTransformer | null;
