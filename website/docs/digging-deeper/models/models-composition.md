@@ -59,13 +59,13 @@ export default class Post extends makeModel('posts', {
 }) {}
 ```
 
-You may also use the model `extends` method as follows:
+You may also use the model `extend` method as follows:
 
 ```typescript title="models/post.ts"
 import { makeModel } from '@foscia/core';
 import publishable from '../composables/publishable';
 
-export default class Post extends makeModel('posts').extend(publishable) {}
+export default class Post extends makeModel('posts').extend({ publishable }) {}
 ```
 
 ### Defining setup tasks
