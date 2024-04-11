@@ -5,11 +5,13 @@ import React from 'react';
 
 export default function ShellCommand({ command, ...props }) {
   const commands = Array.isArray(command) ? command : [command];
-  const code = (runPrefix, installPrefix, devSuffix) => commands.map((c) => (
+  const code = (runPrefix, installPrefix, upgradePrefix, devSuffix) => commands.map((c) => (
     c.startsWith('#') ? c : [
-      c.startsWith('add') ? installPrefix : runPrefix,
+      c.startsWith('add')
+        ? installPrefix
+        : c.startsWith('upgrade') ? upgradePrefix : runPrefix,
       c.startsWith('add dev') ? devSuffix : '',
-      c.replace(/^add( dev)?/, ''),
+      c.replace(/^(add|upgrade)( dev)?/, ''),
     ].join(' ').replace(/\s+/g, ' ')
   )).join('\n');
 
@@ -21,7 +23,7 @@ export default function ShellCommand({ command, ...props }) {
         default
       >
         <CodeBlock language="shell">
-          {code('npx', 'npm install', '--save-dev')}
+          {code('npx', 'npm install', 'npm update', '--save-dev')}
         </CodeBlock>
       </TabItem>
       <TabItem
@@ -29,7 +31,7 @@ export default function ShellCommand({ command, ...props }) {
         label="YARN"
       >
         <CodeBlock language="shell">
-          {code('yarn', 'yarn add', '-D')}
+          {code('yarn', 'yarn add', 'yarn upgrade', '-D')}
         </CodeBlock>
       </TabItem>
       <TabItem
@@ -37,7 +39,7 @@ export default function ShellCommand({ command, ...props }) {
         label="PNPM"
       >
         <CodeBlock language="shell">
-          {code('pnpm', 'pnpm add', '-D')}
+          {code('pnpm', 'pnpm add', 'pnpm upgrade', '-D')}
         </CodeBlock>
       </TabItem>
       <TabItem
@@ -45,7 +47,7 @@ export default function ShellCommand({ command, ...props }) {
         label="Bun"
       >
         <CodeBlock language="shell">
-          {code('bun', 'bun add', '-D')}
+          {code('bun', 'bun add', 'bun update', '-D')}
         </CodeBlock>
       </TabItem>
     </Tabs>
