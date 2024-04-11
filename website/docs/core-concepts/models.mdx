@@ -695,8 +695,10 @@ Each model's instance have the following special properties:
 
 Each model have the following special properties:
 
-| Key       | Type                                                                 | Description                                            |
-| --------- | -------------------------------------------------------------------- | ------------------------------------------------------ |
-| `$type`   | `string`                                                             | Unique model type.                                     |
-| `$config` | [`ModelConfig`](/docs/reference/api/modules/foscia_core#modelconfig) | Configuration options.                                 |
-| `$schema` | [`ModelSchema`](/docs/reference/api/modules/foscia_core#modelschema) | Schema containing IDs/attributes/relations definition. |
+| Key            | Type                                                                           | Description                                            |
+| -------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------ |
+| `$type`        | `string`                                                                       | Unique model type.                                     |
+| `$config`      | [`ModelConfig`](/docs/reference/api/modules/foscia_core#modelconfig)           | Configuration options.                                 |
+| `$schema`      | [`ModelSchema`](/docs/reference/api/modules/foscia_core#modelschema)           | Schema containing IDs/attributes/relations definition. |
+| `$composables` | [`ModelComposable[]`](/docs/reference/api/modules/foscia_core#modelcomposable) | Array of used composables.                             |
+| `$setup`       | [`ModelSetup`](/docs/reference/api/modules/foscia_core#modelsetup)             | Model setup configuration.                             |
