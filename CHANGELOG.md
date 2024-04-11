@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.8.0](https://github.com/foscia-dev/foscia/compare/v0.7.2...v0.8.0) (2024-04-11)
+
+
+### Bug Fixes
+
+* **rest:** rest adapter factory will apply `appendParams` option ([62cd3ae](https://github.com/foscia-dev/foscia/commit/62cd3ae17329bdf72391e75d11c3ac70bc35df01))
+
+
+### Features
+
+* **core:** add relation writing enhancers ([a440f71](https://github.com/foscia-dev/foscia/commit/a440f715c0302dc70fc14ab64f34f39605ee6c22)), closes [#17](https://github.com/foscia-dev/foscia/issues/17)
+* **http:** add `buildURL` to customizing URL building on adapter ([d343905](https://github.com/foscia-dev/foscia/commit/d34390555d82a2a1ddee494eaa879053088c983b))
+* **jsonapi:** add relation endpoints support to adapter ([746924c](https://github.com/foscia-dev/foscia/commit/746924c35b0f9f6c9418fb1b46e49d5538de4acf))
+* upgrade to node 20 and upgrade dependencies ([a3aa84c](https://github.com/foscia-dev/foscia/commit/a3aa84c3fe3d912d1d9d27cbb71901b9ec21f5e4)), closes [#13](https://github.com/foscia-dev/foscia/issues/13)
+
+
+### BREAKING CHANGES
+
+* Node >= 18 is required for `@foscia/cli`
+
 ## [0.7.2](https://github.com/foscia-dev/foscia/compare/v0.7.1...v0.7.2) (2024-02-20)
 
 
