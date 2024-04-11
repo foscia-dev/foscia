@@ -2,6 +2,7 @@
 
 ## [0.8.0](https://github.com/foscia-dev/foscia/compare/v0.7.2...v0.8.0) (2024-04-11)
 
+[**Migration from 0.7.x to 0.8.x**](https://foscia.dev/docs/upgrade/migration#08x-from-07x)
 
 ### Bug Fixes
 

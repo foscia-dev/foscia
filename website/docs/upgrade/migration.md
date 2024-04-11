@@ -6,6 +6,17 @@ sidebar_position: 5
 
 # Migration
 
+## 0.8.x from 0.7.x
+
+### High impacts changes
+
+- [`@foscia/cli` requires Node >= 18](#fosciacli-requires-node--18)
+
+### `@foscia/cli` requires Node >= 18
+
+Minimal Node version to run `@foscia/cli` has been increased from 16 to 18.
+You must ensure you are using Node 18+.
+
 ## 0.7.x from 0.6.x
 
 ### High impacts changes
