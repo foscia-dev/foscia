@@ -1,42 +1,38 @@
+import PlaygroundIframe from '@site/src/components/PlaygroundIframe';
 import Layout from '@theme/Layout';
 import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import styles from './styles.module.css';
 
 export default function Playground() {
-  const makeTabItem = ({ id, name, help, stackblitzId, stackblitzOptions }) => ({
-    id,
-    name,
-    help,
-    stackblitzURL: `https://stackblitz.com/edit/${stackblitzId}?${new URLSearchParams({
-      file: stackblitzOptions.files.join(','),
-      embed: '1',
-      devToolsHeight: '50',
-      hideNavigation: '1',
-      terminalHeight: '0',
-    })}`,
-  });
-
   const editorTabs = [
-    makeTabItem({
+    {
       id: 'ts-rest',
       name: 'TS + REST',
       stackblitzId: 'foscia-ts-rest',
       stackblitzOptions: {
-        files: ['action.ts', 'models/post.ts', 'playground.ts'],
+        file: 'src/playground.ts',
+        terminalHeight: '40',
       },
-    }),
-    /*
-     * FIXME Not working for now due to Stackblitz.
-    makeTabItem({
-      id: 'js-rest',
-      name: 'JS + REST',
-      stackblitzId: 'foscia-js-rest',
+    },
+    {
+      id: 'vue-ts-rest',
+      name: 'Vue + TS + REST',
+      stackblitzId: 'foscia-vue-ts-rest',
       stackblitzOptions: {
-        files: ['action.js', 'models/post.js', 'playground.js'],
+        file: 'src/components/Playground.vue',
+        terminalHeight: '0',
       },
-    }),
-     */
+    },
+    {
+      id: 'react-ts-rest',
+      name: 'React + TS + REST',
+      stackblitzId: 'foscia-react-ts-rest',
+      stackblitzOptions: {
+        file: 'src/components/Playground.tsx',
+        terminalHeight: '0',
+      },
+    },
   ];
 
   return (
@@ -54,13 +50,11 @@ export default function Playground() {
                 label={tab.name}
                 className={styles.playgroundTab}
               >
-                <iframe
-                  src={tab.stackblitzURL}
-                  className={styles.playgroundIframe}
-                  loading="lazy"
-                  width="900"
-                  height="600"
-                ></iframe>
+                <PlaygroundIframe
+                  id={tab.stackblitzId}
+                  title={tab.name}
+                  options={tab.stackblitzOptions}
+                />
               </TabItem>
             ))}
           </Tabs>
