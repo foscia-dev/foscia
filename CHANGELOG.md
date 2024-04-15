@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/foscia-dev/foscia/compare/v0.8.0...v0.8.1) (2024-04-15)
+
+
+### Features
+
+* **cli:** improve logs for commands and errors ([30d68f6](https://github.com/foscia-dev/foscia/commit/30d68f61602b440f396158d1663054449e210140))
+
 ## [0.8.0](https://github.com/foscia-dev/foscia/compare/v0.7.2...v0.8.0) (2024-04-11)
 
 [**Migration from 0.7.x to 0.8.x**](https://foscia.dev/docs/upgrade/migration#08x-from-07x)
