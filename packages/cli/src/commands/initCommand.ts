@@ -207,7 +207,7 @@ export default {
     const show = getShow(args);
 
     console.log(
-      pc.bold(`${logSymbols.foscia} Start by configuring your Foscia environment!\n`),
+      pc.bold(`${logSymbols.instruction} Start by configuring your Foscia environment!\n`),
     );
 
     const configPath = args.config === AUTO_DETECT_CONFIG
@@ -252,7 +252,7 @@ export default {
     await writeOrPrintFile('Config', configPath, configContent, 'json', show);
 
     console.log(
-      pc.bold(`\n${logSymbols.foscia} Now, lets configure your action factory!\n`),
+      pc.bold(`\n${logSymbols.instruction} Now, lets configure your action factory!\n`),
     );
 
     const factoryPath = resolvePath(config, `action.${config.language === 'ts' ? 'ts' : 'js'}`);

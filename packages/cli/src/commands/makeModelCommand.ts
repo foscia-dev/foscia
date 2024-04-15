@@ -44,7 +44,7 @@ export default {
     const typeName = kebabCase(plural(name));
     await makeFile(config, `Model ${className}`, fileName, async () => {
       console.log(
-        `${logSymbols.foscia} Lets configure your model's definition (attributes, etc.).\n`,
+        `${logSymbols.instruction} Lets configure your model's definition (attributes, etc.).\n`,
       );
 
       const imports = makeImportsList();

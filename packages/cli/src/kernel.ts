@@ -10,6 +10,7 @@ import logSymbols from '@foscia/cli/utils/output/logSymbols';
 import boxen from 'boxen';
 import process from 'node:process';
 import pc from 'picocolors';
+import terminalLink from 'terminal-link';
 import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs/yargs';
 
@@ -25,11 +26,17 @@ export default async function kernel(args: string[]) {
     makeTransformerCommand,
   ];
 
+  const headerDescription = 'Type safe, modular and intuitive API/data client for JS/TS.';
+  const headerLink = terminalLink('Read the docs at foscia.dev', 'https://foscia.dev', {
+    fallback: () => 'Read the docs at https://foscia.dev',
+  });
+
   yargsInstance
     .usage([
-      boxen('Type safe, modular and intuitive API/data client for JS/TS.', {
+      boxen(`${headerDescription}\n${headerLink}`, {
         title: pc.bold(pc.magenta(`${logSymbols.foscia} foscia`)),
         titleAlignment: 'center',
+        textAlignment: 'center',
         borderColor: 'magenta',
         padding: 1,
       }),
@@ -41,11 +48,13 @@ export default async function kernel(args: string[]) {
         cancel();
       }
 
-      const errorMessage = error instanceof CLIError
-        ? error.message
-        : message;
+      const errorMessage = error instanceof CLIError ? error.message : message;
+      const instructionMessage = error instanceof CLIError ? error.instruction : undefined;
       if (errorMessage) {
         console.error(`${logSymbols.error} ${errorMessage}`);
+        if (instructionMessage) {
+          console.info(`${logSymbols.instruction} ${instructionMessage}`);
+        }
       } else if (error) {
         throw error;
       }

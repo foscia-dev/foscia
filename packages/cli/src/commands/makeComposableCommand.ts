@@ -41,7 +41,7 @@ export default {
     const fileName = `composables/${name}`;
     await makeFile(config, `Composable ${name}`, fileName, async () => {
       console.log(
-        `${logSymbols.foscia} Lets configure your composable's definition (attributes, etc.).\n`,
+        `${logSymbols.instruction} Lets configure your composable's definition (attributes, etc.).\n`,
       );
 
       const imports = makeImportsList();

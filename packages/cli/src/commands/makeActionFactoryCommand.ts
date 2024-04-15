@@ -41,7 +41,7 @@ export default {
     const name = camelCase(args.name);
     await makeFile(config, `ActionFactory ${name}`, name, async () => {
       console.log(
-        pc.bold(`\n${logSymbols.foscia} Lets configure your action factory!\n`),
+        pc.bold(`\n${logSymbols.instruction} Lets configure your action factory!\n`),
       );
 
       const imports = makeImportsList();

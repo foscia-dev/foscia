@@ -9,7 +9,7 @@ import { dirname, resolve } from 'node:path';
 
 export const AUTO_DETECT_CONFIG = 'detect-automatically';
 
-async function detectConfigPath(path: string) {
+async function detectConfigPath(path: string): Promise<[string | undefined, string | undefined]> {
   if (path !== AUTO_DETECT_CONFIG) {
     const givenPath = resolve(path);
     const guessPath = resolve(`.fosciarc.${path}.json`);
@@ -17,28 +17,32 @@ async function detectConfigPath(path: string) {
       return [guessPath, `guessed from "${path}"`];
     }
 
-    return [givenPath];
+    return [givenPath, undefined];
   }
 
-  const [guessPaths] = await findUp(/^\.fosciarc\.([A-Za-z0-9-_]+\.)?json$/);
+  const guessPaths = (await findUp(/^\.fosciarc\.([A-Za-z0-9-_]+\.)?json$/))[0] ?? [];
   const defaultPath = guessPaths.find((p) => p.endsWith('.fosciarc.json'));
   if (defaultPath) {
-    return [defaultPath];
+    return [defaultPath, undefined];
   }
 
   if (guessPaths.length > 1) {
     return [await select({
       message: 'Please choose the config to use (or rerun this command using --config option):',
       choices: guessPaths.map((value) => ({ value })),
-    })];
+    }), undefined];
   }
 
-  return [guessPaths[0]];
+  return [guessPaths[0] ?? undefined, undefined];
 }
 
-async function parseConfigFrom(path: string): Promise<object> {
+async function parseConfigFrom(path?: string): Promise<object> {
+  if (path === undefined) {
+    throw new CLIError('No configuration found.', 'Please run "foscia init <path>".');
+  }
+
   if (!await pathExists(path)) {
-    throw new CLIError(`Configuration file does not exists at "${path}".\nPlease run "foscia init <path>".`);
+    throw new CLIError(`Configuration file does not exists at "${path}".`, 'Please run "foscia init <path>".');
   }
 
   let config: unknown;
@@ -69,10 +73,11 @@ async function parseConfigFrom(path: string): Promise<object> {
 
 export default async function parseConfig(path: string) {
   const [configPath, explanation] = await detectConfigPath(path);
+  const parsedConfig = await parseConfigFrom(configPath);
 
   console.info(
     `${logSymbols.info} Using config at "${configPath}"${explanation ? ` (${explanation})` : ''}`,
   );
 
-  return validateConfig(await parseConfigFrom(configPath));
+  return validateConfig(parsedConfig);
 }

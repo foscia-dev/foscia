@@ -1,5 +1,7 @@
 export default class CLIError extends Error {
-  public constructor(message: string) {
+  public readonly instruction: string | undefined;
+
+  public constructor(message: string, instruction?: string) {
     super(message);
 
     Object.defineProperty(this, 'name', {
@@ -14,5 +16,7 @@ export default class CLIError extends Error {
     if (captureStackTrace) {
       captureStackTrace(this, this.constructor);
     }
+
+    this.instruction = instruction;
   }
 }

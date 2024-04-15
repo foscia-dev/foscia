@@ -49,7 +49,8 @@ export default function validateConfig(config: object) {
 
   if (errors.length > 0) {
     throw new CLIError(
-      `Invalid configuration values:\n${toTree(errors, pc.red)}\nPlease fix your configuration or re-run "foscia init <path>".`,
+      `Invalid configuration values:\n${toTree(errors, pc.red)}`,
+      'Please fix your configuration or re-run "foscia init <path>".',
     );
   }
 
