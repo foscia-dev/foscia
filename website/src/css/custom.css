@@ -290,6 +290,10 @@ aside, .table-of-contents__left-border {
     background: transparent;
 }
 
+.navbar .navbar__logo {
+    height: 32px;
+}
+
 .navbar:before {
     content: "";
     position: absolute;
@@ -300,12 +304,6 @@ aside, .table-of-contents__left-border {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     background-color: rgba(var(--nav-background-color), 0.6);
-}
-
-.navbar .navbar__title {
-    font-family: var(--ifm-font-family-title) !important;
-    font-weight: 900 !important;
-    color: var(--ifm-color-primary);
 }
 
 .navbar .navbar__inner {

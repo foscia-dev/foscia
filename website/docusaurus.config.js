@@ -78,11 +78,10 @@ const config = {
         isCloseable: false,
       },
       navbar: {
-        title: 'Foscia',
         logo: {
-          src: 'img/icon.svg',
-          srcDark: 'img/icon--dark.svg',
-          alt: '',
+          src: 'img/logo.svg',
+          srcDark: 'img/logo--dark.svg',
+          alt: 'Foscia Home',
         },
         items: [
           {

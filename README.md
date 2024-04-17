@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://foscia.dev">
-    <img width="180" src="https://foscia.dev/img/icon.svg" alt="">
+    <img width="180" src="https://foscia.dev/img/logo.svg" alt="Foscia">
   </a>
 </p>
 
@@ -28,8 +28,6 @@
   Documentation
 </a>
 </p>
-
-## Foscia
 
 > Type safe, modular and intuitive API/data client for JS/TS.
 

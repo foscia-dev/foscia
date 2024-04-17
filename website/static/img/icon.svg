@@ -3,8 +3,8 @@
   <defs>
     <linearGradient id="logo-gradient" x1="-25%" y1="-25%" x2="150%" y2="150%"
                     gradientTransform="rotate(315deg)">
-      <stop class="logo-gradient__start" offset="0%" stop-color="#ac1b55" />
-      <stop class="logo-gradient__end" offset="100%" stop-color="#ac1b55" />
+      <stop class="logo-gradient__start" offset="0" stop-color="#ac1b55"/>
+      <stop class="logo-gradient__end" offset="1" stop-color="#ffc013"/>
     </linearGradient>
   </defs>
   <path
