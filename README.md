@@ -12,7 +12,7 @@
   <img src="https://github.com/foscia-dev/foscia/actions/workflows/tests.yml/badge.svg" alt="Test workflow">
 </a>
 <a href="https://codecov.io/gh/foscia-dev/foscia">
-  <img src="https://codecov.io/gh/foscia-dev/foscia/branch/main/graph/badge.svg" alt="Codecov Coverage">
+  <img src="https://codecov.io/gh/foscia-dev/foscia/graph/badge.svg?token=AQAG48Y4BO" alt="Codecov Coverage">
 </a>
 <a href="https://github.com/foscia-dev/foscia/blob/main/LICENSE">
   <img src="https://img.shields.io/npm/l/%40foscia%2Fcore" alt="MIT License">
