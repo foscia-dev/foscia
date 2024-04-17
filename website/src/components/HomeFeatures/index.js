@@ -4,7 +4,7 @@ import TypeSafeSvg from '@site/src/icons/alert-decagram-outline.svg';
 import ConsoleSvg from '@site/src/icons/console.svg';
 import CacheSvg from '@site/src/icons/database-outline.svg';
 import ChangesTrackingSvg from '@site/src/icons/history.svg';
-import HooksSvg from '@site/src/icons/magnify-scan.svg';
+import HooksSvg from '@site/src/icons/hook.svg';
 import LightweightSvg from '@site/src/icons/package-variant-closed.svg';
 import ImplementationsSvg from '@site/src/icons/swap-horizontal.svg';
 import ModularSvg from '@site/src/icons/toy-brick-outline.svg';
@@ -14,9 +14,9 @@ import styles from './style.module.css';
 
 function HomeActionsPresentation() {
   const title = <>
-    Searching an <span className={clsx('text--primary')}>ORM alike tool</span>
+    Searching an <span className={clsx('text--gradient')}>ORM alike tool</span>
     <br />
-    for your <span className={clsx('text--primary')}>APIs interactions?</span>
+    for your <span className={clsx('text--gradient')}>APIs interactions?</span>
   </>;
 
   const description = <>
@@ -50,9 +50,9 @@ await action()
 
 function HomeModelsPresentation() {
   const title = <>
-    <span className={clsx('text--primary')}>Readable</span> data models
+    <span className={clsx('text--gradient')}>Readable</span> data models
     <br />
-    <span className={clsx('text--primary')}>Type safety</span> with TypeScript
+    <span className={clsx('text--gradient')}>Type safety</span> with TypeScript
   </>;
 
   const description = <>
@@ -159,7 +159,7 @@ function HomeFeaturesPresentation() {
 
   return <>
     <h2 className={clsx('text--center')}>
-      <span className={clsx('text--primary')}>Modular</span>, <span className={clsx('text--primary')}>lightweight</span>,
+      <span className={clsx('text--gradient')}>Modular, lightweight</span>,
       and more...
     </h2>
     <div className={clsx('row')}>
@@ -169,7 +169,7 @@ function HomeFeaturesPresentation() {
           className={clsx(styles.homeFeatureCol, 'col col--3')}
         >
           <div className={clsx(styles.homeFeatureCard, 'text--center')}>
-            <div className={clsx(styles.homeFeatureCardSvgWrapper, 'border--primary border--large margin-bottom--md')}>
+            <div className={clsx(styles.homeFeatureCardSvgWrapper, 'border--gradient border--large margin-bottom--md')}>
               <Icon className={styles.homeFeatureCardSvg} />
             </div>
             <h3 className={styles.homeFeatureCardTitle}>{title}</h3>
@@ -183,9 +183,9 @@ function HomeFeaturesPresentation() {
 
 function HomeGetStarted() {
   const title = <>
-    Get started <span className={clsx('text--primary')}>now</span>
+    Get started <span className={clsx('text--gradient')}>now</span>
     <br />
-    Install <span className={clsx('text--primary')}>Foscia CLI</span>
+    Install <span className={clsx('text--gradient')}>Foscia CLI</span>
   </>;
 
   const description = <>

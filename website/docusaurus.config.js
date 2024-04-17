@@ -109,7 +109,7 @@ const config = {
             position: 'right',
             label: 'Documentation',
             to: '/docs/category/core-concepts',
-            className: 'button border--primary',
+            className: 'button border--gradient',
           },
           {
             href: 'https://github.com/foscia-dev/foscia',

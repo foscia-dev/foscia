@@ -1,6 +1,6 @@
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import '@fontsource/fira-mono';
-import '@fontsource/poppins';
+import '@fontsource-variable/onest';
 import HomeFeatures from '@site/src/components/HomeFeatures';
 import HomeHeader from '@site/src/components/HomeHeader';
 import Layout from '@theme/Layout';

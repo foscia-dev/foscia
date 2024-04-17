@@ -1,61 +1,24 @@
 .heroBanner {
-    padding: 4rem 0;
+    padding: 4rem 0 0 0;
     margin: 0 16px 16px 16px;
     text-align: center;
-    position: relative;
-    overflow: hidden;
-    fill: white;
-}
-
-html[data-theme="light"] .heroBanner {
-    border-radius: var(--ifm-global-radius);
-    fill: var(--ifm-background-surface-color);
-    color: var(--ifm-background-surface-color);
-    background: radial-gradient(circle at top left, var(--ifm-color-primary) 30%, var(--ifm-color-accent));
-    background-size: 150% 150%;
-}
-
-html[data-theme="dark"] .heroBanner:before {
-    position: absolute;
-    content: "";
-    top: 0;
-    left: 50%;
-    height: 75%;
-    width: 256px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, var(--ifm-color-accent) 30%, var(--ifm-color-primary) 60%);
-    opacity: 40%;
-    transform: translate(-50%, -25%);
-    filter: blur(96px);
-}
-
-.heroContent {
-    position: relative;
-    z-index: 1;
-}
-
-.heroLogoWrapper {
-    position: relative;
 }
 
 .heroLogo {
-    position: relative;
-    height: 128px;
-    width: 128px;
-    z-index: 1;
-    fill: linear-gradient(45deg, var(--ifm-color-accent) 30%, var(--ifm-color-primary));
-}
-
-.heroTitle, .heroSubtitle {
-    font-family: var(--ifm-font-family-monospace) !important;
+    height: 96px;
+    width: 96px;
 }
 
 .heroTitle {
-    font-size: 3rem;
+    font-size: 86px;
+    font-weight: 900;
+    letter-spacing: -1.5px;
 }
 
 .heroSubtitle {
-    font-size: 1.8rem;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--ifm-font-color-base);
 }
 
 .heroButtons {
@@ -65,29 +28,44 @@ html[data-theme="dark"] .heroBanner:before {
     flex-wrap: wrap;
 }
 
-@media screen and (max-width: 996px) {
+.heroButton {
+    display: inline-flex;
+    align-items: center;
+}
+
+.heroButtonArrow {
+    margin-left: 8px;
+    margin-right: 0;
+    height: 24px;
+    width: 24px;
+    transition: all 250ms ease-in-out;
+}
+
+.heroButton:focus .heroButtonArrow,
+.heroButton:hover .heroButtonArrow {
+    margin-left: 16px;
+    margin-right: -8px;
+}
+
+@media screen and (max-width: 600px) {
     .heroLogo {
-        height: 96px;
-        width: 96px;
+        height: 76px;
+        width: 76px;
     }
 
     .heroTitle {
-        font-size: 2rem;
+        font-size: 60px;
     }
 
     .heroSubtitle {
-        font-size: 1.2rem;
+        font-size: 18px;
     }
 
     .heroBanner {
-        padding: 2rem;
-    }
-
-    html[data-theme="dark"] .heroBanner:before {
-        transform: translate(-50%, -45%);
+        padding: 2rem 0 0 0;
     }
 
     .heroButton {
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
 }

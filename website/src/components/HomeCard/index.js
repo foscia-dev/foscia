@@ -15,7 +15,7 @@ function HomeCardContent({ title, description, action }) {
         </p>
         <div>
           <Link
-            className={clsx(`button border--primary`, styles.homeCardTextAction)}
+            className={clsx(`button border--gradient`, styles.homeCardTextAction)}
             to={action.to}
           >
             {action.label}

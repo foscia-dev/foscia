@@ -35,7 +35,7 @@ get started using Foscia.
   command={[
     '# Install Foscia CLI',
     'add dev @foscia/cli',
-    '# Initialize Foscia and action factory inside "src/data" directory.',
+    '# Initialize Foscia and action factory.',
     'foscia init',
   ]}
 />
@@ -107,7 +107,7 @@ console.log(post.published); // true
 console.log(post.$exists); // false
 ```
 
-<Link className="button border--primary" to="/docs/core-concepts/models">
+<Link className="button border--gradient" to="/docs/core-concepts/models">
   Read the full guide on models
 </Link>
 
@@ -313,7 +313,7 @@ const post = fill(new Post(), {
 const response = await action().use(create(post)).run(oneOrCurrent());
 ```
 
-<Link className="button border--primary" to="/docs/core-concepts/actions">
+<Link className="button border--gradient" to="/docs/core-concepts/actions">
   Read the full guide on actions
 </Link>
 

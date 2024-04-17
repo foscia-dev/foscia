@@ -10,50 +10,31 @@
 }
 
 .homeCard {
-    position: relative;
+    --home-card-border-width: 2px;
+    --home-card-outer-radius: 16px;
+    --home-card-inner-radius: 13px;
+
     margin: 16px 0;
-    padding-top: 16px;
-    border-radius: 20px;
+    border-radius: var(--home-card-outer-radius);
     box-shadow: var(--ifm-global-shadow-lw);
-}
-
-.homeCard:before {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: radial-gradient(circle at top left, var(--ifm-color-primary), var(--ifm-color-accent));
-    border-radius: inherit;
-    z-index: -1;
-    opacity: 0.25;
-    transition: all 500ms ease-in-out;
-}
-
-.homeCardWrapper:hover .homeCard:before {
-    opacity: 1;
 }
 
 .homeCard > div,
 .homeCard div[class^="language-"],
 .homeCard div[class^="tabs-container"] {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    border-bottom-left-radius: 16px;
-    border-bottom-right-radius: 16px;
+    border-radius: var(--home-card-outer-radius);
     box-shadow: none;
     margin: 0;
 }
 
-.homeCard div[class^="language-"]:not(:last-child),
+.homeCard div[class^="tabs-container"]:last-child {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
 .homeCard div[class^="tabs-container"]:not(:last-child) {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-}
-
-.homeCardWrapperReverse .homeCard {
-    padding-left: 0;
 }
 
 .homeCardTextCol {
@@ -92,56 +73,12 @@
     }
 
     .homeCard {
-        padding-left: 16px;
         width: 500px;
         max-width: 100%;
     }
 
     .homeCardWrapperReverse .homeCard {
         margin-left: auto;
-    }
-
-    .homeCard > div,
-    .homeCard div[class^="language-"],
-    .homeCard div[class^="tabs-container"] {
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-
-    .homeCard > div,
-    .homeCard div[class^="language-"]:first-child,
-    .homeCard div[class^="tabs-container"]:first-child {
-        border-top-left-radius: 12px;
-    }
-
-    .homeCard > div,
-    .homeCard div[class^="language-"]:last-child,
-    .homeCard div[class^="tabs-container"]:last-child {
-        border-bottom-right-radius: 16px !important;
-    }
-
-    .homeCardWrapperReverse .homeCard {
-        padding-right: 16px;
-    }
-
-    .homeCardWrapperReverse .homeCard > div,
-    .homeCardWrapperReverse .homeCard div[class^="language-"],
-    .homeCardWrapperReverse .homeCard div[class^="tabs-container"] {
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0 !important;
-    }
-
-    .homeCardWrapperReverse .homeCard > div,
-    .homeCardWrapperReverse .homeCard div[class^="language-"]:first-child,
-    .homeCardWrapperReverse .homeCard div[class^="tabs-container"]:first-child {
-        border-top-right-radius: 12px;
-        border-top-left-radius: 0;
-    }
-
-    .homeCardWrapperReverse .homeCard > div,
-    .homeCardWrapperReverse .homeCard div[class^="language-"]:last-child,
-    .homeCardWrapperReverse .homeCard div[class^="tabs-container"]:last-child {
-        border-bottom-left-radius: 16px !important;
     }
 
     .homeCardText {
