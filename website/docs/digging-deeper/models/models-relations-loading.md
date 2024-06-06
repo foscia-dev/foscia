@@ -50,7 +50,7 @@ supports nested relations keys if your data source supports them.
 Here is an example when using a JSON:API backend with an `ids` filter available.
 
 ```typescript title="loaders/loadWithRefresh.ts"
-import { makeRefreshIncludeLoader } from '@foscia/core';
+import { makeRefreshIncludeLoader, loaded } from '@foscia/core';
 import { filterBy } from '@foscia/jsonapi';
 import action from './action';
 
@@ -80,16 +80,25 @@ useless records fetching).
 
 #### Options
 
-##### `chunk: (instances: ModelInstance[]): ModelInstance[][]`
-
-A function to split the instances array to multiple arrays (e.g. to avoid
-hitting pagination limit).
-
 ##### `prepare: (action: Action, context: { instances: ModelInstance[]; relations: string[] }): Awaitable<void>`
 
 A function to execute before running action allowing you to prepare the refresh
 action (e.g. to avoid fetching a full list of models by filtering on instances'
 IDs).
+
+##### `chunk: (instances: ModelInstance[]): ModelInstance[][]`
+
+A function to split the instances array to multiple arrays (e.g. to avoid
+hitting pagination limit).
+
+##### `exclude: (instance: ModelInstance, relations: ModelRelationDotKey): bool`
+
+A function to exclude some relation fetching (e.g. to avoid fetching already
+loaded relations). Notice the following:
+
+- If an instance is excluded for all relations, it will not be refreshed
+- If a relation is excluded for all instances, it will not be included during
+  refresh
 
 ### Loading relation using path
 
@@ -123,6 +132,11 @@ recommended for one instance's relation loading, not many.
 
 #### Options
 
+##### `exclude: (instance: ModelInstance, relations: ModelRelationDotKey): bool`
+
+A function to exclude some relation fetching (e.g. to avoid fetching already
+loaded relations).
+
 ##### `disablePerformanceWarning: boolean`
 
 `makeQueryRelationLoader` will log a warning if you are using it to
@@ -130,3 +144,21 @@ load multiple instances relations in one call, because it may cause
 performance issues (multiple actions would run).
 
 You can pass this option with `true` to avoid this warning.
+
+## Loading missing relations only
+
+Every loader factory provides an `exclude` option which can remove some
+instances or relations before running actions.
+
+This is useful to avoid loading already loaded relations, and can be done
+easily using the `loaded` function.
+
+```typescript title="loaders/loadMissingWithRefresh.ts"
+import { makeRefreshIncludeLoader, loaded } from '@foscia/core';
+import action from './action';
+
+export default makeRefreshIncludeLoader(action, {
+  exclude: loaded,
+  // other options
+});
+```

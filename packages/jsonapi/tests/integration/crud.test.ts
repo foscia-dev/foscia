@@ -8,6 +8,7 @@ import {
   dissociate,
   fill,
   include,
+  loaded,
   makeQueryRelationLoader,
   makeRefreshIncludeLoader,
   markSynced,
@@ -678,6 +679,45 @@ describe('integration: JSON:API', () => {
     expect(post2.comments[1].id).toStrictEqual('2');
   });
 
+  it('should load relations with refresh exclude loaded', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json({
+      data: [
+        {
+          type: 'posts',
+          id: '1',
+          relationships: {
+            comments: { data: [] },
+          },
+        },
+      ],
+      included: [],
+    }));
+
+    const action = makeJsonApiActionMock();
+    const loadWithRefresh = makeRefreshIncludeLoader(action, {
+      prepare: (a, { instances }) => a.use(filterBy('ids', instances.map((i) => i.id))),
+      exclude: loaded,
+    });
+
+    const post1 = fill(new PostMock(), { id: '1' });
+    const post2 = fill(new PostMock(), { id: '2', comments: [] });
+    post2.$loaded.comments = true;
+
+    await loadWithRefresh([post1, post2], 'comments');
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts?filter%5Bids%5D%5B%5D=1&include=comments');
+    expect(request.method).toStrictEqual('GET');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(request.body).toBeNull();
+
+    expect(post1.comments.length).toStrictEqual(0);
+    expect(post2.comments.length).toStrictEqual(0);
+  });
+
   it('should load relations with query', async () => {
     const fetchMock = createFetchMock();
     fetchMock.mockImplementationOnce(createFetchResponse().json({
@@ -696,7 +736,7 @@ describe('integration: JSON:API', () => {
     }));
 
     const action = makeJsonApiActionMock();
-    const loadWithQuery = makeQueryRelationLoader(action);
+    const loadWithQuery = makeQueryRelationLoader(action, { exclude: loaded });
 
     const post = fill(new PostMock(), { id: '1' });
     post.$exists = true;

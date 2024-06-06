@@ -8,6 +8,7 @@ import {
   ConsumeModel,
 } from '@foscia/core/actions/types';
 import logger from '@foscia/core/logger/logger';
+import loadUsingCallback from '@foscia/core/model/relations/loadUsingCallback';
 import loadUsingValue from '@foscia/core/model/relations/loadUsingValue';
 import {
   Model,
@@ -22,7 +23,6 @@ import {
   ArrayableVariadic,
   Awaitable,
   uniqueValues,
-  wrap,
   wrapVariadic,
 } from '@foscia/shared';
 
@@ -32,12 +32,36 @@ type RefreshIncludeLoaderOptions<
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
 > = {
-  chunk?: (instances: ModelInstance[]) => ModelInstance[][];
   prepare?: (
     action: Action<C & ConsumeModel>,
     context: { instances: ModelInstance[]; relations: string[] },
   ) => Awaitable<unknown>;
+  chunk?: (instances: ModelInstance[]) => ModelInstance[][];
+  exclude?: <I extends ModelInstance>(instance: I, relation: ModelRelationDotKey<I>) => boolean;
 };
+
+function excludeInstancesAndRelations<I extends ModelInstance>(
+  instances: I[],
+  relations: ModelRelationDotKey<I>[],
+  exclude: (instance: I, relation: ModelRelationDotKey<I>) => boolean,
+) {
+  const remainingInstances = new Set<I>();
+  const remainingRelations = new Set<ModelRelationDotKey<I>>();
+
+  relations.forEach((relation) => {
+    instances.forEach((instance) => {
+      if (!exclude(instance, relation)) {
+        remainingInstances.add(instance);
+        remainingRelations.add(relation);
+      }
+    });
+  });
+
+  return [
+    [...remainingInstances.values()],
+    [...remainingRelations.values()],
+  ] as [I[], ModelRelationDotKey<I>[]];
+}
 
 async function refreshLoad<
   RawData,
@@ -94,17 +118,21 @@ export default function makeRefreshIncludeLoader<
   return async <I extends ModelInstance>(
     instances: Arrayable<I>,
     ...relations: ArrayableVariadic<ModelRelationDotKey<I>>
-  ) => {
-    const allInstances = wrap(instances);
-    const allRelations = wrapVariadic(...relations);
-    if (!allInstances.length || !allRelations.length) {
-      return;
+  ) => loadUsingCallback(instances, relations, async (allInstances, allRelations) => {
+    let remainingInstances = allInstances;
+    let remainingRelations = allRelations;
+    if (options.exclude) {
+      [remainingInstances, remainingRelations] = excludeInstancesAndRelations(
+        allInstances,
+        allRelations,
+        options.exclude,
+      );
     }
 
     const chunk = (options.chunk ?? ((i) => [i])) as (instances: I[]) => I[][];
 
-    await Promise.all(chunk(allInstances).map(async (chunkInstances) => {
-      await refreshLoad(action, options, chunkInstances, allRelations);
+    await Promise.all(chunk(remainingInstances).map(async (chunkInstances) => {
+      await refreshLoad(action, options, chunkInstances, remainingRelations);
     }));
-  };
+  });
 }
