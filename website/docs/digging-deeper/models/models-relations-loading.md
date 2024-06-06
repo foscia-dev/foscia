@@ -104,9 +104,8 @@ loaded relations). Notice the following:
 
 This method is best suited for one instance relation loading with
 implementations providing relation reading through a dedicated endpoint/query,
-such as JSON:API.
-
-It does not support nested relations keys as it will be dangerously inefficient.
+such as JSON:API. If nested relations are passed (such as `comments.author`),
+it will `include` the nested relations during the root relation action.
 
 ```typescript title="loaders/loadWithQuery.ts"
 import { makeQueryRelationLoader } from '@foscia/core';
