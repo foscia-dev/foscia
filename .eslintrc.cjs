@@ -40,6 +40,14 @@ module.exports = {
       },
     ],
   },
+  overrides: [
+    {
+      files: ['**/*.mock.ts', '**/*.test.ts', '**/*.test-d.ts'],
+      rules: {
+        'import/no-relative-packages': ['off'],
+      },
+    },
+  ],
   settings: {
     'import/parsers': {
       '@typescript-eslint/parser': ['.ts'],
