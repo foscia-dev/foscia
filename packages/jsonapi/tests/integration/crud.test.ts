@@ -8,6 +8,8 @@ import {
   dissociate,
   fill,
   include,
+  makeQueryRelationLoader,
+  makeRefreshIncludeLoader,
   markSynced,
   none,
   one,
@@ -23,7 +25,8 @@ import {
   fieldsFor,
   filterBy,
   paginate,
-  sortBy, sortByAsc,
+  sortBy,
+  sortByAsc,
   sortByDesc,
   usingDocument,
 } from '@foscia/jsonapi';
@@ -610,5 +613,106 @@ describe('integration: JSON:API', () => {
     expect(post.$exists).toStrictEqual(true);
     expect(post.id).toStrictEqual('1');
     expect(post.title).toStrictEqual('Foo');
+  });
+
+  it('should load relations with refresh', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json({
+      data: [
+        {
+          type: 'posts',
+          id: '2',
+          relationships: {
+            comments: { data: [{ type: 'comments', id: '1' }, { type: 'comments', id: '2' }] },
+          },
+        },
+        {
+          type: 'posts',
+          id: '1',
+          relationships: {
+            comments: { data: [{ type: 'comments', id: '3' }] },
+          },
+        },
+      ],
+      included: [
+        {
+          type: 'comments',
+          id: '1',
+          attributes: { body: 'Foo Comment' },
+        },
+        {
+          type: 'comments',
+          id: '2',
+          attributes: { body: 'Bar Comment' },
+        },
+        {
+          type: 'comments',
+          id: '3',
+          attributes: { body: 'Baz Comment' },
+        },
+      ],
+    }));
+
+    const action = makeJsonApiActionMock();
+    const loadWithRefresh = makeRefreshIncludeLoader(action, {
+      prepare: (a, { instances }) => a.use(filterBy('ids', instances.map((i) => i.id))),
+    });
+
+    const post1 = fill(new PostMock(), { id: '1' });
+    const post2 = fill(new PostMock(), { id: '2' });
+
+    await loadWithRefresh([post1, post2], 'comments');
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts?filter%5Bids%5D%5B%5D=1&filter%5Bids%5D%5B%5D=2&include=comments');
+    expect(request.method).toStrictEqual('GET');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(request.body).toBeNull();
+
+    expect(post1.comments.length).toStrictEqual(1);
+    expect(post1.comments[0].id).toStrictEqual('3');
+    expect(post2.comments.length).toStrictEqual(2);
+    expect(post2.comments[0].id).toStrictEqual('1');
+    expect(post2.comments[1].id).toStrictEqual('2');
+  });
+
+  it('should load relations with query', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json({
+      data: [
+        {
+          type: 'comments',
+          id: '1',
+          attributes: { body: 'Foo Comment' },
+        },
+        {
+          type: 'comments',
+          id: '2',
+          attributes: { body: 'Bar Comment' },
+        },
+      ],
+    }));
+
+    const action = makeJsonApiActionMock();
+    const loadWithQuery = makeQueryRelationLoader(action);
+
+    const post = fill(new PostMock(), { id: '1' });
+    post.$exists = true;
+
+    await loadWithQuery(post, 'comments');
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/comments');
+    expect(request.method).toStrictEqual('GET');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(request.body).toBeNull();
+
+    expect(post.comments.length).toStrictEqual(2);
+    expect(post.comments[0].id).toStrictEqual('1');
+    expect(post.comments[1].id).toStrictEqual('2');
   });
 });
