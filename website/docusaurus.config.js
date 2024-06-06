@@ -152,14 +152,18 @@ const config = {
                 label: 'GitHub issues',
                 href: 'https://github.com/foscia-dev/foscia/issues',
               },
+              {
+                label: 'GitHub discussions',
+                href: 'https://github.com/foscia-dev/foscia/discussions',
+              },
             ],
           },
           {
             title: 'Links',
             items: [
               {
-                href: 'https://www.npmjs.com/package/foscia',
-                label: 'NPM',
+                href: 'https://www.npmjs.com/search?q=%40foscia',
+                label: 'NPM packages',
               },
               {
                 label: 'GitHub repository',
