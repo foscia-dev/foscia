@@ -19,7 +19,7 @@ export default function makeQueryRelationLoader<
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
->(action: ActionFactory<[], C, any>, options: QueryRelationLoaderOptions = {}) {
+>(action: ActionFactory<[], C, {}>, options: QueryRelationLoaderOptions = {}) {
   return async <I extends ModelInstance>(
     instances: Arrayable<I>,
     ...relations: ArrayableVariadic<ModelRelationDotKey<I>>
@@ -36,12 +36,11 @@ export default function makeQueryRelationLoader<
 
     await Promise.all(allInstances.map(async (instance) => {
       await Promise.all(groupedRelations.map(async ([rootRelation, subRelations]) => {
-        if (
-          exclude && (
-            subRelations.some((r) => exclude(instance, r as ModelRelationDotKey<I>))
-            || (!subRelations.length && exclude(instance, rootRelation as ModelRelationDotKey<I>))
-          )
-        ) {
+        if (exclude && (subRelations.some(
+          (r) => exclude(instance, `${rootRelation}${r}` as ModelRelationDotKey<I>),
+        ) || (
+          !subRelations.length && exclude(instance, rootRelation as ModelRelationDotKey<I>)
+        ))) {
           return;
         }
 

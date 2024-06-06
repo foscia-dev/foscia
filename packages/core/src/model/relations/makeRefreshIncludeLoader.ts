@@ -89,7 +89,9 @@ async function refreshLoad<
   instances.forEach((instance) => {
     const refreshedInstance = refreshedInstancesMap[instance.id];
     if (!refreshedInstance) {
-      logger.warn(`Loading relations of instance with ID \`${instance.id}\` did not work, instance was not found in refreshed list.`);
+      logger.warn(
+        `Loading relations of instance with ID \`${instance.$model.$type}:${instance.id}\` did not work, instance was not found in refreshed list.`,
+      );
 
       return;
     }
