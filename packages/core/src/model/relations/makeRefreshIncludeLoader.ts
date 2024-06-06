@@ -18,13 +18,7 @@ import {
   ModelRelationKey,
 } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
-import {
-  Arrayable,
-  ArrayableVariadic,
-  Awaitable,
-  uniqueValues,
-  wrapVariadic,
-} from '@foscia/shared';
+import { Arrayable, ArrayableVariadic, Awaitable, uniqueValues } from '@foscia/shared';
 
 type RefreshIncludeLoaderOptions<
   RawData,
@@ -78,7 +72,7 @@ async function refreshLoad<
   const model = instances[0].$model;
   const refreshedInstances = await action()
     .use(query(model as Model))
-    .use(include(wrapVariadic(...relations) as any))
+    .use(include(relations as any))
     .use(when(() => options.prepare, async (a, p) => {
       await p(a as Action<C & ConsumeModel>, { instances, relations });
     }))

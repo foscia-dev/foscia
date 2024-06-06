@@ -2,11 +2,12 @@ import { all, include, one, query, when } from '@foscia/core/actions';
 import { ActionFactory, ConsumeAdapter, ConsumeDeserializer } from '@foscia/core/actions/types';
 import logger from '@foscia/core/logger/logger';
 import isPluralRelationDef from '@foscia/core/model/checks/isPluralRelationDef';
+import groupRelations from '@foscia/core/model/relations/groupRelations';
 import loadUsingCallback from '@foscia/core/model/relations/loadUsingCallback';
 import loadUsingValue from '@foscia/core/model/relations/loadUsingValue';
 import { ModelInstance, ModelRelationDotKey, ModelRelationKey } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
-import { Arrayable, ArrayableVariadic, wrap } from '@foscia/shared';
+import { Arrayable, ArrayableVariadic } from '@foscia/shared';
 
 type QueryRelationLoaderOptions = {
   exclude?: <I extends ModelInstance>(instance: I, relation: ModelRelationDotKey<I>) => boolean;
@@ -23,20 +24,27 @@ export default function makeQueryRelationLoader<
     instances: Arrayable<I>,
     ...relations: ArrayableVariadic<ModelRelationDotKey<I>>
   ) => loadUsingCallback(instances, relations, async (allInstances, allRelations) => {
-    const actionsCount = allInstances.length * allRelations.length;
+    const groupedRelations = groupRelations(allRelations);
+    const actionsCount = allInstances.length * groupedRelations.length;
     if (!options.disablePerformanceWarning && actionsCount > 1) {
       logger.warn(
-        `Loading \`${allRelations.length}\` relations on \`${allInstances.length}\` instances using \`makeQueryRelationLoader\` is not recommended, as this will execute ${actionsCount} actions and may cause performance issues. You can disable this warning by passing \`disablePerformanceWarning\` option to your loader factory.`,
+        `Loading \`${groupedRelations.length}\` relations on \`${allInstances.length}\` instances using \`makeQueryRelationLoader\` is not recommended, as this will execute ${actionsCount} actions and may cause performance issues. You can disable this warning by passing \`disablePerformanceWarning\` option to your loader factory.`,
       );
     }
 
-    await Promise.all(wrap(instances).map(async (instance) => {
-      await Promise.all(allRelations.map(async (relation) => {
-        if (options.exclude && options.exclude(instance, relation)) {
+    const { exclude } = options;
+
+    await Promise.all(allInstances.map(async (instance) => {
+      await Promise.all(groupedRelations.map(async ([rootRelation, subRelations]) => {
+        if (
+          exclude && (
+            subRelations.some((r) => exclude(instance, r as ModelRelationDotKey<I>))
+            || (!subRelations.length && exclude(instance, rootRelation as ModelRelationDotKey<I>))
+          )
+        ) {
           return;
         }
 
-        const [rootRelation, ...subRelations] = relation.split('.');
         const def = instance.$model.$schema[rootRelation];
         const isPlural = isPluralRelationDef(def);
 
