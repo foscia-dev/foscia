@@ -1,5 +1,6 @@
 import {
-  attr, fill,
+  attr,
+  fill,
   hasMany,
   hasOne,
   makeComposable,
@@ -236,6 +237,38 @@ describe.concurrent('unit: makeJsonRestSerializer', () => {
     expect(instances[1].author).toBeInstanceOf(User);
     expect(instances[0] !== instances[1]).toBeTruthy();
     expect(instances[0].author === instances[1].author).toBeTruthy();
+  });
+
+  it('should deserialize only related objects', async () => {
+    const User = makeModel('users', {
+      name: attr(),
+    });
+    const Post = makeModel('posts', {
+      author: hasOne(() => User),
+    });
+
+    const { deserializer } = makeJsonRestDeserializer();
+    const { instances } = await deserializer.deserialize([
+      {
+        id: '1',
+        type: 'posts',
+        author: {
+          id: '3',
+          type: 'users',
+        },
+      },
+      {
+        id: '2',
+        type: 'posts',
+        author: '3',
+      },
+    ], { model: Post });
+
+    expect(instances).toHaveLength(2);
+    expect(instances[0]).toBeInstanceOf(Post);
+    expect(instances[0].author).toBeInstanceOf(User);
+    expect(instances[1]).toBeInstanceOf(Post);
+    expect(instances[1].author).toBeUndefined();
   });
 
   it('should deserialize creating instance', async () => {

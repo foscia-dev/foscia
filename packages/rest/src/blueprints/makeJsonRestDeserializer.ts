@@ -21,7 +21,11 @@ export default function makeJsonRestDeserializer<
       createRecord: makeDeserializerRecordFactory(
         (record) => record,
         (record, { key }) => record[key],
-        (record, { key }) => record[key] as Arrayable<Record> | null,
+        (record, { key }) => (
+          typeof record[key] === 'object'
+            ? record[key] as Arrayable<Record> | null
+            : undefined
+        ),
       ),
       ...config,
     }),
