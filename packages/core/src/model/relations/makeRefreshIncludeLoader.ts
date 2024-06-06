@@ -89,7 +89,7 @@ export default function makeRefreshIncludeLoader<
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
 >(
   action: ActionFactory<[], C, {}>,
-  options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C>,
+  options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C> = {},
 ) {
   return async <I extends ModelInstance>(
     instances: Arrayable<I>,

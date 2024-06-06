@@ -16,7 +16,7 @@ export default function makeQueryRelationLoader<
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
->(action: ActionFactory<[], C, any>, options: QueryRelationLoaderOptions) {
+>(action: ActionFactory<[], C, any>, options: QueryRelationLoaderOptions = {}) {
   return async <I extends ModelInstance>(
     instances: Arrayable<I>,
     ...relations: ArrayableVariadic<ModelRelationKey<I>>
