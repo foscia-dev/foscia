@@ -36,7 +36,7 @@ type RefreshIncludeLoaderOptions<
   prepare?: (
     action: Action<C & ConsumeModel>,
     context: { instances: ModelInstance[]; relations: string[] },
-  ) => Awaitable<void>;
+  ) => Awaitable<unknown>;
 };
 
 async function refreshLoad<
