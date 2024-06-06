@@ -3,7 +3,7 @@ FROM node:20-alpine as dependencies
 RUN apk update && apk add --no-cache zip git curl
 
 RUN corepack enable
-RUN corepack prepare pnpm@latest --activate
+RUN corepack use pnpm@latest
 
 COPY entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
