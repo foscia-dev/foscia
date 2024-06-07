@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.4](https://github.com/foscia-dev/foscia/compare/v0.8.3...v0.8.4) (2024-06-07)
+
+
+### Bug Fixes
+
+* **cli:** support empty path on init command ([e2be71f](https://github.com/foscia-dev/foscia/commit/e2be71fe55b7dbc756963922320be0cff3297444))
+
 ## [0.8.3](https://github.com/foscia-dev/foscia/compare/v0.8.2...v0.8.3) (2024-06-07)
 
 
