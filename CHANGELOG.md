@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.8.2](https://github.com/foscia-dev/foscia/compare/v0.8.1...v0.8.2) (2024-06-07)
+
+
+### Bug Fixes
+
+* **core:** allow prepare callback on refresh loader to return something ([0382204](https://github.com/foscia-dev/foscia/commit/038220479de667116aa2bb02e6f420d94a0d65b4))
+* **core:** correctly exclude nested relation on query relation loader ([64a2515](https://github.com/foscia-dev/foscia/commit/64a2515ab89f25484973a1e096ac7c3a2270ca33))
+* **rest:** only deserialize objects for relations ([1819cb0](https://github.com/foscia-dev/foscia/commit/1819cb0639bb16ce555227ab59ed3b8c7b1bdc1b))
+
+
+### Features
+
+* **core:** add instances or relations exclusion to relation loaders ([ded8b38](https://github.com/foscia-dev/foscia/commit/ded8b38a70fa14d1f6571e33661d71a17ec5071a))
+* **core:** add model query relation loader factory ([85d18db](https://github.com/foscia-dev/foscia/commit/85d18dbdd7a90d44653f3d2d54411b301c802cf8)), closes [#19](https://github.com/foscia-dev/foscia/issues/19)
+* **core:** group nested relations fetching for query relation loader ([98ffcbe](https://github.com/foscia-dev/foscia/commit/98ffcbea46d4a86f2306e1853f06113273144c93))
+* **core:** optional options on relation loader factories ([89c9c23](https://github.com/foscia-dev/foscia/commit/89c9c237bdbd4f6b440caa32cb0c0d78e2c25684))
+
 ## [0.8.1](https://github.com/foscia-dev/foscia/compare/v0.8.0...v0.8.1) (2024-04-15)
 
 
