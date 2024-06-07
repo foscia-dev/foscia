@@ -184,7 +184,7 @@ const [showOptions, getShow] = useShowable();
 
 export default {
   name: 'init',
-  command: 'init <path>',
+  command: 'init [path]',
   describe: pc.dim('Initialize foscia configuration and files.'),
   builder: (argv) => argv
     .usage(`Usage: ${pc.magenta('foscia')} ${pc.bold('init')} [path] [options]`)
@@ -196,6 +196,7 @@ export default {
       type: 'string',
       normalize: true,
       description: pc.dim('Directory to put new Foscia files in.'),
+      default: '',
     })
     .option('manual', {
       type: 'boolean',
@@ -227,7 +228,7 @@ export default {
         },
       ],
     }));
-    const path = normalize(args.path ?? await input({
+    const path = normalize(args.path?.length ? args.path : await input({
       message: 'Where do you want to store your foscia files (action, models, etc.)?',
       default: 'src/data',
     }));
