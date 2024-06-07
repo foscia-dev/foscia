@@ -4,9 +4,9 @@ description: Define models with attributes, relations and hooks.
 ---
 
 import Link from '@docusaurus/Link';
-import CodeBlock from '@theme/CodeBlock';
 import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
+import Chip from '@site/src/components/Chip';
 
 # Models
 
@@ -286,8 +286,8 @@ hasOne<User>('users');
 // With config object.
 hasOne<User>({ type: 'users', path: 'author' });
 // With chained modifiers.
-hasOne<User>()
-  .config({ type: 'users', path: 'author' })
+hasOne<User>('users')
+  .config({ path: 'author' })
   .nullable()
   .default(() => null)
   .readOnly()
@@ -314,8 +314,8 @@ hasMany<Comment[]>('comments');
 // With config object.
 hasMany<Comment[]>({ type: 'comments', path: 'comments' });
 // With chained modifiers.
-hasMany<Comment[]>()
-  .config({ type: 'comments', path: 'comments' })
+hasMany<Comment[]>('comments')
+  .config({ path: 'comments' })
   .nullable()
   .default(() => null)
   .readOnly()
@@ -357,7 +357,7 @@ must contain a `type` property matching your Foscia models' types.
 
 | Name       | Parameters                                                                                     | Effect                                                                                                                                                         |
 | ---------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `config`   | <code>string &vert; string[] &vert; \{ type?: string &vert; string[]; path?: string; \}</code> | Specify the relation configuration: related types and custom implementations related option (such as path for HTTP).                                           |
+| `config`   | <code>string &vert; string[] &vert; ModelRelationConfig</code>                                 | Specify the relation configuration: related types and custom implementations related options, see [relations configuration](#relations-configuration).         |
 | `default`  | <code>unknown &vert; (() => unknown)</code>                                                    | Set a default value on `new` instance.                                                                                                                         |
 | `readOnly` | `boolean`                                                                                      | Set read-only state.                                                                                                                                           |
 | `nullable` | -                                                                                              | Set current type as nullable.                                                                                                                                  |
@@ -414,8 +414,18 @@ If your data source does not provide an explicit type info, you should either:
 import { hasOne } from '@foscia/core';
 import type User from './user';
 
-hasOne<User>({ type: 'users' });
+hasOne<User>('users');
 ```
+
+#### Configuration {#relations-configuration}
+
+Using `config` chained modifier, you can customize the relation configuration,
+which can vary between implementations and used dependencies.
+
+| Name   | Parameters                          | Effect                                                                                         |
+|--------|-------------------------------------|------------------------------------------------------------------------------------------------|
+| `type` | <code>string &vert; string[]</code> | Specify related models' types.                                                                 |
+| `path` | <code>string</code>                 | <Chip color="primary">only: HTTP</Chip> Specify a path alias for dedicated relation endpoints. |
 
 ### Custom properties
 
