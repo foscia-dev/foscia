@@ -54,7 +54,9 @@ import mapIds from '@foscia/core/model/props/mappers/mapIds';
 import mapProps from '@foscia/core/model/props/mappers/mapProps';
 import mapRelations from '@foscia/core/model/props/mappers/mapRelations';
 import shouldSync from '@foscia/core/model/props/shouldSync';
-import guessRelationType from '@foscia/core/model/relations/guessRelationType';
+import makeQueryModelLoaderExtractor
+  from '@foscia/core/model/relations/makeQueryModelLoaderExtractor';
+import guessRelationType from '@foscia/core/model/relations/utilities/guessRelationType';
 import loaded from '@foscia/core/model/relations/loaded';
 import makeForRelationLoader from '@foscia/core/model/relations/makeForRelationLoader';
 import makeQueryModelLoader from '@foscia/core/model/relations/makeQueryModelLoader';
@@ -127,6 +129,7 @@ export {
   makeModelFactory,
   makeForRelationLoader,
   makeQueryModelLoader,
+  makeQueryModelLoaderExtractor,
   makeQueryRelationLoader,
   makeRefreshIncludeLoader,
   toArrayOf,

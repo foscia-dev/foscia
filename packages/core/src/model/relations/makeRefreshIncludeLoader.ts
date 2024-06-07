@@ -9,9 +9,9 @@ import {
 } from '@foscia/core/actions/types';
 import logger from '@foscia/core/logger/logger';
 import excludeInstancesAndRelations
-  from '@foscia/core/model/relations/excludeInstancesAndRelations';
-import loadUsingCallback from '@foscia/core/model/relations/loadUsingCallback';
-import loadUsingValue from '@foscia/core/model/relations/loadUsingValue';
+  from '@foscia/core/model/relations/utilities/excludeInstancesAndRelations';
+import loadUsingCallback from '@foscia/core/model/relations/utilities/loadUsingCallback';
+import loadUsingValue from '@foscia/core/model/relations/utilities/loadUsingValue';
 import {
   Model,
   ModelIdType,
@@ -69,7 +69,7 @@ async function refreshLoad<
     const refreshedInstance = refreshedInstancesMap[instance.id];
     if (!refreshedInstance) {
       logger.warn(
-        `Loading relations of instance with ID \`${instance.$model.$type}:${instance.id}\` did not work, instance was not found in refreshed list.`,
+        `Loading relations of instance with ID \`${instance.$model.$type}:${instance.id}\` did not work, instance was not found in refreshed results.`,
       );
 
       return;

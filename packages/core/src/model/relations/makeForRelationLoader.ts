@@ -1,7 +1,7 @@
 import { all, one, query, when } from '@foscia/core/actions';
 import { ActionFactory, ConsumeAdapter, ConsumeDeserializer } from '@foscia/core/actions/types';
 import isPluralRelationDef from '@foscia/core/model/checks/isPluralRelationDef';
-import loadUsingValue from '@foscia/core/model/relations/loadUsingValue';
+import loadUsingValue from '@foscia/core/model/relations/utilities/loadUsingValue';
 import { ModelInstance, ModelRelationKey } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
 import { Arrayable, ArrayableVariadic, wrap, wrapVariadic } from '@foscia/shared';

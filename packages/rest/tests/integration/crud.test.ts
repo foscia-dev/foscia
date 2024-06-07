@@ -19,6 +19,7 @@ import createFetchMock from '../../../../tests/mocks/createFetchMock.mock';
 import createFetchResponse from '../../../../tests/mocks/createFetchResponse.mock';
 import makeJsonRestActionMock from '../mocks/makeJsonRestAction.mock';
 import CommentMock from '../mocks/models/comment.mock';
+import GalleryMock from '../mocks/models/gallery.mock';
 import PostMock from '../mocks/models/post.mock';
 
 describe('integration: JSON REST', () => {
@@ -298,5 +299,69 @@ describe('integration: JSON REST', () => {
     expect(post2.comments.length).toStrictEqual(1);
     expect(post2.comments[0].id).toStrictEqual('3');
     expect(post3.comments).toBeUndefined();
+  });
+
+  it('should load polymorphic relations with model query', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json([
+      {
+        id: '1',
+        comments: [],
+        relatedContents: [
+          { type: 'posts', id: '2' },
+          { type: 'galleries', id: '1' },
+        ],
+      },
+      {
+        id: '2',
+        comments: [],
+        relatedContents: [
+          { type: 'posts', id: '1' },
+        ],
+      },
+    ]));
+    fetchMock.mockImplementationOnce(createFetchResponse().json([
+      { id: '1' },
+      { id: '2' },
+    ]));
+    fetchMock.mockImplementationOnce(createFetchResponse().json([
+      { id: '1' },
+    ]));
+
+    const action = makeJsonRestActionMock();
+
+    const loadWithQuery = makeQueryModelLoader(action, {
+      prepare: (a, { ids }) => a.use(param('ids', ids)),
+    });
+
+    const [post1, post2] = await action()
+      .use(query(PostMock))
+      .run(all());
+
+    await loadWithQuery([post1, post2], ['comments', 'relatedContents']);
+
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    const request1 = fetchMock.mock.calls[1][0] as Request;
+    expect(request1.url).toStrictEqual('https://example.com/api/posts?ids=2%2C1');
+    expect(request1.method).toStrictEqual('GET');
+    expect(request1.headers.get('Accept')).toStrictEqual('application/json');
+    expect(request1.headers.get('Content-Type')).toStrictEqual('application/json');
+    expect(request1.body).toBeNull();
+    const request2 = fetchMock.mock.calls[2][0] as Request;
+    expect(request2.url).toStrictEqual('https://example.com/api/galleries?ids=1');
+    expect(request2.method).toStrictEqual('GET');
+    expect(request2.headers.get('Accept')).toStrictEqual('application/json');
+    expect(request2.headers.get('Content-Type')).toStrictEqual('application/json');
+    expect(request2.body).toBeNull();
+
+    expect(post1.comments.length).toStrictEqual(0);
+    expect(post1.relatedContents.length).toStrictEqual(2);
+    expect(post1.relatedContents[0]).toBeInstanceOf(PostMock);
+    expect(post1.relatedContents[0].id).toStrictEqual('2');
+    expect(post1.relatedContents[1]).toBeInstanceOf(GalleryMock);
+    expect(post1.relatedContents[1].id).toStrictEqual('1');
+    expect(post2.comments.length).toStrictEqual(0);
+    expect(post2.relatedContents.length).toStrictEqual(1);
+    expect(post2.relatedContents[0]).toStrictEqual(post1);
   });
 });

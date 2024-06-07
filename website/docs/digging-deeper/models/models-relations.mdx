@@ -78,6 +78,8 @@ relations. But, be aware that you should implement an adapted `prepare` to
 filter the fetched models (this will avoid overloading your data source with
 useless records fetching).
 
+It should support polymorphism if your data provider does.
+
 :::
 
 #### Options
@@ -92,6 +94,27 @@ IDs).
 
 A function to split the instances array to multiple arrays (e.g. to avoid
 hitting pagination limit).
+
+<details>
+
+<summary>
+
+Array chunk function example
+
+</summary>
+
+```typescript
+function chunk<T>(items: T[], size: number) {
+  const chunks = [] as T[][];
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + chunkSize));
+  }
+
+  return chunks;
+}
+```
+
+</details>
 
 ##### `exclude: (instance: ModelInstance, relations: ModelRelationDotKey): bool`
 
@@ -133,15 +156,81 @@ await loadWithModelQuery(myPostsArray, ['comments', 'comments.author']);
 
 This loader is recommended as it will only run one action per direct relation.
 
+It supports polymorphic relations when
+[**related models are correctly defined on relations**](/docs/core-concepts/models#recommandations)
+and `extract` option correctly retrieve IDs.
+
 :::
 
 #### Options
 
 ##### `extract: (instance: ModelInstance, relation: ModelRelationKey): Arrayable<ModelIdType> | null | undefined`
 
-A function to extract the related IDs from an instance. Default behavior
-is to use the raw record fetched from data source's value for relation's key
-(e.g. retrieving `instance.$raw[relation]` value).
+A function to extract the related IDs and types from an instance.
+Default behavior is to use the raw record value for relation's key and and build
+one or many objects containing type and ID.
+
+<details>
+
+<summary>
+
+Extract function example and side notes
+
+</summary>
+
+Here is the default implementation for `extract` function using
+[**`makeQueryModelLoaderExtractor`**](https://github.com/foscia-dev/foscia/blob/main/packages/core/src/model/relations/makeQueryModelLoaderExtractor.ts)
+helper, as an example of implementation.
+
+```typescript
+import { makeQueryModelLoaderExtractor, normalizeKey } from '@foscia/core';
+
+const extract = makeQueryModelLoaderExtractor(
+  (instance, relation) => instance.$raw[normalizeKey(instance.$model, relation)],
+  (value) => (typeof value === 'object' ? { id: value.id, type: value.type } : { id: value }),
+);
+```
+
+It will support extracting both raw JSON data related IDs extraction
+(basic and polymorphic relations):
+
+```json
+{
+  "id": "1",
+  "title": "Foo",
+  "comments": ["1", "2"]
+}
+```
+
+```json
+{
+  "type": "posts",
+  "id": "1",
+  "title": "Foo",
+  "relatedContents": [
+    {
+      "type": "posts",
+      "id": "2"
+    },
+    {
+      "type": "galleries",
+      "id": "1"
+    }
+  ]
+}
+```
+
+:::info
+
+Notice that Foscia will try to deserialize each relations were record is an
+object or array of objects value (such as in the 2nd example). This will mark
+the relation as loaded even if the related value attributes are not loaded.
+To avoid this, you can disable the relation's syncing on pull
+(e.g. `hasOne().sync('push')`), as it will disable relation deserialization.
+
+:::
+
+</details>
 
 ##### `prepare: (action: Action, context: { ids: ModelIdType[]; relations: string[] }): Awaitable<void>`
 
@@ -153,6 +242,27 @@ IDs).
 
 A function to split the related IDs array to multiple arrays (e.g. to avoid
 hitting pagination limit).
+
+<details>
+
+<summary>
+
+Array chunk function example
+
+</summary>
+
+```typescript
+function chunk<T>(items: T[], size: number) {
+  const chunks = [] as T[][];
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + chunkSize));
+  }
+
+  return chunks;
+}
+```
+
+</details>
 
 ##### `exclude: (instance: ModelInstance, relations: ModelRelationDotKey): bool`
 
@@ -185,6 +295,8 @@ await loadWithRelationQuery(myPost, 'comments');
 
 Because this loader will run one action per instance and relation, it is only
 recommended for one instance's relation loading, not many.
+
+It should support polymorphism if your data provider does.
 
 :::
 
