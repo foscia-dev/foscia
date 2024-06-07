@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.8.3](https://github.com/foscia-dev/foscia/compare/v0.8.2...v0.8.3) (2024-06-07)
+
+
+### Bug Fixes
+
+* **core:** correctly fetch polymorphic relations with model query loader ([2b011b9](https://github.com/foscia-dev/foscia/commit/2b011b974b7acc34ead13f044bc65df1feeb9f80)), closes [#21](https://github.com/foscia-dev/foscia/issues/21)
+* **core:** throw an error if a model is created with an empty type ([9cc82c5](https://github.com/foscia-dev/foscia/commit/9cc82c5a39b8092d6e5d2cd25314288a4326ebbe))
+
+
+### Features
+
+* **core:** guess model can guess multiple models for polymorphism ([f753e8d](https://github.com/foscia-dev/foscia/commit/f753e8d097a1021f8f2d4175219b307f844a2f7e))
+* **core:** support hooks returning a value ([baa0230](https://github.com/foscia-dev/foscia/commit/baa02304b367c07807d01fd49d3bd3da7d7360ee))
+
 ## [0.8.2](https://github.com/foscia-dev/foscia/compare/v0.8.1...v0.8.2) (2024-06-07)
 
 
