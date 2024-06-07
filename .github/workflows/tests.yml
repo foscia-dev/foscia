@@ -19,7 +19,7 @@ jobs:
         run: make test
 
       - name: Coverage upload
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           directory: coverage
           token: ${{ secrets.CODECOV_TOKEN }}
