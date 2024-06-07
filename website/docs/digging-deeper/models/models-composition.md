@@ -74,6 +74,9 @@ Just like [models setup](/docs/core-concepts/models#setup), composables
 can also provide setup behaviors for models and their instances by passing
 a second argument to `makeComposable`.
 
+This is useful when defining a UUID keyed model with automatic generation
+before first saving.
+
 ```typescript title="composables/uuidID.ts"
 import { attr, makeComposable, onCreating } from '@foscia/core';
 import { v4 as uuidV4 } from 'uuid';
@@ -84,6 +87,30 @@ export default makeComposable({
   boot: (model) => {
     onCreating(model, (instance) => {
       instance.id = instance.id ?? uuidV4();
+    });
+  },
+});
+```
+
+Here is another example where we automatically track creation and last update
+timestamp for every record.
+
+```typescript title="composables/timestamps.ts"
+import { attr, makeComposable, onSaving } from '@foscia/core';
+
+export default makeComposable({
+  timestamps: attr().default(true).sync(false),
+  createdAt: attr(toDateTime()),
+  updatedAt: attr(toDateTime()),
+}, {
+  boot: (model) => {
+    onSaving(model, (instance) => {
+      if (instance.timestamps) {
+        instance.updatedAt = new Date();
+        if (!instance.$exists) {
+          instance.createdAt = instance.updatedAt;
+        }
+      }
     });
   },
 });
