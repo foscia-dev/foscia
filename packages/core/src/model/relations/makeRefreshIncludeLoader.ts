@@ -8,6 +8,8 @@ import {
   ConsumeModel,
 } from '@foscia/core/actions/types';
 import logger from '@foscia/core/logger/logger';
+import excludeInstancesAndRelations
+  from '@foscia/core/model/relations/excludeInstancesAndRelations';
 import loadUsingCallback from '@foscia/core/model/relations/loadUsingCallback';
 import loadUsingValue from '@foscia/core/model/relations/loadUsingValue';
 import {
@@ -33,29 +35,6 @@ type RefreshIncludeLoaderOptions<
   chunk?: (instances: ModelInstance[]) => ModelInstance[][];
   exclude?: <I extends ModelInstance>(instance: I, relation: ModelRelationDotKey<I>) => boolean;
 };
-
-function excludeInstancesAndRelations<I extends ModelInstance>(
-  instances: I[],
-  relations: ModelRelationDotKey<I>[],
-  exclude: (instance: I, relation: ModelRelationDotKey<I>) => boolean,
-) {
-  const remainingInstances = new Set<I>();
-  const remainingRelations = new Set<ModelRelationDotKey<I>>();
-
-  relations.forEach((relation) => {
-    instances.forEach((instance) => {
-      if (!exclude(instance, relation)) {
-        remainingInstances.add(instance);
-        remainingRelations.add(relation);
-      }
-    });
-  });
-
-  return [
-    [...remainingInstances.values()],
-    [...remainingRelations.values()],
-  ] as [I[], ModelRelationDotKey<I>[]];
-}
 
 async function refreshLoad<
   RawData,

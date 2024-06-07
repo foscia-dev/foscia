@@ -718,7 +718,7 @@ describe('integration: JSON:API', () => {
     expect(post2.comments.length).toStrictEqual(0);
   });
 
-  it('should load relations with query', async () => {
+  it('should load relations with relation query', async () => {
     const fetchMock = createFetchMock();
     fetchMock.mockImplementationOnce(createFetchResponse().json({
       data: [
@@ -736,7 +736,7 @@ describe('integration: JSON:API', () => {
     }));
 
     const action = makeJsonApiActionMock();
-    const loadWithQuery = makeQueryRelationLoader(action, { exclude: loaded });
+    const loadWithQuery = makeQueryRelationLoader(action);
 
     const post = fill(new PostMock(), { id: '1' });
     post.$exists = true;

@@ -4,6 +4,8 @@ import {
   destroy,
   fill,
   include,
+  loaded,
+  makeQueryModelLoader,
   markSynced,
   none,
   one,
@@ -11,6 +13,7 @@ import {
   save,
   when,
 } from '@foscia/core';
+import { param } from '@foscia/http';
 import { describe, expect, it, vi } from 'vitest';
 import createFetchMock from '../../../../tests/mocks/createFetchMock.mock';
 import createFetchResponse from '../../../../tests/mocks/createFetchResponse.mock';
@@ -248,5 +251,52 @@ describe('integration: JSON REST', () => {
     expect(post.title).toStrictEqual('Foo');
     expect(post.body).toStrictEqual('Foo Body');
     expect(post.comments).toBeUndefined();
+  });
+
+  it('should load relations with model query', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json([
+      { id: '1' },
+      { id: '2' },
+      { id: '3' },
+    ]));
+
+    const action = makeJsonRestActionMock();
+
+    const loadWithQuery = makeQueryModelLoader(action, {
+      prepare: (a, { ids }) => a.use(param('ids', ids)),
+      exclude: loaded,
+    });
+
+    const post1 = fill(new PostMock(), { id: '1' });
+    post1.$raw = {
+      comments: ['2', '1'],
+    };
+    const post2 = fill(new PostMock(), { id: '2' });
+    post2.$raw = {
+      comments: ['3'],
+    };
+    const post3 = fill(new PostMock(), { id: '3' });
+    post3.$loaded.comments = true;
+    post3.$raw = {
+      comments: ['4'],
+    };
+
+    await loadWithQuery([post1, post2, post3], 'comments');
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/comments?ids=2%2C1%2C3');
+    expect(request.method).toStrictEqual('GET');
+    expect(request.headers.get('Accept')).toStrictEqual('application/json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/json');
+    expect(request.body).toBeNull();
+
+    expect(post1.comments.length).toStrictEqual(2);
+    expect(post1.comments[0].id).toStrictEqual('2');
+    expect(post1.comments[1].id).toStrictEqual('1');
+    expect(post2.comments.length).toStrictEqual(1);
+    expect(post2.comments[0].id).toStrictEqual('3');
+    expect(post3.comments).toBeUndefined();
   });
 });

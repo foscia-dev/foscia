@@ -36,9 +36,10 @@ loaded(myPost, 'comments.author');
 Since Foscia uses a functional approach for your action, you are able to load a
 relation using different ways depending on your data source implementation.
 
-For this, Foscia provides multiple loader factories providing various options.
+For this, Foscia provides multiple loader factories providing various
+behaviors and options.
 
-### Loading relation using refresh
+### 1. Instance refreshing
 
 This is the simplest way of loading relations if your data source implementation
 provides an inclusion of relations and a way to filter models based on IDs (e.g.
@@ -55,8 +56,7 @@ import { filterBy } from '@foscia/jsonapi';
 import action from './action';
 
 export default makeRefreshIncludeLoader(action, {
-  prepare: (action, { instances }) =>
-    action.use(filterBy({ ids: instances.map((i) => i.id) })),
+  prepare: (action, { instances }) => action.use(filterBy({ ids: instances.map((i) => i.id) })),
 });
 ```
 
@@ -100,14 +100,69 @@ loaded relations). Notice the following:
 - If a relation is excluded for all instances, it will not be included during
   refresh
 
-### Loading relation using path
+### 2. Related model action
+
+This method is best suited for multiple instance relation loading with
+implementations providing IDs instead of included relations, such as some REST
+implementations. If nested relations are passed (such as `comments.author`),
+it will `include` the nested relations during the root model action.
+
+```typescript title="loaders/loadWithModelQuery.ts"
+import { makeQueryModelLoader } from '@foscia/core';
+import action from './action';
+
+export default makeQueryModelLoader(action, {
+  prepare: (action, { ids }) => action.use(param('ids', ids)),
+});
+```
+
+You can now use the loader on any instance.
+
+```typescript
+import loadWithModelQuery from './loaders/loadWithModelQuery';
+
+await loadWithModelQuery(myPost, 'comments');
+await loadWithModelQuery(myPostsArray, ['comments', 'comments.author']);
+```
+
+:::info
+
+This loader is recommended as it will only run one action per direct relation.
+
+:::
+
+#### Options
+
+##### `extract: (instance: ModelInstance, relation: ModelRelationKey): Arrayable<ModelIdType> | null | undefined`
+
+A function to extract the related IDs from an instance. Default behavior
+is to use the raw record fetched from data source's value for relation's key
+(e.g. retrieving `instance.$raw[relation]` value).
+
+##### `prepare: (action: Action, context: { ids: ModelIdType[]; relations: string[] }): Awaitable<void>`
+
+A function to execute before running action allowing you to prepare the fetch
+action (e.g. to avoid fetching a full list of models by filtering on related
+IDs).
+
+##### `chunk: (ids: ModelIdType[]): ModelIdType[][]`
+
+A function to split the related IDs array to multiple arrays (e.g. to avoid
+hitting pagination limit).
+
+##### `exclude: (instance: ModelInstance, relations: ModelRelationDotKey): bool`
+
+A function to exclude some relation fetching (e.g. to avoid fetching already
+loaded relations).
+
+### 3. Relation action
 
 This method is best suited for one instance relation loading with
 implementations providing relation reading through a dedicated endpoint/query,
 such as JSON:API. If nested relations are passed (such as `comments.author`),
 it will `include` the nested relations during the root relation action.
 
-```typescript title="loaders/loadWithQuery.ts"
+```typescript title="loaders/loadWithRelationQuery.ts"
 import { makeQueryRelationLoader } from '@foscia/core';
 import action from './action';
 
@@ -117,9 +172,9 @@ export default makeQueryRelationLoader(action);
 You can now use the loader on any instance.
 
 ```typescript
-import loadWithQuery from './loaders/loadWithQuery';
+import loadWithRelationQuery from './loaders/loadWithRelationQuery';
 
-await loadWithQuery(myPost, 'comments');
+await loadWithRelationQuery(myPost, 'comments');
 ```
 
 :::warning

@@ -57,6 +57,7 @@ import shouldSync from '@foscia/core/model/props/shouldSync';
 import guessRelationType from '@foscia/core/model/relations/guessRelationType';
 import loaded from '@foscia/core/model/relations/loaded';
 import makeForRelationLoader from '@foscia/core/model/relations/makeForRelationLoader';
+import makeQueryModelLoader from '@foscia/core/model/relations/makeQueryModelLoader';
 import makeQueryRelationLoader from '@foscia/core/model/relations/makeQueryRelationLoader';
 import makeRefreshIncludeLoader from '@foscia/core/model/relations/makeRefreshIncludeLoader';
 import changed from '@foscia/core/model/snapshots/changed';
@@ -125,6 +126,7 @@ export {
   makeModel,
   makeModelFactory,
   makeForRelationLoader,
+  makeQueryModelLoader,
   makeQueryRelationLoader,
   makeRefreshIncludeLoader,
   toArrayOf,

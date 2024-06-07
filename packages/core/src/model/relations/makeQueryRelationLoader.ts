@@ -5,6 +5,8 @@ import isPluralRelationDef from '@foscia/core/model/checks/isPluralRelationDef';
 import groupRelations from '@foscia/core/model/relations/groupRelations';
 import loadUsingCallback from '@foscia/core/model/relations/loadUsingCallback';
 import loadUsingValue from '@foscia/core/model/relations/loadUsingValue';
+import shouldExcludeInstanceAndRelation
+  from '@foscia/core/model/relations/shouldExcludeInstanceAndRelation';
 import { ModelInstance, ModelRelationDotKey, ModelRelationKey } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
 import { Arrayable, ArrayableVariadic } from '@foscia/shared';
@@ -32,15 +34,12 @@ export default function makeQueryRelationLoader<
       );
     }
 
-    const { exclude } = options;
-
     await Promise.all(allInstances.map(async (instance) => {
       await Promise.all(groupedRelations.map(async ([rootRelation, subRelations]) => {
-        if (exclude && (subRelations.some(
-          (r) => exclude(instance, `${rootRelation}${r}` as ModelRelationDotKey<I>),
-        ) || (
-          !subRelations.length && exclude(instance, rootRelation as ModelRelationDotKey<I>)
-        ))) {
+        if (
+          options.exclude
+          && shouldExcludeInstanceAndRelation(instance, rootRelation, subRelations, options.exclude)
+        ) {
           return;
         }
 
