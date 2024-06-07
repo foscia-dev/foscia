@@ -5,7 +5,7 @@ description: Loading relations on a model's instances.
 
 import FunctionInfo from '@site/src/components/FunctionInfo';
 
-# Loading models relations
+# Models relations
 
 :::tip What you'll learn
 
@@ -53,7 +53,7 @@ supports nested relations keys if your data source supports them.
 Here is an example when using a JSON:API backend with an `ids` filter available.
 
 ```typescript title="loaders/loadWithRefresh.ts"
-import { makeRefreshIncludeLoader, loaded } from '@foscia/core';
+import { makeRefreshIncludeLoader } from '@foscia/core';
 import { filterBy } from '@foscia/jsonapi';
 import action from './action';
 
