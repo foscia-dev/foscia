@@ -60,7 +60,7 @@ describe.concurrent('unit: composition', () => {
     }).setup({ boot: () => undefined }) {
     }
 
-    onCreating(FooModel, () => undefined);
+    onCreating(FooModel, () => 'foo');
 
     const BarModel = FooModel.extend({
       bar: attr(() => 'bar'),

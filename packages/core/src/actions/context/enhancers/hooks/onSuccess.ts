@@ -12,7 +12,7 @@ import { Awaitable } from '@foscia/shared';
  * @category Enhancers
  */
 export default function onSuccess<C extends {}>(
-  callback: (event: { context: C; result: unknown; }) => Awaitable<void>,
+  callback: (event: { context: C; result: unknown; }) => Awaitable<unknown>,
 ) {
   return (action: Action<C>) => {
     registerHook(action, 'success', callback as any);
@@ -22,7 +22,7 @@ export default function onSuccess<C extends {}>(
 type EnhancerExtension = ActionParsedExtension<{
   onSuccess<C extends {}, E extends {}>(
     this: Action<C, E>,
-    callback: (event: { context: C; result: unknown; }) => Awaitable<void>,
+    callback: (event: { context: C; result: unknown; }) => Awaitable<unknown>,
   ): Action<C, E>;
 }>;
 

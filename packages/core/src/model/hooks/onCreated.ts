@@ -4,7 +4,7 @@ import { Awaitable } from '@foscia/shared';
 
 export default function onCreated<I extends ModelInstance>(
   model: Model<any, I>,
-  callback: (instance: I) => Awaitable<void>,
+  callback: (instance: I) => Awaitable<unknown>,
 ) {
   return registerHook(model, 'created', callback as ModelInstanceHookCallback);
 }

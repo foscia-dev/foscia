@@ -12,7 +12,7 @@ import { Awaitable } from '@foscia/shared';
  * @category Enhancers
  */
 export default function onError<C extends {}>(
-  callback: (event: { context: C; error: unknown; }) => Awaitable<void>,
+  callback: (event: { context: C; error: unknown; }) => Awaitable<unknown>,
 ) {
   return (action: Action<C>) => {
     registerHook(action, 'error', callback as any);
@@ -22,7 +22,7 @@ export default function onError<C extends {}>(
 type EnhancerExtension = ActionParsedExtension<{
   onError<C extends {}, E extends {}>(
     this: Action<C, E>,
-    callback: (event: { context: C; error: unknown; }) => Awaitable<void>,
+    callback: (event: { context: C; error: unknown; }) => Awaitable<unknown>,
   ): Action<C, E>;
 }>;
 

@@ -13,7 +13,7 @@ function onPropertyRead<
   K extends keyof D & keyof V,
 >(
   model: Model<D, I>,
-  callback: (event: { instance: I; def: D[K]; value: V[K] | undefined }) => void,
+  callback: (event: { instance: I; def: D[K]; value: V[K] | undefined }) => unknown,
 ): () => void;
 
 function onPropertyRead<
@@ -24,7 +24,7 @@ function onPropertyRead<
 >(
   model: Model<D, I>,
   key: K,
-  callback: (event: { instance: I; def: D[K]; value: V[K] | undefined }) => void,
+  callback: (event: { instance: I; def: D[K]; value: V[K] | undefined }) => unknown,
 ): () => void;
 
 function onPropertyRead<I extends ModelInstance>(

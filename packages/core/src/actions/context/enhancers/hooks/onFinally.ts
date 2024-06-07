@@ -12,7 +12,7 @@ import { Awaitable } from '@foscia/shared';
  * @category Enhancers
  */
 export default function onFinally<C extends {}>(
-  callback: (event: { context: C; }) => Awaitable<void>,
+  callback: (event: { context: C; }) => Awaitable<unknown>,
 ) {
   return (action: Action<C>) => {
     registerHook(action, 'finally', callback as any);
@@ -22,7 +22,7 @@ export default function onFinally<C extends {}>(
 type EnhancerExtension = ActionParsedExtension<{
   onFinally<C extends {}, E extends {}>(
     this: Action<C, E>,
-    callback: (event: { context: C; }) => Awaitable<void>,
+    callback: (event: { context: C; }) => Awaitable<unknown>,
   ): Action<C, E>;
 }>;
 

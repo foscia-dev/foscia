@@ -13,7 +13,7 @@ function onPropertyWriting<
   K extends keyof D & keyof V,
 >(
   model: Model<D, I>,
-  callback: (event: { instance: I; def: D[K]; prev: V[K] | undefined; next: V[K] }) => void,
+  callback: (event: { instance: I; def: D[K]; prev: V[K] | undefined; next: V[K] }) => unknown,
 ): () => void;
 
 function onPropertyWriting<
@@ -24,7 +24,7 @@ function onPropertyWriting<
 >(
   model: Model<D, I>,
   key: K,
-  callback: (event: { instance: I; def: D[K]; prev: V[K] | undefined; next: V[K] }) => void,
+  callback: (event: { instance: I; def: D[K]; prev: V[K] | undefined; next: V[K] }) => unknown,
 ): () => void;
 
 function onPropertyWriting<I extends ModelInstance>(
