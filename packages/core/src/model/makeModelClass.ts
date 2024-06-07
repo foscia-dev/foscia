@@ -20,6 +20,10 @@ const createModelClass = (
   definition: object,
   PrevModelClass?: ExtendableModel,
 ) => {
+  if (type.length === 0) {
+    throw new FosciaError('Model type cannot be an empty string.');
+  }
+
   const ModelClass = PrevModelClass ? class extends PrevModelClass {
   } : function ModelConstructor(this: ModelInstance) {
     Object.defineProperty(this, '$FOSCIA_TYPE', { value: SYMBOL_MODEL_INSTANCE });
