@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.8.5](https://github.com/foscia-dev/foscia/compare/v0.8.4...v0.8.5) (2024-06-09)
+
+
+### Bug Fixes
+
+* **cli:** correctly show path in alias configuration ([7eec31d](https://github.com/foscia-dev/foscia/commit/7eec31da7e499121e16f3b9d5beebf70457ceb10))
+* **core:** mark relation loaded when using a loader ([208c9c0](https://github.com/foscia-dev/foscia/commit/208c9c06fdf1e4a78a0c9393307c8bb84490aea4))
+
+
+### Features
+
+* **cli:** guess alias based on root path in init command ([0e5a9b0](https://github.com/foscia-dev/foscia/commit/0e5a9b098867cf6c3c51abf2cd2e7dd0e45919ab))
+
 ## [0.8.4](https://github.com/foscia-dev/foscia/compare/v0.8.3...v0.8.4) (2024-06-07)
 
 
