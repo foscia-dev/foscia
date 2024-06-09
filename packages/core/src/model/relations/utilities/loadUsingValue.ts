@@ -8,6 +8,7 @@ export default function loadUsingValue<I extends ModelInstance>(
   value: I[ModelRelationKey<I>],
 ) {
   forceFill(instance, { [relation]: value } as any);
-
   markSynced(instance, relation);
+  // eslint-disable-next-line no-param-reassign
+  instance.$loaded[relation] = true;
 }
