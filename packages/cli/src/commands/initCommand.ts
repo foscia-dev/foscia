@@ -130,16 +130,33 @@ async function resolveEnvironment(args: InitCommandOptions) {
   return { packageManager, language, modules };
 }
 
+function guessAlias(path: string) {
+  const commonPaths = [
+    // Common project aliases.
+    'src/',
+    'lib/',
+    // Laravel project aliases.
+    'resources/js/',
+    'resources/ts/',
+  ];
+  const commonPath = commonPaths.find((p) => path.startsWith(p));
+  if (commonPath !== undefined) {
+    return path.replace(commonPath, '@/');
+  }
+
+  return '@/';
+}
+
 async function resolveAlias(path: string) {
   const alias = await confirm({
-    message: 'Are you using an alias for paths (e.g. "@/*" for "src/*")?',
+    message: 'Are you using an alias for paths (e.g. "@/data" for "src/data")?',
     default: false,
   });
 
   return alias
     ? input({
       message: `What alias should be used for path "${path}"?`,
-      default: '@/',
+      default: guessAlias(path),
     })
     : undefined;
 }
