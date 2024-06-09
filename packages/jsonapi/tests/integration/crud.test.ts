@@ -2,6 +2,7 @@ import {
   all,
   associate,
   attach,
+  cachedOr,
   changed,
   destroy,
   detach,
@@ -119,6 +120,7 @@ describe('integration: JSON:API', () => {
     expect(posts[1].publishedAt).toBeNull();
     expect(posts[1].comments).toHaveLength(0);
   });
+
   it('should run action: all records with query', async () => {
     const fetchMock = createFetchMock();
     fetchMock.mockImplementationOnce(createFetchResponse().json({
@@ -421,6 +423,38 @@ describe('integration: JSON:API', () => {
     expect(post.title).toStrictEqual('Foo');
     expect(post.body).toStrictEqual('Foo Body');
     expect(post.comments).toBeUndefined();
+  });
+
+  it('should run action: find cached record', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json({
+      data: {
+        type: 'posts',
+        id: '1',
+        attributes: { title: 'Foo', body: 'Foo Body' },
+      },
+    }));
+
+    const action = makeJsonApiActionMock();
+
+    const post = await action()
+      .use(query(PostMock, '1'))
+      .run(oneOrFail());
+
+    const cachedPost = await action()
+      .use(query(PostMock, '1'))
+      .run(cachedOr(oneOrFail()));
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1');
+    expect(request.method).toStrictEqual('GET');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+
+    expect(post).toBeInstanceOf(PostMock);
+    expect(post.id).toStrictEqual('1');
+    expect(cachedPost).toStrictEqual(post);
   });
 
   it('should run action: not found record', async () => {
