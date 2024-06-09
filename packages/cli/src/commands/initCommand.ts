@@ -130,7 +130,7 @@ async function resolveEnvironment(args: InitCommandOptions) {
   return { packageManager, language, modules };
 }
 
-async function resolveAlias(args: InitCommandOptions) {
+async function resolveAlias(path: string) {
   const alias = await confirm({
     message: 'Are you using an alias for paths (e.g. "@/*" for "src/*")?',
     default: false,
@@ -138,7 +138,7 @@ async function resolveAlias(args: InitCommandOptions) {
 
   return alias
     ? input({
-      message: `What alias should be used for path "${args.path}"?`,
+      message: `What alias should be used for path "${path}"?`,
       default: '@/',
     })
     : undefined;
@@ -233,7 +233,7 @@ export default {
       default: 'src/data',
     }));
     const { packageManager, language, modules } = await resolveEnvironment(args);
-    const alias = await resolveAlias(args);
+    const alias = await resolveAlias(path);
 
     const config: CLIConfig = {
       usage,
