@@ -1,3 +1,4 @@
+import Link from '@docusaurus/Link';
 import HomeCard from '@site/src/components/HomeCard';
 import ShellCommand from '@site/src/components/ShellCommand';
 import TypeSafeSvg from '@site/src/icons/alert-decagram-outline.svg';
@@ -8,6 +9,8 @@ import HooksSvg from '@site/src/icons/hook.svg';
 import LightweightSvg from '@site/src/icons/package-variant-closed.svg';
 import ImplementationsSvg from '@site/src/icons/swap-horizontal.svg';
 import ModularSvg from '@site/src/icons/toy-brick-outline.svg';
+import LogoExamples from '@site/static/img/logo-examples.svg';
+import LogoPlayground from '@site/static/img/logo-playground.svg';
 import CodeBlock from '@theme/CodeBlock';
 import clsx from 'clsx';
 import styles from './style.module.css';
@@ -206,6 +209,44 @@ function HomeGetStarted() {
   />;
 }
 
+function HomeExamples() {
+  return <>
+    <h2 className={clsx('text--center')}>
+      Discover through <span className={clsx('text--gradient')}>examples</span>
+    </h2>
+    <div className={clsx('row')}>
+      <div className={clsx(styles.homeExamplesCol, 'col col--6')}>
+        <Link
+          to="/playground"
+          className={styles.homeExamplesLink}
+        >
+          <div className={clsx(styles.homeFeatureCard, 'text--center')}>
+            <LogoPlayground className={styles.homeExamplesIcon} />
+            <p className={styles.homeExamplesText}>
+              Discover Foscia in your browser thanks to multiple StackBlitz playgrounds.
+            </p>
+          </div>
+        </Link>
+      </div>
+      <div className={clsx(styles.homeExamplesCol, 'col col--6')}>
+        <a
+          href="https://github.com/foscia-dev/foscia-examples"
+          target="_blank"
+          rel="noopener"
+          className={styles.homeExamplesLink}
+        >
+          <div className={clsx(styles.homeFeatureCard, 'text--center')}>
+            <LogoExamples className={styles.homeExamplesIcon} />
+            <p className={styles.homeExamplesText}>
+              Discover Foscia using Docker through a set of ready-to-run projects.
+            </p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </>;
+}
+
 export default function HomeFeatures() {
   return (
     <div className={clsx('container')}>
@@ -220,6 +261,9 @@ export default function HomeFeatures() {
       </section>
       <section className={clsx(styles.homeFeatureSection)}>
         <HomeGetStarted />
+      </section>
+      <section className={clsx(styles.homeFeatureSection)}>
+        <HomeExamples />
       </section>
     </div>
   );

@@ -101,6 +101,11 @@ const config = {
           },
           {
             position: 'left',
+            label: 'Examples',
+            to: '/docs/category/examples',
+          },
+          {
+            position: 'left',
             label: 'Playground',
             to: '/playground',
           },
@@ -147,6 +152,10 @@ const config = {
               {
                 label: 'FAQ',
                 to: '/docs/help/faq',
+              },
+              {
+                label: 'Examples',
+                href: 'https://github.com/foscia-dev/foscia-examples',
               },
               {
                 label: 'GitHub issues',
