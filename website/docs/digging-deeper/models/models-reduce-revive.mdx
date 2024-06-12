@@ -1,0 +1,207 @@
+---
+sidebar_position: 40
+description: Reducing and reviving model's instance for payload transfer.
+toc_max_heading_level: 4
+---
+
+import FunctionInfo from '@site/src/components/FunctionInfo';
+
+# Reducing and reviving
+
+:::tip What you'll learn
+
+- Reducing a model's instance
+- Reviving a model's instance
+- Configuring custom behaviors
+
+:::
+
+## Purpose
+
+Reducing and reviving instances allow you to convert models' instances to
+a serializable object. This is useful when you cannot pass a complex
+object between two JavaScript programs, such as in Web Workers or when using
+Nuxt SSR features.
+
+## Reducing and reviving
+
+<FunctionInfo version="0.8.6" />
+
+Foscia provides built-in tools to reduce and revive models' instances with two
+functions: `makeModelsReducer` and `makeModelsReviver`.
+
+Those tools support instance's state, values and relations (circular or not)
+reducing and reviving out of the box.
+
+```typescript
+import { makeModelsReducer, makeModelsReviver } from '@foscia/core';
+import Post from './models/post';
+import Comment from './models/comment';
+
+const { reduce } = makeModelsReducer();
+const { revive } = makeModelsReviver([Post, Comment]);
+
+const myPost = new Post();
+
+const json = JSON.stringify(reduce(myPost));
+const myRevivedPost = revive(JSON.parse(json));
+```
+
+:::info
+
+Notice that:
+
+- `makeModelsReviver` must receive an array of revivable models.
+- Reducing models will not "serialize" object values, such as Date.
+  You can use a tool like [**`devalue`**](https://github.com/Rich-Harris/devalue)
+  to leverage this.
+
+:::
+
+## Custom behaviors
+
+You can easily define custom reducing and reviving behaviors by defining
+`$reduce` and `$revive` instance methods. Those custom behaviors can
+support default state reducing/reviving or not, and can be strongly typed.
+
+### Keeping instance state
+
+To provide a custom reducing/reviving behavior while keeping instance state
+automatic reducing/reviving, you can use the provided `data` factory function
+passed to `$reduce`. It will reduce internal data used by Foscia to correctly
+revive instance state.
+
+During `$revive`, `data` will contain your reduced data provided by `$reduce`.
+
+```typescript
+import { attr, makeModel, ModelReduceTools } from '@foscia/core';
+
+export default class Post extends makeModel('posts', {
+  title: attr(),
+}) {
+  public foo = 'bar';
+
+  public $reduce({ data }: ModelReduceTools) {
+    return {
+      foo: this.foo,
+      // Foscia reducing should have priority over your custom data.
+      // It will reduce data with `$` prefixed keys, so avoid using those.
+      ...data(this),
+    };
+  }
+
+  public $revive(data: any) {
+    this.foo = data.foo;
+    // Thanks to `data` use in `$reduce`, the post state is already revived
+    // and available inside `$revive`.
+    console.log(`Revived: ${this.title}`);
+  }
+}
+```
+
+### Destroying instance state
+
+You can omit instance state reducing by not calling `data` function
+inside your `$reduce` method. This can be useful when you need something
+very specific, but be aware that no instance state will be restored
+automatically (values, relations, `$exists` state, `$original` snapshot
+or other instance properties).
+
+```typescript
+import { attr, makeModel } from '@foscia/core';
+
+export default class Post extends makeModel('posts', {
+  title: attr(),
+}) {
+  public foo = 'bar';
+
+  public $reduce() {
+    return {
+      title: this.title,
+      foo: this.foo,
+    };
+  }
+
+  public $revive(data: any) {
+    this.title = data.title;
+    this.foo = data.foo;
+  }
+}
+```
+
+### Typechecking custom behaviors
+
+If you want to ensure you do not miss any implemented methods or typing, you can
+use Foscia provided interface `ModelCanReduceRevive` and types to strict
+type your implementations of custom `$reduce` and `$revive` methods.
+
+```typescript
+import { makeModel, ModelCanReduceRevive, ModelReduceTools, ModelReviveTools, ReducedModelInstanceCustomData } from '@foscia/core';
+
+// You must declare a custom type which represent custom data format.
+type PostReducedData = ReducedModelInstanceCustomData & {
+  // Your data typings...
+  foo: string;
+};
+
+export default class Post
+  extends makeModel('posts')
+  implements ModelCanReduceRevive<PostReducedData> {
+  public foo = 'bar';
+
+  public $reduce(tools: ModelReduceTools) {
+    return {
+      foo: this.foo,
+      ...tools.data(this),
+    };
+  }
+
+  public $revive(data: PostReducedData, tools: ModelReviveTools) {
+    this.foo = data.foo;
+  }
+}
+```
+
+### Defining common custom behaviors
+
+If you want to share a common behavior between some or all of your models,
+you can use [model composition](/docs/digging-deeper/models/models-composition) to define common `$reduce` and `$revive`
+methods.
+
+#### With a composable
+
+```typescript
+import { makeComposable, ModelReduceTools } from '@foscia/core';
+
+export default makeComposable({
+  foo: 'bar',
+  $reduce({ data }: ModelReduceTools) {
+    return {
+      foo: this.foo,
+      ...data.data(this),
+    };
+  },
+  $revive(data: any) {
+    this.foo = data.foo;
+  },
+});
+```
+
+#### With a model factory
+
+```typescript
+import { makeModelFactory, ModelReduceTools } from '@foscia/core';
+
+export default makeModelFactory({}, {
+  foo: 'bar',
+  $reduce({ data }: ModelReduceTools) {
+    return {
+      foo: this.foo,
+      ...data.data(this),
+    };
+  },
+  $revive(data: any) {
+    this.foo = data.foo;
+  },
+});
+```

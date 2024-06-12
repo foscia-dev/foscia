@@ -62,6 +62,8 @@ import makeForRelationLoader from '@foscia/core/model/relations/makeForRelationL
 import makeQueryModelLoader from '@foscia/core/model/relations/makeQueryModelLoader';
 import makeQueryRelationLoader from '@foscia/core/model/relations/makeQueryRelationLoader';
 import makeRefreshIncludeLoader from '@foscia/core/model/relations/makeRefreshIncludeLoader';
+import makeModelsReducer from '@foscia/core/model/revivers/makeModelsReducer';
+import makeModelsReviver from '@foscia/core/model/revivers/makeModelsReviver';
 import changed from '@foscia/core/model/snapshots/changed';
 import compareSnapshots from '@foscia/core/model/snapshots/compareSnapshots';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
@@ -94,6 +96,7 @@ export * from '@foscia/core/cache/types';
 export * from '@foscia/core/errors/flags/types';
 export * from '@foscia/core/hooks/types';
 export * from '@foscia/core/model/props/builders/types';
+export * from '@foscia/core/model/revivers/types';
 export * from '@foscia/core/model/types';
 export * from '@foscia/core/registry/types';
 export * from '@foscia/core/transformers/types';
@@ -180,6 +183,8 @@ export {
   normalizeDotRelations,
   normalizeInclude,
   normalizeKey,
+  makeModelsReducer,
+  makeModelsReviver,
   logger,
   SYMBOL_MODEL_PROP_PENDING,
   SYMBOL_MODEL_PROP_ID,

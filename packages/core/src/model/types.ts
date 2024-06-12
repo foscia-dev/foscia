@@ -456,7 +456,7 @@ export type ModelInstanceUsing<C extends ModelComposable> =
 /**
  * Model class or instance snapshot.
  */
-export type ModelSnapshot<M> = {
+export type ModelSnapshot<M = any> = {
   $model: ModelClass;
   $exists: boolean;
   $raw: any;
