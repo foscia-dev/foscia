@@ -15,11 +15,12 @@ import makeDescriptorHolder, {
 } from '@foscia/shared/descriptors/makeDescriptorHolder';
 import { IS_DEV, IS_TEST } from '@foscia/shared/env';
 import value from '@foscia/shared/functions/value';
+import uniqueId from '@foscia/shared/identifiers/uniqueId';
+import unsafeId from '@foscia/shared/identifiers/unsafeId';
 import makeIdentifiersMap from '@foscia/shared/maps/makeIdentifiersMap';
 import optionalJoin from '@foscia/shared/strings/optionalJoin';
 import pluralize from '@foscia/shared/strings/pluralize';
 import toKebabCase from '@foscia/shared/strings/toKebabCase';
-import uuidV4 from '@foscia/shared/strings/uuidV4';
 
 export * from '@foscia/shared/descriptors/types';
 export * from '@foscia/shared/types';
@@ -41,7 +42,8 @@ export {
   sequentialTransform,
   removeTimezoneOffset,
   toKebabCase,
-  uuidV4,
+  unsafeId,
+  uniqueId,
   uniqueValues,
   value,
   wrap,

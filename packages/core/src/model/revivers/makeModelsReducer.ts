@@ -8,7 +8,7 @@ import {
   ReducedModelSnapshot,
 } from '@foscia/core/model/revivers/types';
 import { ModelClass, ModelInstance, ModelSnapshot } from '@foscia/core/model/types';
-import { Dictionary, uuidV4 } from '@foscia/shared';
+import { Dictionary, uniqueId, unsafeId } from '@foscia/shared';
 
 export default function makeModelsReducer() {
   let reduceInstance: (
@@ -16,11 +16,7 @@ export default function makeModelsReducer() {
     parents: Map<ModelInstance, string>,
   ) => ReducedModelInstance | ReducedModelCircularRef;
 
-  const generateRef = (refs: string[]): string => {
-    const ref = uuidV4();
-
-    return refs.indexOf(ref) !== -1 ? generateRef(refs) : ref;
-  };
+  const generateRef = (refs: string[]): string => uniqueId(unsafeId, refs);
 
   const reduceModel = (model: ModelClass) => ({
     $FOSCIA_TYPE: 'model',
