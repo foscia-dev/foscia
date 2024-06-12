@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.7](https://github.com/foscia-dev/foscia/compare/v0.8.6...v0.8.7) (2024-06-12)
+
+
+### Features
+
+* **cli:** prioritize skip properties in prompt ([b0b2fe6](https://github.com/foscia-dev/foscia/commit/b0b2fe63051fbf9fe77cb0e77af6aeb731aa51d1))
+* **core:** generate unique IDs with Math.random for portability ([79ab06d](https://github.com/foscia-dev/foscia/commit/79ab06d104c7e3aeb222d8850f9ff52c9e7da213))
+
 ## [0.8.6](https://github.com/foscia-dev/foscia/compare/v0.8.5...v0.8.6) (2024-06-12)
 
 
