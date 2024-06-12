@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.6](https://github.com/foscia-dev/foscia/compare/v0.8.5...v0.8.6) (2024-06-12)
+
+
+### Features
+
+* **core:** add reducing and reviving model instances ([b1d783e](https://github.com/foscia-dev/foscia/commit/b1d783ee3cdc2d82d2433bbeaf93dd99878c83f6))
+
 ## [0.8.5](https://github.com/foscia-dev/foscia/compare/v0.8.4...v0.8.5) (2024-06-09)
 
 
