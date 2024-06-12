@@ -3,7 +3,7 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
-export default function ShellCommand({ command, ...props }) {
+export default function ShellCommand({ command, join, ...props }) {
   const commands = Array.isArray(command) ? command : [command];
   const code = (runPrefix, installPrefix, upgradePrefix, devSuffix) => commands.map((c) => (
     c.startsWith('#') ? c : [
@@ -13,7 +13,7 @@ export default function ShellCommand({ command, ...props }) {
       c.startsWith('add dev') ? devSuffix : '',
       c.replace(/^(add|upgrade)( dev)?/, ''),
     ].join(' ').replace(/\s+/g, ' ')
-  )).join('\n');
+  )).join(join ? ' && ' : '\n');
 
   return (
     <Tabs groupId="packageManager" {...props}>

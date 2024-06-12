@@ -25,7 +25,7 @@ Only here for a simple HTTP client? Check out
 
 :::
 
-## Prerequisites
+## Before getting started
 
 Before getting started, you must have installed Foscia packages you will need.
 [`@foscia/cli`](/docs/digging-deeper/cli) is the recommended way to install and
@@ -33,11 +33,10 @@ get started using Foscia.
 
 <ShellCommand
   command={[
-    '# Install Foscia CLI',
     'add dev @foscia/cli',
-    '# Initialize Foscia and action factory.',
     'foscia init',
   ]}
+  join
 />
 
 :::info
@@ -46,6 +45,14 @@ Since Foscia is not installed globally, you will need to prefix `foscia` with
 your package runner.
 
 :::
+
+### Project structure
+
+Foscia files are organized in an opinionated manner. This allow Foscia
+to provide better features when using the CLI.
+
+You can learn more about how Foscia files are organized in your project
+within the [project structure guide](/docs/core-concepts/project).
 
 ### Supported data sources
 
