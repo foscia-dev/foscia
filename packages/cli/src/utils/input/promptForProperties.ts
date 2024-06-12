@@ -22,6 +22,12 @@ async function promptForProperty(
     message: 'What property would you like to add?',
     choices: [
       {
+        name: properties.length
+          ? 'Finish properties definition.'
+          : 'Skip properties definition.',
+        value: undefined,
+      },
+      {
         name: 'Attribute',
         value: 'attr',
         description: 'An attribute holding a scalar or object value.',
@@ -35,10 +41,6 @@ async function promptForProperty(
         name: 'Has Many',
         value: 'hasMany',
         description: 'A relationship to many model\'s instance.',
-      },
-      {
-        name: 'None, stop property definition',
-        value: undefined,
       },
     ] as const,
   });
