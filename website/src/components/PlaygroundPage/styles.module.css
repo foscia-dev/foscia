@@ -1,0 +1,7 @@
+.playgroundContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100vh - 116px);
+    padding: 0 16px;
+}

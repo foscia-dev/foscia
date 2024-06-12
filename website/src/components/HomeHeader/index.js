@@ -3,7 +3,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import ArrowRightSvg from '@site/src/icons/arrow-right.svg';
 import LogoIconSvg from '@site/static/img/icon.svg';
 import clsx from 'clsx';
-import styles from './style.module.css';
+import styles from './styles.module.css';
 
 export default function HomeHeader() {
   const { siteConfig } = useDocusaurusContext();

@@ -13,7 +13,7 @@ import LogoExamples from '@site/static/img/logo-examples.svg';
 import LogoPlayground from '@site/static/img/logo-playground.svg';
 import CodeBlock from '@theme/CodeBlock';
 import clsx from 'clsx';
-import styles from './style.module.css';
+import styles from './styles.module.css';
 
 function HomeActionsPresentation() {
   const title = <>

@@ -1,34 +1,29 @@
-.playgroundContainer {
-    padding: 0 16px;
-    width: 100%;
-    height: calc(100vh - 116px);
+.playgroundCol {
+    padding: 16px;
 }
 
-.playgroundContainer > div {
+.playgroundCard {
+    display: block;
+    border-radius: var(--ifm-global-radius);
+    background: var(--ifm-code-background);
+    box-shadow: var(--ifm-global-shadow-lw);
     height: 100%;
     width: 100%;
+    padding: 16px 8px;
+    transition: all 250ms ease-in-out;
+    text-decoration: none !important;
+}
+
+.playgroundCard:hover, .playgroundCard:focus {
+    transform: scale(105%);
+}
+
+.playgroundIcon {
+    width: 48px;
+    height: 48px;
+}
+
+.playgroundCard h2 {
+    color: var(--ifm-font-color-base);
     margin-bottom: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-.playgroundContainer > div > ul {
-    border-bottom-color: var(--ifm-tabs-color-active-border) !important;
-}
-
-.playgroundContainer > div > div {
-    width: 100%;
-    flex-grow: 1;
-}
-
-.playgroundContainer > div > div > div:not([hidden]) {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.playgroundIframe {
-    width: 100%;
-    flex-grow: 1;
-    border-radius: 0 0 8px 8px;
 }

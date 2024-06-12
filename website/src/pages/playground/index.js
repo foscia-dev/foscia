@@ -1,63 +1,40 @@
-import PlaygroundIframe from '@site/src/components/PlaygroundIframe';
+import Link from '@docusaurus/Link';
+import playgrounds from '@site/src/utilities/playgrounds';
 import Layout from '@theme/Layout';
-import TabItem from '@theme/TabItem';
-import Tabs from '@theme/Tabs';
+import clsx from 'clsx';
 import styles from './styles.module.css';
 
 export default function Playground() {
-  const editorTabs = [
-    {
-      id: 'ts-rest',
-      name: 'TS + REST',
-      stackblitzId: 'foscia-ts-rest',
-      stackblitzOptions: {
-        file: 'src/playground.ts',
-        terminalHeight: '40',
-      },
-    },
-    {
-      id: 'vue-ts-rest',
-      name: 'Vue + TS + REST',
-      stackblitzId: 'foscia-vue-ts-rest',
-      stackblitzOptions: {
-        file: 'src/components/Playground.vue',
-        terminalHeight: '0',
-      },
-    },
-    {
-      id: 'react-ts-rest',
-      name: 'React + TS + REST',
-      stackblitzId: 'foscia-react-ts-rest',
-      stackblitzOptions: {
-        file: 'src/components/Playground.tsx',
-        terminalHeight: '0',
-      },
-    },
-  ];
-
   return (
     <Layout
       title="Playground"
       description="Try Foscia capabilities in a Stackblitz playground!"
     >
       <main>
-        <div className={styles.playgroundContainer}>
-          <Tabs groupId="stackblitzPlayground">
-            {editorTabs.map((tab) => (
-              <TabItem
-                key={tab.id}
-                value={tab.id}
-                label={tab.name}
-                className={styles.playgroundTab}
-              >
-                <PlaygroundIframe
-                  id={tab.stackblitzId}
-                  title={tab.name}
-                  options={tab.stackblitzOptions}
-                />
-              </TabItem>
-            ))}
-          </Tabs>
+        <div className={clsx('container')}>
+          <h1 className={clsx('text--center')}>
+            Try <span className={clsx('text--gradient')}>Foscia</span> in your browser
+          </h1>
+          <p className={clsx('text--center')}>
+            Choose the tool you want to try Foscia in to open a ready-to-run example in Stackblitz.
+          </p>
+          <div className={clsx('row')}>
+            {Object.values(playgrounds).map((playground) => {
+              const Icon = playground.icon;
+
+              return (
+                <div className={clsx(styles.playgroundCol, 'text--center col col--4')}>
+                  <Link
+                    to={`/playground/${playground.id}`}
+                    className={clsx(styles.playgroundCard)}
+                  >
+                    <Icon className={clsx(styles.playgroundIcon)} />
+                    <h2>{playground.name}</h2>
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </main>
     </Layout>

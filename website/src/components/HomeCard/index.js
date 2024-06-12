@@ -1,7 +1,7 @@
 import Link from '@docusaurus/Link';
 import ArrowRightSvg from '@site/src/icons/arrow-right.svg';
 import clsx from 'clsx';
-import styles from './style.module.css';
+import styles from './styles.module.css';
 
 function HomeCardContent({ title, description, action }) {
   return (
