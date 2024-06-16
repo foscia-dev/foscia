@@ -192,7 +192,8 @@ function HomeGetStarted() {
   </>;
 
   const description = <>
-    <strong>Foscia CLI allow you to quickly setup Foscia on your project.</strong> It
+    <Link to="/docs/digging-deeper/cli"><code>@foscia/cli</code></Link>&nbsp;
+    <strong>allow you to quickly setup Foscia on your project.</strong> It
     will automatically detect your environment and install required Foscia packages.
     Once installed, just run <code>init</code> command with your destination directory.
   </>;
@@ -202,8 +203,10 @@ function HomeGetStarted() {
     description={description}
     action={{ to: '/docs/getting-started', label: 'Get started' }}
     illustration={<div className={styles.homeFeatureGettingStartedCommands}>
-      <ShellCommand command="add dev @foscia/cli" />
-      <ShellCommand command="foscia init" />
+      <ShellCommand
+        command={['add dev @foscia/cli', 'foscia init']}
+        join
+      />
     </div>}
     reverse
   />;

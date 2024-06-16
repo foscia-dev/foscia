@@ -5,8 +5,11 @@ toc_max_heading_level: 4
 ---
 
 import FunctionInfo from '@site/src/components/FunctionInfo';
+import ShellCommand from '@site/src/components/ShellCommand';
 
 # Reducing and reviving
+
+<FunctionInfo version="0.8.6" />
 
 :::tip What you'll learn
 
@@ -23,9 +26,13 @@ a serializable object. This is useful when you cannot pass a complex
 object between two JavaScript programs, such as in Web Workers or when using
 Nuxt SSR features.
 
-## Reducing and reviving
+## Using CLI
 
-<FunctionInfo version="0.8.6" />
+You can generate reducer and reviver using [`@foscia/cli`](/docs/digging-deeper/cli).
+
+<ShellCommand command={['foscia make reducer', 'foscia make reviver']} />
+
+## Reducing and reviving
 
 Foscia provides built-in tools to reduce and revive models' instances with two
 functions: `makeModelsReducer` and `makeModelsReviver`.

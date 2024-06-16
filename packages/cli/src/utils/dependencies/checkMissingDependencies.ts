@@ -1,6 +1,6 @@
 import { AppUsage, CONFIG_USAGES } from '@foscia/cli/utils/config/config';
 import usePkg from '@foscia/cli/utils/dependencies/usePkg';
-import findChoice from '@foscia/cli/utils/input/findChoice';
+import findChoice from '@foscia/cli/utils/prompts/findChoice';
 
 export default async function checkMissingDependencies(usage: AppUsage) {
   const pkg = await usePkg();

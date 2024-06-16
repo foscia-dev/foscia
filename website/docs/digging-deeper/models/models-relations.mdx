@@ -4,6 +4,7 @@ description: Loading relations on a model's instances.
 ---
 
 import FunctionInfo from '@site/src/components/FunctionInfo';
+import ShellCommand from '@site/src/components/ShellCommand';
 
 # Models relations
 
@@ -40,6 +41,12 @@ relation using different ways depending on your data source implementation.
 
 For this, Foscia provides multiple loader factories providing various
 behaviors and options.
+
+### Using CLI
+
+You can generate a new loader using [`@foscia/cli`](/docs/digging-deeper/cli).
+
+<ShellCommand command="foscia make loader" />
 
 ### 1. Instance refreshing
 

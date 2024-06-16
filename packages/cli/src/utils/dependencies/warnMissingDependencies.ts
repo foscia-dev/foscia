@@ -1,13 +1,21 @@
+import output from '@foscia/cli/utils/cli/output';
 import { AppUsage, CLIConfig } from '@foscia/cli/utils/config/config';
 import checkMissingDependencies from '@foscia/cli/utils/dependencies/checkMissingDependencies';
-import logSymbols from '@foscia/cli/utils/output/logSymbols';
-import pc from 'picocolors';
+
+let lifecycleWarned = false;
+
+export function warnedMissingDependencies() {
+  lifecycleWarned = true;
+}
 
 export default async function warnMissingDependencies(config: CLIConfig, otherUsage?: AppUsage) {
-  const usage = otherUsage ?? config.usage;
-  const missingPackages = await checkMissingDependencies(usage);
-  if (missingPackages.length) {
-    console.warn(`${logSymbols.warning} You are missing Foscia dependencies for "${usage}" usage. You should run:`);
-    console.log(pc.bold(`${config.packageManager} add ${missingPackages.join(' ')}\n`));
+  if (!lifecycleWarned) {
+    warnedMissingDependencies();
+    const usage = otherUsage ?? config.usage;
+    const missingPackages = await checkMissingDependencies(usage);
+    if (missingPackages.length) {
+      output.warn(`missing dependencies for "${usage}", install them with:`);
+      output.instruct(`${config.packageManager} add ${missingPackages.join(' ')}`);
+    }
   }
 }

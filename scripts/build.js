@@ -19,6 +19,7 @@ async function run(argv) {
     const args = minimist(argv.slice(2));
     const options = {
       sourceMap: args.sourcemap || args.s,
+      noDts: args.nodts || false,
     };
 
     const targets = await oraPromise(async (loader) => {
@@ -47,10 +48,12 @@ async function run(argv) {
       successText: 'Cleared dist.',
     });
 
-    await oraPromise(buildDts, {
-      text: 'Building DTS...',
-      successText: 'Built DTS.',
-    });
+    if (!options.noDts) {
+      await oraPromise(buildDts, {
+        text: 'Building DTS...',
+        successText: 'Built DTS.',
+      });
+    }
 
     await oraPromise(async () => {
       await Promise.all(targets.map((target) => buildTarget(target, options)));
@@ -60,13 +63,15 @@ async function run(argv) {
       successText: 'Built.',
     });
 
-    await oraPromise(async () => {
-      await Promise.all(targets.map((target) => moveTargetDts(target)));
-      await clearDts();
-    }, {
-      text: 'Moving DTS to packages...',
-      successText: 'Moved DTS.',
-    });
+    if (!options.noDts) {
+      await oraPromise(async () => {
+        await Promise.all(targets.map((target) => moveTargetDts(target)));
+        await clearDts();
+      }, {
+        text: 'Moving DTS to packages...',
+        successText: 'Moved DTS.',
+      });
+    }
   } catch {
     process.exit(1);
   }

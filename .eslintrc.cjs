@@ -32,7 +32,9 @@ module.exports = {
     ],
     'import/no-extraneous-dependencies': [
       'error', {
-        devDependencies: ['**/*.mock.ts', '**/*.test.ts', '**/*.test-d.ts'],
+        devDependencies: [
+          'packages/cli/src/**/*', '**/*.mock.ts', '**/*.test.ts', '**/*.test-d.ts',
+        ],
         packageDir: [
           '.',
           ...entries().map((e) => path.resolve('.', 'packages', e.name)),

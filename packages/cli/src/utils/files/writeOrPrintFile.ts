@@ -1,5 +1,6 @@
+import friendlyPath from '@foscia/cli/utils/files/friendlyPath';
 import writeFile from '@foscia/cli/utils/files/writeFile';
-import logSymbols from '@foscia/cli/utils/output/logSymbols';
+import output from '@foscia/cli/utils/cli/output';
 import { highlight } from 'cli-highlight';
 
 export default async function writeOrPrintFile(
@@ -10,11 +11,11 @@ export default async function writeOrPrintFile(
   show?: boolean,
 ) {
   if (show) {
-    console.info(`\n${logSymbols.success} ${name} generated:`);
+    output.success(`${name} generated:`);
     console.log(highlight(content, { language }));
   } else {
     await writeFile(path, content);
 
-    console.info(`\n${logSymbols.success} ${name} generated at "${path}".`);
+    output.success(`${name} generated at "${friendlyPath(path)}"\n`);
   }
 }

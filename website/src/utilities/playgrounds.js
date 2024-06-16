@@ -4,14 +4,14 @@ import TypeScriptSvg from '@site/src/icons/playgrounds/typescript.svg';
 import VueSvg from '@site/src/icons/playgrounds/vue.svg';
 
 export default {
-  'ts-rest': {
-    id: 'ts-rest',
-    icon: TypeScriptSvg,
-    name: 'TS + REST',
-    stackblitzId: 'foscia-ts-rest',
+  'nuxt-ts-rest': {
+    id: 'nuxt-ts-rest',
+    icon: NuxtSvg,
+    name: 'Nuxt + TS + REST',
+    stackblitzId: 'foscia-nuxt-ts-rest',
     stackblitzOptions: {
-      file: 'src/playground.ts',
-      terminalHeight: '40',
+      file: 'pages/index.vue',
+      terminalHeight: '0',
     },
   },
   'vue-ts-rest': {
@@ -24,16 +24,6 @@ export default {
       terminalHeight: '0',
     },
   },
-  'nuxt-ts-rest': {
-    id: 'nuxt-ts-rest',
-    icon: NuxtSvg,
-    name: 'Nuxt + TS + REST',
-    stackblitzId: 'foscia-nuxt-ts-rest',
-    stackblitzOptions: {
-      file: 'pages/index.vue',
-      terminalHeight: '0',
-    },
-  },
   'react-ts-rest': {
     id: 'react-ts-rest',
     icon: ReactSvg,
@@ -42,6 +32,16 @@ export default {
     stackblitzOptions: {
       file: 'src/components/Playground.tsx',
       terminalHeight: '0',
+    },
+  },
+  'ts-rest': {
+    id: 'ts-rest',
+    icon: TypeScriptSvg,
+    name: 'TS + REST',
+    stackblitzId: 'foscia-ts-rest',
+    stackblitzOptions: {
+      file: 'src/playground.ts',
+      terminalHeight: '40',
     },
   },
 };

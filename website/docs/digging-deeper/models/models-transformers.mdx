@@ -3,6 +3,8 @@ sidebar_position: 30
 description: Creating custom functional or object transformers.
 ---
 
+import ShellCommand from '@site/src/components/ShellCommand';
+
 # Using transformers
 
 :::tip What you'll learn
@@ -136,6 +138,10 @@ makeModel('posts', {
 
 ### `makeTransformer` (recommended)
 
+You can generate a new transformer using [`@foscia/cli`](/docs/digging-deeper/cli).
+
+<ShellCommand command="foscia make transformer toDateTime" />
+
 Foscia provides a `makeTransformer` utility function to create a new
 transformer. This function creates a transformer using a `deserialize` function
 and an optional `serialize` function (deserializer will be used as a default).
@@ -151,7 +157,7 @@ import { makeTransformer } from '@foscia/core';
 export default () => makeTransformer((value: string) => Number(value));
 ```
 
-```typescript title="transformers/toDateTimetime.ts"
+```typescript title="transformers/toDateTime.ts"
 import { makeTransformer } from '@foscia/core';
 
 export default () =>

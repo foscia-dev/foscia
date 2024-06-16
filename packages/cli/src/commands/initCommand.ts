@@ -1,7 +1,17 @@
-import useShowable, { ShowableOptions } from '@foscia/cli/commands/composables/useShowable';
-import useUsage, { UsageOptions } from '@foscia/cli/commands/composables/useUsage';
-import { Command } from '@foscia/cli/commands/types';
-import renderActionFactory from '@foscia/cli/templates/renderActionFactory';
+import { runNuxtCommand } from '@foscia/cli/commands/integrate/nuxtCommand';
+import { runMakeActionCommand } from '@foscia/cli/commands/make/makeActionCommand';
+import { runMakeModelCommand } from '@foscia/cli/commands/make/makeModelCommand';
+import {
+  ConfigurableOptions,
+  setLifecycleConfig,
+  useConfigOption,
+} from '@foscia/cli/composables/useConfig';
+import { ForceableOptions, useForce, useForceOption } from '@foscia/cli/composables/useForce';
+import { ShowableOptions, useShow, useShowOption } from '@foscia/cli/composables/useShow';
+import { UsageOptions, useUsage, useUsageOption } from '@foscia/cli/composables/useUsage';
+import makeCommander from '@foscia/cli/utils/cli/makeCommander';
+import makeUsageExamples from '@foscia/cli/utils/cli/makeUsageExamples';
+import output from '@foscia/cli/utils/cli/output';
 import {
   AppLanguage,
   AppModules,
@@ -12,27 +22,25 @@ import {
   CONFIG_PACKAGE_MANAGERS,
   CONFIG_USAGES,
 } from '@foscia/cli/utils/config/config';
-import { AUTO_DETECT_CONFIG } from '@foscia/cli/utils/config/parseConfig';
 import checkMissingDependencies from '@foscia/cli/utils/dependencies/checkMissingDependencies';
+import installDependencies from '@foscia/cli/utils/dependencies/installDependencies';
 import usePkg from '@foscia/cli/utils/dependencies/usePkg';
 import findUp from '@foscia/cli/utils/files/findUp';
-import resolvePath from '@foscia/cli/utils/files/resolvePath';
+import pathExists from '@foscia/cli/utils/files/pathExists';
 import writeOrPrintFile from '@foscia/cli/utils/files/writeOrPrintFile';
-import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
-import findChoice from '@foscia/cli/utils/input/findChoice';
-import promptForActionFactoryOptions from '@foscia/cli/utils/input/promptForActionFactoryOptions';
-import promptForOverwrite from '@foscia/cli/utils/input/promptForOverwrite';
-import logSymbols from '@foscia/cli/utils/output/logSymbols';
+import findChoice from '@foscia/cli/utils/prompts/findChoice';
+import promptForOverwrite from '@foscia/cli/utils/prompts/promptForOverwrite';
 import { confirm, input, select } from '@inquirer/prompts';
 import { execa } from 'execa';
 import { normalize, resolve } from 'node:path';
-import ora from 'ora';
 import pc from 'picocolors';
 
-export type InitCommandOptions = {
-  path?: string;
-  manual?: boolean;
-} & UsageOptions & ShowableOptions;
+export type InitCommandOptions =
+  & { manual?: boolean; }
+  & ConfigurableOptions
+  & ShowableOptions
+  & ForceableOptions
+  & UsageOptions;
 
 async function checkGlobalPkgManager(pkgManager: AppPackageManager) {
   try {
@@ -74,13 +82,13 @@ async function resolvePkgManager() {
   return undefined;
 }
 
-async function resolveEnvironment(args: InitCommandOptions) {
+async function resolveEnvironment(options: InitCommandOptions) {
   const detectEnvironment = [] as string[];
 
   let detectedPackageManager: AppPackageManager | undefined;
   let detectedLanguage: AppLanguage | undefined;
   let detectedModules: AppModules | undefined;
-  if (!args.manual) {
+  if (!options.manual) {
     try {
       const pkg = await usePkg();
 
@@ -102,186 +110,220 @@ async function resolveEnvironment(args: InitCommandOptions) {
         detectEnvironment.push(findChoice(CONFIG_MODULES, detectedModules).name);
       }
     } catch {
-      console.warn(`${logSymbols.warning} Environment detection failed.`);
+      output.warn('environment detection failed');
     }
   }
 
   if (detectEnvironment.length) {
-    console.info(
-      `${logSymbols.success} ${pc.bold('Detected environment:')} ${pc.cyan(detectEnvironment.join(', '))}`,
-    );
+    output.success(`${pc.bold('detected environment:')} ${pc.cyan(detectEnvironment.join(', '))}`);
   }
 
   const packageManager = detectedPackageManager ?? await select({
-    message: 'Select your package manager:',
+    message: 'what\'s your package manager:',
     choices: CONFIG_PACKAGE_MANAGERS,
   });
 
   const language = detectedLanguage ?? await select({
-    message: 'Select your programing language:',
+    message: 'what\'s your programing language:',
     choices: CONFIG_LANGUAGES,
   });
 
   const modules = detectedModules ?? await select({
-    message: 'Select your modules organization:',
+    message: 'what\'s your modules organization:',
     choices: CONFIG_MODULES,
   });
 
   return { packageManager, language, modules };
 }
 
+async function guessPathAndFramework(): Promise<[string] | [string, 'nuxt']> {
+  if (
+    await pathExists(resolve('nuxt.config.ts'))
+    || await pathExists(resolve('nuxt.config.js'))
+  ) {
+    return [
+      await pathExists(resolve('app'))
+        ? 'app/data'
+        : 'data',
+      'nuxt',
+    ];
+  }
+
+  if (await pathExists(resolve('artisan'))) {
+    return [
+      await pathExists(resolve('resources/ts'))
+        ? 'resources/ts/data'
+        : 'resources/js/data',
+    ];
+  }
+
+  if (await pathExists(resolve('symfony.lock'))) {
+    return [
+      await pathExists(resolve('assets/ts'))
+        ? 'assets/ts/data'
+        : 'assets/js/data',
+    ];
+  }
+
+  return ['src/data'];
+}
+
 function guessAlias(path: string) {
   const commonPaths = [
-    // Common project aliases.
-    'src/',
-    'lib/',
     // Laravel project aliases.
     'resources/js/',
     'resources/ts/',
+    // Symfony project aliases.
+    'assets/js/',
+    'assets/ts/',
+    // Common project aliases.
+    'src/',
+    'app/',
   ];
   const commonPath = commonPaths.find((p) => path.startsWith(p));
   if (commonPath !== undefined) {
     return path.replace(commonPath, '@/');
   }
 
-  return '@/';
+  return `@/${path}`;
 }
 
 async function resolveAlias(path: string) {
   const alias = await confirm({
-    message: 'Are you using an alias for paths (e.g. "@/data" for "src/data")?',
+    message: 'do you use an alias for imports paths?',
     default: false,
   });
-
-  return alias
-    ? input({
-      message: `What alias should be used for path "${path}"?`,
-      default: guessAlias(path),
-    })
-    : undefined;
-}
-
-async function installDependencies(config: CLIConfig) {
-  const packageManager = findChoice(CONFIG_PACKAGE_MANAGERS, config.packageManager);
-  const missingPackages = await checkMissingDependencies(config.usage);
-  if (missingPackages.length === 0) {
-    return;
+  if (!alias) {
+    return undefined;
   }
 
-  console.log(`${logSymbols.info} Your usage requires the following packages: ${missingPackages.join(', ')}.`);
+  return input({
+    message: `what alias should be used for path "${path}"?`,
+    default: guessAlias(path),
+  });
+}
 
-  const shouldInstall = await confirm({
-    message: `Would you like to install them through ${packageManager.name}?`,
+export async function runInitCommand(
+  path: string,
+  options: InitCommandOptions,
+) {
+  output.intro('welcome!');
+
+  output.step('config and dependencies');
+
+  const configPath = options.config === undefined
+    ? resolve('.fosciarc.json')
+    : resolve(options.config);
+
+  const show = useShow(options);
+  const force = useForce(options);
+  if (!show && !force) {
+    await promptForOverwrite(configPath);
+  }
+
+  const usage = await useUsage(options, () => select({
+    message: 'what\'s your need?',
+    choices: [
+      ...CONFIG_USAGES,
+      {
+        name: 'something else...',
+        value: undefined,
+      },
+    ],
+  }));
+
+  const [defaultPath, framework] = await guessPathAndFramework();
+  if (framework) {
+    output.success(`${pc.bold('detected framework:')} ${pc.cyan(framework)}`);
+  }
+
+  const filesPath = normalize(path?.length ? path : await input({
+    message: 'where will you store Foscia files?',
+    default: defaultPath,
+  }));
+
+  const { packageManager, language, modules } = await resolveEnvironment(options);
+  const alias = await resolveAlias(filesPath);
+
+  const config: CLIConfig = {
+    usage,
+    packageManager,
+    language,
+    modules,
+    path: filesPath,
+    alias: alias || undefined,
+    tabSize: 2,
+  };
+
+  setLifecycleConfig(config);
+
+  const missingDependencies = await checkMissingDependencies(config.usage);
+  await installDependencies(config, missingDependencies, { show });
+
+  const configContent = `${JSON.stringify(config, null, 2)}\n`;
+  await writeOrPrintFile('config', configPath, configContent, 'json', show);
+
+  output.step('first model');
+
+  const model = await confirm({
+    message: 'would you like to generate a first model?',
     default: true,
   });
-  if (shouldInstall) {
-    const loader = ora({ text: 'Installing packages...', color: 'magenta' }).start();
-    try {
-      await execa(packageManager.value, ['add', ...missingPackages]);
+  if (model) {
+    const modelName = await input({
+      message: 'what name should be used for model?',
+    });
 
-      loader.stop();
-
-      console.info(`${logSymbols.success} Successfully installed packages.`);
-
-      return;
-    } catch {
-      loader.stop();
-
-      console.warn(`${logSymbols.warning} Failed to install packages. Please run:`);
-    }
+    await runMakeModelCommand(modelName, { show, force });
   } else {
-    console.info(`${logSymbols.success} To install those packages manually, run:`);
+    output.info('ok, create it later using:');
+    output.instruct('foscia make model\n');
   }
 
-  console.log(pc.bold(`${config.packageManager} add ${missingPackages.join(' ')}`));
+  output.step('action factory');
+
+  const actionFactory = await confirm({
+    message: 'would you like to generate an action factory?',
+    default: true,
+  });
+  if (actionFactory) {
+    await runMakeActionCommand('action', { show, force });
+  } else {
+    output.info('ok, create it later using:');
+    output.instruct('foscia make action\n');
+  }
+
+  if (framework) {
+    output.step(`${framework} integration`);
+
+    const frameworkIntegrate = await confirm({
+      message: `we detected you use ${framework}, would you like to integrate it?`,
+      default: true,
+    });
+    if (frameworkIntegrate) {
+      await runNuxtCommand({ payloadPlugin: 'fosciaPayloadPlugin', show, force });
+    } else {
+      output.info('ok, integrate it later using:');
+      output.instruct(`foscia integrate ${framework}\n`);
+    }
+  }
 }
 
-const [usageOptions, getUsage] = useUsage();
-const [showOptions, getShow] = useShowable();
-
-export default {
-  name: 'init',
-  command: 'init [path]',
-  describe: pc.dim('Initialize foscia configuration and files.'),
-  builder: (argv) => argv
-    .usage(`Usage: ${pc.magenta('foscia')} ${pc.bold('init')} [path] [options]`)
-    .example([
-      [`${pc.magenta('foscia')} ${pc.bold('init')} src/data`, pc.dim('Initialize foscia files inside "src/data" directory and write configuration to ".fosciarc.json".')],
-      [`${pc.magenta('foscia')} ${pc.bold('init')} src/api --config .fosciarc.api.json`, pc.dim('Initialize foscia files inside "src/api" directory and write configuration to ".fosciarc.api.json".')],
-    ])
-    .positional('path', {
-      type: 'string',
-      normalize: true,
-      description: pc.dim('Directory to put new Foscia files in.'),
-      default: '',
-    })
-    .option('manual', {
-      type: 'boolean',
-      description: pc.dim('Disable environment detection (TS, etc.)'),
-    })
-    .options(usageOptions)
-    .options(showOptions),
-  handler: async (args) => {
-    const show = getShow(args);
-
-    console.log(
-      pc.bold(`${logSymbols.instruction} Start by configuring your Foscia environment!\n`),
-    );
-
-    const configPath = args.config === AUTO_DETECT_CONFIG
-      ? resolve('.fosciarc.json')
-      : resolve(args.config);
-    if (!show) {
-      await promptForOverwrite(configPath);
-    }
-
-    const usage = await getUsage(args, () => select({
-      message: 'What will you use foscia for?',
-      choices: [
-        ...CONFIG_USAGES,
-        {
-          name: 'Something else...',
-          value: undefined,
-        },
+export default function initCommand() {
+  return makeCommander('init')
+    .description('Initialize Foscia in your project')
+    .argument('[path]', 'Directory to put Foscia files in')
+    .addHelpText('after', makeUsageExamples([
+      ['Initializes Foscia in your project', pc.bold('init')],
+      [
+        'Initializes Foscia with dedicated paths and specific usage',
+        `${pc.bold('init')} src/api --config=.fosciarc.api.json --usage=jsonapi`,
       ],
-    }));
-    const path = normalize(args.path?.length ? args.path : await input({
-      message: 'Where do you want to store your foscia files (action, models, etc.)?',
-      default: 'src/data',
-    }));
-    const { packageManager, language, modules } = await resolveEnvironment(args);
-    const alias = await resolveAlias(path);
-
-    const config: CLIConfig = {
-      usage,
-      packageManager,
-      language,
-      modules,
-      path,
-      alias: alias || undefined,
-      tabSize: 2,
-    };
-
-    if (!show) {
-      await installDependencies(config);
-    }
-
-    const configContent = JSON.stringify(config, null, 2);
-    await writeOrPrintFile('Config', configPath, configContent, 'json', show);
-
-    console.log(
-      pc.bold(`\n${logSymbols.instruction} Now, lets configure your action factory!\n`),
-    );
-
-    const factoryPath = resolvePath(config, `action.${config.language === 'ts' ? 'ts' : 'js'}`);
-    if (!show) {
-      await promptForOverwrite(factoryPath, 'Action factory was not generated. You can run "foscia make:action" to generate an action factory.');
-    }
-
-    const imports = makeImportsList();
-
-    const factoryOptions = await promptForActionFactoryOptions(config, imports, usage);
-    const factoryContent = renderActionFactory({ config, imports, usage, options: factoryOptions });
-    await writeOrPrintFile('Action factory', factoryPath, factoryContent, config.language, show);
-  },
-} as Command<InitCommandOptions>;
+    ]))
+    .option(...useShowOption)
+    .option(...useForceOption)
+    .option(...useUsageOption)
+    .option('--manual', 'Disable environment detection (TS, ESM, etc.)')
+    .option(...useConfigOption)
+    .action(runInitCommand);
+}

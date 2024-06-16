@@ -65,6 +65,17 @@ should therefore either:
 - [**Open an issue or a pull request**](https://github.com/foscia-dev/foscia/issues)
   to suggest a new implementation.
 
+### Supported frameworks
+
+Foscia can integrate in pretty any TypeScript/JavaScript projects.
+That being said, supporting some frameworks features may require additional
+configuration (such as SSR inside Nuxt).
+You can find more information about frameworks integrations inside
+[the integrations guides](/docs/category/integrations).
+
+If you need specific features to integrate with an unsupported framework,
+feel free to [open an issue or a pull request](https://github.com/foscia-dev/foscia/issues).
+
 ## Your first model
 
 Models represent the structure of your data and are used to simplify and get
@@ -72,7 +83,7 @@ type safe interactions with your data source.
 
 ### Defining a model
 
-<ShellCommand command="foscia make:model post" />
+<ShellCommand command="foscia make model post" />
 
 To declare a model, you just need to use the `makeModel` function. This function
 takes up to 2 arguments and returns an ES6 class:

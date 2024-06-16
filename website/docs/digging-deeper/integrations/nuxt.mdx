@@ -1,0 +1,117 @@
+---
+sidebar_position: 10
+description: Using Foscia inside a Nuxt project.
+---
+
+import FunctionInfo from '@site/src/components/FunctionInfo';
+import ShellCommand from '@site/src/components/ShellCommand';
+
+# Nuxt
+
+<FunctionInfo version="0.9.0" />
+
+:::tip What you'll learn
+
+- Preparing and configuring Foscia for server-side rendering (SSR)
+
+:::
+
+## Server-side rendering
+
+Foscia can easily integrate within a Nuxt project, but will require additional
+configuration to support server-side rendering (SSR) for two reasons:
+
+- Foscia HTTP actions are based on
+  [browser `fetch` API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API),
+  and don't automatically switch between `fetch` implementations for Node or
+  browser.
+- Nuxt passes payloads from server to client, such as state from
+  [`useAsyncData`](https://nuxt.com/docs/getting-started/data-fetching#useasyncdata)
+  or [`useState`](https://nuxt.com/docs/getting-started/state-management), and
+  Foscia instances are not serializable without a
+  [payload plugin](https://nuxt.com/docs/api/composables/use-nuxt-app#payload).
+
+### Setup
+
+#### `fetch` implementation in action factory
+
+First, you will need a `fetch` implementation which works in both Node
+and browser environments.
+
+Nuxt comes with [`ofetch`](https://github.com/unjs/ofetch) library for this
+purpose, which you can install if it is not already a dependency of your
+project.
+
+<ShellCommand command="add ofetch" />
+
+Once `ofetch` is installed, you can configure it on your action factory
+adapter. Here is an exemple with `makeJsonRestAdapter`, but the configuration
+is the same with other HTTP based adapters.
+
+```typescript
+import { makeActionFactory } from '@foscia/core';
+import { makeJsonRestAdapter } from '@foscia/rest';
+// highlight.addition
+import { ofetch } from 'ofetch';
+
+export default makeActionFactory({
+  // ...
+  ...makeJsonRestAdapter({
+// highlight.addition
+    fetch: ofetch.native,
+  }),
+});
+```
+
+:::warning
+
+Don't forget the `.native` property when binding the `fetch` implementation
+inside the configuration object, because Foscia requires the native `fetch` API.
+
+:::
+
+#### Publishing payload plugin
+
+Finally, you will need to define a custom payload plugin, which will reduce and
+revive Foscia models' instances when passing payloads from server to client.
+To quickly set up this, Foscia CLI provides `foscia nuxt:payload-plugin` command which
+will create reducer and reviver (if they are missing) and will publish a
+`fosciaPayloadPlugin.ts` file into
+[`plugins` directory](https://nuxt.com/docs/guide/directory-structure/plugins).
+
+<ShellCommand command="foscia integrate nuxt payload-plugin" />
+
+:::warning
+
+Be aware that this plugin must be registered before any payload reduce/revive
+tasks. If you need to priorise it, check out the
+[**registration order guide on Nuxt docs**](https://nuxt.com/docs/guide/directory-structure/plugins#registration-order).
+
+:::
+
+### Usage
+
+You can now use Foscia in any server/client context using `useAsyncData`.
+
+```html title="pages/products.vue"
+<script setup lang="ts">
+import { all, query } from '@foscia/core';
+import action from '../data/action';
+import Post from '../data/models/post';
+
+const { data: posts } = useAsyncData(
+  'posts',
+  () => action()
+    .use(query(Post))
+    .run(all()),
+);
+</script>
+
+<template>
+  <div v-for="post in (posts ?? [])" :key="`posts-${post.id}`">
+    {{ post.title }}
+  </div>
+</template>
+```
+
+

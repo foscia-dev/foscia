@@ -95,6 +95,11 @@ html[data-theme="dark"] {
     fill: var(--ifm-color-primary);
 }
 
+.header-version-link {
+    font-family: var(--ifm-font-family-monospace);
+    font-weight: bold;
+}
+
 .header-github-link {
     padding: 0;
     margin: 0 8px;
@@ -145,8 +150,61 @@ code {
     border-style: dashed;
 }
 
+.anchor del code, a del code {
+    text-decoration: line-through !important;
+    border-style: dashed;
+}
+
 .anchor:hover code, .anchor:focus code, a:hover code, a:focus code {
     border-color: var(--ifm-tabs-color-active-border, var(--ifm-color-primary));
+}
+
+.code-block-addition-line {
+    --code-block-line-symbol: "+";
+    --code-block-line-color: var(--ifm-color-success-dark);
+    --code-block-line-bg-color: var(--ifm-color-success-contrast-background);
+}
+
+.code-block-deletion-line {
+    --code-block-line-symbol: "-";
+    --code-block-line-color: var(--ifm-color-danger-dark);
+    --code-block-line-bg-color: var(--ifm-color-danger-contrast-background);
+}
+
+.code-block-addition-line, .code-block-deletion-line {
+    position: relative;
+    display: block;
+    margin: 0 calc(-1 * var(--ifm-pre-padding));
+    padding: 0 var(--ifm-pre-padding);
+}
+
+.code-block-addition-line:before, .code-block-deletion-line:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: var(--code-block-line-color);
+    opacity: 0.12;
+}
+
+.code-block-addition-line:after, .code-block-deletion-line:after {
+    content: var(--code-block-line-symbol);
+    position: absolute;
+    font-size: inherit;
+    font-weight: bold;
+    top: 0;
+    left: 2px;
+    color: var(--code-block-line-color);
+}
+
+img {
+    border-radius: 8px;
+}
+
+img.img--cli {
+    max-width: 450px;
 }
 
 .text--gradient {

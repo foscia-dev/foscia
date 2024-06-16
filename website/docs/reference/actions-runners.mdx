@@ -47,7 +47,7 @@ await action().run(none());
 
 #### Returns
 
-`{Promise<void>}`
+`Promise<void>`
 
 ### `raw`
 
@@ -68,11 +68,11 @@ const data = await action().run(raw((r) => r.json()));
 
 #### Arguments
 
-- `{Function | undefined}` `transform` the callback to transform the data object
+- `Function | undefined` `transform` the callback to transform the data object
 
 #### Returns
 
-`{Promise<AD>}` where `AD` is your adapter's data (e.g. a fetch Response object)
+`Promise<AD>` where `AD` is your adapter's data (e.g. a fetch Response object)
 or a transformed data if `transform` callback was provided.
 
 ### `all`
@@ -91,11 +91,11 @@ const posts = await action().run(all());
 
 #### Arguments
 
-- `{Function | undefined}` `transform` the callback to transform the data object
+- `Function | undefined` `transform` the callback to transform the data object
 
 #### Returns
 
-`{Promise<I[]>}` where `I` is an instance of the targeted model or a transformed
+`Promise<I[]>` where `I` is an instance of the targeted model or a transformed
 data if `transform` callback was provided.
 
 ### `one`
@@ -115,11 +115,11 @@ const post = await action().run(one());
 
 #### Arguments
 
-- `{Function | undefined}` `transform` the callback to transform the data object
+- `Function | undefined` `transform` the callback to transform the data object
 
 #### Returns
 
-`{Promise<I | null>}` where `I` is an instance of the targeted model or a
+`Promise<I | null>` where `I` is an instance of the targeted model or a
 transformed data if `transform` callback was provided.
 
 ### `oneOrFail`
@@ -139,11 +139,11 @@ const post = await action().run(oneOrFail());
 
 #### Arguments
 
-- `{Function | undefined}` `transform` the callback to transform the data object
+- `Function | undefined` `transform` the callback to transform the data object
 
 #### Returns
 
-`{Promise<I>}` where `I` is an instance of the targeted model or a transformed
+`Promise<I>` where `I` is an instance of the targeted model or a transformed
 data if `transform` callback was provided.
 
 ### `oneOrCurrent`
@@ -163,11 +163,11 @@ const post = await action().run(oneOrCurrent());
 
 #### Arguments
 
-- `{Function | undefined}` `transform` the callback to transform the data object
+- `Function | undefined` `transform` the callback to transform the data object
 
 #### Returns
 
-`{Promise<I>}` where `I` is an instance of the targeted model or a transformed
+`Promise<I>` where `I` is an instance of the targeted model or a transformed
 data if `transform` callback was provided.
 
 ### `oneOr`
@@ -186,12 +186,12 @@ const post = await action().run(oneOr(() => null));
 
 #### Arguments
 
-- `{Function}` `nilRunner` the runner to use when one result is empty
-- `{Function | undefined}` `transform` the callback to transform the data object
+- `Function` `nilRunner` the runner to use when one result is empty
+- `Function | undefined` `transform` the callback to transform the data object
 
 #### Returns
 
-`{Promise<I>}` where `I` is an instance of the targeted model, a transformed
+`Promise<I>` where `I` is an instance of the targeted model, a transformed
 data if `transform` callback was provided or the `nilRunner` result.
 
 ### `cached`
@@ -211,11 +211,11 @@ const post = await action().run(cached());
 
 #### Arguments
 
-- `{Function | undefined}` `transform` the callback to transform the data object
+- `Function | undefined` `transform` the callback to transform the data object
 
 #### Returns
 
-`{Promise<I | null>}` where `I` is an instance of the targeted model or a
+`Promise<I | null>` where `I` is an instance of the targeted model or a
 transformed data if `transform` callback was provided.
 
 ### `cachedOrFail`
@@ -235,11 +235,11 @@ const post = await action().run(cachedOrFail());
 
 #### Arguments
 
-- `{Function | undefined}` `transform` the callback to transform the data object
+- `Function | undefined` `transform` the callback to transform the data object
 
 #### Returns
 
-`{Promise<I>}` where `I` is an instance of the targeted model or a transformed
+`Promise<I>` where `I` is an instance of the targeted model or a transformed
 data if `transform` callback was provided.
 
 ### `cachedOr`
@@ -259,12 +259,12 @@ const post = await action().run(cachedOr(() => null));
 
 #### Arguments
 
-- `{Function}` `nilRunner` the runner to use when cached result is empty
-- `{Function | undefined}` `transform` the callback to transform the data object
+- `Function` `nilRunner` the runner to use when cached result is empty
+- `Function | undefined` `transform` the callback to transform the data object
 
 #### Returns
 
-`{Promise<I>}` where `I` is an instance of the targeted model, a transformed
+`Promise<I>` where `I` is an instance of the targeted model, a transformed
 data if `transform` callback was provided or the `nilRunner` result.
 
 ### `catchIf`
@@ -288,13 +288,13 @@ const postOrNull = await action().run(
 
 #### Arguments
 
-- `{Function}` `runner` the runner to run and catch errors from
-- `{Function | undefined}` `catchCallback` the callback to use when an error is
+- `Function` `runner` the runner to run and catch errors from
+- `Function | undefined` `catchCallback` the callback to use when an error is
   caught
 
 #### Returns
 
-`{Promise<T>}` where `T` is either the runner result, the catch runner result or
+`Promise<T>` where `T` is either the runner result, the catch runner result or
 null.
 
 ## `@foscia/jsonapi`

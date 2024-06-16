@@ -6,6 +6,19 @@ sidebar_position: 5
 
 # Migration
 
+## 0.9.x from 0.8.x
+
+### Medium impacts changes
+
+- [CLI commands signature changed](#cli-commands-signature-changed)
+
+### CLI commands signature changed
+
+**Likelihood Of Impact: Medium**
+
+All CLI commands signature changed. As an example, `foscia make:model post`
+became `foscia make model post`.
+
 ## 0.8.x from 0.7.x
 
 ### High impacts changes
@@ -46,12 +59,14 @@ TypeScript object spread type inference errors.
 If you are using composables, you must remove the object spread used
 inside your models' definition:
 
-```diff
+```typescript
 const publishable = makeComposable();
 
 export default class Post extends makeModel('posts', {
-- ...publishable,
-+ publishable,
+// highlight.deletion
+  ...publishable,
+// highlight.addition
+  publishable,
 }) {}
 ```
 
@@ -63,22 +78,32 @@ export default class Post extends makeModel('posts', {
 have been deprecated and will be removed in a next major release, you should
 use [`query` enhancer](/docs/reference/actions-enhancers#query) instead:
 
-```diff
+```typescript
 // `forModel` replacement.
--action().use(forModel(Post))
-+action().use(query(Post))
+// highlight.deletion
+action().use(forModel(Post))
+// highlight.addition
+action().use(query(Post))
 // `find` replacement.
--action().use(find(Post, '123'))
-+action().use(query(Post, '123'))
+// highlight.deletion
+action().use(find(Post, '123'))
+// highlight.addition
+action().use(query(Post, '123'))
 // `forInstance` replacement.
--action().use(forInstance(myPost))
-+action().use(query(myPost))
+// highlight.deletion
+action().use(forInstance(myPost))
+// highlight.addition
+action().use(query(myPost))
 // `forRelation` replacement.
--action().use(forRelation(myPost, 'comments'))
-+action().use(query(myPost, 'comments))
+// highlight.deletion
+action().use(forRelation(myPost, 'comments'))
+// highlight.addition
+action().use(query(myPost, 'comments))
 // `forId` replacement.
--action().use(forId('123'))
-+action().use(context({ id: '123' }))
+// highlight.deletion
+action().use(forId('123'))
+// highlight.addition
+action().use(context({ id: '123' }))
 ```
 
 ### `makeForRelationLoader` is deprecated
@@ -90,9 +115,11 @@ removed in a next major release, you should use `makeQueryRelationLoader`
 instead. `makeQueryRelationLoader` provides the same feature and
 a new warning (which can be disabled) when using it in dangerous circumstances:
 
-```diff
--export default makeForRelationLoader(action());
-+export default makeQueryRelationLoader(action());
+```typescript
+// highlight.deletion
+export default makeForRelationLoader(action());
+// highlight.addition
+export default makeQueryRelationLoader(action());
 ```
 
 ### `SerializerI.serializeRelation` signature change
@@ -109,11 +136,12 @@ you must update your implementation.
 If you are using `serializeRelation` method, you must update the passed
 argument to give the value to serialize:
 
-```diff
+```typescript
 serializer.serializeRelation(
   instance,
   instance.$model.$schema[key],
-+ instance[key],
+// highlight.addition
+  instance[key],
   context,
 );
 ```
@@ -127,9 +155,11 @@ its first argument (previously, it was optional).
 You must ensure your `configure` calls are always passing a configuration
 object:
 
-```diff
--makeModel().configure()
-+makeModel().configure({})
+```typescript
+// highlight.deletion
+makeModel().configure()
+// highlight.addition
+makeModel().configure({})
 ```
 
 ### `runHook` is deprecated
@@ -140,9 +170,11 @@ object:
 removed in a next major release, you should use `runHooks`
 instead. `runHooks` function's signature is compatible with `runHook` signature:
 
-```diff
--runHook(instance.$model, 'creating', instance);
-+runHooks(instance.$model, 'creating', instance);
+```typescript
+// highlight.deletion
+runHook(instance.$model, 'creating', instance);
+// highlight.addition
+runHooks(instance.$model, 'creating', instance);
 ```
 
 ### `ModelHookCallback` type is deprecated

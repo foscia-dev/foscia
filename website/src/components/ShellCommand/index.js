@@ -23,7 +23,7 @@ export default function ShellCommand({ command, join, ...props }) {
         default
       >
         <CodeBlock language="shell">
-          {code('npx', 'npm install', 'npm update', '--save-dev')}
+          {code('npx', 'npm install', 'npm update', '-D')}
         </CodeBlock>
       </TabItem>
       <TabItem

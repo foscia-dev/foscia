@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 // Note: type annotations allow type checking and IDEs autocompletion
 import path from 'node:path';
 import { themes } from 'prism-react-renderer';
+import packageJson from '../package.json';
 
 const require = createRequire(import.meta.url);
 
@@ -65,6 +66,9 @@ const config = {
   themeConfig:
   /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      colorMode: {
+        respectPrefersColorScheme: true,
+      },
       algolia: {
         appId: '4ARIHUOKRG',
         apiKey: '216b2058f40470b073a59c2867d9d51a',
@@ -91,13 +95,8 @@ const config = {
           },
           {
             position: 'left',
-            label: 'Getting started',
+            label: 'Docs',
             to: '/docs/getting-started',
-          },
-          {
-            position: 'left',
-            label: 'API',
-            to: '/docs/category/reference',
           },
           {
             position: 'left',
@@ -106,14 +105,19 @@ const config = {
           },
           {
             position: 'left',
+            label: 'API',
+            to: '/docs/category/reference',
+          },
+          {
+            position: 'left',
             label: 'Playground',
             to: '/playground',
           },
           {
             position: 'right',
-            label: 'Documentation',
-            to: '/docs/category/core-concepts',
-            className: 'button border--gradient',
+            label: `v${packageJson.version}`,
+            to: '/docs/upgrade/changelog',
+            className: 'header-version-link button border--gradient',
           },
           {
             href: 'https://github.com/foscia-dev/foscia',
@@ -186,6 +190,21 @@ const config = {
         additionalLanguages: ['bash', 'json', 'diff'],
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
+        magicComments: [
+          {
+            className: 'theme-code-block-highlighted-line',
+            line: 'highlight-next-line',
+            block: { start: 'highlight-start', end: 'highlight-end' },
+          },
+          {
+            className: 'code-block-addition-line',
+            line: 'highlight.addition',
+          },
+          {
+            className: 'code-block-deletion-line',
+            line: 'highlight.deletion',
+          },
+        ],
       },
     }),
 };

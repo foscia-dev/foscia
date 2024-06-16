@@ -56,17 +56,17 @@ export const CONFIG_MODULES = [
 
 export const CONFIG_USAGES = [
   {
-    name: 'Interacting with a JSON:API',
+    name: 'consuming a JSON:API',
     value: 'jsonapi',
     packages: ['@foscia/core', '@foscia/http', '@foscia/jsonapi'],
   },
   {
-    name: 'Interacting with a JSON REST API',
+    name: 'consuming a JSON REST API',
     value: 'jsonrest',
     packages: ['@foscia/core', '@foscia/http', '@foscia/rest'],
   },
   {
-    name: 'Using it as a simple HTTP client',
+    name: 'an HTTP client',
     value: 'http',
     packages: ['@foscia/core', '@foscia/http'],
   },

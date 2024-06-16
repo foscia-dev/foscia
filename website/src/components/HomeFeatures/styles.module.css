@@ -41,10 +41,6 @@
     margin-bottom: 8px !important;
 }
 
-.homeFeatureGettingStartedCommands > div:last-child > ul:first-child {
-    display: none;
-}
-
 .homeExamplesLink {
     text-decoration: none !important;
 }

@@ -41,9 +41,6 @@ services:
     container_name: foscia-reverse-proxy
     image: traefik:latest
     restart: unless-stopped
-    depends_on:
-      foscia-docs:
-        condition: service_healthy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik.yml:/traefik.yml
