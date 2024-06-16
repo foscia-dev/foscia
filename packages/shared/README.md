@@ -14,7 +14,7 @@
 </a>
 </p>
 
-## @foscia/shared
+# @foscia/shared
 
 Shared utilities types and functions for [Foscia](https://foscia.dev).
 
@@ -22,5 +22,4 @@ Shared utilities types and functions for [Foscia](https://foscia.dev).
 
 ## License
 
-`foscia` is an open-sourced software licensed under the
-[MIT license](LICENSE).
+`@foscia/shared` is an open-sourced software licensed under the MIT license.

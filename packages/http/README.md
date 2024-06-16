@@ -14,7 +14,7 @@
 </a>
 </p>
 
-## @foscia/http
+# @foscia/http
 
 HTTP adapter implementation for [Foscia](https://foscia.dev) actions.
 
@@ -35,5 +35,4 @@ export default makeActionFactory({
 
 ## License
 
-`foscia` is an open-sourced software licensed under the
-[MIT license](LICENSE).
+`@foscia/http` is an open-sourced software licensed under the MIT license.

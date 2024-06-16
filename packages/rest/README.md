@@ -14,7 +14,7 @@
 </a>
 </p>
 
-## @foscia/rest
+# @foscia/rest
 
 REST implementation for [Foscia](https://foscia.dev) actions.
 
@@ -37,5 +37,4 @@ export default makeActionFactory({
 
 ## License
 
-`foscia` is an open-sourced software licensed under the
-[MIT license](LICENSE).
+`@foscia/rest` is an open-sourced software licensed under the MIT license.

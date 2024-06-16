@@ -80,17 +80,17 @@ action().use(query(myPost, 'comments'));
 
 ##### Model signature
 
-- [`Model`](/docs/reference/api/modules/foscia_core#model) `query`
+- [`Model`](/docs/reference/api/@foscia/core/type-aliases/Model) `query`
 the model to query
-- [`ModelIdType | undefined`](/docs/reference/api/modules/foscia_core#modelidtype) `id`
+- [`ModelIdType | undefined`](/docs/reference/api/@foscia/core/type-aliases/ModelIdType) `id`
 the record's ID to query
 
 ##### Instance signature
 
-- [`ModelInstance`](/docs/reference/api/modules/foscia_core#modelinstance) `instance`
+- [`ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance) `instance`
 the instance to query
-- [`ModelRelationKey | undefined`](/docs/reference/api/modules/foscia_core#modelrelationkey) `relation`
-the optional instance's relation to query
+- [`ModelRelationKey | undefined`](/docs/reference/api/@foscia/core/type-aliases/ModelRelationKey)
+`relation` the optional instance's relation to query
 
 ### `create`
 
@@ -109,7 +109,7 @@ action().use(create(post));
 
 #### Arguments
 
-- [`I extends ModelInstance`](/docs/reference/api/modules/foscia_core#modelinstance)
+- [`I extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
   `instance` an instance of model to create
 
 ### `update`
@@ -128,7 +128,7 @@ action().use(update(post));
 
 #### Arguments
 
-- [`I extends ModelInstance`](/docs/reference/api/modules/foscia_core#modelinstance)
+- [`I extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
   `instance` an instance of model to update
 
 ### `save`
@@ -148,7 +148,7 @@ action().use(save(post));
 
 #### Arguments
 
-- [`I extends ModelInstance`](/docs/reference/api/modules/foscia_core#modelinstance)
+- [`I extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
   `instance` an instance of model to save
 
 ### `destroy`
@@ -167,7 +167,7 @@ action().use(destroy(post));
 
 #### Arguments
 
-- [`I extends ModelInstance`](/docs/reference/api/modules/foscia_core#modelinstance)
+- [`I extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
   `instance` an instance of model to delete
 
 ### `associate`
@@ -186,11 +186,11 @@ action().use(associate(post, 'author', user));
 
 #### Arguments
 
-- [`I extends ModelInstance`](/docs/reference/api/modules/foscia_core#modelinstance)
+- [`I extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
   `instance` an instance of model to update relation on
-- [`ModelRelationKey<M>`](/docs/reference/api/modules/foscia_core#modelrelationkey)
+- [`ModelRelationKey<M>`](/docs/reference/api/@foscia/core/type-aliases/ModelRelationKey)
   `relation` a relation to update
-- [`ModelInferPropValue<R>`](/docs/reference/api/modules/foscia_core#modelinferpropvalue)
+- [`ModelInferPropValue<R>`](/docs/reference/api/@foscia/core/type-aliases/ModelInferPropValue)
   `value` an instance to associate
 
 ### `dissociate`
@@ -209,9 +209,9 @@ action().use(dissociate(post, 'author'));
 
 #### Arguments
 
-- [`I extends ModelInstance`](/docs/reference/api/modules/foscia_core#modelinstance)
+- [`I extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
   `instance` an instance of model to update relation on
-- [`ModelRelationKey<M>`](/docs/reference/api/modules/foscia_core#modelrelationkey)
+- [`ModelRelationKey<M>`](/docs/reference/api/@foscia/core/type-aliases/ModelRelationKey)
   `relation` a relation to update
 
 ### `attach`
@@ -230,11 +230,11 @@ action().use(attach(post, 'tags', [tag1, tag2]));
 
 #### Arguments
 
-- [`I extends ModelInstance`](/docs/reference/api/modules/foscia_core#modelinstance)
+- [`I extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
   `instance` an instance of model to update relation on
-- [`ModelRelationKey<M>`](/docs/reference/api/modules/foscia_core#modelrelationkey)
+- [`ModelRelationKey<M>`](/docs/reference/api/@foscia/core/type-aliases/ModelRelationKey)
   `relation` a relation to update
-- [`ModelInferPropValue<R> | ModelInferPropValue<R>[number]`](/docs/reference/api/modules/foscia_core#modelinferpropvalue)
+- [`ModelInferPropValue<R> | ModelInferPropValue<R>[number]`](/docs/reference/api/@foscia/core/type-aliases/ModelInferPropValue)
   `value` one or many instance to attach
 
 ### `detach`
@@ -253,11 +253,11 @@ action().use(detach(post, 'tags', [tag1, tag2]));
 
 #### Arguments
 
-- [`I extends ModelInstance`](/docs/reference/api/modules/foscia_core#modelinstance)
+- [`I extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
   `instance` an instance of model to update relation on
-- [`ModelRelationKey<M>`](/docs/reference/api/modules/foscia_core#modelrelationkey)
+- [`ModelRelationKey<M>`](/docs/reference/api/@foscia/core/type-aliases/ModelRelationKey)
   `relation` a relation to update
-- [`ModelInferPropValue<R> | ModelInferPropValue<R>[number]`](/docs/reference/api/modules/foscia_core#modelinferpropvalue)
+- [`ModelInferPropValue<R> | ModelInferPropValue<R>[number]`](/docs/reference/api/@foscia/core/type-aliases/ModelInferPropValue)
   `value` one or many instance to detach
 
 ### `updateRelation`
@@ -278,11 +278,11 @@ action().use(updateRelation(post, 'tags', [tag1, tag2], ActionName.ATTACH_RELATI
 
 #### Arguments
 
-- [`I extends ModelInstance`](/docs/reference/api/modules/foscia_core#modelinstance)
+- [`I extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
   `instance` an instance of model to update relation on
-- [`ModelRelationKey<M>`](/docs/reference/api/modules/foscia_core#modelrelationkey)
+- [`ModelRelationKey<M>`](/docs/reference/api/@foscia/core/type-aliases/ModelRelationKey)
   `relation` a relation to update
-- [`ModelInferPropValue<R> | ModelInferPropValue<R>[number]`](/docs/reference/api/modules/foscia_core#modelinferpropvalue)
+- [`ModelInferPropValue<R> | ModelInferPropValue<R>[number]`](/docs/reference/api/@foscia/core/type-aliases/ModelInferPropValue)
   `value` one or many instance to set as the relation's value
 - `ActionName.UPDATE_RELATION | ActionName.ATTACH_RELATION | ActionName.DETACH_RELATION`
   `actionName` the action name to run (defaults to `ActionName.UPDATE_RELATION`)
@@ -303,7 +303,7 @@ action().use(instanceData(post));
 
 #### Arguments
 
-- [`I extends ModelInstance`](/docs/reference/api/modules/foscia_core#modelinstance)
+- [`I extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
   `instance` an instance of model to serialize
 
 ### `relationData`
@@ -322,9 +322,9 @@ action().use(relationData(post, 'tags'));
 
 #### Arguments
 
-- [`I extends ModelInstance`](/docs/reference/api/modules/foscia_core#modelinstance)
+- [`I extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
   `instance` an instance of model to serialize
-- [`ModelRelationKey<M>`](/docs/reference/api/modules/foscia_core#modelrelationkey)
+- [`ModelRelationKey<M>`](/docs/reference/api/@foscia/core/type-aliases/ModelRelationKey)
   `relation` a relation to serialize
 
 ### `include`
@@ -347,7 +347,7 @@ action().use(include(['author', 'comments', 'comments.reactions']));
 
 #### Arguments
 
-- [`ArrayableVariadic<ModelRelationDotKey<M>>`](/docs/reference/api/modules/foscia_core#modelrelationdotkey)
+- [`ArrayableVariadic<ModelRelationDotKey<M>>`](/docs/reference/api/@foscia/core/type-aliases/ModelRelationDotKey)
   `...relations` a relation or a set of relation to eager load
 
 ### `onRunning`
@@ -457,7 +457,7 @@ action().use(
 #### Arguments
 
 - `string` `pathOrBaseURL` a path or base URL for the request
-- [`HttpRequestConfig | undefined`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+- [`HttpRequestConfig | undefined`](/docs/reference/api/@foscia/http/type-aliases/HttpRequestConfig)
   `config` a request configuration object
 
 ### `makePost`
@@ -485,9 +485,9 @@ action().use(
 #### Arguments
 
 - `string` `pathOrBaseURL` a path or base URL for the request
-- [`HttpRequestConfig['body'] | undefined`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+- [`HttpRequestConfig['body'] | undefined`](/docs/reference/api/@foscia/http/type-aliases/HttpRequestConfig)
   `body` a request body
-- [`HttpRequestConfig | undefined`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+- [`HttpRequestConfig | undefined`](/docs/reference/api/@foscia/http/type-aliases/HttpRequestConfig)
   `config` a request configuration object
 
 ### `makePut`
@@ -515,9 +515,9 @@ action().use(
 #### Arguments
 
 - `string` `pathOrBaseURL` a path or base URL for the request
-- [`HttpRequestConfig['body'] | undefined`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+- [`HttpRequestConfig['body'] | undefined`](/docs/reference/api/@foscia/http/type-aliases/HttpRequestConfig)
   `body` a request body
-- [`HttpRequestConfig | undefined`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+- [`HttpRequestConfig | undefined`](/docs/reference/api/@foscia/http/type-aliases/HttpRequestConfig)
   `config` a request configuration object
 
 ### `makePatch`
@@ -545,9 +545,9 @@ action().use(
 #### Arguments
 
 - `string` `pathOrBaseURL` a path or base URL for the request
-- [`HttpRequestConfig['body'] | undefined`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+- [`HttpRequestConfig['body'] | undefined`](/docs/reference/api/@foscia/http/type-aliases/HttpRequestConfig)
   `body` a request body
-- [`HttpRequestConfig | undefined`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+- [`HttpRequestConfig | undefined`](/docs/reference/api/@foscia/http/type-aliases/HttpRequestConfig)
   `config` a request configuration object
 
 ### `makeDelete`
@@ -575,9 +575,9 @@ action().use(
 #### Arguments
 
 - `string` `pathOrBaseURL` a path or base URL for the request
-- [`HttpRequestConfig['body'] | undefined`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+- [`HttpRequestConfig['body'] | undefined`](/docs/reference/api/@foscia/http/type-aliases/HttpRequestConfig)
   `body` a request body
-- [`HttpRequestConfig | undefined`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+- [`HttpRequestConfig | undefined`](/docs/reference/api/@foscia/http/type-aliases/HttpRequestConfig)
   `config` a request configuration object
 
 ### `makeRequest`
@@ -603,7 +603,7 @@ action().use(
 #### Arguments
 
 - `string` `pathOrBaseURL` a path or base URL for the request
-- [`HttpRequestConfig | undefined`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+- [`HttpRequestConfig | undefined`](/docs/reference/api/@foscia/http/type-aliases/HttpRequestConfig)
   `config` a request configuration object
 
 ### `configureRequest`
@@ -652,7 +652,7 @@ action().use(configureRequest({
 
 #### Arguments
 
-- [`HttpRequestConfig`](/docs/reference/api/modules/foscia_http#httprequestconfig)
+- [`HttpRequestConfig`](/docs/reference/api/@foscia/http/type-aliases/HttpRequestConfig)
   `config` a request configuration object
 
 ### `param`
@@ -721,7 +721,7 @@ action().use(fields(['title', 'description']));
 
 #### Arguments
 
-- [`ArrayableVariadic<ModelKey<M>>`](/docs/reference/api/modules/foscia_core#modelkey)
+- [`ArrayableVariadic<ModelKey<M>>`](/docs/reference/api/@foscia/core/type-aliases/ModelKey)
   `...fieldset` a field or a set of field to select for the current context's
   model
 
@@ -744,9 +744,9 @@ action().use(fieldsFor(Post, ['title', 'description']));
 
 #### Arguments
 
-- [`M extends ModelClass<D>`](/docs/reference/api/modules/foscia_core#modelclass)
+- [`M extends ModelClass<D>`](/docs/reference/api/@foscia/core/type-aliases/ModelClass)
   `model` the model to select the fieldsets for
-- [`ArrayableVariadic<ModelKey<M>>`](/docs/reference/api/modules/foscia_core#modelkey)
+- [`ArrayableVariadic<ModelKey<M>>`](/docs/reference/api/@foscia/core/type-aliases/ModelKey)
   `...fieldset` a field or a set of field to select for the given model
 
 ### `filterBy`

@@ -699,23 +699,23 @@ export default class Post extends makeModel('posts', {
 
 Each model's instance have the following special properties:
 
-| Key         | Type                                                                          | Description                                                             |
-| ----------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `$exists`   | `boolean`                                                                     | Tells if the instance exists in the data source.                        |
-| `$loaded`   | `Dictionary<true>`                                                            | Dictionary containing `true` for each loaded relation.                  |
-| `$values`   | [`Partial<ModelValues>`](/docs/reference/api/modules/foscia_core#modelvalues) | Current values of the instance.                                         |
-| `$original` | [`ModelSnapshot`](/docs/reference/api/modules/foscia_core#modelsnapshot)      | Original snapshot since last sync.                                      |
-| `$raw`      | `any`                                                                         | Data source value which was deserialized to create inside the instance. |
-| `$model`    | [`ModelClass`](/docs/reference/api/modules/foscia_core#modelclass)            | Base model class.                                                       |
+| Key         | Type                                                                                | Description                                                             |
+| ----------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `$exists`   | `boolean`                                                                           | Tells if the instance exists in the data source.                        |
+| `$loaded`   | `Dictionary<true>`                                                                  | Dictionary containing `true` for each loaded relation.                  |
+| `$values`   | [`Partial<ModelValues>`](/docs/reference/api/@foscia/core/type-aliases/ModelValues) | Current values of the instance.                                         |
+| `$original` | [`ModelSnapshot`](/docs/reference/api/@foscia/core/type-aliases/ModelSnapshot)      | Original snapshot since last sync.                                      |
+| `$raw`      | `any`                                                                               | Data source value which was deserialized to create inside the instance. |
+| `$model`    | [`ModelClass`](/docs/reference/api/@foscia/core/type-aliases/Model)                 | Base model class.                                                       |
 
 ### Models
 
 Each model have the following special properties:
 
-| Key            | Type                                                                           | Description                                            |
-| -------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------ |
-| `$type`        | `string`                                                                       | Unique model type.                                     |
-| `$config`      | [`ModelConfig`](/docs/reference/api/modules/foscia_core#modelconfig)           | Configuration options.                                 |
-| `$schema`      | [`ModelSchema`](/docs/reference/api/modules/foscia_core#modelschema)           | Schema containing IDs/attributes/relations definition. |
-| `$composables` | [`ModelComposable[]`](/docs/reference/api/modules/foscia_core#modelcomposable) | Array of used composables.                             |
-| `$setup`       | [`ModelSetup`](/docs/reference/api/modules/foscia_core#modelsetup)             | Model setup configuration.                             |
+| Key            | Type                                                                                 | Description                                            |
+| -------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------ |
+| `$type`        | `string`                                                                             | Unique model type.                                     |
+| `$config`      | [`ModelConfig`](/docs/reference/api/@foscia/core/type-aliases/ModelConfig)           | Configuration options.                                 |
+| `$schema`      | [`ModelSchema`](/docs/reference/api/@foscia/core/type-aliases/ModelSchema)           | Schema containing IDs/attributes/relations definition. |
+| `$composables` | [`ModelComposable[]`](/docs/reference/api/@foscia/core/type-aliases/ModelComposable) | Array of used composables.                             |
+| `$setup`       | [`ModelSetup`](/docs/reference/api/@foscia/core/type-aliases/ModelSetup)             | Model setup configuration.                             |

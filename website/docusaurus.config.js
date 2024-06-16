@@ -24,8 +24,11 @@ const config = {
   baseUrl: process.env.BASE_URL || '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
-  organizationName: 'paul-thebaud',
+  organizationName: 'foscia-dev',
   projectName: 'foscia',
+  markdown: {
+    format: 'detect',
+  },
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],
@@ -52,15 +55,12 @@ const config = {
     ['docusaurus-plugin-typedoc', {
       id: 'api',
       name: 'API reference',
-      readme: 'none',
-      out: 'reference/api',
-      includeExtension: false,
+      out: 'docs/reference/api',
       entryPointStrategy: 'packages',
       entryPoints: packages
         .filter((pkg) => pkg.name !== 'cli')
         .map((pkg) => `../packages/${pkg.name}`),
       tsconfig: path.resolve(__dirname, '../tsconfig.json'),
-      sidebar: { fullNames: true, position: 1000, categoryLabel: 'API' },
     }],
   ],
   themeConfig:
@@ -74,7 +74,15 @@ const config = {
         apiKey: '216b2058f40470b073a59c2867d9d51a',
         indexName: 'fosciadev',
       },
-      announcementBar: {
+      announcementBar: process.env.VERSION ? {
+        // Dev/next version announcement.
+        id: `${process.env.VERSION}-announcement`,
+        content: '<strong>Warning</strong>: you are browsing an upcoming version of Foscia. <a target="_blank" rel="noopener noreferrer" href="https://foscia.dev">Get back to stable docs</a>',
+        backgroundColor: 'var(--ifm-color-warning-contrast-background)',
+        textColor: 'var(--ifm-color-warning-contrast-foreground)',
+        isCloseable: false,
+      } : {
+        // Production announcement.
         id: '0.9.0-announcement',
         content: '<code>v0.9.0</code> released with new <code>@foscia/cli</code> features! <a target="_blank" rel="noopener noreferrer" href="https://github.com/foscia-dev/foscia/issues">Give your feedback</a>',
         backgroundColor: 'var(--ifm-background-surface-color)',
@@ -115,7 +123,7 @@ const config = {
           },
           {
             position: 'right',
-            label: `v${packageJson.version}`,
+            label: process.env.VERSION || `v${packageJson.version}`,
             to: '/docs/upgrade/changelog',
             className: 'header-version-link button border--gradient',
           },

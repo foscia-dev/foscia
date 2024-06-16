@@ -14,11 +14,10 @@
 </a>
 </p>
 
-## @foscia/serialization
+# @foscia/serialization
 
 Serialization tools for [Foscia](https://foscia.dev) actions.
 
 ## License
 
-`foscia` is an open-sourced software licensed under the
-[MIT license](LICENSE).
+`@foscia/serialization` is an open-sourced software licensed under the MIT license.

@@ -14,11 +14,10 @@
 </a>
 </p>
 
-## @foscia/core
+# @foscia/core
 
 Core features of [Foscia](https://foscia.dev): models, actions, enhancers, runners, etc.
 
 ## License
 
-`foscia` is an open-sourced software licensed under the
-[MIT license](LICENSE).
+`@foscia/core` is an open-sourced software licensed under the MIT license.

@@ -14,11 +14,10 @@
 </a>
 </p>
 
-## @foscia/cli
+# @foscia/cli
 
 CLI utility for [Foscia](https://foscia.dev).
 
 ## License
 
-`foscia` is an open-sourced software licensed under the
-[MIT license](LICENSE).
+`@foscia/cli` is an open-sourced software licensed under the MIT license.

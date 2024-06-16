@@ -14,11 +14,10 @@
 </a>
 </p>
 
-## @foscia/test
+# @foscia/test
 
 Unit testing library to mock [Foscia](https://foscia.dev) actions.
 
 ## License
 
-`foscia` is an open-sourced software licensed under the
-[MIT license](LICENSE).
+`@foscia/test` is an open-sourced software licensed under the MIT license.
