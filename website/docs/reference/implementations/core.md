@@ -127,9 +127,9 @@ cache.find('posts', '1');
 
 #### Configuration
 
-| Name      | Type                                                               | Description                                                      |
-| --------- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| `manager` | [`RefManager`](/docs/reference/api/modules/foscia_core#refmanager) | Create refs to instances and retrieve/expire those refs' values. |
+| Name      | Type                                                                     | Description                                                      |
+|-----------|--------------------------------------------------------------------------|------------------------------------------------------------------|
+| `manager` | [`RefManager`](/docs/reference/api/@foscia/core/type-aliases/RefManager) | Create refs to instances and retrieve/expire those refs' values. |
 
 #### Defined in
 
