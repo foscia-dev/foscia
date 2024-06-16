@@ -1,5 +1,8 @@
 {
   "git": false,
+  "npm": {
+    "publishArgs": ["--provenance"]
+  },
   "plugins": {
     "@release-it/bumper": {
       "out": {
