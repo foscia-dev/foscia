@@ -75,8 +75,8 @@ const config = {
         indexName: 'fosciadev',
       },
       announcementBar: {
-        id: '0.1.0-announcement',
-        content: 'First stable version released! <a target="_blank" rel="noopener noreferrer" href="https://github.com/foscia-dev/foscia/issues">Give your feedback</a>',
+        id: '0.9.0-announcement',
+        content: '<code>v0.9.0</code> released with new <code>@foscia/cli</code> features! <a target="_blank" rel="noopener noreferrer" href="https://github.com/foscia-dev/foscia/issues">Give your feedback</a>',
         backgroundColor: 'var(--ifm-background-surface-color)',
         textColor: 'inherit',
         isCloseable: false,
