@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/foscia-dev/foscia/compare/v0.9.0...v0.9.1) (2024-06-16)
+
+
+### Features
+
+* add github action provenance to npm releases ([09098aa](https://github.com/foscia-dev/foscia/commit/09098aa5bbd07b8285ac282224a7ca1624ebf676))
+
 ## [0.9.0](https://github.com/foscia-dev/foscia/compare/v0.8.7...v0.9.0) (2024-06-16)
 
 [**Migration from 0.8.x to 0.9.x**](https://foscia.dev/docs/upgrade/migration#09x-from-08x)

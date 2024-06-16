@@ -1,7 +1,7 @@
 {
   "name": "@foscia/jsonapi",
   "type": "module",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "license": "MIT",
   "author": "Paul Thébaud",
   "description": "Type safe, modular and intuitive API/data client for JS/TS.",
@@ -33,12 +33,12 @@
     "release": "release-it"
   },
   "dependencies": {
-    "@foscia/core": "0.9.0",
-    "@foscia/http": "0.9.0",
-    "@foscia/rest": "0.9.0",
-    "@foscia/serialization": "0.9.0",
-    "@foscia/shared": "0.9.0",
-    "@foscia/test": "0.9.0"
+    "@foscia/core": "0.9.1",
+    "@foscia/http": "0.9.1",
+    "@foscia/rest": "0.9.1",
+    "@foscia/serialization": "0.9.1",
+    "@foscia/shared": "0.9.1",
+    "@foscia/test": "0.9.1"
   },
   "publishConfig": {
     "access": "public"
