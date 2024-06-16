@@ -23,3 +23,13 @@ jobs:
         with:
           directory: coverage
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  deploy:
+    if: github.event_name == 'push' && github.repository_owner == 'foscia-dev' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/next')
+    name: Deploy website
+    needs: [ test ]
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
+    with:
+      alias: 'dev'
+      pull: true

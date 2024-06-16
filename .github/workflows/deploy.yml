@@ -1,18 +1,24 @@
 name: deploy
-run-name: "deploy ${{ github.event.inputs.prod == 'true' && 'prod ' || 'next ' }} by @${{ github.actor }}"
+run-name: "deploy ${{ github.event.inputs.alias }} by @${{ github.actor }}"
 
 on:
   workflow_dispatch:
     inputs:
-      prod:
-        type: boolean
-        description: Production deploy
-        default: false
+      alias:
+        type: choice
+        description: Choose release
+        required: true
+        options:
+          - production
+          - next
+          - dev
   workflow_call:
     inputs:
-      prod:
+      alias:
+        type: string
+        required: true
+      pull:
         type: boolean
-        description: Production deploy
         default: false
 
 jobs:
@@ -32,7 +38,17 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install
+        if: ${{ github.event.inputs.pull }}
+        run: git pull
+
+      - name: Install
         run: pnpm install
+
+      - name: Prepare env
+        if: ${{ github.event.inputs.alias != 'production' }}
+        run: |
+          touch .env
+          echo "VERSION=${{ github.event.inputs.alias }}" >> .env
 
       - name: Build
         run: pnpm build && pnpm --filter=website build
@@ -47,4 +63,4 @@ jobs:
             --dir website/build \
             --site ${{ secrets.NETLIFY_SITE_ID }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
-            ${{ github.event.inputs.prod == 'true' && '--prod' || '--alias next' }}
+            ${{ github.event.inputs.alias == 'production' && '--prod' || format('--alias {0}', github.event.inputs.alias) }}

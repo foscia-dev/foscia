@@ -73,10 +73,12 @@ jobs:
           DRY_ARG: ${{ github.event.inputs.dry == 'true' && '--dry' || '' }}
           HUSKY: 0
         run: pnpm run release $INCREMENT_ARG $PRERELEASE_ARG $DRY_ARG --ci --verbose
+
   deploy:
     name: Deploy website
     needs: [ publish ]
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
     with:
-      prod: ${{ github.event.inputs.prerelease == 'stable' }}
+      alias: ${{ github.event.inputs.prerelease == 'stable' && 'production' || 'next' }}
+      pull: true
