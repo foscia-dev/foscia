@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.9.0](https://github.com/foscia-dev/foscia/compare/v0.8.7...v0.9.0) (2024-06-16)
+
+
+### Features
+
+* **cli:** new cli based on commander.js ([6ea916a](https://github.com/foscia-dev/foscia/commit/6ea916acffb9b027cfcaa024cdc869a82d782844))
+* **core:** remove 0.7.0 deprecated types and functions ([5e16e9a](https://github.com/foscia-dev/foscia/commit/5e16e9a7970b0a8484f6fc9297cf6425d9546b13))
+
+
+### BREAKING CHANGES
+
+* **core:** following deprecated types and functions have been removed:
+`ModelHookCallback`, `makeForRelationLoader`, `runHook`, `forModel`,
+`forInstance`, `forRelation`, `forId` and `find`.
+* **cli:** multiple CLI commands name and behaviors have changed.
+
 ## [0.8.7](https://github.com/foscia-dev/foscia/compare/v0.8.6...v0.8.7) (2024-06-12)
 
 
