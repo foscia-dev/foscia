@@ -2,6 +2,7 @@
 
 ## [0.9.0](https://github.com/foscia-dev/foscia/compare/v0.8.7...v0.9.0) (2024-06-16)
 
+[**Migration from 0.8.x to 0.9.x**](https://foscia.dev/docs/upgrade/migration#09x-from-08x)
 
 ### Features
 
