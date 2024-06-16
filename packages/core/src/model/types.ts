@@ -258,13 +258,6 @@ export type ModelSchemaRelations<D extends {} = {}> = {
 };
 
 /**
- * Model generic hook callback function.
- *
- * @deprecated Use {@link ModelInstanceHookCallback} instead.
- */
-export type ModelHookCallback = HookCallback<ModelInstance>;
-
-/**
  * Model instance generic hook callback function.
  */
 export type ModelInstanceHookCallback = HookCallback<ModelInstance>;

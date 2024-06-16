@@ -10,7 +10,19 @@ sidebar_position: 5
 
 ### Medium impacts changes
 
+- [0.7.0 deprecated types and functions removed](#070-deprecated-types-and-functions-removed)
 - [CLI commands signature changed](#cli-commands-signature-changed)
+
+### 0.7.0 deprecated types and functions removed
+
+**Likelihood Of Impact: Medium**
+
+`v0.7.0` deprecated types and functions have been removed:
+
+- [`forModel`, `forInstance`, `forRelation`, `forId` and `find` are removed](#formodel-forinstance-forrelation-forid-and-find-are-deprecated)
+- [`makeForRelationLoader` is removed](#makeforrelationloader-is-deprecated)
+- [`runHook` is removed](#runhook-is-deprecated)
+- [`ModelHookCallback` type is removed](#modelhookcallback-type-is-deprecated)
 
 ### CLI commands signature changed
 

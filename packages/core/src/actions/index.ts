@@ -1,3 +1,4 @@
+import ActionName from '@foscia/core/actions/actionName';
 import consumeAction from '@foscia/core/actions/context/consumers/consumeAction';
 import consumeAdapter from '@foscia/core/actions/context/consumers/consumeAdapter';
 import consumeCache from '@foscia/core/actions/context/consumers/consumeCache';
@@ -18,16 +19,11 @@ import create from '@foscia/core/actions/context/enhancers/crud/create';
 import destroy from '@foscia/core/actions/context/enhancers/crud/destroy';
 import detach from '@foscia/core/actions/context/enhancers/crud/detach';
 import dissociate from '@foscia/core/actions/context/enhancers/crud/dissociate';
-import find from '@foscia/core/actions/context/enhancers/crud/find';
 import instanceData from '@foscia/core/actions/context/enhancers/crud/instanceData';
 import relationData from '@foscia/core/actions/context/enhancers/crud/relationData';
 import save from '@foscia/core/actions/context/enhancers/crud/save';
 import update from '@foscia/core/actions/context/enhancers/crud/update';
 import updateRelation from '@foscia/core/actions/context/enhancers/crud/updateRelation';
-import forId from '@foscia/core/actions/context/enhancers/forId';
-import forInstance from '@foscia/core/actions/context/enhancers/forInstance';
-import forModel from '@foscia/core/actions/context/enhancers/forModel';
-import forRelation from '@foscia/core/actions/context/enhancers/forRelation';
 import onError from '@foscia/core/actions/context/enhancers/hooks/onError';
 import onFinally from '@foscia/core/actions/context/enhancers/hooks/onFinally';
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
@@ -55,7 +51,6 @@ import readExtensions from '@foscia/core/actions/extensions/readExtensions';
 import writeExtensions from '@foscia/core/actions/extensions/writeExtensions';
 import makeActionClass from '@foscia/core/actions/makeActionClass';
 import makeActionFactory from '@foscia/core/actions/makeActionFactory';
-import ActionName from '@foscia/core/actions/actionName';
 import when from '@foscia/core/actions/when';
 
 export type {
@@ -76,7 +71,6 @@ export {
   cachedOrFail,
   cachedOr,
   raw,
-  find,
   create,
   update,
   save,
@@ -90,10 +84,6 @@ export {
   catchIf,
   context,
   query,
-  forId,
-  forInstance,
-  forModel,
-  forRelation,
   include,
   instanceData,
   relationData,

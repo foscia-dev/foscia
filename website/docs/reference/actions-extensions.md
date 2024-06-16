@@ -15,10 +15,6 @@ runners to integrate into your action to get
 
 - [`when`](/docs/reference/actions-enhancers#when)
 - [`query`](/docs/reference/actions-enhancers#query)
-- [~~`forModel`~~ (deprecated, use `query` instead)](/docs/reference/actions-enhancers#formodel)
-- [~~`forInstance`~~ (deprecated, use `query` instead)](/docs/reference/actions-enhancers#forinstance)
-- [~~`forId`~~ (deprecated, use `query` instead)](/docs/reference/actions-enhancers#forid)
-- [~~`find`~~ (deprecated, use `query` instead)](/docs/reference/actions-enhancers#find)
 - [`include`](/docs/reference/actions-enhancers#include)
 - [`context`](/docs/reference/actions-enhancers#context)
 

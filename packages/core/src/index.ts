@@ -10,7 +10,6 @@ import isNotFoundError from '@foscia/core/errors/flags/isNotFoundError';
 import FosciaError from '@foscia/core/errors/fosciaError';
 import SerializerError from '@foscia/core/errors/serializerError';
 import registerHook from '@foscia/core/hooks/registerHook';
-import runHook from '@foscia/core/hooks/runHook';
 import runHooks from '@foscia/core/hooks/runHooks';
 import unregisterHook from '@foscia/core/hooks/unregisterHook';
 import withoutHooks from '@foscia/core/hooks/withoutHooks';
@@ -54,14 +53,13 @@ import mapIds from '@foscia/core/model/props/mappers/mapIds';
 import mapProps from '@foscia/core/model/props/mappers/mapProps';
 import mapRelations from '@foscia/core/model/props/mappers/mapRelations';
 import shouldSync from '@foscia/core/model/props/shouldSync';
+import loaded from '@foscia/core/model/relations/loaded';
+import makeQueryModelLoader from '@foscia/core/model/relations/makeQueryModelLoader';
 import makeQueryModelLoaderExtractor
   from '@foscia/core/model/relations/makeQueryModelLoaderExtractor';
-import guessRelationType from '@foscia/core/model/relations/utilities/guessRelationType';
-import loaded from '@foscia/core/model/relations/loaded';
-import makeForRelationLoader from '@foscia/core/model/relations/makeForRelationLoader';
-import makeQueryModelLoader from '@foscia/core/model/relations/makeQueryModelLoader';
 import makeQueryRelationLoader from '@foscia/core/model/relations/makeQueryRelationLoader';
 import makeRefreshIncludeLoader from '@foscia/core/model/relations/makeRefreshIncludeLoader';
+import guessRelationType from '@foscia/core/model/relations/utilities/guessRelationType';
 import makeModelsReducer from '@foscia/core/model/revivers/makeModelsReducer';
 import makeModelsReviver from '@foscia/core/model/revivers/makeModelsReviver';
 import changed from '@foscia/core/model/snapshots/changed';
@@ -130,7 +128,6 @@ export {
   makeComposable,
   makeModel,
   makeModelFactory,
-  makeForRelationLoader,
   makeQueryModelLoader,
   makeQueryModelLoaderExtractor,
   makeQueryRelationLoader,
@@ -158,7 +155,6 @@ export {
   compareSnapshots,
   restoreSnapshot,
   takeSnapshot,
-  runHook,
   runHooks,
   registerHook,
   unregisterHook,
