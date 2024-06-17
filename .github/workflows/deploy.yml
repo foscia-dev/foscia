@@ -17,9 +17,9 @@ on:
       alias:
         type: string
         required: true
-      pull:
-        type: boolean
-        default: false
+      branch:
+        type: string
+        default: ""
 
 jobs:
   deploy:
@@ -27,8 +27,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        if: ${{ inputs.branch == '' }}
         with:
           fetch-depth: 0
+      - uses: actions/checkout@v4
+        if: ${{ inputs.branch != '' }}
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.branch }}
       - uses: pnpm/action-setup@v3.0.0
         with:
           version: 8
@@ -36,10 +42,6 @@ jobs:
         with:
           node-version: 20
           registry-url: 'https://registry.npmjs.org'
-
-      - name: Pull
-        if: ${{ inputs.pull == 'true' }}
-        run: git pull
 
       - name: Install
         run: pnpm install

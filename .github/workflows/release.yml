@@ -82,4 +82,4 @@ jobs:
     secrets: inherit
     with:
       alias: ${{ github.event.inputs.prerelease == 'stable' && 'production' || 'next' }}
-      pull: true
+      branch: ${{ github.ref_name }}
