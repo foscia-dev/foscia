@@ -24,7 +24,11 @@ async function run() {
 }
 
 async function lint() {
-  await execa({ stdio: 'inherit' })`eslint --ext .ts packages`;
+  await execa({ stdio: 'inherit' })`eslint ${[
+    '--ext',
+    '.ts',
+    'packages',
+  ]}`;
 }
 
 async function check() {

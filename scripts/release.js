@@ -60,9 +60,14 @@ function parseOptions(args) {
 }
 
 async function releasePackages(options) {
-  await execa({ stdio: 'inherit' })`pnpm -r --workspace-concurrency=1 release ${options.join(' ')}`;
+  await execa({ stdio: 'inherit' })`pnpm ${[
+    '-r',
+    '--workspace-concurrency=1',
+    'release',
+    ...options,
+  ]}`;
 }
 
 async function releaseGithub(options) {
-  await execa({ stdio: 'inherit' })`release-it ${options.join(' ')}`;
+  await execa({ stdio: 'inherit' })`release-it ${options}`;
 }

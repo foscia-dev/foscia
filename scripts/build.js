@@ -86,20 +86,31 @@ async function clearBuild(targets) {
 }
 
 async function buildDts() {
-  await execa({ stdio: 'inherit' })`tsc --project tsconfig.dts.json`;
-  await execa({ stdio: 'inherit' })`tsc-alias --project tsconfig.dts.json`;
+  await execa({ stdio: 'inherit' })`tsc ${[
+    '--project',
+    'tsconfig.dts.json',
+  ]}`;
+  await execa({ stdio: 'inherit' })`tsc-alias ${[
+    '--project',
+    'tsconfig.dts.json',
+  ]}`;
 }
 
 async function buildTarget(target, options) {
-  const environment = `TARGET:${target}${options.sourceMap ? ',SOURCE_MAP:true' : ''}`;
-
-  await execa({ stdio: 'inherit' })`rollup -c --silent --environment ${environment}`;
+  await execa({ stdio: 'inherit' })`rollup ${[
+    '-c',
+    '--silent',
+    '--environment',
+    `TARGET:${target},${options.sourceMap ? 'SOURCE_MAP:true' : ''}`,
+  ]}`;
 }
 
 async function moveTargetDts(target) {
   const rootDirname = useRootDirname();
-  const sourceDir = path.resolve(rootDirname, `dist/packages/${target}/src/*`);
-  const targetDir = path.resolve(rootDirname, `packages/${target}/dist`);
 
-  await execa({ shell: true, stdio: 'inherit' })`cp -r ${sourceDir} ${targetDir}`;
+  await execa({ shell: true, stdio: 'inherit' })`cp ${[
+    '-r',
+    path.resolve(rootDirname, `dist/packages/${target}/src/*`),
+    path.resolve(rootDirname, `packages/${target}/dist`),
+  ]}`;
 }
