@@ -10,7 +10,7 @@ on:
         required: true
         options:
           - production
-          - next
+          - staging
           - dev
   workflow_call:
     inputs:
