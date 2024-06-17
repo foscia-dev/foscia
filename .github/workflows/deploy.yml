@@ -47,8 +47,8 @@ jobs:
       - name: Prepare env
         if: ${{ inputs.alias != 'production' }}
         run: |
-          touch .env
-          echo "VERSION=${{ inputs.alias }}" >> .env
+          touch website/.env
+          echo "VERSION=${{ inputs.alias }}" >> website/.env
 
       - name: Build
         run: pnpm build && pnpm --filter=website build
