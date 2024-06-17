@@ -1,5 +1,5 @@
 name: deploy
-run-name: "deploy ${{ github.event.inputs.alias }} by @${{ github.actor }}"
+run-name: "deploy ${{ inputs.target }} by @${{ github.actor }}"
 
 on:
   workflow_dispatch:
@@ -37,18 +37,18 @@ jobs:
           node-version: 20
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install
-        if: ${{ github.event.inputs.pull }}
+      - name: Pull
+        if: ${{ inputs.pull }}
         run: git pull
 
       - name: Install
         run: pnpm install
 
       - name: Prepare env
-        if: ${{ github.event.inputs.alias != 'production' }}
+        if: ${{ inputs.alias != 'production' }}
         run: |
           touch .env
-          echo "VERSION=${{ github.event.inputs.alias }}" >> .env
+          echo "VERSION=${{ inputs.alias }}" >> .env
 
       - name: Build
         run: pnpm build && pnpm --filter=website build
@@ -63,4 +63,4 @@ jobs:
             --dir website/build \
             --site ${{ secrets.NETLIFY_SITE_ID }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
-            ${{ github.event.inputs.alias == 'production' && '--prod' || format('--alias {0}', github.event.inputs.alias) }}
+            ${{ inputs.alias == 'production' && '--prod' || format('--alias {0}', inputs.alias) }}
