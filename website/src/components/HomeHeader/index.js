@@ -23,13 +23,13 @@ export default function HomeHeader() {
           </p>
           <div className={styles.heroButtons}>
             <Link
-              className={clsx('button border--gradient button--lg margin--sm', styles.heroButton)}
+              className={clsx('button button--lg border--gradient blur--gradient margin-horiz--md margin-vert--sm', styles.heroButton)}
               to="/docs/about"
             >
               What's Foscia?
             </Link>
             <Link
-              className={clsx('button border--gradient button--lg margin--sm', styles.heroButton)}
+              className={clsx('button button--lg border--gradient blur--gradient margin-horiz--md margin-vert--sm', styles.heroButton)}
               to="/docs/getting-started"
             >
               Getting started

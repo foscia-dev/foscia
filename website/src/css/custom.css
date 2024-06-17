@@ -179,7 +179,7 @@ code {
 }
 
 .code-block-addition-line:before, .code-block-deletion-line:before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     right: 0;
@@ -187,6 +187,7 @@ code {
     left: 0;
     background-color: var(--code-block-line-color);
     opacity: 0.12;
+    pointer-events: none;
 }
 
 .code-block-addition-line:after, .code-block-deletion-line:after {
@@ -197,6 +198,7 @@ code {
     top: 0;
     left: 2px;
     color: var(--code-block-line-color);
+    pointer-events: none;
 }
 
 img {
@@ -237,6 +239,37 @@ img.img--cli {
 .border--gradient:hover {
     fill: var(--ifm-font-color-base) !important;
     color: var(--ifm-font-color-base) !important;
+}
+
+.blur--gradient {
+    position: relative;
+}
+
+.blur--gradient:before, .blur--gradient:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.blur--gradient:before {
+    background: -webkit-linear-gradient(315deg, var(--ifm-color-primary) 25%, var(--ifm-color-accent));
+    filter: blur(16px);
+    opacity: 0;
+    transition: all 250ms ease-in-out;
+}
+
+.blur--gradient:after {
+    background: var(--ifm-background-color);
+    border-radius: inherit;
+}
+
+.blur--gradient:hover:before,
+.blur--gradient:focus:before {
+    opacity: 1;
 }
 
 div[class^="language-"] {
@@ -376,7 +409,7 @@ aside, .table-of-contents__left-border {
     left: 0;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    background-color: rgba(var(--nav-background-color), 0.6);
+    background-color: transparent;
 }
 
 .navbar .navbar__inner {
