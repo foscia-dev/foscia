@@ -15,7 +15,7 @@ export const RELATIONS_LOADERS = [
   },
   {
     value: 'query.relation',
-    name: 'query relations indexes and include nested relations`',
+    name: 'query relations indexes and include nested relations',
     defaultName: 'WithRelationQuery',
   },
 ] as const;
