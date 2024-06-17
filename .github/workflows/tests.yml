@@ -32,4 +32,3 @@ jobs:
     secrets: inherit
     with:
       alias: 'dev'
-      pull: true
