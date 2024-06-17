@@ -38,7 +38,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Pull
-        if: ${{ inputs.pull }}
+        if: ${{ inputs.pull == 'true' }}
         run: git pull
 
       - name: Install

@@ -75,6 +75,7 @@ jobs:
         run: pnpm run release $INCREMENT_ARG $PRERELEASE_ARG $DRY_ARG --ci --verbose
 
   deploy:
+    if: ${{ github.event.inputs.dry == 'true' }}
     name: Deploy website
     needs: [ publish ]
     uses: ./.github/workflows/deploy.yml
