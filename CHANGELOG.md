@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.2](https://github.com/foscia-dev/foscia/compare/v0.9.1...v0.9.2) (2024-06-17)
+
+
+### Bug Fixes
+
+* **cli:** typo in relations loader prompt ([b43a75d](https://github.com/foscia-dev/foscia/commit/b43a75d594aae5fe2e2f3f7e2a95600b6ee81b60))
+* only deploy on release if not dry release ([2f306ad](https://github.com/foscia-dev/foscia/commit/2f306ad4e9b34e12ffce19461190f116864c2258))
+
 ## [0.9.1](https://github.com/foscia-dev/foscia/compare/v0.9.0...v0.9.1) (2024-06-16)
 
 
