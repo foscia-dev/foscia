@@ -2,6 +2,10 @@
     margin: 48px 0;
 }
 
+.homeExamplesRow {
+    justify-content: center;
+}
+
 .homeFeatureCol, .homeExamplesCol {
     padding: 16px;
 }
@@ -39,6 +43,11 @@
 
 .homeFeatureCardTitle {
     margin-bottom: 8px !important;
+}
+
+.homeFeatureCLIPackage {
+    font-family: var(--ifm-font-family-monospace);
+    font-weight: bold;
 }
 
 .homeExamplesLink {

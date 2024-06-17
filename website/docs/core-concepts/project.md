@@ -15,41 +15,47 @@ Foscia files are organized in an opinionated manner. This keeps your project
 directory structure clean and allow Foscia to provide better features when
 using the CLI, such as:
 
-- Suggesting composables to use when making models or composables using
+- Suggesting composables or transformers to use when making models or
+  composables using
   [`foscia make model`](/docs/digging-deeper/cli#make-model-name) or
   [`foscia make composable`](/docs/digging-deeper/cli#make-composable-name).
-- Importing available files (`models.ts`, `action.ts`, etc.) when
-  generating other files (such as some frameworks integration files).
+- Importing available files (`models.ts`, `action.ts`, `makeModel.ts`, etc.)
+  when generating other files (such as models, some frameworks integration files).
 
 ## Example project structure
 
 Your Foscia files are stored in one directory you choose when initiating
 your project using [`foscia init`](/docs/digging-deeper/cli#init-path).
 
-```text title="Example of Foscia files structure inside a project"
+Here is an example of a Nuxt v4 project using Foscia and storing Foscia's
+related files into `app/data` directory.
+
+```text
 root-path/
-├── composables/
-│   ├── commentable.ts
-│   └── publishable.ts
-├── models/
-│   ├── comment.ts
-│   ├── gallery.ts
-│   └── post.ts
-├── enhancers/
-│   └── withCount.ts
-├── runners/
-│   └── firstOrFail.ts
-├── loaders/
-│   ├── loadUsingRelation.ts
-│   └── loadMissingUsingRefresh.ts
-├── transformers/
-│   └── toMomentDatetime.ts
-├── utils/
-│   ├── reducer.ts
-│   └── reviver.ts
-├── action.ts
-├── models.ts
-└── makeModel.ts
+└── app/
+    └── data/
+        ├── composables/
+        │   ├── commentable.ts
+        │   └── publishable.ts
+        ├── models/
+        │   ├── comment.ts
+        │   ├── gallery.ts
+        │   └── post.ts
+        ├── enhancers/
+        │   └── withCount.ts
+        ├── runners/
+        │   └── firstOrFail.ts
+        ├── loaders/
+        │   ├── loadUsingRelation.ts
+        │   └── loadMissingUsingRefresh.ts
+        ├── transformers/
+        │   └── toMomentDatetime.ts
+        ├── utils/
+        │   ├── reducer.ts
+        │   └── reviver.ts
+        ├── action.ts
+        ├── models.ts
+        └── makeModel.ts
 ```
 
 ## Structure description

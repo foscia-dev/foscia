@@ -13,7 +13,7 @@ function HomeCardContent({ title, description, action }) {
         <p>
           {description}
         </p>
-        <div>
+        {action && <div>
           <Link
             className={clsx(`button border--gradient`, styles.homeCardTextAction)}
             to={action.to}
@@ -21,7 +21,7 @@ function HomeCardContent({ title, description, action }) {
             {action.label}
             <ArrowRightSvg className={styles.homeCardTextActionIcon} />
           </Link>
-        </div>
+        </div>}
       </div>
     </div>
   );

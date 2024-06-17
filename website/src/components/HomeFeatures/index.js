@@ -186,23 +186,27 @@ function HomeFeaturesPresentation() {
 
 function HomeGetStarted() {
   const title = <>
-    Get started <span className={clsx('text--gradient')}>now</span>
-    <br />
-    Install <span className={clsx('text--gradient')}>Foscia CLI</span>
+    Get started now,&nbsp;
+    <span className={clsx('text--gradient')}>
+      install the CLI
+    </span>
   </>;
 
   const description = <>
-    <Link to="/docs/digging-deeper/cli"><code>@foscia/cli</code></Link>&nbsp;
-    <strong>allow you to quickly setup Foscia on your project.</strong> It
-    will automatically detect your environment and install required Foscia packages.
-    Once installed, just run <code>init</code> command with your destination directory.
+    <Link to="/docs/digging-deeper/cli">
+      <code>
+        @foscia/cli
+      </code>
+    </Link>
+    <strong>&nbsp;provide quick setup and management of Foscia in your project.</strong>
+    &nbsp;It detects your environment, installs Foscia packages and provides files
+    generation commands.
   </>;
 
   return <HomeCard
     title={title}
     description={description}
-    action={{ to: '/docs/getting-started', label: 'Get started' }}
-    illustration={<div className={styles.homeFeatureGettingStartedCommands}>
+    illustration={<div>
       <ShellCommand
         command={['add dev @foscia/cli', 'foscia init']}
         join
@@ -217,8 +221,8 @@ function HomeExamples() {
     <h2 className={clsx('text--center')}>
       Discover through <span className={clsx('text--gradient')}>examples</span>
     </h2>
-    <div className={clsx('row')}>
-      <div className={clsx(styles.homeExamplesCol, 'col col--6')}>
+    <div className={clsx(styles.homeExamplesRow, 'row')}>
+      <div className={clsx(styles.homeExamplesCol, 'col col--5')}>
         <Link
           to="/playground"
           className={styles.homeExamplesLink}
@@ -231,7 +235,7 @@ function HomeExamples() {
           </div>
         </Link>
       </div>
-      <div className={clsx(styles.homeExamplesCol, 'col col--6')}>
+      <div className={clsx(styles.homeExamplesCol, 'col col--5')}>
         <a
           href="https://github.com/foscia-dev/foscia-examples"
           target="_blank"

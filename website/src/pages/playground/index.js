@@ -13,8 +13,8 @@ export default function Playground() {
       <main>
         <div className={clsx('container')}>
           <h1 className={clsx('text--center')}>
-            Try <span className={clsx('text--gradient')}>Foscia</span> in your browser
-          </h1>
+            Try Foscia in <span className={clsx('text--gradient')}>your browser</span>
+        </h1>
           <p className={clsx('text--center')}>
             Choose the tool you want to try Foscia in to open a ready-to-run example in Stackblitz.
           </p>
