@@ -123,7 +123,9 @@ const config = {
           },
           {
             position: 'right',
-            label: `${process.env.VERSION} v${packageJson.version}` || `v${packageJson.version}`,
+            label: process.env.VERSION
+              ? `${process.env.VERSION} v${packageJson.version}`
+              : `v${packageJson.version}`,
             to: '/docs/upgrade/changelog',
             className: 'header-version-link button border--gradient',
           },
