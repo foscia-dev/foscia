@@ -40,6 +40,7 @@ import onPropertyRead from '@foscia/core/model/hooks/properties/onPropertyRead';
 import onPropertyReading from '@foscia/core/model/hooks/properties/onPropertyReading';
 import onPropertyWrite from '@foscia/core/model/hooks/properties/onPropertyWrite';
 import onPropertyWriting from '@foscia/core/model/hooks/properties/onPropertyWriting';
+import filled from '@foscia/core/model/filled';
 import isSame from '@foscia/core/model/isSame';
 import makeComposable from '@foscia/core/model/makeComposable';
 import makeModel from '@foscia/core/model/makeModel';
@@ -122,6 +123,7 @@ export {
   fill,
   forceFill,
   isSame,
+  filled,
   changed,
   restore,
   markSynced,

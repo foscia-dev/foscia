@@ -11,6 +11,7 @@ import {
   ConsumeModel,
   ContextRunner,
 } from '@foscia/core/actions/types';
+import filled from '@foscia/core/model/filled';
 import loaded from '@foscia/core/model/relations/loaded';
 import { Model, ModelInstance } from '@foscia/core/model/types';
 import { Awaitable, isNil } from '@foscia/shared';
@@ -49,7 +50,7 @@ export default function cachedOr<
     const instance = !isNil(id)
       ? await cache.find(consumeModel(context).$type, id)
       : null;
-    if (isNil(instance) || !loaded(instance, context.include ?? [])) {
+    if (isNil(instance) || !filled(instance) || !loaded(instance, context.include ?? [])) {
       return action.run(nilRunner);
     }
 

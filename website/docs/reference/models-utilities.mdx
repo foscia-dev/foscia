@@ -91,6 +91,36 @@ if (areSameInstances) {
 
 `boolean`
 
+### `filled`
+
+<FunctionInfo version="0.9.3" />
+
+Check if instance contains any values, even defined as null. It excludes ID
+and LID from checked values.
+This can be useful to check if any data has been loaded on an instance from
+the store. If no attributes/relations are declared on model, it will always
+return true.
+
+#### Example
+
+```typescript
+import { filled } from '@foscia/core';
+
+const isFilled = filled(post);
+if (isFilled) {
+  /* probably not fetched from data source */
+}
+```
+
+#### Arguments
+
+- [`ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
+`instance`
+
+#### Returns
+
+`boolean`
+
 ### `loaded`
 
 Check if the given relations are loaded on the instance or its related
