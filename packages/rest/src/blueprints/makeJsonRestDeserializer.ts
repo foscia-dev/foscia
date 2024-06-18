@@ -5,7 +5,7 @@ import {
   makeDeserializerRecordFactory,
   makeDeserializerWith,
 } from '@foscia/serialization';
-import { Arrayable } from '@foscia/shared';
+import { Arrayable, mapArrayable } from '@foscia/shared';
 
 export default function makeJsonRestDeserializer<
   Record extends RestNewResource = RestNewResource,
@@ -21,11 +21,9 @@ export default function makeJsonRestDeserializer<
       createRecord: makeDeserializerRecordFactory(
         (record) => record,
         (record, { key }) => record[key],
-        (record, { key }) => (
-          typeof record[key] === 'object'
-            ? record[key] as Arrayable<Record> | null
-            : undefined
-        ),
+        (record, { key }) => mapArrayable(record[key], (value) => (
+          (typeof value === 'object' ? value : { id: value }) as Record
+        )),
       ),
       ...config,
     }),
