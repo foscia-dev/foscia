@@ -34,6 +34,7 @@ export type ModelConfig = {
   strictReadOnly?: boolean;
   path?: Optional<string>;
   guessPath?: Transformer<string>;
+  guessIdPath?: Transformer<ModelIdType>;
   guessRelationPath?: Transformer<ModelRelation, string>;
   guessRelationType?: Transformer<ModelRelation, string>;
   guessAlias?: Transformer<string>;

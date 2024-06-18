@@ -103,7 +103,7 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
           : (model.$config.path ?? (model.$config.guessPath ?? ((t) => t))(model.$type)),
         idPath: isNil(id)
           ? undefined
-          : String(id),
+          : String((model?.$config.guessIdPath ?? ((t) => t))(id)),
         relationPath: isNil(relation)
           ? undefined
           : (relation.path ?? (model?.$config.guessRelationPath ?? ((r) => r.key))(relation)),
