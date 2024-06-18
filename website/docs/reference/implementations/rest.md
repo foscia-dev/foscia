@@ -153,7 +153,7 @@ data using the given transformation function, such as:
 import { makeJsonRestDeserializer } from '@foscia/rest';
 
 makeJsonRestSerializer({
-  extractData: (data: { data: any }) => (data.data),
+  extractData: (data: { data: any }) => ({ records: data.data }),
 });
 ```
 
