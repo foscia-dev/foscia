@@ -1,6 +1,18 @@
-import { DeserializedData, ModelIdType, ModelInstance } from '@foscia/core';
-import { DeserializerConfig, DeserializerExtract, SerializerConfig } from '@foscia/serialization';
-import { Dictionary, IdentifiersMap } from '@foscia/shared';
+import {
+  DeserializedData,
+  ModelAttribute,
+  ModelIdType,
+  ModelInstance,
+  ModelRelation,
+} from '@foscia/core';
+import {
+  DeserializerConfig,
+  DeserializerContext,
+  DeserializerExtract,
+  DeserializerRecordIdentifier,
+  SerializerConfig,
+} from '@foscia/serialization';
+import { Arrayable, Awaitable, Dictionary, IdentifiersMap } from '@foscia/shared';
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-links)
@@ -128,7 +140,19 @@ export type JsonApiDeserializerConfig<
   Deserialized extends JsonApiDeserializedData,
   Extract extends JsonApiExtractedData<Record>,
 > =
-  & {}
+  & {
+    pullIdentifier: (record: Record, context: {}) => Awaitable<DeserializerRecordIdentifier>;
+    pullAttribute: (
+      record: Record,
+      deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelAttribute>,
+      extract: Extract,
+    ) => Awaitable<unknown>;
+    pullRelation: (
+      record: Record,
+      deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelRelation>,
+      extract: Extract,
+    ) => Awaitable<Arrayable<Record> | null | undefined>;
+  }
   & DeserializerConfig<Record, Data, Deserialized, Extract>;
 
 export type JsonApiSerializerConfig<

@@ -34,12 +34,12 @@ export default function makeJsonApiDeserializer<
         instances, document: extract.document,
       } as Deserialized),
       createRecord: makeDeserializerRecordFactory(
-        (record) => record,
-        (record, { key }) => record.attributes?.[key],
-        (record, { key }, extract) => mapArrayable(
+        config.pullIdentifier ?? ((record) => record),
+        config.pullAttribute ?? ((record, { key }) => record.attributes?.[key]),
+        config.pullRelation ?? ((record, { key }, extract) => mapArrayable(
           record.relationships?.[key]?.data,
           (value) => extract.included.find(value.type, value.id) as Record,
-        ),
+        )),
       ),
       ...config,
     }),
