@@ -19,11 +19,11 @@ export default function makeJsonRestDeserializer<
         records: data as Arrayable<RestNewResource> | null,
       } as Extract),
       createRecord: makeDeserializerRecordFactory(
-        (record) => record,
-        (record, { key }) => record[key],
-        (record, { key }) => mapArrayable(record[key], (value) => (
+        config.pullIdentifier ?? ((record) => record),
+        config.pullAttribute ?? ((record, { key }) => record[key]),
+        config.pullRelation ?? ((record, { key }) => mapArrayable(record[key], (value) => (
           (typeof value === 'object' ? value : { id: value }) as Record
-        )),
+        ))),
       ),
       ...config,
     }),

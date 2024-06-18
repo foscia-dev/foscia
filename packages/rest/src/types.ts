@@ -1,7 +1,13 @@
-import { DeserializedData, ModelIdType } from '@foscia/core';
+import { DeserializedData, ModelAttribute, ModelIdType, ModelRelation } from '@foscia/core';
 import { HttpAdapterConfig } from '@foscia/http';
-import { DeserializerConfig, DeserializerExtract, SerializerConfig } from '@foscia/serialization';
-import { Dictionary } from '@foscia/shared';
+import {
+  DeserializerConfig,
+  DeserializerContext,
+  DeserializerExtract,
+  DeserializerRecordIdentifier,
+  SerializerConfig,
+} from '@foscia/serialization';
+import { Arrayable, Awaitable, Dictionary } from '@foscia/shared';
 
 export type RestAbstractResource = Dictionary & {
   type?: string;
@@ -22,7 +28,19 @@ export type RestDeserializerConfig<
   Deserialized extends DeserializedData,
   Extract extends DeserializerExtract<Record>,
 > =
-  & {}
+  & {
+    pullIdentifier: (record: Record, context: {}) => Awaitable<DeserializerRecordIdentifier>;
+    pullAttribute: (
+      record: Record,
+      deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelAttribute>,
+      extract: Extract,
+    ) => Awaitable<unknown>;
+    pullRelation: (
+      record: Record,
+      deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelRelation>,
+      extract: Extract,
+    ) => Awaitable<Arrayable<Record> | null | undefined>;
+  }
   & DeserializerConfig<Record, Data, Deserialized, Extract>;
 
 export type RestSerializerConfig<
