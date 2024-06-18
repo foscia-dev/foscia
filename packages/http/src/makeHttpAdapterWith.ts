@@ -95,9 +95,9 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
     ], '/')));
 
     return buildURL({
-      baseURL: contextConfig?.baseURL ?? model?.$config.baseURL ?? config.baseURL ?? '/',
-      additionalPath: contextConfig?.path,
-      ...(contextConfig?.modelPaths !== false ? {
+      baseURL: contextConfig.baseURL ?? model?.$config.baseURL ?? config.baseURL ?? '/',
+      additionalPath: contextConfig.path,
+      ...(contextConfig.modelPaths !== false ? {
         modelPath: isNil(model)
           ? undefined
           : (model.$config.path ?? (model.$config.guessPath ?? ((t) => t))(model.$type)),
@@ -112,7 +112,7 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
   };
 
   const makeRequestMethod = (context: {}, contextConfig: HttpRequestConfig) => (() => {
-    if (contextConfig?.method) {
+    if (contextConfig.method) {
       return contextConfig.method;
     }
 
@@ -140,11 +140,11 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
       ...config.defaultHeaders,
     };
 
-    let body = contextConfig?.body ?? consumeData(context, null) ?? undefined;
+    let body = contextConfig.body ?? consumeData(context, null) ?? undefined;
     if (body instanceof FormData || body instanceof URLSearchParams) {
       delete headers['Content-Type'];
     } else {
-      const bodyAs = contextConfig?.bodyAs
+      const bodyAs = contextConfig.bodyAs
         ?? config.defaultBodyAs
         ?? ((b) => JSON.stringify(b));
       if (bodyAs && body !== undefined) {
@@ -155,21 +155,21 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
     const appendHeaders = config.appendHeaders ?? (() => ({}));
 
     const init = {
-      cache: contextConfig?.cache,
-      credentials: contextConfig?.credentials,
-      integrity: contextConfig?.integrity,
-      keepalive: contextConfig?.keepalive,
-      mode: contextConfig?.mode,
-      redirect: contextConfig?.redirect,
-      referrer: contextConfig?.referrer,
-      referrerPolicy: contextConfig?.referrerPolicy,
-      signal: contextConfig?.signal,
-      window: contextConfig?.window,
+      cache: contextConfig.cache,
+      credentials: contextConfig.credentials,
+      integrity: contextConfig.integrity,
+      keepalive: contextConfig.keepalive,
+      mode: contextConfig.mode,
+      redirect: contextConfig.redirect,
+      referrer: contextConfig.referrer,
+      referrerPolicy: contextConfig.referrerPolicy,
+      signal: contextConfig.signal,
+      window: contextConfig.window,
     } as { [K in HttpRequestInitPickKey]: RequestInit[K]; };
 
     return {
       body,
-      headers: { ...headers, ...await appendHeaders(context), ...contextConfig?.headers },
+      headers: { ...headers, ...await appendHeaders(context), ...contextConfig.headers },
       method: makeRequestMethod(context, contextConfig),
       ...init,
     } as RequestInit;
@@ -216,7 +216,7 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
 
     if (response.status >= 200 && response.status < 300) {
       return makeHttpAdapterResponse(await transformResponse(context, response), {
-        reader: contextConfig?.responseReader ?? config.defaultResponseReader ?? ((r) => r.json()),
+        reader: contextConfig.responseReader ?? config.defaultResponseReader ?? ((r) => r.json()),
       });
     }
 
