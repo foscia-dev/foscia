@@ -52,6 +52,15 @@
 
 .homeExamplesLink {
     text-decoration: none !important;
+    border-radius: var(--ifm-global-radius);
+}
+
+.homeExamplesCard {
+    border-radius: var(--ifm-global-radius);
+    background: var(--ifm-code-background);
+    box-shadow: var(--ifm-global-shadow-lw);
+    height: 100%;
+    padding: 16px 8px;
 }
 
 .homeExamplesIcon {

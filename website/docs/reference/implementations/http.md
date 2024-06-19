@@ -45,7 +45,7 @@ const { adapter } = makeHttpAdapter({
   /* ...configuration */
 });
 // Using constructor (no default configuration provided).
-const { adapter } = makeHttpAdapterWith({
+const adapter = makeHttpAdapterWith({
   serializeParams: paramsSerializer,
   /* ...configuration */
 });

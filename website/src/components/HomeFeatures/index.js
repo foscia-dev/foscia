@@ -225,9 +225,9 @@ function HomeExamples() {
       <div className={clsx(styles.homeExamplesCol, 'col col--5')}>
         <Link
           to="/playground"
-          className={styles.homeExamplesLink}
+          className={clsx(styles.homeExamplesLink, 'blur--gradient')}
         >
-          <div className={clsx(styles.homeFeatureCard, 'text--center')}>
+          <div className={clsx(styles.homeExamplesCard, 'text--center')}>
             <LogoPlayground className={styles.homeExamplesIcon} />
             <p className={styles.homeExamplesText}>
               Discover Foscia in your browser thanks to multiple StackBlitz playgrounds.
@@ -240,9 +240,9 @@ function HomeExamples() {
           href="https://github.com/foscia-dev/foscia-examples"
           target="_blank"
           rel="noopener"
-          className={styles.homeExamplesLink}
+          className={clsx(styles.homeExamplesLink, 'blur--gradient')}
         >
-          <div className={clsx(styles.homeFeatureCard, 'text--center')}>
+          <div className={clsx(styles.homeExamplesCard, 'text--center')}>
             <LogoExamples className={styles.homeExamplesIcon} />
             <p className={styles.homeExamplesText}>
               Discover Foscia using Docker through a set of ready-to-run projects.

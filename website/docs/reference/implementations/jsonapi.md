@@ -30,7 +30,7 @@ import { deepParamsSerializer } from '@foscia/http';
 import { makeJsonApiAdapter } from '@foscia/jsonapi';
 
 // Using blueprint (preconfigured with sensible defaults).
-const adapter = makeJsonApiAdapter({
+const { adapter } = makeJsonApiAdapter({
   /* ...configuration */
 });
 
@@ -137,7 +137,7 @@ deserialize to model instances.
 import { makeJsonApiDeserializer } from '@foscia/jsonapi';
 
 // Using blueprint (preconfigured with sensible defaults).
-const deserializer = makeJsonApiDeserializer({
+const { deserializer } = makeJsonApiDeserializer({
   /* ...configuration */
 });
 
@@ -217,7 +217,7 @@ create from a model instance.
 import { makeJsonApiSerializer } from '@foscia/jsonapi';
 
 // Using blueprint (preconfigured with sensible defaults).
-const serializer = makeJsonApiSerializer({
+const { serializer } = makeJsonApiSerializer({
   /* ...configuration */
 });
 

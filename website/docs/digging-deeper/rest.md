@@ -52,7 +52,7 @@ To define a custom query parameter, use the `includeParamKey` option.
 ```typescript
 import { makeJsonRestAdapter } from '@foscia/http';
 
-const adapter = makeJsonRestAdapter({
+const { adapter } = makeJsonRestAdapter({
   includeParamKey: 'with',
 });
 ```

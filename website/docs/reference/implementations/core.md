@@ -46,7 +46,7 @@ import { makeMapRegistryWith, makeRegistry } from '@foscia/core';
 import Post from './models/post';
 
 // Using blueprint (preconfigured with sensible defaults).
-const registry = makeRegistry(
+const { registry } = makeRegistry(
   [Post, /* ...registered models */],
   { /* ...configuration */ },
 );
@@ -109,7 +109,7 @@ import { makeCache, makeRefsCacheWith, weakRefManager } from '@foscia/core';
 import Post from './models/post';
 
 // Using blueprint (preconfigured with sensible defaults).
-const cache = makeCache({
+const { cache } = makeCache({
   /* ...configuration */
 });
 // Using constructor (no default configuration provided).

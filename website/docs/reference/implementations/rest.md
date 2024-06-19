@@ -29,11 +29,11 @@ import { paramsSerializer } from '@foscia/http';
 import { makeRestAdapterWith, makeJsonRestAdapter } from '@foscia/rest';
 
 // Using blueprint (preconfigured with sensible defaults).
-const adapter = makeJsonRestAdapter({
+const { adapter } = makeJsonRestAdapter({
   /* ...configuration */
 });
 // Using constructor (no default configuration provided).
-const adapter = makeRestAdapterWith({
+const { adapter } = makeRestAdapterWith({
   serializeParams: paramsSerializer,
   /* ...configuration */
 });
@@ -114,7 +114,7 @@ to model instances.
 import { makeJsonRestDeserializer } from '@foscia/rest';
 
 // Using blueprint (preconfigured with sensible defaults).
-const deserializer = makeJsonRestDeserializer({
+const { deserializer } = makeJsonRestDeserializer({
   /* ...configuration */
 });
 
@@ -176,7 +176,7 @@ create from a model instance.
 import { makeJsonRestSerializer } from '@foscia/rest';
 
 // Using blueprint (preconfigured with sensible defaults).
-const serializer = makeJsonRestSerializer({
+const { serializer } = makeJsonRestSerializer({
   /* ...configuration */
 });
 

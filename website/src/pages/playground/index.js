@@ -14,7 +14,7 @@ export default function Playground() {
         <div className={clsx('container')}>
           <h1 className={clsx('text--center')}>
             Try Foscia in <span className={clsx('text--gradient')}>your browser</span>
-        </h1>
+          </h1>
           <p className={clsx('text--center')}>
             Choose the tool you want to try Foscia in to open a ready-to-run example in Stackblitz.
           </p>
@@ -26,10 +26,12 @@ export default function Playground() {
                 <div className={clsx(styles.playgroundCol, 'text--center col col--4')}>
                   <Link
                     to={`/playground/${playground.id}`}
-                    className={clsx(styles.playgroundCard)}
+                    className={clsx(styles.playgroundCard, 'blur--gradient')}
                   >
-                    <Icon className={clsx(styles.playgroundIcon)} />
-                    <h2>{playground.name}</h2>
+                    <div className={clsx(styles.playgroundIconWrapper, 'theme--dark')}>
+                      <Icon className={clsx(styles.playgroundIcon)} />
+                    </div>
+                    <div className={clsx(styles.playgroundTitle)}>{playground.name}</div>
                   </Link>
                 </div>
               );

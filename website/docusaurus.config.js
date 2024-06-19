@@ -108,6 +108,11 @@ const config = {
           },
           {
             position: 'left',
+            label: 'Playground',
+            to: '/playground',
+          },
+          {
+            position: 'left',
             label: 'Examples',
             to: '/docs/category/examples',
           },
@@ -115,11 +120,6 @@ const config = {
             position: 'left',
             label: 'API',
             to: '/docs/category/reference',
-          },
-          {
-            position: 'left',
-            label: 'Playground',
-            to: '/playground',
           },
           {
             position: 'right',

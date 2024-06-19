@@ -149,7 +149,7 @@ in an internationalized application).
 ```typescript
 import {makeHttpAdapter} from '@foscia/http';
 
-const adapter = makeHttpAdapter({
+const { adapter } = makeHttpAdapter({
   headers: { 'Accept-Language': 'fr-FR' },
   requestTransformers: [(request) => {
     request.headers.set('Accept-Language', 'en-US');
@@ -168,7 +168,7 @@ To define a custom fetch implementation, use the `fetch` option.
 import { makeHttpAdapter } from '@foscia/http';
 import { ofetch } from 'ofetch';
 
-const adapter = makeHttpAdapter({
+const { adapter } = makeHttpAdapter({
   fetch: ofetch.native,
 });
 ```
@@ -187,7 +187,7 @@ To define a custom parameters serializer, use the `serializeParams` option.
 ```typescript
 import { makeHttpAdapter, deepParamsSerializer } from '@foscia/http';
 
-const adapter = makeHttpAdapter({
+const { adapter } = makeHttpAdapter({
   serializeParams: deepParamsSerializer,
 });
 ```

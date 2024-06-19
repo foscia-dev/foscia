@@ -3,27 +3,35 @@
 }
 
 .playgroundCard {
-    display: block;
+    display: flex;
+    align-items: center;
     border-radius: var(--ifm-global-radius);
     background: var(--ifm-code-background);
     box-shadow: var(--ifm-global-shadow-lw);
     height: 100%;
     width: 100%;
-    padding: 16px 8px;
-    transition: all 250ms ease-in-out;
+    padding: 16px;
     text-decoration: none !important;
 }
 
-.playgroundCard:hover, .playgroundCard:focus {
-    transform: scale(105%);
+.playgroundIconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--ifm-footer-background-color);
+    border-radius: 12px;
 }
 
 .playgroundIcon {
-    width: 48px;
-    height: 48px;
+    width: 32px;
+    height: 32px;
 }
 
-.playgroundCard h2 {
+.playgroundTitle {
+    font-weight: 900;
     color: var(--ifm-font-color-base);
     margin-bottom: 0;
+    margin-left: 12px;
 }
