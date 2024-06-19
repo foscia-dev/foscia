@@ -3,8 +3,8 @@ import {
   attr,
   hasMany,
   makeActionFactory,
-  makeModelFactory, makeRegistry,
-  ModelIdType,
+  makeModelFactory,
+  makeRegistry,
   oneOrFail,
   query,
 } from '@foscia/core';
@@ -19,7 +19,7 @@ import createFetchResponse from '../../../../tests/mocks/createFetchResponse.moc
 
 describe('integration: endpoint IDs', () => {
   const makeModel = makeModelFactory({
-    guessIdPath: (id: ModelIdType) => String(id).split('/').pop()!,
+    guessIdPath: (id) => String(id).split('/').pop()!,
   });
 
   const PostMock = makeModel('posts', {

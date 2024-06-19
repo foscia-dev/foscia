@@ -137,6 +137,36 @@ console.log(data.document);
 console.log(data.document.meta!.page.hasMore);
 ```
 
+## Configuration recipes
+
+Here are common configuration for `@foscia/jsonapi` implementation. You can read
+[the implementation and configuration guide](/docs/reference/implementations/jsonapi)
+for more details.
+
+You can also take a look at
+[HTTP usage and common configuration recipes](/docs/digging-deeper/http), as
+the JSON:API adapter is based on HTTP adapter.
+
+### Parsing URL IDs
+
+Some API implementation may serialize records IDs as URL to the record endpoint
+(such as `https://example.com/api/posts/1` for post `1`). You can customize
+the deserializer to support ID and type extraction from URL ID using the
+`pullIdentifier` option.
+
+```typescript
+import { makeJsonRestDeserializer } from '@foscia/rest';
+
+makeJsonRestDeserializer({
+  pullIdentifier: (record) => {
+    // This will support IDs like `https://example.com/api/posts/1`, `/api/posts/1`, etc.
+    const [id, type] = String(record.id).split('/').reverse();
+
+    return { id, type };
+  },
+});
+```
+
 ## Reference
 
 - [Dedicated enhancers API](/docs/reference/actions-enhancers#fosciajsonapi)

@@ -43,26 +43,6 @@ const response = await adapter.execute({
 });
 ```
 
-:::tip
-
-If your REST API interacts with another data type than JSON, such as XML, you
-can configure this behavior as a default on your adapter:
-
-```typescript
-import { objectToXML, objectFromXML } from 'some-xml-library';
-
-makeRestAdapterWith({
-  defaultBodyAs: (body) => objectToXML(body),
-  defaultResponseReader: (response) => objectFromXML(body),
-  defaultHeaders: {
-    Accept: 'application/xml',
-    'Content-Type': 'application/xml',
-  },
-});
-```
-
-:::
-
 #### Configuration {#makejsonrestadapter-configuration}
 
 `makeJsonRestAdapter` and `makeRestAdapterWith` extend its configuration object from:
@@ -143,27 +123,17 @@ const { instances } = await deserializer.deserialize(data, {
 });
 ```
 
-:::tip
-
-If your REST API document nest records inside the document (such as inside a
-`data` property), you can add `extractData` option which will extract records
-data using the given transformation function, such as:
-
-```typescript
-import { makeJsonRestDeserializer } from '@foscia/rest';
-
-makeJsonRestSerializer({
-  extractData: (data: { data: any }) => ({ records: data.data }),
-});
-```
-
-:::
-
 #### Configuration
 
 `makeJsonRestDeserializer` extends its configuration object from:
 
 - [`makeDeserializerWith`](/docs/reference/implementations/serialization#makedeserializerwith-configuration)
+
+| Name             | Type                                                                                                                                                       | Description                                   |
+|------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|
+| `pullIdentifier` | `(record: Record, context: {}) => Awaitable<DeserializerRecordIdentifier>`                                                                                 | Extract identifier (type and ID) from record. |
+| `pullAttribute`  | `(record: Record, deserializerContext: DeserializerContext, extract: Extract) => Awaitable<unknown>`                                                       | Extract raw attribute value from record.      |
+| `pullAttribute`  | <code>(record: Record, deserializerContext: DeserializerContext, extract: Extract) => Awaitable\<Arrayable\<Record\> &vert; null &vert; undefined\></code> | Extract raw relation value from record.       |
 
 #### Defined in
 
@@ -214,22 +184,6 @@ const data = await serializer.serializeInstance(instance, {
   /* ...context */
 });
 ```
-
-:::tip
-
-If your REST API document expect record data to be nested (such as inside a
-`data` property), you can add `createData` option which will wrap records data
-using the given transformation function, such as:
-
-```typescript
-import { makeJsonRestSerializer } from '@foscia/rest';
-
-makeJsonRestSerializer({
-  createData: (records) => ({ data: records }),
-});
-```
-
-:::
 
 #### Configuration
 

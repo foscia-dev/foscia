@@ -41,11 +41,11 @@ use cases such as:
 import { makeHttpAdapter, makeHttpAdapterWith, paramsSerializer } from '@foscia/http';
 
 // Using blueprint (preconfigured with sensible defaults).
-const adapter = makeHttpAdapter({
+const { adapter } = makeHttpAdapter({
   /* ...configuration */
 });
 // Using constructor (no default configuration provided).
-const adapter = makeHttpAdapterWith({
+const { adapter } = makeHttpAdapterWith({
   serializeParams: paramsSerializer,
   /* ...configuration */
 });
@@ -54,17 +54,6 @@ const response = await adapter.execute({
   /* ...context */
 });
 ```
-
-:::tip
-
-`@foscia/http` provides two params serializer:
-
-- `paramsSerializer` (default for `makeHttpAdapter`) which serialize a params
-  object using `URLSearchParams`.
-- `deepParamsSerializer` which deeply serialize a params object (handle deep
-  array or object, because `URLSearchParams` won't).
-
-:::
 
 #### Configuration {#makehttpadapter-configuration}
 

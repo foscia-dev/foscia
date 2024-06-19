@@ -152,6 +152,12 @@ const { instances } = await deserializer.deserialize(data, {
 
 - [`makeDeserializerWith`](/docs/reference/implementations/serialization#makedeserializerwith-configuration)
 
+| Name             | Type                                                                                                                                                       | Description                                   |
+|------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|
+| `pullIdentifier` | `(record: Record, context: {}) => Awaitable<DeserializerRecordIdentifier>`                                                                                 | Extract identifier (type and ID) from record. |
+| `pullAttribute`  | `(record: Record, deserializerContext: DeserializerContext, extract: Extract) => Awaitable<unknown>`                                                       | Extract raw attribute value from record.      |
+| `pullAttribute`  | <code>(record: Record, deserializerContext: DeserializerContext, extract: Extract) => Awaitable\<Arrayable\<Record\> &vert; null &vert; undefined\></code> | Extract raw relation value from record.       |
+
 #### Defined in
 
 - [`packages/jsonapi/src/blueprints/makeJsonApiDeserializer.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/jsonapi/src/blueprints/makeJsonApiDeserializer.ts)

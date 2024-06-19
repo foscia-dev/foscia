@@ -13,6 +13,7 @@ import ShellCommand from '@site/src/components/ShellCommand';
 
 - Configuring your action factory to only make HTTP request
 - Using Foscia as an HTTP client
+- Common configuration recipes
 
 :::
 
@@ -131,6 +132,64 @@ const data = await action()
     }),
   }))
   .run(raw((response) => response.json()));
+```
+
+## Configuration recipes
+
+Here are common configuration for `@foscia/http` implementation. You can read
+[the implementation and configuration guide](/docs/reference/implementations/http)
+for more details.
+
+### Defining default headers
+
+To define a default request headers, use the `headers` option or implement
+a request transformer (useful for unstable headers, such as `Accept-Language`
+in an internationalized application).
+
+```typescript
+import {makeHttpAdapter} from '@foscia/http';
+
+const adapter = makeHttpAdapter({
+  headers: { 'Accept-Language': 'fr-FR' },
+  requestTransformers: [(request) => {
+    request.headers.set('Accept-Language', 'en-US');
+    return request;
+  }],
+});
+```
+
+### Changing fetch implementation
+
+`@foscia/http` uses `globalThis.fetch` as its default fetch implementation.
+
+To define a custom fetch implementation, use the `fetch` option.
+
+```typescript
+import { makeHttpAdapter } from '@foscia/http';
+import { ofetch } from 'ofetch';
+
+const adapter = makeHttpAdapter({
+  fetch: ofetch.native,
+});
+```
+
+### Deeply serializing query params
+
+`@foscia/http` provides two params serializer:
+
+- `paramsSerializer` (default for `makeHttpAdapter`) which serialize a params
+object using `URLSearchParams`.
+- `deepParamsSerializer` which deeply serialize a params object (handle deep
+array or object, because `URLSearchParams` won't).
+
+To define a custom parameters serializer, use the `serializeParams` option.
+
+```typescript
+import { makeHttpAdapter, deepParamsSerializer } from '@foscia/http';
+
+const adapter = makeHttpAdapter({
+  serializeParams: deepParamsSerializer,
+});
 ```
 
 ## Reference

@@ -132,6 +132,28 @@ makeModel({
 });
 ```
 
+#### `guessIdPath`
+
+**Default**: no transformation.
+
+**Recommandation**: use this configuration option inside a
+[custom model factory](/docs/digging-deeper/models/models-composition#factory).
+
+`guessIdPath` transform a model's `id` to guess its `path` when querying.
+This can be useful when you want to query records by given their endpoint as
+their ID.
+
+```typescript title="post.ts"
+import { makeModel, isManyRelationDef } from '@foscia/core';
+
+// If `/api/posts/1` is given when querying Post, only `1` will be used
+// as ID in requested endpoint.
+makeModel({
+  type: 'posts',
+  guessIdPath: (id) => String(id).split('/').pop()!,
+});
+```
+
 #### `guessAlias`
 
 **Default**: no transformation.
