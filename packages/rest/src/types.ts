@@ -19,6 +19,9 @@ export type RestNewResource = RestAbstractResource & {
 
 export type RestAdapterConfig<Data = any> = HttpAdapterConfig<Data> & {
   includeParamKey?: string | null;
+  /**
+   * @deprecated Use `includeParamKey` option instead.
+   */
   includeQueryParameter?: string | null;
 };
 
