@@ -69,7 +69,7 @@ describe.concurrent('unit: query', () => {
 
     expect(await evaluateContext(query(post, 'comments'))).toStrictEqual({
       model: PostMock,
-      instance: post,
+      instance: undefined,
       id: '123',
       relation: PostMock.$schema.comments,
     });

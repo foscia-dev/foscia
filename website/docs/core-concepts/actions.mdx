@@ -4,6 +4,7 @@ description: Build actions, registering hooks, discover enhancers and runners.
 ---
 
 import Link from '@docusaurus/Link';
+import FunctionInfo from '@site/src/components/FunctionInfo';
 
 # Actions
 
@@ -225,6 +226,23 @@ Using `attach`, `detach` and `updateRelation` **will not update** the model's
 property.
 
 :::
+
+##### Creating through
+
+<FunctionInfo version="0.9.3" />
+
+In some data source implementation, you may want to create a record "through"
+a parent record's relation. As an example, creating a comment through a post
+in a REST API, and using a `POST /posts/1/comments` request.
+
+This can be achieved using the `create` enhancer.
+
+```typescript
+import { create } from '@foscia/core';
+
+// Create a comment through a post.
+await action().use(create(newComment, post, 'comments'));
+```
 
 ### Caching
 

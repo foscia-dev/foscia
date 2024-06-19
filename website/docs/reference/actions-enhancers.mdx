@@ -96,21 +96,40 @@ the instance to query
 
 <FunctionInfo requires="Serializer" provides="Model, Instance, ID" />
 
-Prepare context for an instance creation.
+Prepare context for an instance creation (directly or through a parent
+relationships).
 
 #### Example
 
 ```typescript
 import { create } from '@foscia/core';
 
+// Create post.
 const post = new Post();
 action().use(create(post));
+
+// Create comment through existing post "comments" relation.
+const comment = new Comment();
+action().use(create(post, 'comments', post));
 ```
 
 #### Arguments
 
+##### Instance signature
+
 - [`I extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
-  `instance` an instance of model to create
+  `instance` an instance to create
+
+##### Through instance signature
+
+<FunctionInfo version="0.9.3" />
+
+- [`I extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
+`throughInstance` an instance to create through
+- [`K extends ModelRelationKey`](/docs/reference/api/@foscia/core/type-aliases/ModelRelationKey)
+`throughRelation` a relation of `throughInstance` to create through
+- [`RI extends ModelInstance`](/docs/reference/api/@foscia/core/type-aliases/ModelInstance)
+`instance` an instance to create
 
 ### `update`
 

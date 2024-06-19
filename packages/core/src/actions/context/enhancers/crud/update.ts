@@ -1,7 +1,6 @@
+import ActionName from '@foscia/core/actions/actionName';
 import context from '@foscia/core/actions/context/enhancers/context';
 import instanceData from '@foscia/core/actions/context/enhancers/crud/instanceData';
-import syncInstanceExistenceOnSuccess
-  from '@foscia/core/actions/context/enhancers/hooks/syncInstanceExistenceOnSuccess';
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import query from '@foscia/core/actions/context/enhancers/query';
@@ -15,8 +14,8 @@ import {
   ConsumeSerializer,
 } from '@foscia/core/actions/types';
 import runHooks from '@foscia/core/hooks/runHooks';
+import markSynced from '@foscia/core/model/snapshots/markSynced';
 import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/types';
-import ActionName from '../../../actionName';
 
 /**
  * Prepare context for an instance update.
@@ -43,9 +42,13 @@ export default function update<
       id: (instance as ModelInstance).id,
     }))
     .use(instanceData(instance))
-    .use(syncInstanceExistenceOnSuccess(true))
     .use(onRunning(() => runHooks(instance.$model, ['updating', 'saving'], instance)))
-    .use(onSuccess(() => runHooks(instance.$model, ['updated', 'saved'], instance)));
+    .use(onSuccess(async () => {
+      // eslint-disable-next-line no-param-reassign
+      instance.$exists = true;
+      markSynced(instance);
+      await runHooks(instance.$model, ['updated', 'saved'], instance);
+    }));
 }
 
 type EnhancerExtension = ActionParsedExtension<{

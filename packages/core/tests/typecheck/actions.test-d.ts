@@ -4,7 +4,8 @@ import {
   cachedOr,
   CacheI,
   context,
-  DeserializerI,
+  create,
+  DeserializerI, destroy,
   include,
   makeActionClass,
   one,
@@ -12,6 +13,7 @@ import {
   oneOrFail,
   query,
   raw,
+  SerializerI, update,
   when,
 } from '@foscia/core';
 import { expectTypeOf, test } from 'vitest';
@@ -27,11 +29,15 @@ test('Actions are type safe', async () => {
       ...oneOrFail.extension,
       ...cachedOr.extension,
       ...when.extension,
+      ...create.extension,
+      ...update.extension,
+      ...destroy.extension,
     });
 
     return new ActionClass().use(context({
       adapter: null as unknown as AdapterI<Response>,
       cache: null as unknown as CacheI,
+      serializer: null as unknown as SerializerI<any, any, any>,
       deserializer: null as unknown as DeserializerI<any>,
     }));
   };
@@ -81,6 +87,40 @@ test('Actions are type safe', async () => {
   expectTypeOf(createdPostUsingBuild).toMatchTypeOf<PostMock | null | void>();
   expectTypeOf(createdPostUsingFuncOrCurrent).toMatchTypeOf<PostMock>();
   expectTypeOf(createdPostUsingBuildOrCurrent).toMatchTypeOf<PostMock>();
+
+  expectTypeOf(
+    await action()
+      .use(create(new PostMock()))
+      .run(one()),
+  ).toMatchTypeOf<PostMock | null>();
+  expectTypeOf(
+    await action()
+      .use(create(new CommentMock(), new PostMock(), 'comments'))
+      .run(one()),
+  ).toMatchTypeOf<CommentMock | null>();
+  expectTypeOf(
+    await action()
+      .use(update(new PostMock()))
+      .run(one()),
+  ).toMatchTypeOf<PostMock | null>();
+  expectTypeOf(
+    await action()
+      .use(destroy(new PostMock()))
+      .run(one()),
+  ).toMatchTypeOf<PostMock | null>();
+
+  expectTypeOf(
+    await action().create(new PostMock()).oneOrFail(),
+  ).toMatchTypeOf<PostMock>();
+  expectTypeOf(
+    await action().create(new CommentMock(), new PostMock(), 'comments').oneOrFail(),
+  ).toMatchTypeOf<CommentMock>();
+  expectTypeOf(
+    await action().update(new PostMock()).oneOrFail(),
+  ).toMatchTypeOf<PostMock>();
+  expectTypeOf(
+    await action().destroy(new PostMock()).oneOrFail(),
+  ).toMatchTypeOf<PostMock>();
 
   // @ts-expect-error title is not a post relation
   await action().use(query(PostMock), include('title'));

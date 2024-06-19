@@ -81,8 +81,7 @@ function query<
 >(
   instance: ModelClassInstance<D> & I,
   relation: ModelRelationKey<D> & K,
-  // eslint-disable-next-line max-len
-): ContextEnhancer<C, E, C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeInstance<I> & ConsumeId>;
+): ContextEnhancer<C, E, C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId>;
 
 function query(
   modelOrInstance: Model | ModelInstance,
@@ -92,7 +91,7 @@ function query(
     ? context({ model: modelOrInstance, id: idOrRelation })
     : context({
       model: modelOrInstance.$model,
-      instance: modelOrInstance,
+      instance: idOrRelation ? undefined : modelOrInstance,
       id: modelOrInstance.$exists ? modelOrInstance.id : undefined,
       relation: idOrRelation && modelOrInstance.$model.$schema[idOrRelation],
     });

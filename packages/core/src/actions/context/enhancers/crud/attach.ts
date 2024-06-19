@@ -5,15 +5,14 @@ import {
   Action,
   ActionParsedExtension,
   ConsumeId,
-  ConsumeInstance,
   ConsumeModel,
   ConsumeRelation,
   ConsumeSerializer,
 } from '@foscia/core/actions/types';
 import {
-  ModelInferPropValue,
   Model,
   ModelClassInstance,
+  ModelInferPropValue,
   ModelInstance,
   ModelRelationKey,
   ModelSchema,
@@ -56,8 +55,7 @@ type EnhancerExtension = ActionParsedExtension<{
     instance: ModelClassInstance<D> & I,
     relation: ModelRelationKey<D> & K,
     value: ModelInferPropValue<RD[K]> | NonNullable<ModelInferPropValue<RD[K]>>[number],
-    // eslint-disable-next-line max-len
-  ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeInstance<I> & ConsumeId, E>;
+  ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId, E>;
 }>;
 
 attach.extension = makeEnhancersExtension({ attach }) as EnhancerExtension;

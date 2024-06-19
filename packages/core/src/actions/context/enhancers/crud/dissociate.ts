@@ -4,7 +4,6 @@ import {
   Action,
   ActionParsedExtension,
   ConsumeId,
-  ConsumeInstance,
   ConsumeModel,
   ConsumeRelation,
   ConsumeSerializer,
@@ -52,8 +51,7 @@ type EnhancerExtension = ActionParsedExtension<{
     this: Action<C & ConsumeSerializer<Record, Related, Data>, E>,
     instance: ModelClassInstance<D> & I,
     relation: ModelRelationKey<D> & K,
-    // eslint-disable-next-line max-len
-  ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeInstance<I> & ConsumeId, E>;
+  ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId, E>;
 }>;
 
 dissociate.extension = makeEnhancersExtension({ dissociate }) as EnhancerExtension;

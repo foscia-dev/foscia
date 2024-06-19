@@ -1,6 +1,7 @@
 import {
   all,
   changed,
+  create,
   destroy,
   fill,
   include,
@@ -171,6 +172,40 @@ describe('integration: JSON REST', () => {
     expect(post.title).toStrictEqual('Foo');
     expect(post.body).toStrictEqual('Foo Body');
     expect(post.comments).toStrictEqual([comment]);
+  });
+
+  it('should run action: create record over relation', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json({
+      id: '2',
+      body: 'Bar',
+    }));
+
+    const action = makeJsonRestActionMock();
+
+    const comment = fill(new CommentMock(), { body: 'Bar' });
+    const post = fill(new PostMock(), { id: '1', title: 'Foo' });
+    post.$exists = true;
+
+    const createdComment = await action()
+      .use(create(comment, post, 'comments'))
+      .run(one());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/posts/1/comments');
+    expect(request.method).toStrictEqual('POST');
+    expect(request.headers.get('Accept')).toStrictEqual('application/json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/json');
+    expect(await request.text()).toStrictEqual(JSON.stringify({
+      body: 'Bar',
+    }));
+
+    expect(comment).toStrictEqual(createdComment);
+    expect(comment).toBeInstanceOf(CommentMock);
+    expect(comment.$exists).toStrictEqual(true);
+    expect(comment.id).toStrictEqual('2');
+    expect(comment.body).toStrictEqual('Bar');
   });
 
   it('should run action: update record', async () => {

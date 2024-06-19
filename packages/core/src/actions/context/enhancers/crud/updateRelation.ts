@@ -7,16 +7,15 @@ import {
   Action,
   ActionParsedExtension,
   ConsumeId,
-  ConsumeInstance,
   ConsumeModel,
   ConsumeRelation,
   ConsumeSerializer,
 } from '@foscia/core/actions/types';
 import isSingularRelationDef from '@foscia/core/model/checks/isSingularRelationDef';
 import {
-  ModelInferPropValue,
   Model,
   ModelClassInstance,
+  ModelInferPropValue,
   ModelInstance,
   ModelRelationKey,
   ModelSchema,
@@ -55,8 +54,7 @@ export default function updateRelation<
         action: actionName,
         data: await serializeRelation(action, instance, relation, wrappedValue),
       }),
-      // eslint-disable-next-line max-len
-    ) as unknown as Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeInstance<I> & ConsumeId, E>;
+    ) as unknown as Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId, E>;
   };
 }
 
@@ -77,8 +75,7 @@ type EnhancerExtension = ActionParsedExtension<{
     relation: ModelRelationKey<D> & K,
     value: ModelInferPropValue<RD[K]> | NonNullable<ModelInferPropValue<RD[K]>>[number],
     action?: UpdateRelationActionName,
-    // eslint-disable-next-line max-len
-  ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeInstance<I> & ConsumeId, E>;
+  ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId, E>;
 }>;
 
 updateRelation.extension = makeEnhancersExtension({ updateRelation }) as EnhancerExtension;
