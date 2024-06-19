@@ -8,7 +8,8 @@ import CLIError from '@foscia/cli/utils/errors/cliError';
 import process from 'node:process';
 import pc from 'picocolors';
 import terminalLink from 'terminal-link';
-import packageJson from '../package.json';
+// eslint-disable-next-line no-restricted-imports
+import { version } from '../package.json';
 
 export default async function kernel(argv: string[]) {
   const readDocs = terminalLink('Documentation on foscia.dev', 'https://foscia.dev', {
@@ -20,8 +21,8 @@ export default async function kernel(argv: string[]) {
 
   try {
     await makeCommander('foscia')
-      .version(packageJson.version, undefined, 'Output the version number')
-      .addHelpText('beforeAll', pc.bold(pc.magenta(`Foscia v${packageJson.version}`)))
+      .version(version, undefined, 'Output the version number')
+      .addHelpText('beforeAll', pc.bold(pc.magenta(`Foscia v${version}`)))
       .addHelpText('afterAll', `\nHelp:\n  ${readDocs}\n  ${openIssue}\n`)
       .addHelpText('after', makeUsageExamples([
         ['Initializes Foscia in your project', pc.bold('init')],

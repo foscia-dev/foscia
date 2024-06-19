@@ -1,6 +1,7 @@
 import isUnicodeSupported from 'is-unicode-supported';
 import pc from 'picocolors';
-import packageJson from '../../../package.json';
+// eslint-disable-next-line no-restricted-imports
+import { version } from '../../../package.json';
 
 export const symbols = isUnicodeSupported() ? {
   foscia: '❃',
@@ -25,5 +26,5 @@ export default {
   error: (message: string) => console.error(`${pc.red(symbols.error)} ${message}`),
   step: (message: string) => console.info(`${pc.magenta(symbols.step)} ${pc.bold(message)}\n`),
   instruct: (message: string) => console.info(`  ${message}`),
-  intro: (message: string) => console.info(`${pc.bold(pc.magenta(`Foscia v${packageJson.version}`))} ${message}`),
+  intro: (message: string) => console.info(`${pc.bold(pc.magenta(`Foscia v${version}`))} ${message}`),
 };

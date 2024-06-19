@@ -1,5 +1,5 @@
 import { attr, makeModel, toDateTime } from '@foscia/core';
-import commentable from '../composables/commentable';
+import commentable from '../composables/commentable.mock';
 
 export default class PostMock extends makeModel('posts', {
   commentable,

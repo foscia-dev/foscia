@@ -1,3 +1,6 @@
+import { runMakeModelsCommand } from '@foscia/cli/commands/make/makeModelsCommand';
+import { ConfigurableOptions, useConfig, useConfigOption } from '@foscia/cli/composables/useConfig';
+import { ForceableOptions, useForce, useForceOption } from '@foscia/cli/composables/useForce';
 import { ShowableOptions, useShow, useShowOption } from '@foscia/cli/composables/useShow';
 import renderModel from '@foscia/cli/templates/make/renderModel';
 import makeCommander from '@foscia/cli/utils/cli/makeCommander';
@@ -16,9 +19,6 @@ import { confirm } from '@inquirer/prompts';
 import { camelCase, kebabCase, upperFirst } from 'lodash-es';
 import pc from 'picocolors';
 import { plural, singular } from 'pluralize';
-import { ConfigurableOptions, useConfig, useConfigOption } from '../../composables/useConfig';
-import { ForceableOptions, useForce, useForceOption } from '../../composables/useForce';
-import { runMakeModelsCommand } from './makeModelsCommand';
 
 export type MakeModelCommandOptions =
   & { writeModels?: boolean; }
