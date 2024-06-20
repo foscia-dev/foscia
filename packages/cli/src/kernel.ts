@@ -4,14 +4,15 @@ import makeCommand from '@foscia/cli/commands/makeCommand';
 import makeCommander from '@foscia/cli/utils/cli/makeCommander';
 import makeUsageExamples from '@foscia/cli/utils/cli/makeUsageExamples';
 import output from '@foscia/cli/utils/cli/output';
+import { getVersion, resolveVersion } from '@foscia/cli/utils/context/version';
 import CLIError from '@foscia/cli/utils/errors/cliError';
 import process from 'node:process';
 import pc from 'picocolors';
 import terminalLink from 'terminal-link';
-// eslint-disable-next-line no-restricted-imports
-import { version } from '../package.json';
 
 export default async function kernel(argv: string[]) {
+  await resolveVersion();
+
   const readDocs = terminalLink('Documentation on foscia.dev', 'https://foscia.dev', {
     fallback: () => 'Documentation: https://foscia.dev',
   });
@@ -21,8 +22,8 @@ export default async function kernel(argv: string[]) {
 
   try {
     await makeCommander('foscia')
-      .version(version, undefined, 'Output the version number')
-      .addHelpText('beforeAll', pc.bold(pc.magenta(`Foscia v${version}`)))
+      .version(getVersion(), undefined, 'Output the version number')
+      .addHelpText('beforeAll', pc.bold(pc.magenta(`Foscia v${getVersion()}`)))
       .addHelpText('afterAll', `\nHelp:\n  ${readDocs}\n  ${openIssue}\n`)
       .addHelpText('after', makeUsageExamples([
         ['Initializes Foscia in your project', pc.bold('init')],

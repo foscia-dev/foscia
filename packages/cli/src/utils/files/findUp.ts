@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 type FindUpMatcher = string | RegExp | ((fileName: string, dir: string) => boolean);
 type FindUpOptions = {
   findAll?: boolean;
+  directory?: boolean;
 };
 
 function isMatch(path: string, fileName: string, matcher: FindUpMatcher) {
@@ -18,11 +19,14 @@ function isMatch(path: string, fileName: string, matcher: FindUpMatcher) {
   return matcher(fileName, path);
 }
 
-async function findInDirectory(path: string, matcher: FindUpMatcher) {
+async function findInDirectory(path: string, matcher: FindUpMatcher, directory: boolean) {
   const files = await readdir(path, { withFileTypes: true });
 
   return files
-    .filter((file) => file.isFile() && isMatch(file.path, file.name, matcher))
+    .filter((file) => (
+      (directory ? file.isDirectory() : file.isFile())
+      && isMatch(file.path, file.name, matcher)
+    ))
     .map((file) => resolve(file.path, file.name));
 }
 
@@ -31,7 +35,7 @@ async function findInDirectoryAndParents(
   matcher: FindUpMatcher,
   options?: FindUpOptions,
 ): Promise<string[][]> {
-  const files = await findInDirectory(path, matcher);
+  const files = await findInDirectory(path, matcher, options?.directory ?? false);
   if (files.length && !options?.findAll) {
     return [files];
   }
