@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.9.3](https://github.com/foscia-dev/foscia/compare/v0.9.2...v0.9.3) (2024-06-21)
+
+
+### Bug Fixes
+
+* **cli:** correctly extract current foscia version ([803b12f](https://github.com/foscia-dev/foscia/commit/803b12fcfe00dc20f6b604d15d2e81d4839ee1ee))
+* **rest:** deserialize relation even when only ID is present ([5007cd6](https://github.com/foscia-dev/foscia/commit/5007cd6aa00b945dc370309b5bb264f7da547249))
+
+
+### Features
+
+* **cli:** migrate to enquirer to support web containers ([89cc9f4](https://github.com/foscia-dev/foscia/commit/89cc9f4bb6918037119ad57200abf247c77b417c))
+* **cli:** support disabling colors ([7ea530e](https://github.com/foscia-dev/foscia/commit/7ea530ea412a9007e488723f2ad06ea77ca08033))
+* **core:** add filled utility to check if instance contains any values ([1fb5e0f](https://github.com/foscia-dev/foscia/commit/1fb5e0fe3abc1558b15d85a02e83958052480b92))
+* **core:** add guess path ID configuration to models ([e23c620](https://github.com/foscia-dev/foscia/commit/e23c62007716c701c3d3fddd5e2076e4c3ea62d1))
+* **core:** support create through parent's relation ([979d719](https://github.com/foscia-dev/foscia/commit/979d719ac9d443b40450f60c433ec3a93c9d19d6))
+* **rest:** add pull record values configuration in jsonapi deserializer ([89be9cd](https://github.com/foscia-dev/foscia/commit/89be9cd53f9f2844b4e57e6aee7c909cf2304ff3))
+* **rest:** add pull record values configuration in rest deserializer ([5002e54](https://github.com/foscia-dev/foscia/commit/5002e54e7667a2149ccee170fe0242d410a8495d))
+* **rest:** deprecate unused `includeQueryParameter` option in adapter ([8b42702](https://github.com/foscia-dev/foscia/commit/8b42702dba382a3d0a5939786540c74c41a28214))
+
 ## [0.9.2](https://github.com/foscia-dev/foscia/compare/v0.9.1...v0.9.2) (2024-06-17)
 
 
