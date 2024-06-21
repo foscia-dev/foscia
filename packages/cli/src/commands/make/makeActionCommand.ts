@@ -14,7 +14,6 @@ import validateFileName from '@foscia/cli/utils/files/validateFileName';
 import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import makeFile from '@foscia/cli/utils/makeFile';
 import promptForActionFactoryOptions from '@foscia/cli/utils/prompts/promptForActionFactoryOptions';
-import pc from 'picocolors';
 
 export type MakeActionCommandOptions =
   & {}
@@ -52,7 +51,7 @@ export default function makeActionCommand() {
   return makeCommander('action')
     .description('Create an action factory')
     .addHelpText('after', makeUsageExamples([
-      ['Creates an action factory', pc.bold('make action')],
+      ['Creates an action factory', 'make action'],
     ]))
     .argument('[name]', 'Name for action factory', 'action')
     .option(...useShowOption)

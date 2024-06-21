@@ -13,7 +13,6 @@ import validateFileName from '@foscia/cli/utils/files/validateFileName';
 import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import makeFile from '@foscia/cli/utils/makeFile';
 import { camelCase } from 'lodash-es';
-import pc from 'picocolors';
 
 export type MakeRunnerCommandOptions =
   & {}
@@ -48,7 +47,7 @@ export default function makeRunnerCommand() {
   return makeCommander('runner')
     .description('Create an action runner')
     .addHelpText('after', makeUsageExamples([
-      ['Creates an action runner', `${pc.bold('make runner')} firstOrFail`],
+      ['Creates an action runner', 'make runner', 'firstOrFail'],
     ]))
     .argument('<name>', 'Name for runner')
     .option(...useShowOption)

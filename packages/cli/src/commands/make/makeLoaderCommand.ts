@@ -13,9 +13,8 @@ import validateFileName from '@foscia/cli/utils/files/validateFileName';
 import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import makeFile from '@foscia/cli/utils/makeFile';
 import findChoice from '@foscia/cli/utils/prompts/findChoice';
+import promptConfirm from '@foscia/cli/utils/prompts/promptConfirm';
 import promptForLoader, { RELATIONS_LOADERS } from '@foscia/cli/utils/prompts/promptForLoader';
-import { confirm } from '@inquirer/prompts';
-import pc from 'picocolors';
 
 export type MakeLoaderCommandOptions =
   & {}
@@ -34,7 +33,8 @@ export async function runMakeLoaderCommand(
   await warnMissingDependencies(config);
 
   const loader = await promptForLoader();
-  const onlyMissing = await confirm({
+  const onlyMissing = await promptConfirm({
+    name: 'missing',
     message: 'would you like it to only load missing relations?',
     default: false,
   });
@@ -59,7 +59,7 @@ export default function makeLoaderCommand() {
   return makeCommander('loader')
     .description('Create a relations loader')
     .addHelpText('after', makeUsageExamples([
-      ['Creates a loader', pc.bold('make loader')],
+      ['Creates a loader', 'make loader'],
     ]))
     .argument('[name]', 'Name for loader')
     .option(...useShowOption)

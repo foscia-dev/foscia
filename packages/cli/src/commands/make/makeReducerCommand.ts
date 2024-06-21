@@ -11,7 +11,6 @@ import makeUsageExamples from '@foscia/cli/utils/cli/makeUsageExamples';
 import warnMissingDependencies from '@foscia/cli/utils/dependencies/warnMissingDependencies';
 import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import makeFile from '@foscia/cli/utils/makeFile';
-import pc from 'picocolors';
 
 export type MakeReducerCommandOptions =
   & {}
@@ -42,7 +41,7 @@ export default function makeReducerCommand() {
   return makeCommander('reducer')
     .description('Create models reducer')
     .addHelpText('after', makeUsageExamples([
-      ['Creates a reducer', pc.bold('make reducer')],
+      ['Creates a reducer', 'make reducer'],
     ]))
     .option(...useShowOption)
     .option(...useForceOption)

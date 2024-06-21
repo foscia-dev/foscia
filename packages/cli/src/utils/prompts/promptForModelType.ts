@@ -3,7 +3,7 @@ import { CLIConfig } from '@foscia/cli/utils/config/config';
 import listFiles from '@foscia/cli/utils/files/listFiles';
 import resolvePath from '@foscia/cli/utils/files/resolvePath';
 import { ImportItem, ImportsList } from '@foscia/cli/utils/imports/makeImportsList';
-import { select } from '@inquirer/prompts';
+import promptSelect from '@foscia/cli/utils/prompts/promptSelect';
 import { camelCase, upperFirst } from 'lodash-es';
 import { sep } from 'node:path';
 
@@ -34,7 +34,8 @@ export default async function promptForModelType(config: CLIConfig, imports: Imp
     return undefined;
   }
 
-  const model = await select({
+  const model = await promptSelect({
+    name: 'model',
     message: 'Give a related model:',
     choices: availableModels.map((m) => ({
       name: m.name,

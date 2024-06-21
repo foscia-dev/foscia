@@ -13,7 +13,6 @@ import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import makeFile from '@foscia/cli/utils/makeFile';
 import promptForComposables from '@foscia/cli/utils/prompts/promptForComposables';
 import promptForProperties from '@foscia/cli/utils/prompts/promptForProperties';
-import pc from 'picocolors';
 
 export type MakeModelFactoryCommandOptions =
   & {}
@@ -46,7 +45,7 @@ export default function makeModelFactoryCommand() {
   return makeCommander('model-factory')
     .description('Create model factory')
     .addHelpText('after', makeUsageExamples([
-      ['Creates a model factory', pc.bold('make model-factory')],
+      ['Creates a model factory', 'make model-factory'],
     ]))
     .option(...useShowOption)
     .option(...useForceOption)

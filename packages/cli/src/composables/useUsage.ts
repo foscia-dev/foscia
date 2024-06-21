@@ -14,7 +14,7 @@ export const useUsageOption = [
 
 export async function useUsage(
   options: UsageOptions,
-  defaultUsage: () => Promise<string | undefined> | string | undefined,
+  defaultUsage: () => Promise<string | null> | string | null,
 ) {
   const usage = options.usage ?? (await defaultUsage());
 

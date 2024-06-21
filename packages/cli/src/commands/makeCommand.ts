@@ -11,14 +11,13 @@ import makeRunnerCommand from '@foscia/cli/commands/make/makeRunnerCommand';
 import makeTransformerCommand from '@foscia/cli/commands/make/makeTransformerCommand';
 import makeCommander from '@foscia/cli/utils/cli/makeCommander';
 import makeUsageExamples from '@foscia/cli/utils/cli/makeUsageExamples';
-import pc from 'picocolors';
 
 export default function makeCommand() {
   return makeCommander('make')
     .description('Create Foscia related files')
     .addHelpText('after', makeUsageExamples([
-      ['Creates a "Post" model', `${pc.bold('make model')} post`],
-      ['Creates a "publishable" composable', `${pc.bold('make composable')} publishable`],
+      ['Creates a "Post" model', 'make model', 'post'],
+      ['Creates a "publishable" composable', 'make composable', 'publishable'],
     ]))
     .addCommand(makeModelCommand())
     .addCommand(makeComposableCommand())

@@ -13,7 +13,6 @@ import hasModelsList from '@foscia/cli/utils/context/hasModelsList';
 import warnMissingDependencies from '@foscia/cli/utils/dependencies/warnMissingDependencies';
 import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import makeFile from '@foscia/cli/utils/makeFile';
-import pc from 'picocolors';
 
 export type MakeReviverCommandOptions =
   & {}
@@ -48,7 +47,7 @@ export default function makeReviverCommand() {
   return makeCommander('reviver')
     .description('Create models reviver')
     .addHelpText('after', makeUsageExamples([
-      ['Creates a reviver', pc.bold('make reviver')],
+      ['Creates a reviver', 'make reviver'],
     ]))
     .option(...useShowOption)
     .option(...useForceOption)

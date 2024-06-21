@@ -4,7 +4,8 @@ import hasModelsList from '@foscia/cli/utils/context/hasModelsList';
 import installDependencies from '@foscia/cli/utils/dependencies/installDependencies';
 import usePkg from '@foscia/cli/utils/dependencies/usePkg';
 import { ImportsList } from '@foscia/cli/utils/imports/makeImportsList';
-import { confirm, input } from '@inquirer/prompts';
+import promptConfirm from '@foscia/cli/utils/prompts/promptConfirm';
+import promptText from '@foscia/cli/utils/prompts/promptText';
 
 export type ActionFactoryPromptOptions = {
   usage: AppUsage;
@@ -32,7 +33,8 @@ async function promptForHttpAdapterConfig(usage: AppUsage) {
     jsonrest: '/api',
     http: '/',
   }[usage];
-  const baseURL = await input({
+  const baseURL = await promptText({
+    name: 'baseURL',
     message: usage === 'http'
       ? 'what\'s the base URL of your server?'
       : 'what\'s the base URL of your API?',
@@ -47,7 +49,8 @@ async function promptForRegistry(
   imports: ImportsList,
   options: ActionFactoryPromptOptions,
 ) {
-  const registry = await confirm({
+  const registry = await promptConfirm({
+    name: 'registry',
     message: 'would you like a registry (useful for circular relationships)?',
     default: false,
   });
@@ -70,7 +73,8 @@ export default async function promptForActionFactoryOptions(
 ) {
   imports.add('makeActionFactory', '@foscia/core');
 
-  const test = await confirm({
+  const test = await promptConfirm({
+    name: 'test',
     message: 'would you like to mock actions for unit tests?',
     default: false,
   });

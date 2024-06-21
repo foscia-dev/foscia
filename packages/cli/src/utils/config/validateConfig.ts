@@ -7,7 +7,7 @@ import {
 } from '@foscia/cli/utils/config/config';
 import CLIError from '@foscia/cli/utils/errors/cliError';
 import toTree from '@foscia/cli/utils/output/toTree';
-import pc from 'picocolors';
+import c from 'ansi-colors';
 
 export default function validateConfig(config: object) {
   const validateRequired = (value: unknown) => (
@@ -41,7 +41,7 @@ export default function validateConfig(config: object) {
     });
 
     if (message !== true) {
-      messages.push(`${pc.bold(key)}: ${message}`);
+      messages.push(`${c.bold(key)}: ${message}`);
     }
 
     return messages;
@@ -49,7 +49,7 @@ export default function validateConfig(config: object) {
 
   if (errors.length > 0) {
     throw new CLIError(
-      `Invalid configuration values:\n${toTree(errors, pc.red)}`,
+      `Invalid configuration values:\n${toTree(errors, c.red)}`,
       'Please fix your configuration or re-run "foscia init <path>".',
     );
   }

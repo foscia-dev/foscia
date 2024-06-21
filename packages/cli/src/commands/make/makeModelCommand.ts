@@ -12,12 +12,11 @@ import validateFileName from '@foscia/cli/utils/files/validateFileName';
 import hasFile from '@foscia/cli/utils/hasFile';
 import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import makeFile from '@foscia/cli/utils/makeFile';
+import promptConfirm from '@foscia/cli/utils/prompts/promptConfirm';
 import promptForComposables from '@foscia/cli/utils/prompts/promptForComposables';
 import promptForProperties from '@foscia/cli/utils/prompts/promptForProperties';
 import { Dictionary } from '@foscia/shared';
-import { confirm } from '@inquirer/prompts';
 import { camelCase, kebabCase, upperFirst } from 'lodash-es';
-import pc from 'picocolors';
 import { plural, singular } from 'pluralize';
 
 export type MakeModelCommandOptions =
@@ -61,7 +60,8 @@ export async function runMakeModelCommand(
   if (!show) {
     const hasDiscoverModels = await hasManualModelsList(config);
     if (hasDiscoverModels) {
-      const writeModels = options.writeModels || await confirm({
+      const writeModels = options.writeModels || await promptConfirm({
+        name: 'models',
         message: 'should we update models list file?',
         default: true,
       });
@@ -80,7 +80,7 @@ export default function makeModelCommand() {
   return makeCommander('model')
     .description('Create a model')
     .addHelpText('after', makeUsageExamples([
-      ['Creates a "Post" model', `${pc.bold('make model')} post`],
+      ['Creates a "Post" model', 'make model', 'post'],
     ]))
     .argument('<name>', 'Name for model')
     .option(...useShowOption)

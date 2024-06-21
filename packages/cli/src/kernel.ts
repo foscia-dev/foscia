@@ -6,8 +6,8 @@ import makeUsageExamples from '@foscia/cli/utils/cli/makeUsageExamples';
 import output from '@foscia/cli/utils/cli/output';
 import { getVersion, resolveVersion } from '@foscia/cli/utils/context/version';
 import CLIError from '@foscia/cli/utils/errors/cliError';
+import c from 'ansi-colors';
 import process from 'node:process';
-import pc from 'picocolors';
 import terminalLink from 'terminal-link';
 
 export default async function kernel(argv: string[]) {
@@ -23,28 +23,28 @@ export default async function kernel(argv: string[]) {
   try {
     await makeCommander('foscia')
       .version(getVersion(), undefined, 'Output the version number')
-      .addHelpText('beforeAll', pc.bold(pc.magenta(`Foscia v${getVersion()}`)))
+      .addHelpText('beforeAll', c.bold.magenta(`Foscia v${getVersion()}`))
       .addHelpText('afterAll', `\nHelp:\n  ${readDocs}\n  ${openIssue}\n`)
       .addHelpText('after', makeUsageExamples([
-        ['Initializes Foscia in your project', pc.bold('init')],
-        ['Creates a "Post" model', `${pc.bold('make model')} post`],
+        ['Initializes Foscia in your project', 'init'],
+        ['Creates a "Post" model', 'make model', 'post'],
       ]))
       .addCommand(initCommand())
       .addCommand(makeCommand())
       .addCommand(integrateCommand())
       .parseAsync(argv);
   } catch (error) {
-    if (error instanceof Error) {
-      // FIXME: this should use an error instanceof.
-      if (error.message.startsWith('User force closed the prompt')) {
-        output.error('operation stopped, bye!');
-        process.exit(1);
-      }
+    // Enquirer error when CTRL+C.
+    if (error === '') {
+      output.error('operation stopped, bye!');
+      process.exit(1);
+    }
 
+    if (error instanceof Error) {
       if (error instanceof CLIError) {
         output.error(`error: ${error.message}${error.instruction ? '' : '\n'}`);
         if (error.instruction) {
-          output.instruct(error.instruction);
+          output.instruct(`${error.instruction}\n`);
         }
 
         process.exit(1);

@@ -14,7 +14,6 @@ import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import makeFile from '@foscia/cli/utils/makeFile';
 import promptForComposables from '@foscia/cli/utils/prompts/promptForComposables';
 import promptForProperties from '@foscia/cli/utils/prompts/promptForProperties';
-import pc from 'picocolors';
 
 export type MakeComposableCommandOptions =
   & {}
@@ -50,7 +49,7 @@ export default function makeComposableCommand() {
   return makeCommander('composable')
     .description('Create a composable')
     .addHelpText('after', makeUsageExamples([
-      ['Creates a "publishable" composable', `${pc.bold('make composable')} publishable`],
+      ['Creates a "publishable" composable', 'make composable', 'publishable'],
     ]))
     .argument('<name>', 'Name for composable')
     .option(...useShowOption)

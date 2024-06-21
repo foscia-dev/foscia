@@ -45,11 +45,13 @@ export const CONFIG_LANGUAGES = [
 
 export const CONFIG_MODULES = [
   {
-    name: 'ESModules (import/export)',
+    name: 'ESModules',
+    hint: 'import/export',
     value: 'esm',
   },
   {
-    name: 'CommonJS (require/module.exports)',
+    name: 'CommonJS',
+    hint: 'require/module.exports',
     value: 'commonjs',
   },
 ] as const;

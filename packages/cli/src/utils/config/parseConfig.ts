@@ -4,7 +4,7 @@ import CLIError from '@foscia/cli/utils/errors/cliError';
 import findUp from '@foscia/cli/utils/files/findUp';
 import friendlyPath from '@foscia/cli/utils/files/friendlyPath';
 import pathExists from '@foscia/cli/utils/files/pathExists';
-import { select } from '@inquirer/prompts';
+import promptSelect from '@foscia/cli/utils/prompts/promptSelect';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 
@@ -26,9 +26,10 @@ async function detectConfigPath(path?: string): Promise<[string | undefined, str
   }
 
   if (guessPaths.length > 1) {
-    return [await select({
+    return [await promptSelect({
+      name: 'config',
       message: 'choose config to use (or rerun this command using --config option):',
-      choices: guessPaths.map((value) => ({ value })),
+      choices: guessPaths.map((value) => ({ value, name: value })),
     }), undefined];
   }
 

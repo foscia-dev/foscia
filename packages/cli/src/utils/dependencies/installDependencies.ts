@@ -2,7 +2,7 @@ import output from '@foscia/cli/utils/cli/output';
 import { CLIConfig, CONFIG_PACKAGE_MANAGERS } from '@foscia/cli/utils/config/config';
 import { warnedMissingDependencies } from '@foscia/cli/utils/dependencies/warnMissingDependencies';
 import findChoice from '@foscia/cli/utils/prompts/findChoice';
-import { confirm } from '@inquirer/prompts';
+import promptConfirm from '@foscia/cli/utils/prompts/promptConfirm';
 import { execa } from 'execa';
 import ora from 'ora';
 
@@ -22,7 +22,8 @@ export default async function installDependencies(
   }
 
   const packageManager = findChoice(CONFIG_PACKAGE_MANAGERS, config.packageManager);
-  const shouldInstall = await confirm({
+  const shouldInstall = await promptConfirm({
+    name: 'install',
     message: `should we install them using ${packageManager.name}?`,
     default: true,
   });

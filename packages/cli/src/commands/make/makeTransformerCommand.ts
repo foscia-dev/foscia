@@ -12,7 +12,6 @@ import warnMissingDependencies from '@foscia/cli/utils/dependencies/warnMissingD
 import validateFileName from '@foscia/cli/utils/files/validateFileName';
 import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import makeFile from '@foscia/cli/utils/makeFile';
-import pc from 'picocolors';
 
 export type MakeTransformerCommandOptions =
   & {}
@@ -46,7 +45,7 @@ export default function makeTransformerCommand() {
   return makeCommander('transformer')
     .description('Create a transformer')
     .addHelpText('after', makeUsageExamples([
-      ['Creates a "toDateTime" transformer', `${pc.bold('make transformer')} toDateTime`],
+      ['Creates a "toDateTime" transformer', 'make transformer', 'toDateTime'],
     ]))
     .argument('<name>', 'Name for transformer')
     .option(...useShowOption)

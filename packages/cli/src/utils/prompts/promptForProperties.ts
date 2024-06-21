@@ -3,7 +3,9 @@ import resolveTransformers from '@foscia/cli/utils/context/resolveTransformers';
 import validateName from '@foscia/cli/utils/files/validateName';
 import { ImportsList } from '@foscia/cli/utils/imports/makeImportsList';
 import promptForModelType from '@foscia/cli/utils/prompts/promptForModelType';
-import { checkbox, input, select } from '@inquirer/prompts';
+import promptMultiSelect from '@foscia/cli/utils/prompts/promptMultiSelect';
+import promptSelect from '@foscia/cli/utils/prompts/promptSelect';
+import promptText from '@foscia/cli/utils/prompts/promptText';
 
 export type DefinitionProperty = {
   typology: 'attr' | 'hasOne' | 'hasMany';
@@ -18,47 +20,47 @@ async function promptForProperty(
   imports: ImportsList,
   properties: DefinitionProperty[] = [],
 ) {
-  const typology = await select({
-    message: 'what property would you like to define?',
+  const typology = await promptSelect({
+    name: 'typology',
+    message: 'what kind of property would you like to define?',
     choices: [
       {
-        name: properties.length
-          ? 'finish properties definition'
-          : 'skip properties definition',
-        value: undefined,
+        name: properties.length ? 'finished' : 'skip',
+        value: null,
       },
       {
         name: 'attribute',
         value: 'attr',
-        description: 'attribute holding a scalar or object value.',
+        hint: 'attribute holding a scalar or object value.',
       },
       {
         name: 'has one relation',
         value: 'hasOne',
-        description: 'relationship to one model\'s instance.',
+        hint: 'relationship to one model\'s instance.',
       },
       {
         name: 'has many relation',
         value: 'hasMany',
-        description: 'relationship to many model\'s instance.',
+        hint: 'relationship to many model\'s instance.',
       },
     ] as const,
   });
-  if (!typology) {
+  if (typology === null) {
     return null;
   }
 
   imports.add(typology, '@foscia/core');
 
-  const name = await input({
+  const name = await promptText({
+    name: 'name',
     message: 'give a name:',
-    validate: (v) => {
-      if (validateName(v)) {
-        if (properties.every((p) => p.name !== v)) {
+    validate: (value: string) => {
+      if (validateName(value)) {
+        if (properties.every((p) => p.name !== value)) {
           return true;
         }
 
-        return 'property name is already taken';
+        return `property "${value}" is already taken`;
       }
 
       return 'property name must be a valid object property key';
@@ -68,7 +70,8 @@ async function promptForProperty(
   const property = {
     name,
     typology,
-    modifiers: await checkbox({
+    modifiers: await promptMultiSelect({
+      name: 'specificities',
       message: 'give specificities:',
       choices: [
         { name: 'nullable', value: 'nullable' },
@@ -78,7 +81,8 @@ async function promptForProperty(
   } as DefinitionProperty;
 
   if (typology === 'attr') {
-    const transformer = await select({
+    const transformer = await promptSelect({
+      name: 'transformer',
       message: 'use a transformer?',
       choices: [
         ...(await resolveTransformers(config)).map((t) => ({
@@ -86,11 +90,13 @@ async function promptForProperty(
           value: t,
         })),
         {
-          name: 'toDateTime (ISO-8601 date time to JavaScript Date)',
+          name: 'toDateTime',
+          hint: '(ISO-8601 date time to JavaScript Date)',
           value: { name: 'toDateTime', from: '@foscia/core' },
         },
         {
-          name: 'toDate (ISO-8601 date to JavaScript Date)',
+          name: 'toDate',
+          hint: '(ISO-8601 date to JavaScript Date)',
           value: { name: 'toDate', from: '@foscia/core' },
         },
         {
@@ -106,19 +112,19 @@ async function promptForProperty(
           value: { name: 'toBoolean', from: '@foscia/core' },
         },
         {
-          name: 'None',
-          value: undefined,
+          name: 'none',
+          value: null,
         },
       ],
     });
-    if (transformer) {
+    if (transformer !== null) {
       imports.add(transformer.name, transformer.from, transformer);
       property.transformer = transformer.name;
     } else if (config.language === 'ts') {
-      property.type = await input({
+      property.type = await promptText({
+        name: 'type',
         message: 'use a TypeScript type?',
         default: 'unknown',
-        validate: (v) => validateName(v) || 'type must be a valid type name',
       });
     }
   } else {

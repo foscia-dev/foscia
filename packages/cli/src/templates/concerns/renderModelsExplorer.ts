@@ -25,7 +25,7 @@ export default function renderModelsExplorer(
 Object.values(import.meta.glob('./models/*.${config.language}', {
 ${toIndent(config, 'import: \'default\',')}
 ${toIndent(config, 'eager: true,')}
-})${typeAssertion});
+})${typeAssertion})
 `.trim();
   }
 
@@ -41,7 +41,7 @@ ${toIndent(config, 'eager: true,')}
     return `
 ((context${anyTyping}) => context.keys().map(
 ${toIndent(config, `(key${anyTyping}) => context(key).default${typeAssertion}`)},
-))(require.context('./models', true, /\\.${config.language}/));
+))(require.context('./models', true, /\\.${config.language}/))
 `.trim();
   }
 

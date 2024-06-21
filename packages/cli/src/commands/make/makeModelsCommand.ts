@@ -18,7 +18,6 @@ import promptForModelsExplorer, {
   ModelsExplorer,
 } from '@foscia/cli/utils/prompts/promptForModelsExplorer';
 import process from 'node:process';
-import pc from 'picocolors';
 
 export type MakeModelsCommandOptions =
   & { explorer?: string; }
@@ -62,7 +61,7 @@ export default function makeModelsCommand() {
   return makeCommander('models')
     .description('Create models list')
     .addHelpText('after', makeUsageExamples([
-      ['Creates a models list', pc.bold('make models')],
+      ['Creates a models list', 'make models'],
     ]))
     .option(...useShowOption)
     .option(...useForceOption)

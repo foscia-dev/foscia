@@ -1,5 +1,5 @@
+import c from 'ansi-colors';
 import { Command, Help, HelpConfiguration } from 'commander';
-import pc from 'picocolors';
 
 const defaultHelp = new Help();
 
@@ -12,7 +12,7 @@ const formatCommandFullTitle = (cmd: Command, program: boolean) => {
     return 'help';
   }
 
-  const names = flattenCommands(cmd).map((c) => c.name());
+  const names = flattenCommands(cmd).map((i) => i.name());
   if (!program) {
     names.shift();
   }
@@ -25,10 +25,10 @@ const formatHelp = (value: string, transformer: (value: string) => string) => (
 );
 
 export default {
-  commandUsage: (cmd) => `${pc.bold(formatCommandFullTitle(cmd, true))} ${cmd.usage()}`,
-  commandDescription: (cmd) => formatHelp(defaultHelp.commandDescription(cmd), pc.dim),
+  commandUsage: (cmd) => `${c.bold(formatCommandFullTitle(cmd, true))} ${cmd.usage()}`,
+  commandDescription: (cmd) => formatHelp(defaultHelp.commandDescription(cmd), c.dim),
   subcommandTerm: (cmd) => formatCommandFullTitle(cmd, false),
-  subcommandDescription: (cmd) => formatHelp(defaultHelp.subcommandDescription(cmd), pc.dim),
-  argumentDescription: (arg) => formatHelp(defaultHelp.argumentDescription(arg), pc.dim),
-  optionDescription: (option) => formatHelp(defaultHelp.optionDescription(option), pc.dim),
+  subcommandDescription: (cmd) => formatHelp(defaultHelp.subcommandDescription(cmd), c.dim),
+  argumentDescription: (arg) => formatHelp(defaultHelp.argumentDescription(arg), c.dim),
+  optionDescription: (option) => formatHelp(defaultHelp.optionDescription(option), c.dim),
 } as HelpConfiguration;

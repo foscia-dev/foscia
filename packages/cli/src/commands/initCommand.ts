@@ -29,11 +29,13 @@ import findUp from '@foscia/cli/utils/files/findUp';
 import pathExists from '@foscia/cli/utils/files/pathExists';
 import writeOrPrintFile from '@foscia/cli/utils/files/writeOrPrintFile';
 import findChoice from '@foscia/cli/utils/prompts/findChoice';
+import promptConfirm from '@foscia/cli/utils/prompts/promptConfirm';
 import promptForOverwrite from '@foscia/cli/utils/prompts/promptForOverwrite';
-import { confirm, input, select } from '@inquirer/prompts';
+import promptSelect from '@foscia/cli/utils/prompts/promptSelect';
+import promptText from '@foscia/cli/utils/prompts/promptText';
+import c from 'ansi-colors';
 import { execa } from 'execa';
 import { normalize, resolve } from 'node:path';
-import pc from 'picocolors';
 
 export type InitCommandOptions =
   & { manual?: boolean; }
@@ -115,20 +117,23 @@ async function resolveEnvironment(options: InitCommandOptions) {
   }
 
   if (detectEnvironment.length) {
-    output.success(`${pc.bold('detected environment:')} ${pc.cyan(detectEnvironment.join(', '))}`);
+    output.success(`${c.bold('detected environment:')} ${c.cyan(detectEnvironment.join(', '))}`);
   }
 
-  const packageManager = detectedPackageManager ?? await select({
+  const packageManager = detectedPackageManager ?? await promptSelect({
+    name: 'packageManager',
     message: 'what\'s your package manager:',
     choices: CONFIG_PACKAGE_MANAGERS,
   });
 
-  const language = detectedLanguage ?? await select({
+  const language = detectedLanguage ?? await promptSelect({
+    name: 'language',
     message: 'what\'s your programing language:',
     choices: CONFIG_LANGUAGES,
   });
 
-  const modules = detectedModules ?? await select({
+  const modules = detectedModules ?? await promptSelect({
+    name: 'modules',
     message: 'what\'s your modules organization:',
     choices: CONFIG_MODULES,
   });
@@ -189,7 +194,8 @@ function guessAlias(path: string) {
 }
 
 async function resolveAlias(path: string) {
-  const alias = await confirm({
+  const alias = await promptConfirm({
+    name: 'alias',
     message: 'do you use an alias for imports paths?',
     default: false,
   });
@@ -197,7 +203,8 @@ async function resolveAlias(path: string) {
     return undefined;
   }
 
-  return input({
+  return promptText({
+    name: 'alias',
     message: `what alias should be used for path "${path}"?`,
     default: guessAlias(path),
   });
@@ -221,23 +228,25 @@ export async function runInitCommand(
     await promptForOverwrite(configPath);
   }
 
-  const usage = await useUsage(options, () => select({
+  const usage = await useUsage(options, () => promptSelect({
+    name: 'usage',
     message: 'what\'s your need?',
     choices: [
       ...CONFIG_USAGES,
       {
         name: 'something else...',
-        value: undefined,
+        value: null,
       },
     ],
   }));
 
   const [defaultPath, framework] = await guessPathAndFramework();
   if (framework) {
-    output.success(`${pc.bold('detected framework:')} ${pc.cyan(framework)}`);
+    output.success(`${c.bold('detected framework:')} ${c.cyan(framework)}`);
   }
 
-  const filesPath = normalize(path?.length ? path : await input({
+  const filesPath = normalize(path?.length ? path : await promptText({
+    name: 'path',
     message: 'where will you store Foscia files?',
     default: defaultPath,
   }));
@@ -265,12 +274,14 @@ export async function runInitCommand(
 
   output.step('first model');
 
-  const model = await confirm({
+  const model = await promptConfirm({
+    name: 'model',
     message: 'would you like to generate a first model?',
     default: true,
   });
   if (model) {
-    const modelName = await input({
+    const modelName = await promptText({
+      name: 'model',
       message: 'what name should be used for model?',
     });
 
@@ -282,7 +293,8 @@ export async function runInitCommand(
 
   output.step('action factory');
 
-  const actionFactory = await confirm({
+  const actionFactory = await promptConfirm({
+    name: 'action',
     message: 'would you like to generate an action factory?',
     default: true,
   });
@@ -296,7 +308,8 @@ export async function runInitCommand(
   if (framework) {
     output.step(`${framework} integration`);
 
-    const frameworkIntegrate = await confirm({
+    const frameworkIntegrate = await promptConfirm({
+      name: 'integrate',
       message: `we detected you use ${framework}, would you like to integrate it?`,
       default: true,
     });
@@ -314,10 +327,13 @@ export default function initCommand() {
     .description('Initialize Foscia in your project')
     .argument('[path]', 'Directory to put Foscia files in')
     .addHelpText('after', makeUsageExamples([
-      ['Initializes Foscia in your project', pc.bold('init')],
+      ['Initializes Foscia in your project', 'init'],
       [
         'Initializes Foscia with dedicated paths and specific usage',
-        `${pc.bold('init')} src/api --config=.fosciarc.api.json --usage=jsonapi`,
+        'init',
+        'src/api',
+        '--config .fosciarc.api.json',
+        '--usage jsonapi',
       ],
     ]))
     .option(...useShowOption)

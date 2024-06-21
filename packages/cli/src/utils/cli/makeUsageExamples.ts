@@ -1,8 +1,10 @@
 import { symbols } from '@foscia/cli/utils/cli/output';
-import pc from 'picocolors';
+import c from 'ansi-colors';
 
-export default function makeUsageExamples(examples: [string, string][]) {
+export default function makeUsageExamples(
+  examples: string[][],
+) {
   return `\nExamples:\n${examples.map(
-    ([description, example]) => `  ${pc.bold('foscia')} ${example}\n  ${symbols.step} ${pc.dim(description)}`,
+    ([description, command, ...options]) => `  ${c.bold(`foscia ${command}`)} ${options.join(' ')}\n  ${symbols.step} ${c.dim(description)}`,
   ).join('\n')}`;
 }

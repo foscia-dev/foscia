@@ -1,4 +1,4 @@
-import { select } from '@inquirer/prompts';
+import promptSelect from '@foscia/cli/utils/prompts/promptSelect';
 
 export type RelationsLoader = typeof RELATIONS_LOADERS[number]['value'];
 
@@ -21,7 +21,8 @@ export const RELATIONS_LOADERS = [
 ] as const;
 
 export default async function promptForLoader(): Promise<RelationsLoader> {
-  return select({
+  return promptSelect({
+    name: 'loader',
     message: 'what kind of loader would you like?',
     choices: RELATIONS_LOADERS,
   });

@@ -13,7 +13,6 @@ import validateFileName from '@foscia/cli/utils/files/validateFileName';
 import makeImportsList from '@foscia/cli/utils/imports/makeImportsList';
 import makeFile from '@foscia/cli/utils/makeFile';
 import { camelCase } from 'lodash-es';
-import pc from 'picocolors';
 
 export type MakeEnhancerCommandOptions =
   & {}
@@ -49,7 +48,7 @@ export default function makeEnhancerCommand() {
     .description('Create an action enhancer')
     .argument('<name>', 'Name for enhancer')
     .addHelpText('after', makeUsageExamples([
-      ['Creates an action enhancer', `${pc.bold('make enhancer')} queryFirst`],
+      ['Creates an action enhancer', 'make enhancer', 'queryFirst'],
     ]))
     .option(...useShowOption)
     .option(...useForceOption)
