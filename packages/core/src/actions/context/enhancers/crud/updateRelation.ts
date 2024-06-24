@@ -2,14 +2,14 @@ import ActionName from '@foscia/core/actions/actionName';
 import context from '@foscia/core/actions/context/enhancers/context';
 import query from '@foscia/core/actions/context/enhancers/query';
 import serializeRelation from '@foscia/core/actions/context/utils/serializeRelation';
-import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
   ConsumeId,
   ConsumeModel,
   ConsumeRelation,
   ConsumeSerializer,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import isSingularRelationDef from '@foscia/core/model/checks/isSingularRelationDef';
 import {
@@ -28,7 +28,7 @@ type UpdateRelationActionName =
   | ActionName.ATTACH_RELATION
   | ActionName.DETACH_RELATION;
 
-export default function updateRelation<
+function updateRelation<
   C extends {},
   E extends {},
   D extends {},
@@ -58,7 +58,11 @@ export default function updateRelation<
   };
 }
 
-type EnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'updateRelation',
+  updateRelation,
+  'use',
+) as WithParsedExtension<typeof updateRelation, {
   updateRelation<
     C extends {},
     E extends {},
@@ -77,5 +81,3 @@ type EnhancerExtension = ActionParsedExtension<{
     action?: UpdateRelationActionName,
   ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId, E>;
 }>;
-
-updateRelation.extension = makeEnhancersExtension({ updateRelation }) as EnhancerExtension;

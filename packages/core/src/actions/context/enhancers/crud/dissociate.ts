@@ -1,12 +1,12 @@
 import associate from '@foscia/core/actions/context/enhancers/crud/associate';
-import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
   ConsumeId,
   ConsumeModel,
   ConsumeRelation,
   ConsumeSerializer,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import {
   Model,
@@ -17,7 +17,7 @@ import {
   ModelSchemaRelations,
 } from '@foscia/core/model/types';
 
-export default function dissociate<
+function dissociate<
   C extends {},
   E extends {},
   D extends {},
@@ -36,7 +36,11 @@ export default function dissociate<
   );
 }
 
-type EnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'dissociate',
+  dissociate,
+  'use',
+) as WithParsedExtension<typeof dissociate, {
   dissociate<
     C extends {},
     E extends {},
@@ -53,5 +57,3 @@ type EnhancerExtension = ActionParsedExtension<{
     relation: ModelRelationKey<D> & K,
   ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId, E>;
 }>;
-
-dissociate.extension = makeEnhancersExtension({ dissociate }) as EnhancerExtension;

@@ -1,13 +1,13 @@
 import context from '@foscia/core/actions/context/enhancers/context';
-import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
   ConsumeId,
   ConsumeInstance,
   ConsumeModel,
   ConsumeRelation,
   ContextEnhancer,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import isModel from '@foscia/core/model/checks/isModel';
 import {
@@ -97,9 +97,11 @@ function query(
     });
 }
 
-export default query;
-
-type EnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'query',
+  query,
+  'use',
+) as WithParsedExtension<typeof query, {
   query<C extends {}, E extends {}, M extends Model>(
     this: Action<C, E>,
     model: M,
@@ -127,5 +129,3 @@ type EnhancerExtension = ActionParsedExtension<{
     // eslint-disable-next-line max-len
   ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeInstance<I> & ConsumeId, E>;
 }>;
-
-query.extension = makeEnhancersExtension({ query }) as EnhancerExtension;

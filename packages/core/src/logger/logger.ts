@@ -54,4 +54,4 @@ class Logger {
   }
 }
 
-export default new Logger();
+export default /* @__PURE__ */ new Logger();

@@ -1,14 +1,14 @@
 import updateRelation from '@foscia/core/actions/context/enhancers/crud/updateRelation';
 import syncRelationValue from '@foscia/core/actions/context/enhancers/crud/utils/syncRelationValue';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
-import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
   ConsumeId,
   ConsumeModel,
   ConsumeRelation,
   ConsumeSerializer,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import {
   Model,
@@ -21,7 +21,7 @@ import {
   ModelSchemaRelations,
 } from '@foscia/core/model/types';
 
-export default function associate<
+function associate<
   C extends {},
   E extends {},
   D extends {},
@@ -44,7 +44,11 @@ export default function associate<
   );
 }
 
-type EnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'associate',
+  associate,
+  'use',
+) as WithParsedExtension<typeof associate, {
   associate<
     C extends {},
     E extends {},
@@ -62,5 +66,3 @@ type EnhancerExtension = ActionParsedExtension<{
     value: ModelInferPropValue<RD[K]>,
   ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId, E>;
 }>;
-
-associate.extension = makeEnhancersExtension({ associate }) as EnhancerExtension;

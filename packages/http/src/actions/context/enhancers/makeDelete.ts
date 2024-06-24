@@ -1,4 +1,4 @@
-import { Action, ActionParsedExtension, makeEnhancersExtension } from '@foscia/core';
+import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
 import makeRequest from '@foscia/http/actions/context/enhancers/makeRequest';
 import { HttpRequestConfig } from '@foscia/http/types';
 
@@ -11,7 +11,7 @@ import { HttpRequestConfig } from '@foscia/http/types';
  *
  * @category Enhancers
  */
-export default function makeDelete(
+function makeDelete(
   pathOrBaseURL: string,
   body?: HttpRequestConfig['body'],
   config?: Omit<HttpRequestConfig, 'method' | 'body'>,
@@ -23,7 +23,11 @@ export default function makeDelete(
   });
 }
 
-type MakeDeleteEnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'makeDelete',
+  makeDelete,
+  'use',
+) as WithParsedExtension<typeof makeDelete, {
   makeDelete<C extends {}, E extends {}>(
     this: Action<C, E>,
     pathOrBaseURL: string,
@@ -31,5 +35,3 @@ type MakeDeleteEnhancerExtension = ActionParsedExtension<{
     config?: Omit<HttpRequestConfig, 'method' | 'body'>,
   ): Action<C, E>;
 }>;
-
-makeDelete.extension = makeEnhancersExtension({ makeDelete }) as MakeDeleteEnhancerExtension;

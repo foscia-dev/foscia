@@ -1,15 +1,15 @@
 import consumeCache from '@foscia/core/actions/context/consumers/consumeCache';
 import consumeId from '@foscia/core/actions/context/consumers/consumeId';
 import consumeModel from '@foscia/core/actions/context/consumers/consumeModel';
-import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
   ConsumeCache,
   ConsumeId,
   ConsumeInclude,
   ConsumeModel,
   ContextRunner,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import filled from '@foscia/core/model/filled';
 import loaded from '@foscia/core/model/relations/loaded';
@@ -30,7 +30,7 @@ export type CachedData<I extends ModelInstance> = {
  *
  * @category Runners
  */
-export default function cachedOr<
+function cachedOr<
   C extends {},
   E extends {},
   M extends Model,
@@ -58,7 +58,11 @@ export default function cachedOr<
   };
 }
 
-type RunnerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'cachedOr',
+  cachedOr,
+  'run',
+) as WithParsedExtension<typeof cachedOr, {
   cachedOr<
     C extends {},
     E extends {},
@@ -72,5 +76,3 @@ type RunnerExtension = ActionParsedExtension<{
     transform?: (data: CachedData<I>) => Awaitable<ND>,
   ): Promise<Awaited<ND> | Awaited<RD>>;
 }>;
-
-cachedOr.extension = makeRunnersExtension({ cachedOr }) as RunnerExtension;

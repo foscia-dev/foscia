@@ -1,9 +1,9 @@
-import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
   ContextEnhancer,
   ContextRunner,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import { Awaitable, OnlyFalsy, OnlyTruthy, Value, value } from '@foscia/shared';
 
@@ -66,7 +66,11 @@ function when<C extends {}, E extends {}, V, TR, FR = void>(
   };
 }
 
-type EnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'when',
+  when,
+  'use',
+) as WithParsedExtension<typeof when, {
   when<C extends {}, E extends {}, V, TC extends {} = C>(
     this: Action<C, E>,
     expression: V,
@@ -99,7 +103,3 @@ type EnhancerExtension = ActionParsedExtension<{
     falsyCallback?: (action: Action<C, E>, value: OnlyFalsy<Awaited<Value<V>>>) => FR,
   ): Promise<TR | FR>;
 }>;
-
-when.extension = makeEnhancersExtension({ when }) as EnhancerExtension;
-
-export default when;

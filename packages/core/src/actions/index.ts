@@ -42,11 +42,10 @@ import oneOr, { OneData } from '@foscia/core/actions/context/runners/oneOr';
 import oneOrCurrent from '@foscia/core/actions/context/runners/oneOrCurrent';
 import oneOrFail from '@foscia/core/actions/context/runners/oneOrFail';
 import raw from '@foscia/core/actions/context/runners/raw';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import coreExtensions from '@foscia/core/actions/extensions/coreExtensions';
 import crudExtensions from '@foscia/core/actions/extensions/crudExtensions';
 import hooksExtensions from '@foscia/core/actions/extensions/hooksExtensions';
-import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
-import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExtension';
 import readExtensions from '@foscia/core/actions/extensions/readExtensions';
 import writeExtensions from '@foscia/core/actions/extensions/writeExtensions';
 import makeActionClass from '@foscia/core/actions/makeActionClass';
@@ -105,8 +104,7 @@ export {
   consumeRelation,
   consumeSerializer,
   guessContextModel,
-  makeEnhancersExtension,
-  makeRunnersExtension,
+  appendExtension,
   makeActionClass,
   makeActionFactory,
   coreExtensions,

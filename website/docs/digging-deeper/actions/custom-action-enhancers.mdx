@@ -110,17 +110,17 @@ Once your enhancer extension is ready, you will be able to use it
 ```typescript title="action/enhancers/first.ts"
 import {
   Action,
-  ActionParsedExtension,
   ConsumeModel,
-  query,
-  makeEnhancersExtension,
   Model,
+  WithParsedExtension,
+  query,
+  appendExtension,
 } from '@foscia/core';
 import { paginate } from '@foscia/jsonapi';
 
 // Our previous enhancer code.
 
-export default function first<
+function first<
   C extends {},
   M extends Model,
 >(model: M) {
@@ -128,16 +128,17 @@ export default function first<
     action.use(query(model)).use(paginate({ number: 1, size: 1 }));
 }
 
-// The extension typing.
-type FirstEnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'first',
+  first,
+  'use',
+) as WithParsedExtension<typeof first, {
+  // The extension typing.
   first<C extends {}, E extends {}, M extends Model>(
     this: Action<C, E>,
     model: M,
   ): Action<C & ConsumeModel<M>, E>;
 }>;
-
-// The extension value.
-first.extension = makeEnhancersExtension({ first }) as FirstEnhancerExtension;
 ```
 
 :::warning

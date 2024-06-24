@@ -469,10 +469,10 @@ export default makeActionFactory(
     // makeJsonRestAdapter(), ...etc.
   },
   {
-    ...hooksExtensions,
-    ...query.extension,
-    ...include.extension,
-    ...all.extension,
+    ...hooksExtensions(),
+    ...query.extension(),
+    ...include.extension(),
+    ...all.extension(),
   },
 );
 ```
@@ -486,7 +486,7 @@ import action from './action';
 await action().query(Post).include('tags').all();
 ```
 
-Every enhancers and runners of Foscia provide a `.extension` property which is
+Every enhancers and runners of Foscia provide a `.extension()` property which is
 extendable by an action instance.
 
 You may extend your action with any enhancers or runners extensions manually.

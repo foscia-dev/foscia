@@ -1,13 +1,13 @@
 import ActionName from '@foscia/core/actions/actionName';
 import updateRelation from '@foscia/core/actions/context/enhancers/crud/updateRelation';
-import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
   ConsumeId,
   ConsumeModel,
   ConsumeRelation,
   ConsumeSerializer,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import {
   Model,
@@ -19,7 +19,7 @@ import {
   ModelSchemaRelations,
 } from '@foscia/core/model/types';
 
-export default function attach<
+function attach<
   C extends {},
   E extends {},
   D extends {},
@@ -39,7 +39,11 @@ export default function attach<
   );
 }
 
-type EnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'attach',
+  attach,
+  'use',
+) as WithParsedExtension<typeof attach, {
   attach<
     C extends {},
     E extends {},
@@ -57,5 +61,3 @@ type EnhancerExtension = ActionParsedExtension<{
     value: ModelInferPropValue<RD[K]> | NonNullable<ModelInferPropValue<RD[K]>>[number],
   ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId, E>;
 }>;
-
-attach.extension = makeEnhancersExtension({ attach }) as EnhancerExtension;

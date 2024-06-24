@@ -1,5 +1,5 @@
-import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExtension';
-import { Action, ActionParsedExtension, ContextRunner } from '@foscia/core/actions/types';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
+import { Action, ContextRunner, WithParsedExtension } from '@foscia/core/actions/types';
 import { Awaitable } from '@foscia/shared';
 
 export type CatchCallback<C extends {}, E extends {}, CD> = (
@@ -17,7 +17,7 @@ export type CatchCallback<C extends {}, E extends {}, CD> = (
  *
  * @category Runners
  */
-export default function catchIf<C extends {}, E extends {}, RD, CD = null>(
+function catchIf<C extends {}, E extends {}, RD, CD = null>(
   runner: ContextRunner<C, E, Awaitable<RD>>,
   catchCallback?: CatchCallback<C, E, CD>,
 ) {
@@ -39,12 +39,14 @@ export default function catchIf<C extends {}, E extends {}, RD, CD = null>(
   };
 }
 
-type RunnerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'catchIf',
+  catchIf,
+  'run',
+) as WithParsedExtension<typeof catchIf, {
   catchIf<C extends {}, E extends {}, RD, CD = null>(
     this: Action<C, E>,
     runner: ContextRunner<C, E, Awaitable<RD>>,
     catchCallback?: CatchCallback<C, E, CD>,
   ): Promise<Awaited<RD> | Awaited<CD>>;
 }>;
-
-catchIf.extension = makeRunnersExtension({ catchIf }) as RunnerExtension;

@@ -1,4 +1,4 @@
-import { Action, ActionParsedExtension, makeEnhancersExtension } from '@foscia/core';
+import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
 import configureRequest from '@foscia/http/actions/context/enhancers/configureRequest';
 import { Optional } from '@foscia/shared';
 
@@ -10,7 +10,7 @@ import { Optional } from '@foscia/shared';
  *
  * @category Enhancers
  */
-export default function abortSignal(controllerOrSignal?: Optional<AbortController | AbortSignal>) {
+function abortSignal(controllerOrSignal?: Optional<AbortController | AbortSignal>) {
   let signal: Optional<AbortSignal>;
   if (controllerOrSignal) {
     signal = controllerOrSignal instanceof AbortController
@@ -21,11 +21,13 @@ export default function abortSignal(controllerOrSignal?: Optional<AbortControlle
   return configureRequest({ signal });
 }
 
-type AbortSignalEnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'abortSignal',
+  abortSignal,
+  'use',
+) as WithParsedExtension<typeof abortSignal, {
   abortSignal<C extends {}, E extends {}>(
     this: Action<C, E>,
     controllerOrSignal?: Optional<AbortController | AbortSignal>,
   ): Action<C, E>;
 }>;
-
-abortSignal.extension = makeEnhancersExtension({ abortSignal }) as AbortSignalEnhancerExtension;

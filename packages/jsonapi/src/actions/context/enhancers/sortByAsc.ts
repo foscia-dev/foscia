@@ -1,4 +1,4 @@
-import { Action, ActionParsedExtension, makeEnhancersExtension } from '@foscia/core';
+import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
 import sortBy from '@foscia/jsonapi/actions/context/enhancers/sortBy';
 import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
 
@@ -9,15 +9,17 @@ import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
  *
  * @category Enhancers
  */
-export default function sortByAsc(...keys: ArrayableVariadic<string>) {
+function sortByAsc(...keys: ArrayableVariadic<string>) {
   return sortBy(wrapVariadic(...keys), 'asc');
 }
 
-type SortByAscEnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'sortByAsc',
+  sortByAsc,
+  'use',
+) as WithParsedExtension<typeof sortByAsc, {
   sortByAsc<C extends {}, E extends {}>(
     this: Action<C, E>,
     ...keys: ArrayableVariadic<string>
   ): Action<C, E>;
 }>;
-
-sortByAsc.extension = makeEnhancersExtension({ sortByAsc }) as SortByAscEnhancerExtension;

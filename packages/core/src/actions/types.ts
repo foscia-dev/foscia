@@ -58,6 +58,12 @@ export type ActionParsedExtension<E extends {} = {}> = {
   [K in keyof E]: E[K] extends DescriptorHolder<any> ? E[K] : DescriptorHolder<E[K]>;
 };
 
+export type WithParsedExtension<
+  // eslint-disable-next-line max-len
+  V extends ((...args: never[]) => ContextEnhancer<any, any, any> | ContextRunner<any, any, any>) | ((...args: any[]) => ContextEnhancer<any, any, any> | ContextRunner<any, any, any>),
+  E extends {},
+> = V & { extension: () => ActionParsedExtension<E>; };
+
 export type ExtendedAction<E extends {}> = {
   [K in keyof E]: E[K] extends DescriptorHolder<infer T> ? T : E[K];
 };

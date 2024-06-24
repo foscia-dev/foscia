@@ -4,14 +4,14 @@ import instanceData from '@foscia/core/actions/context/enhancers/crud/instanceDa
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import query from '@foscia/core/actions/context/enhancers/query';
-import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
   ConsumeId,
   ConsumeInstance,
   ConsumeModel,
   ConsumeSerializer,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import runHooks from '@foscia/core/hooks/runHooks';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
@@ -24,7 +24,7 @@ import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/typ
  *
  * @category Enhancers
  */
-export default function update<
+function update<
   C extends {},
   E extends {},
   D extends {},
@@ -51,7 +51,11 @@ export default function update<
     }));
 }
 
-type EnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'update',
+  update,
+  'use',
+) as WithParsedExtension<typeof update, {
   update<
     C extends {},
     E extends {},
@@ -65,5 +69,3 @@ type EnhancerExtension = ActionParsedExtension<{
     instance: ModelClassInstance<D> & I,
   ): Action<C & ConsumeModel<Model<D, I>> & ConsumeInstance<I> & ConsumeId, E>;
 }>;
-
-update.extension = makeEnhancersExtension({ update }) as EnhancerExtension;

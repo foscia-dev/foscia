@@ -1,6 +1,6 @@
 import raw from '@foscia/core/actions/context/runners/raw';
-import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExtension';
-import { Action, ActionParsedExtension, ConsumeAdapter } from '@foscia/core/actions/types';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
+import { Action, ConsumeAdapter, WithParsedExtension } from '@foscia/core/actions/types';
 
 /**
  * Run the action and ignore the content of the result.
@@ -8,16 +8,18 @@ import { Action, ActionParsedExtension, ConsumeAdapter } from '@foscia/core/acti
  *
  * @category Runners
  */
-export default function none<C extends {}>() {
+function none<C extends {}>() {
   return async (action: Action<C & ConsumeAdapter>) => {
     await action.run(raw());
   };
 }
 
-type RunnerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'none',
+  none,
+  'run',
+) as WithParsedExtension<typeof none, {
   none<C extends {}>(
     this: Action<C & ConsumeAdapter>,
   ): Promise<void>;
 }>;
-
-none.extension = makeRunnersExtension({ none }) as RunnerExtension;

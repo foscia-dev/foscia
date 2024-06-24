@@ -7,13 +7,15 @@ import makePut from '@foscia/http/actions/context/enhancers/makePut';
 import makeRequest from '@foscia/http/actions/context/enhancers/makeRequest';
 import param from '@foscia/http/actions/context/enhancers/param';
 
-export default {
-  ...makeGet.extension,
-  ...makePost.extension,
-  ...makePut.extension,
-  ...makePatch.extension,
-  ...makeDelete.extension,
-  ...makeRequest.extension,
-  ...param.extension,
-  ...abortSignal.extension,
-};
+export default function httpExtensions() {
+  return {
+    ...makeGet.extension(),
+    ...makePost.extension(),
+    ...makePut.extension(),
+    ...makePatch.extension(),
+    ...makeDelete.extension(),
+    ...makeRequest.extension(),
+    ...param.extension(),
+    ...abortSignal.extension(),
+  };
+}

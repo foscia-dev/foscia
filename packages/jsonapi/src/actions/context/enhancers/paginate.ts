@@ -1,4 +1,4 @@
-import { Action, ActionParsedExtension, makeEnhancersExtension } from '@foscia/core';
+import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
 import { param } from '@foscia/http';
 
 /**
@@ -11,15 +11,17 @@ import { param } from '@foscia/http';
  *
  * @category Enhancers
  */
-export default function paginate(page: unknown) {
+function paginate(page: unknown) {
   return param('page', page);
 }
 
-type PaginateEnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'paginate',
+  paginate,
+  'use',
+) as WithParsedExtension<typeof paginate, {
   paginate<C extends {}, E extends {}>(
     this: Action<C, E>,
     page: unknown,
   ): Action<C, E>;
 }>;
-
-paginate.extension = makeEnhancersExtension({ paginate }) as PaginateEnhancerExtension;

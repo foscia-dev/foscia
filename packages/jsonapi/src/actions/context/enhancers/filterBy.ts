@@ -1,4 +1,4 @@
-import { Action, ActionParsedExtension, makeEnhancersExtension } from '@foscia/core';
+import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
 import { consumeRequestObjectParams, param } from '@foscia/http';
 import { Dictionary } from '@foscia/shared';
 
@@ -13,19 +13,21 @@ import { Dictionary } from '@foscia/shared';
  *
  * @category Enhancers
  */
-export default function filterBy(key: string | Dictionary, value?: unknown) {
+function filterBy(key: string | Dictionary, value?: unknown) {
   return async <C extends {}>(action: Action<C>) => action.use(param('filter', {
     ...consumeRequestObjectParams(await action.useContext())?.filter,
     ...(typeof key === 'string' ? { [key]: value } : key),
   }));
 }
 
-type FilterByEnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'filterBy',
+  filterBy,
+  'use',
+) as WithParsedExtension<typeof filterBy, {
   filterBy<C extends {}, E extends {}>(
     this: Action<C, E>,
     key: string | Dictionary,
     value?: unknown,
   ): Action<C, E>;
 }>;
-
-filterBy.extension = makeEnhancersExtension({ filterBy }) as FilterByEnhancerExtension;

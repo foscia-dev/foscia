@@ -1,13 +1,13 @@
 import create from '@foscia/core/actions/context/enhancers/crud/create';
 import update from '@foscia/core/actions/context/enhancers/crud/update';
-import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
   ConsumeId,
   ConsumeInstance,
   ConsumeModel,
   ConsumeSerializer,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/types';
 
@@ -19,7 +19,7 @@ import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/typ
  *
  * @category Enhancers
  */
-export default function save<
+function save<
   C extends {},
   D extends {},
   I extends ModelInstance<D>,
@@ -34,7 +34,11 @@ export default function save<
   ) as Action<C & ConsumeModel<Model<D, I>> & ConsumeInstance<I> & ConsumeId>;
 }
 
-type EnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'save',
+  save,
+  'use',
+) as WithParsedExtension<typeof save, {
   save<
     C extends {},
     E extends {},
@@ -48,5 +52,3 @@ type EnhancerExtension = ActionParsedExtension<{
     instance: ModelClassInstance<D> & I,
   ): Action<C & ConsumeModel<Model<D, I>> & ConsumeInstance<I> & ConsumeId, E>;
 }>;
-
-save.extension = makeEnhancersExtension({ save }) as EnhancerExtension;

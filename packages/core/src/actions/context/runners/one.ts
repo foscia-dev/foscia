@@ -1,12 +1,12 @@
 import oneOr, { OneData } from '@foscia/core/actions/context/runners/oneOr';
 import { DeserializedDataOf } from '@foscia/core/actions/context/utils/deserializeInstances';
-import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
+  ConsumeAdapter,
   ConsumeDeserializer,
   InferConsumedInstance,
-  ConsumeAdapter,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import { DeserializedData } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
@@ -17,7 +17,7 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Runners
  */
-export default function one<
+function one<
   C extends {},
   I extends InferConsumedInstance<C>,
   RawData,
@@ -30,7 +30,11 @@ export default function one<
   return oneOr<C, any, I, RawData, Data, Deserialized, null, Next>(() => null, transform);
 }
 
-type RunnerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'one',
+  one,
+  'run',
+) as WithParsedExtension<typeof one, {
   one<
     C extends {},
     I extends InferConsumedInstance<C>,
@@ -44,5 +48,3 @@ type RunnerExtension = ActionParsedExtension<{
     transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
   ): Promise<Next | null>;
 }>;
-
-one.extension = makeRunnersExtension({ one }) as RunnerExtension;

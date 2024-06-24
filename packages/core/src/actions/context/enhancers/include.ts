@@ -1,10 +1,10 @@
 import context from '@foscia/core/actions/context/enhancers/context';
-import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
   ConsumeInclude,
   InferConsumedModelOrInstance,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import { ModelRelationDotKey } from '@foscia/core/model/types';
 import { ArrayableVariadic, uniqueValues, wrapVariadic } from '@foscia/shared';
@@ -18,7 +18,7 @@ import { ArrayableVariadic, uniqueValues, wrapVariadic } from '@foscia/shared';
  *
  * @category Enhancers
  */
-export default function include<C extends {}>(
+function include<C extends {}>(
   ...relations: ArrayableVariadic<ModelRelationDotKey<InferConsumedModelOrInstance<C>>>
 ) {
   return async (
@@ -31,11 +31,13 @@ export default function include<C extends {}>(
   }));
 }
 
-type EnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'include',
+  include,
+  'use',
+) as WithParsedExtension<typeof include, {
   include<C extends {}, E extends {}>(
     this: Action<C, E>,
     ...relations: ArrayableVariadic<ModelRelationDotKey<InferConsumedModelOrInstance<C>>>
   ): Action<C, E>;
 }>;
-
-include.extension = makeEnhancersExtension({ include }) as EnhancerExtension;

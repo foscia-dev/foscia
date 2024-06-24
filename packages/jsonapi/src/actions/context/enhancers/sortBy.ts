@@ -1,4 +1,4 @@
-import { Action, ActionParsedExtension, makeEnhancersExtension } from '@foscia/core';
+import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
 import { consumeRequestObjectParams, param } from '@foscia/http';
 import { Arrayable, Dictionary, optionalJoin, uniqueValues, wrap } from '@foscia/shared';
 
@@ -70,14 +70,14 @@ function sortBy(
   };
 }
 
-type SortByEnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'sortBy',
+  sortBy,
+  'use',
+) as WithParsedExtension<typeof sortBy, {
   sortBy<C extends {}, E extends {}>(
     this: Action<C, E>,
     keys: Arrayable<string>,
     direction?: 'asc' | 'desc',
   ): Action<C, E>;
 }>;
-
-sortBy.extension = makeEnhancersExtension({ sortBy }) as SortByEnhancerExtension;
-
-export default sortBy;

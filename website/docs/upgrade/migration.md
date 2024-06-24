@@ -6,6 +6,47 @@ sidebar_position: 5
 
 # Migration
 
+## 0.10.x from 0.9.x
+
+### Medium impacts changes
+
+- [Actions extensions are now functions](#actions-extensions-are-now-functions)
+
+### Actions extensions are now functions
+
+**Likelihood Of Impact: Medium**
+
+All actions enhancers (`query`, etc.) and runners (`all`, etc.) extensions
+are now a function returning the extension instead of the extension object.
+This is also applicable to extensions groups (`coreExtensions`,
+`jsonApiStarterExtensions`, etc.).
+This new behavior prevents creating the extension object if it is not used.
+
+If you are using actions extensions, you must update their definition in your
+action factory definition, such as in the following example:
+
+```typescript
+import { makeActionFactory, query, all } from '@foscia/core';
+import { jsonApiStarterExtensions } from '@foscia/jsonapi';
+
+export default makeActionFactory({
+  // makeJsonRestAdapter(), ...etc.
+}, {
+// highlight.deletion
+  ...jsonApiStarterExtensions,
+// highlight.addition
+  ...jsonApiStarterExtensions(),
+// highlight.deletion
+  ...query.extension,
+// highlight.addition
+  ...query.extension(),
+// highlight.deletion
+  ...all.extension,
+// highlight.addition
+  ...all.extension(),
+});
+```
+
 ## 0.9.x from 0.8.x
 
 ### Medium impacts changes

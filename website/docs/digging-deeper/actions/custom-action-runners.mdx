@@ -122,17 +122,17 @@ Once your runner extension is ready, you will be able to use it
 ```typescript title="action/runners/first.ts"
 import {
   Action,
-  ActionParsedExtension,
   ConsumeAdapter,
   ConsumeDeserializer,
   InferConsumedInstance,
-  makeRunnersExtension,
+  WithParsedExtension,
+  appendExtension,
   one,
 } from '@foscia/core';
 import { paginate } from '@foscia/jsonapi';
 
 // Our previous enhancer code.
-export default function first<
+function first<
   C extends {},
   RawData,
   Data,
@@ -147,8 +147,12 @@ export default function first<
   ) => action.use(paginate({ number: 1, size: 1 })).run(one());
 }
 
-// The extension typing.
-type FirstRunnerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'first',
+  first,
+  'run',
+) as WithParsedExtension<typeof first, {
+  // The extension typing.
   first<
     C extends {},
     I extends InferConsumedInstance<C>,
@@ -163,9 +167,6 @@ type FirstRunnerExtension = ActionParsedExtension<{
     >,
   ): Promise<I | null>;
 }>;
-
-// The extension value.
-first.extension = makeRunnersExtension({ first }) as FirstRunnerExtension;
 ```
 
 :::warning

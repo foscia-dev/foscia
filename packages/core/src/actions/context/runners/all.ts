@@ -3,13 +3,13 @@ import deserializeInstances, {
 } from '@foscia/core/actions/context/utils/deserializeInstances';
 import executeContextThroughAdapter
   from '@foscia/core/actions/context/utils/executeContextThroughAdapter';
-import makeRunnersExtension from '@foscia/core/actions/extensions/makeRunnersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
+  ConsumeAdapter,
   ConsumeDeserializer,
   InferConsumedInstance,
-  ConsumeAdapter,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import { ModelInstance } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
@@ -32,7 +32,7 @@ export type AllData<
  *
  * @category Runners
  */
-export default function all<
+function all<
   C extends {},
   I extends InferConsumedInstance<C>,
   RawData,
@@ -63,7 +63,11 @@ export default function all<
   };
 }
 
-type RunnerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'all',
+  all,
+  'run',
+) as WithParsedExtension<typeof all, {
   all<
     C extends {},
     I extends InferConsumedInstance<C>,
@@ -79,5 +83,3 @@ type RunnerExtension = ActionParsedExtension<{
     ) => Awaitable<NextData>,
   ): Promise<Awaited<NextData>>;
 }>;
-
-all.extension = makeRunnersExtension({ all }) as RunnerExtension;

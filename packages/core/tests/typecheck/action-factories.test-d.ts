@@ -6,7 +6,7 @@ test('Action factories are type safe', async () => {
     ...makeRegistry([]),
     ...makeCache(),
   }, {
-    ...all.extension,
+    ...all.extension(),
   });
 
   const action = actionFactory();

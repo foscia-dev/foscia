@@ -1,4 +1,4 @@
-import { Action, ActionParsedExtension, makeEnhancersExtension } from '@foscia/core';
+import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
 import makeRequest from '@foscia/http/actions/context/enhancers/makeRequest';
 import { HttpRequestConfig } from '@foscia/http/types';
 
@@ -11,7 +11,7 @@ import { HttpRequestConfig } from '@foscia/http/types';
  *
  * @category Enhancers
  */
-export default function makePatch(
+function makePatch(
   pathOrBaseURL: string,
   body?: HttpRequestConfig['body'],
   config?: Omit<HttpRequestConfig, 'method' | 'body'>,
@@ -23,7 +23,11 @@ export default function makePatch(
   });
 }
 
-type MakePatchEnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'makePatch',
+  makePatch,
+  'use',
+) as WithParsedExtension<typeof makePatch, {
   makePatch<C extends {}, E extends {}>(
     this: Action<C, E>,
     pathOrBaseURL: string,
@@ -31,5 +35,3 @@ type MakePatchEnhancerExtension = ActionParsedExtension<{
     config?: Omit<HttpRequestConfig, 'method' | 'body'>,
   ): Action<C, E>;
 }>;
-
-makePatch.extension = makeEnhancersExtension({ makePatch }) as MakePatchEnhancerExtension;

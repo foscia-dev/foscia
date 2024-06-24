@@ -5,7 +5,8 @@ import {
   CacheI,
   context,
   create,
-  DeserializerI, destroy,
+  DeserializerI,
+  destroy,
   include,
   makeActionClass,
   one,
@@ -13,7 +14,8 @@ import {
   oneOrFail,
   query,
   raw,
-  SerializerI, update,
+  SerializerI,
+  update,
   when,
 } from '@foscia/core';
 import { expectTypeOf, test } from 'vitest';
@@ -23,15 +25,15 @@ import PostMock from '../mocks/models/post.mock';
 test('Actions are type safe', async () => {
   const action = () => {
     const ActionClass = makeActionClass().extend({
-      ...query.extension,
-      ...include.extension,
-      ...all.extension,
-      ...oneOrFail.extension,
-      ...cachedOr.extension,
-      ...when.extension,
-      ...create.extension,
-      ...update.extension,
-      ...destroy.extension,
+      ...query.extension(),
+      ...include.extension(),
+      ...all.extension(),
+      ...oneOrFail.extension(),
+      ...cachedOr.extension(),
+      ...when.extension(),
+      ...create.extension(),
+      ...update.extension(),
+      ...destroy.extension(),
     });
 
     return new ActionClass().use(context({

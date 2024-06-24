@@ -1,5 +1,5 @@
-import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
-import { Action, ActionParsedExtension } from '@foscia/core/actions/types';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
+import { Action, WithParsedExtension } from '@foscia/core/actions/types';
 import registerHook from '@foscia/core/hooks/registerHook';
 import { Awaitable } from '@foscia/shared';
 
@@ -11,7 +11,7 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Enhancers
  */
-export default function onFinally<C extends {}>(
+function onFinally<C extends {}>(
   callback: (event: { context: C; }) => Awaitable<unknown>,
 ) {
   return (action: Action<C>) => {
@@ -19,11 +19,13 @@ export default function onFinally<C extends {}>(
   };
 }
 
-type EnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'onFinally',
+  onFinally,
+  'use',
+) as WithParsedExtension<typeof onFinally, {
   onFinally<C extends {}, E extends {}>(
     this: Action<C, E>,
     callback: (event: { context: C; }) => Awaitable<unknown>,
   ): Action<C, E>;
 }>;
-
-onFinally.extension = makeEnhancersExtension({ onFinally }) as EnhancerExtension;

@@ -275,10 +275,10 @@ export default makeActionFactory(
     // makeJsonRestAdapter(), ...etc.
   },
   {
-    ...hooksExtensions,
-    ...query.extension,
-    ...include.extension,
-    ...all.extension,
+    ...hooksExtensions(),
+    ...query.extension(),
+    ...include.extension(),
+    ...all.extension(),
   },
 );
 ```

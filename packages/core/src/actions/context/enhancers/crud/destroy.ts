@@ -3,13 +3,13 @@ import context from '@foscia/core/actions/context/enhancers/context';
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import query from '@foscia/core/actions/context/enhancers/query';
-import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
   ConsumeId,
   ConsumeInstance,
   ConsumeModel,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import runHooks from '@foscia/core/hooks/runHooks';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
@@ -22,7 +22,7 @@ import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/typ
  *
  * @category Enhancers
  */
-export default function destroy<
+function destroy<
   C extends {},
   E extends {},
   D extends {},
@@ -45,11 +45,13 @@ export default function destroy<
     }));
 }
 
-type EnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'destroy',
+  destroy,
+  'use',
+) as WithParsedExtension<typeof destroy, {
   destroy<C extends {}, E extends {}, D extends {}, I extends ModelInstance<D>>(
     this: Action<C, E>,
     instance: ModelClassInstance<D> & I,
   ): Action<C & ConsumeModel<Model<D, I>> & ConsumeInstance<I> & ConsumeId, E>;
 }>;
-
-destroy.extension = makeEnhancersExtension({ destroy }) as EnhancerExtension;

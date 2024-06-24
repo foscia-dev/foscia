@@ -4,10 +4,9 @@ import instanceData from '@foscia/core/actions/context/enhancers/crud/instanceDa
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import query from '@foscia/core/actions/context/enhancers/query';
-import makeEnhancersExtension from '@foscia/core/actions/extensions/makeEnhancersExtension';
+import appendExtension from '@foscia/core/actions/extensions/appendExtension';
 import {
   Action,
-  ActionParsedExtension,
   ConsumeId,
   ConsumeInstance,
   ConsumeModel,
@@ -15,6 +14,7 @@ import {
   ConsumeSerializer,
   ContextEnhancer,
   InferConsumedInstance,
+  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import runHooks from '@foscia/core/hooks/runHooks';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
@@ -117,9 +117,11 @@ function create<
     }));
 }
 
-export default create;
-
-type EnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'create',
+  create,
+  'use',
+) as WithParsedExtension<typeof create, {
   create<
     C extends {},
     E extends {},
@@ -151,5 +153,3 @@ type EnhancerExtension = ActionParsedExtension<{
     // eslint-disable-next-line max-len
   ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeInstance<RI> & ConsumeId, E>;
 }>;
-
-create.extension = makeEnhancersExtension({ create }) as EnhancerExtension;

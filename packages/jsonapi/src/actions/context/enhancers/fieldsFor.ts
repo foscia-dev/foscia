@@ -1,10 +1,10 @@
 import {
   Action,
-  ActionParsedExtension,
-  makeEnhancersExtension,
+  appendExtension,
   Model,
   ModelKey,
   normalizeKey,
+  WithParsedExtension,
 } from '@foscia/core';
 import { consumeRequestObjectParams, param } from '@foscia/http';
 import { ArrayableVariadic, optionalJoin, uniqueValues, wrapVariadic } from '@foscia/shared';
@@ -18,7 +18,7 @@ import { ArrayableVariadic, optionalJoin, uniqueValues, wrapVariadic } from '@fo
  *
  * @category Enhancers
  */
-export default function fieldsFor<C extends {}, M extends Model>(
+function fieldsFor<C extends {}, M extends Model>(
   model: M,
   ...fieldset: ArrayableVariadic<ModelKey<M>>
 ) {
@@ -37,12 +37,14 @@ export default function fieldsFor<C extends {}, M extends Model>(
   };
 }
 
-type FieldsForEnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'fieldsFor',
+  fieldsFor,
+  'use',
+) as WithParsedExtension<typeof fieldsFor, {
   fieldsFor<C extends {}, E extends {}, M extends Model>(
     this: Action<C, E>,
     model: M,
     ...fieldset: ArrayableVariadic<ModelKey<M>>
   ): Action<C, E>;
 }>;
-
-fieldsFor.extension = makeEnhancersExtension({ fieldsFor }) as FieldsForEnhancerExtension;

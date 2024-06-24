@@ -1,5 +1,6 @@
-import { Action, ActionParsedExtension, makeEnhancersExtension } from '@foscia/core';
-import consumeRequestObjectParams from '@foscia/http/actions/context/consumers/consumeRequestObjectParams';
+import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
+import consumeRequestObjectParams
+  from '@foscia/http/actions/context/consumers/consumeRequestObjectParams';
 import configureRequest from '@foscia/http/actions/context/enhancers/configureRequest';
 import { Dictionary } from '@foscia/shared';
 
@@ -12,7 +13,7 @@ import { Dictionary } from '@foscia/shared';
  *
  * @category Enhancers
  */
-export default function param(key: string | Dictionary, value?: unknown) {
+function param(key: string | Dictionary, value?: unknown) {
   return async <C extends {}>(action: Action<C>) => action.use(
     configureRequest({
       params: {
@@ -23,12 +24,14 @@ export default function param(key: string | Dictionary, value?: unknown) {
   );
 }
 
-type ParamEnhancerExtension = ActionParsedExtension<{
+export default /* @__PURE__ */ appendExtension(
+  'param',
+  param,
+  'use',
+) as WithParsedExtension<typeof param, {
   param<C extends {}, E extends {}>(
     this: Action<C, E>,
     key: string | Dictionary,
     value?: unknown,
   ): Action<C, E>;
 }>;
-
-param.extension = makeEnhancersExtension({ param }) as ParamEnhancerExtension;

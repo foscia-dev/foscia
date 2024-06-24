@@ -1,4 +1,4 @@
-import { Action, context } from '@foscia/core';
+import { Action, appendExtension, context, WithParsedExtension } from '@foscia/core';
 import consumeRequestConfig from '@foscia/http/actions/context/consumers/consumeRequestConfig';
 import { HttpRequestConfig } from '@foscia/http/types';
 
@@ -18,7 +18,7 @@ import { HttpRequestConfig } from '@foscia/http/types';
  *
  * @category Enhancers
  */
-export default function configureRequest(nextConfig: HttpRequestConfig) {
+function configureRequest(nextConfig: HttpRequestConfig) {
   return async <C extends {}>(action: Action<C>) => {
     const prevRequestConfig = consumeRequestConfig(await action.useContext(), null);
 
@@ -43,7 +43,18 @@ export default function configureRequest(nextConfig: HttpRequestConfig) {
           ...(prevRequestConfig?.errorTransformers ?? []),
           ...(nextConfig?.errorTransformers ?? []),
         ],
-      },
+      } as HttpRequestConfig,
     }));
   };
 }
+
+export default /* @__PURE__ */ appendExtension(
+  'configureRequest',
+  configureRequest,
+  'use',
+) as WithParsedExtension<typeof configureRequest, {
+  configureRequest<C extends {}, E extends {}>(
+    this: Action<C, E>,
+    nextConfig: HttpRequestConfig,
+  ): Action<C & { httpRequestConfig: HttpRequestConfig; }, E>;
+}>;
