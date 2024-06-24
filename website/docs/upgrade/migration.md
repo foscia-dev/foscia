@@ -6,7 +6,7 @@ sidebar_position: 5
 
 # Migration
 
-## 0.10.x from 0.9.x
+## 0.11.x from 0.9.x
 
 ### Medium impacts changes
 

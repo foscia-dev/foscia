@@ -150,8 +150,8 @@ importers:
   packages/core:
     dependencies:
       '@foscia/shared':
-        specifier: 0.9.3
-        version: 0.9.3
+        specifier: 0.10.0
+        version: 0.10.0
 
   packages/http:
     dependencies:
@@ -1425,9 +1425,6 @@ packages:
 
   '@foscia/shared@0.10.0':
     resolution: {integrity: sha512-wC2OCTPkUA91wgP47JqzpIbU3OLA7aK51QOlf9OUOecCdQi59rOdsArxlpnLz3lcbRRvv3VYDCoxT5BIhbG8TQ==}
-
-  '@foscia/shared@0.9.3':
-    resolution: {integrity: sha512-kQXPn6BcmJTujHSLIr5Dh+u22TAA6P/6fRPUdRrmDaniYtQ1Lj+7UCtLjOE6u1s16sfPhaePHaY96tNz0Tt7Cg==}
 
   '@foscia/test@0.10.0':
     resolution: {integrity: sha512-py67xJjQqjElByiHhV+T72+b2MrSI+2yE5Ox6624td/tewLX1K0cSIEE9r6FVxDfgKEs//IwIj3x2SDD68TNcQ==}
@@ -8991,8 +8988,6 @@ snapshots:
       '@foscia/shared': 0.10.0
 
   '@foscia/shared@0.10.0': {}
-
-  '@foscia/shared@0.9.3': {}
 
   '@foscia/test@0.10.0':
     dependencies:
