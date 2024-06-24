@@ -224,7 +224,7 @@ function HomeExamples() {
     <div className={clsx(styles.homeExamplesRow, 'row')}>
       <div className={clsx(styles.homeExamplesCol, 'col col--5')}>
         <Link
-          to="/playground"
+          to="/playgrounds"
           className={clsx(styles.homeExamplesLink, 'blur--gradient')}
         >
           <div className={clsx(styles.homeExamplesCard, 'text--center')}>
