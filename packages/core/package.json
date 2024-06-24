@@ -30,6 +30,9 @@
     "import": "./dist/index.mjs",
     "require": "./dist/index.cjs"
   },
+  "scripts": {
+    "release": "release-it"
+  },
   "dependencies": {
     "@foscia/shared": "0.10.0"
   },
