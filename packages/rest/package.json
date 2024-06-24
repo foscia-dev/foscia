@@ -1,7 +1,7 @@
 {
   "name": "@foscia/rest",
   "type": "module",
-  "version": "0.9.3",
+  "version": "0.10.0",
   "license": "MIT",
   "author": "Paul Thébaud",
   "description": "Type safe, modular and intuitive API/data client for JS/TS.",
@@ -34,11 +34,11 @@
     "release": "release-it"
   },
   "dependencies": {
-    "@foscia/core": "0.9.3",
-    "@foscia/http": "0.9.3",
-    "@foscia/serialization": "0.9.3",
-    "@foscia/shared": "0.9.3",
-    "@foscia/test": "0.9.3"
+    "@foscia/core": "0.10.0",
+    "@foscia/http": "0.10.0",
+    "@foscia/serialization": "0.10.0",
+    "@foscia/shared": "0.10.0",
+    "@foscia/test": "0.10.0"
   },
   "publishConfig": {
     "access": "public"

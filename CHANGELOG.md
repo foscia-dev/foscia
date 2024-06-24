@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.10.0](https://github.com/foscia-dev/foscia/compare/v0.9.3...v0.10.0) (2024-06-24)
+
+
+### Bug Fixes
+
+* package exports definition in package.json ([b026e47](https://github.com/foscia-dev/foscia/commit/b026e478262634273d53419a7811570b2b15b1e6))
+
+
+### Features
+
+* add sourcemap to build ([cd630a3](https://github.com/foscia-dev/foscia/commit/cd630a329c7d521576d9358b5a5fc511fe9cfd9a))
+* better extensions and treeshaking ([75528ed](https://github.com/foscia-dev/foscia/commit/75528ed8b5221d089a167f351ab51f428edf3ce5))
+* **core:** support action extensions in relation loaders callbacks ([56c50a8](https://github.com/foscia-dev/foscia/commit/56c50a870b466c476a321e9acff20965ec07e00a))
+
+
+### BREAKING CHANGES
+
+* enhancer/runner`.extension` should now be called as function
+(e.g. `.extension()`). `makeEnhancersExtension` and `makeRunnersExtension` have
+been removed in favor of `appendExtension` function.
+
 ## [0.9.3](https://github.com/foscia-dev/foscia/compare/v0.9.2...v0.9.3) (2024-06-21)
 
 
