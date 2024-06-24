@@ -21,9 +21,6 @@
   "bin": {
     "foscia": "./dist/index.cjs"
   },
-  "scripts": {
-    "release": "release-it"
-  },
   "devDependencies": {
     "@types/lodash-es": "^4.17.12",
     "@types/pluralize": "^0.0.33",
