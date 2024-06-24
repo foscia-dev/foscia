@@ -27,9 +27,10 @@ type RefreshIncludeLoaderOptions<
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
+  E extends {},
 > = {
   prepare?: (
-    action: Action<C & ConsumeModel>,
+    action: Action<C & ConsumeModel, E>,
     context: { instances: ModelInstance[]; relations: string[] },
   ) => Awaitable<unknown>;
   chunk?: (instances: ModelInstance[]) => ModelInstance[][];
@@ -41,10 +42,11 @@ async function refreshLoad<
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
+  E extends {},
   I extends ModelInstance,
 >(
   action: ActionFactory<[], C, {}>,
-  options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C>,
+  options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C, E>,
   instances: I[],
   relations: ModelRelationDotKey<I>[],
 ) {
@@ -53,7 +55,7 @@ async function refreshLoad<
     .use(query(model as Model))
     .use(include(relations as any))
     .use(when(() => options.prepare, async (a, p) => {
-      await p(a as Action<C & ConsumeModel>, { instances, relations });
+      await p(a as Action<C & ConsumeModel, E>, { instances, relations });
     }))
     .run(all());
 
@@ -86,9 +88,10 @@ export default function makeRefreshIncludeLoader<
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
+  E extends {},
 >(
   action: ActionFactory<[], C, {}>,
-  options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C> = {},
+  options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C, E> = {},
 ) {
   return async <I extends ModelInstance>(
     instances: Arrayable<I>,

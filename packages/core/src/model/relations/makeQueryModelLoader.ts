@@ -41,13 +41,14 @@ type QueryModelLoaderOptions<
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
+  E extends {},
 > = {
   extract?: <I extends ModelInstance>(
     instance: I,
     relation: ModelRelationKey<I>,
   ) => Arrayable<ExtractedId> | null | undefined;
   prepare?: (
-    action: Action<C & ConsumeModel>,
+    action: Action<C & ConsumeModel, E>,
     context: { ids: ModelIdType[]; relations: string[] },
   ) => Awaitable<unknown>;
   chunk?: (instances: ModelIdType[]) => ModelIdType[][];
@@ -59,9 +60,10 @@ function extractIdsMap<
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
+  E extends {},
   I extends ModelInstance,
 >(
-  options: QueryModelLoaderOptions<RawData, Data, Deserialized, C>,
+  options: QueryModelLoaderOptions<RawData, Data, Deserialized, C, E>,
   instances: I[],
   relations: Map<ModelRelationKey<I>, string[]>,
 ) {
@@ -103,10 +105,11 @@ async function fetchRelatedMap<
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
+  E extends {},
   I extends ModelInstance,
 >(
-  action: ActionFactory<[], C, {}>,
-  options: QueryModelLoaderOptions<RawData, Data, Deserialized, C>,
+  action: ActionFactory<[], C, E>,
+  options: QueryModelLoaderOptions<RawData, Data, Deserialized, C, E>,
   relations: Map<Model, { relations: ModelRelationKey<I>[]; nested: string[] }>,
   ids: Map<I, Map<ModelRelationKey<I>, Arrayable<ExtractedId> | null>>,
 ) {
@@ -133,7 +136,7 @@ async function fetchRelatedMap<
         const chunkRelated = await action()
           .use(query(model), include(relationsData.nested as any))
           .use(when(() => options.prepare, async (a, p) => {
-            await p(a as Action<C & ConsumeModel>, {
+            await p(a as Action<C & ConsumeModel, E>, {
               ids: chunkIds.map(({ id }) => id),
               relations: relationsData.nested,
             });
@@ -197,9 +200,10 @@ export default function makeQueryModelLoader<
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
+  E extends {},
 >(
-  action: ActionFactory<[], C, {}>,
-  options: QueryModelLoaderOptions<RawData, Data, Deserialized, C> = {},
+  action: ActionFactory<[], C, E>,
+  options: QueryModelLoaderOptions<RawData, Data, Deserialized, C, E> = {},
 ) {
   return async <I extends ModelInstance>(
     instances: Arrayable<I>,
