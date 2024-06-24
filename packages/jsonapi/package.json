@@ -23,7 +23,8 @@
   "types": "./dist/index.d.ts",
   "unpkg": "./dist/index.global.js",
   "jsdelivr": "./dist/index.global.js",
-  "main": "./dist/index.mjs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
   "exports": {
     "types": "./dist/index.d.ts",
     "import": "./dist/index.mjs",
