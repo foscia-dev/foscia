@@ -1,14 +1,6 @@
 # Changelog
 
-## [0.11.0](https://github.com/foscia-dev/foscia/compare/v0.10.0...v0.11.0) (2024-06-24)
-
-
-### Reverts
-
-* chore: temporary disable cli and core release ([030c4ca](https://github.com/foscia-dev/foscia/commit/030c4ca36dfc96614ef6862d9e756565b5f90f61))
-
-## [0.10.0](https://github.com/foscia-dev/foscia/compare/v0.9.3...v0.10.0) (2024-06-24)
-
+## [0.11.0](https://github.com/foscia-dev/foscia/compare/v0.9.3...v0.11.0) (2024-06-24)
 
 ### Bug Fixes
 
