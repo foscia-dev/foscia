@@ -108,8 +108,8 @@ const config = {
           },
           {
             position: 'left',
-            label: 'Playground',
-            to: '/playground',
+            label: 'Playgrounds',
+            to: '/playgrounds',
           },
           {
             position: 'left',

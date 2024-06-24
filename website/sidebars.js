@@ -84,9 +84,9 @@ const sidebars = {
         },
         {
           type: 'link',
-          label: 'Foscia playground',
-          description: 'Try Foscia with Typescript, Vue and React.',
-          href: '/playground',
+          label: 'Foscia playgrounds',
+          description: 'Try Foscia in multiple StackBlitz playgrounds.',
+          href: '/playgrounds',
         },
         {
           type: 'link',

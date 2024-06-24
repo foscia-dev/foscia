@@ -61,7 +61,7 @@ function HomeModelsPresentation() {
   const description = <>
     <strong>Foscia provides an elegant way to define your data models.</strong> It
     gives your data structure readability and type safety across
-    all your data interactions, even accros nested relations.
+    all your data interactions, even across nested relations.
   </>;
 
   const example = `

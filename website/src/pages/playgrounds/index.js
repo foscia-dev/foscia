@@ -25,7 +25,7 @@ export default function Playground() {
               return (
                 <div className={clsx(styles.playgroundCol, 'text--center col col--4')}>
                   <Link
-                    to={`/playground/${playground.id}`}
+                    to={`/playgrounds/${playground.id}`}
                     className={clsx(styles.playgroundCard, 'blur--gradient')}
                   >
                     <div className={clsx(styles.playgroundIconWrapper, 'theme--dark')}>
