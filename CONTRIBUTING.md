@@ -65,6 +65,7 @@ You must also define multiple files
 (like inside [`packages/core`](packages/core)):
 
 - `src/index.ts`: contains all exported modules
+- `.release-it.json` manage release and dependencies update.
 - `buildOptions.json` contains the build options to use when building the
   package for release.
 - `LICENSE`
