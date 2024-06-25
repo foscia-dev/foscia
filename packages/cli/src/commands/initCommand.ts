@@ -197,7 +197,7 @@ async function resolveAlias(path: string) {
   const alias = await promptConfirm({
     name: 'alias',
     message: 'do you use an alias for imports paths?',
-    default: false,
+    initial: false,
   });
   if (!alias) {
     return undefined;
@@ -277,7 +277,7 @@ export async function runInitCommand(
   const model = await promptConfirm({
     name: 'model',
     message: 'would you like to generate a first model?',
-    default: true,
+    initial: true,
   });
   if (model) {
     const modelName = await promptText({
@@ -296,7 +296,7 @@ export async function runInitCommand(
   const actionFactory = await promptConfirm({
     name: 'action',
     message: 'would you like to generate an action factory?',
-    default: true,
+    initial: true,
   });
   if (actionFactory) {
     await runMakeActionCommand('action', { show, force });
@@ -311,7 +311,7 @@ export async function runInitCommand(
     const frameworkIntegrate = await promptConfirm({
       name: 'integrate',
       message: `we detected you use ${framework}, would you like to integrate it?`,
-      default: true,
+      initial: true,
     });
     if (frameworkIntegrate) {
       await runNuxtCommand({ payloadPlugin: 'fosciaPayloadPlugin', show, force });

@@ -4,7 +4,7 @@ import { prompt } from 'enquirer';
 export type PromptOptions<T> = {
   name: string;
   message: string;
-  initials?: T;
+  initial?: T;
   [K: string]: unknown;
 };
 

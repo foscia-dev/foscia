@@ -31,7 +31,7 @@ export default async function promptSelect<T>(options: PromptSelectOptions<T>) {
     },
     ...options,
     choices: convertChoices(options.choices),
-    initials: undefined,
+    initial: undefined,
   });
 
   return resolveChoice(options.choices, value);

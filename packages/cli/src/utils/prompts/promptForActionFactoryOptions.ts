@@ -52,7 +52,7 @@ async function promptForRegistry(
   const registry = await promptConfirm({
     name: 'registry',
     message: 'would you like a registry (useful for circular relationships)?',
-    default: false,
+    initial: false,
   });
   if (registry) {
     imports.add('makeRegistry', '@foscia/core');
@@ -76,7 +76,7 @@ export default async function promptForActionFactoryOptions(
   const test = await promptConfirm({
     name: 'test',
     message: 'would you like to mock actions for unit tests?',
-    default: false,
+    initial: false,
   });
   if (test) {
     const pkg = await usePkg();

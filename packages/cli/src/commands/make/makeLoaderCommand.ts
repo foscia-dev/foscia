@@ -36,7 +36,7 @@ export async function runMakeLoaderCommand(
   const onlyMissing = await promptConfirm({
     name: 'missing',
     message: 'would you like it to only load missing relations?',
-    default: false,
+    initial: false,
   });
   const fileName = validateFileName(
     name,

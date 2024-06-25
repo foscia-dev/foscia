@@ -21,7 +21,7 @@ export default async function promptMultiSelect<T>(options: PromptMultiSelectOpt
     },
     ...options,
     choices: convertChoices(options.choices),
-    initials: [],
+    initial: [],
   });
 
   return value.map((v) => resolveChoice(options.choices, v));

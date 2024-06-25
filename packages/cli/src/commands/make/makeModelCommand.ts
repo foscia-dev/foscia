@@ -63,7 +63,7 @@ export async function runMakeModelCommand(
       const writeModels = options.writeModels || await promptConfirm({
         name: 'models',
         message: 'should we update models list file?',
-        default: true,
+        initial: true,
       });
       if (writeModels) {
         await runMakeModelsCommand({ show: false, force: true, explorer: 'manual' });

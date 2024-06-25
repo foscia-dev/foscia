@@ -25,7 +25,7 @@ export default async function installDependencies(
   const shouldInstall = await promptConfirm({
     name: 'install',
     message: `should we install them using ${packageManager.name}?`,
-    default: true,
+    initial: true,
   });
   if (shouldInstall) {
     const loader = ora({ text: 'installing packages...', color: 'magenta' }).start();
