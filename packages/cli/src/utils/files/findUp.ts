@@ -25,9 +25,9 @@ async function findInDirectory(path: string, matcher: FindUpMatcher, directory: 
   return files
     .filter((file) => (
       (directory ? file.isDirectory() : file.isFile())
-      && isMatch(file.path, file.name, matcher)
+      && isMatch(file.parentPath ?? file.path, file.name, matcher)
     ))
-    .map((file) => resolve(file.path, file.name));
+    .map((file) => resolve(file.parentPath ?? file.path, file.name));
 }
 
 async function findInDirectoryAndParents(
