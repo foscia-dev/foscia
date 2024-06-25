@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.2](https://github.com/foscia-dev/foscia/compare/v0.11.1...v0.11.2) (2024-06-25)
+
+
+### Bug Fixes
+
+* **cli:** correct default values on confirm prompt ([90d5854](https://github.com/foscia-dev/foscia/commit/90d58544d092f45b33b93ee4cf9ab9e8f6bf78cc))
+
 ## [0.11.1](https://github.com/foscia-dev/foscia/compare/v0.11.0...v0.11.1) (2024-06-25)
 
 
