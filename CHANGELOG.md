@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.1](https://github.com/foscia-dev/foscia/compare/v0.11.0...v0.11.1) (2024-06-25)
+
+
+### Bug Fixes
+
+* **cli:** use file `parentPath` instead of `path` when available ([6c707b0](https://github.com/foscia-dev/foscia/commit/6c707b07eccc047a4897ebd2f016ad23b5b25446))
+
 ## [0.11.0](https://github.com/foscia-dev/foscia/compare/v0.9.3...v0.11.0) (2024-06-24)
 
 ### Bug Fixes
