@@ -94,44 +94,46 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
       ctx.additionalPath,
     ], '/')));
 
+    const modelPathTransformer = config.modelPathTransformer ?? ((v) => v);
+    const idPathTransformer = config.idPathTransformer ?? ((v) => v);
+    const relationPathTransformer = config.relationPathTransformer ?? ((v) => v);
+
     return buildURL({
       baseURL: contextConfig.baseURL ?? model?.$config.baseURL ?? config.baseURL ?? '/',
       additionalPath: contextConfig.path,
       ...(contextConfig.modelPaths !== false ? {
-        modelPath: isNil(model)
-          ? undefined
-          : (model.$config.path ?? (model.$config.guessPath ?? ((t) => t))(model.$type)),
-        idPath: isNil(id)
-          ? undefined
-          : String((model?.$config.guessIdPath ?? ((t) => t))(id)),
-        relationPath: isNil(relation)
-          ? undefined
-          : (relation.path ?? (model?.$config.guessRelationPath ?? ((r) => r.key))(relation)),
+        modelPath: isNil(model) ? undefined : modelPathTransformer(
+          model.$config.path ?? (model.$config.guessPath ?? ((t) => t))(model.$type),
+        ),
+        idPath: isNil(id) ? undefined : idPathTransformer(
+          String((model?.$config.guessIdPath ?? ((t) => t))(id)),
+        ),
+        relationPath: isNil(relation) ? undefined : relationPathTransformer(
+          relation.path ?? (model?.$config.guessRelationPath ?? ((r) => r.key))(relation),
+        ),
       } : {}),
     }, context);
   };
 
-  const makeRequestMethod = (context: {}, contextConfig: HttpRequestConfig) => (() => {
-    if (contextConfig.method) {
-      return contextConfig.method;
-    }
+  const makeRequestMethod = (context: {}, contextConfig: HttpRequestConfig) => (
+    contextConfig.method ?? (() => {
+      const action = consumeAction(context, null);
+      const actionsMethodsMap: Dictionary = {
+        [ActionName.READ]: 'GET',
+        [ActionName.CREATE]: 'POST',
+        [ActionName.UPDATE]: 'PATCH',
+        [ActionName.DESTROY]: 'DELETE',
+        [ActionName.ATTACH_RELATION]: 'POST',
+        [ActionName.UPDATE_RELATION]: 'PATCH',
+        [ActionName.DETACH_RELATION]: 'DELETE',
+      };
+      if (action && actionsMethodsMap[action]) {
+        return actionsMethodsMap[action] as HttpMethod;
+      }
 
-    const action = consumeAction(context, null);
-    const actionsMethodsMap: Dictionary = {
-      [ActionName.READ]: 'GET',
-      [ActionName.CREATE]: 'POST',
-      [ActionName.UPDATE]: 'PATCH',
-      [ActionName.DESTROY]: 'DELETE',
-      [ActionName.ATTACH_RELATION]: 'POST',
-      [ActionName.UPDATE_RELATION]: 'PATCH',
-      [ActionName.DETACH_RELATION]: 'DELETE',
-    };
-    if (action && actionsMethodsMap[action]) {
-      return actionsMethodsMap[action] as HttpMethod;
-    }
-
-    return 'GET';
-  })().toUpperCase();
+      return 'GET';
+    })()
+  ).toUpperCase();
 
   const makeRequestInit = async (context: {}, contextConfig: HttpRequestConfig) => {
     const headers: Dictionary<string> = {

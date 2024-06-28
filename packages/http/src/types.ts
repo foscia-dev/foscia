@@ -1,5 +1,5 @@
 import { AdapterI } from '@foscia/core';
-import { Awaitable, Dictionary } from '@foscia/shared';
+import { Awaitable, Dictionary, Transformer } from '@foscia/shared';
 
 /**
  * The HTTP method to use in request.
@@ -88,6 +88,9 @@ export type HttpAdapterConfig<Data = any> = {
   defaultResponseReader?: HttpResponseReader<Data>;
   appendParams?: (context: {}) => Awaitable<Dictionary<any>>;
   appendHeaders?: (context: {}) => Awaitable<Dictionary<string>>;
+  modelPathTransformer?: Transformer<string>;
+  idPathTransformer?: Transformer<string>;
+  relationPathTransformer?: Transformer<string>;
   requestTransformers?: RequestTransformer[];
   responseTransformers?: ResponseTransformer[];
   errorTransformers?: ErrorTransformer[];
