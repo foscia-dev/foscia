@@ -1,9 +1,9 @@
+import c from 'ansi-colors';
 import { execa } from 'execa';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { oraPromise } from 'ora';
-import pc from 'picocolors';
 import { listFiles, useRootDirname } from './utils.js';
 
 (() => run())();
@@ -48,20 +48,20 @@ async function check() {
 
           if (match.endsWith('/') && (context !== 'src' || packageName !== importPackageName)) {
             errors.push(
-              `import of ${pc.red(`@foscia/${importPackageName}`)} must use root package export (instead of inner package export)`,
+              `import of ${c.red(`@foscia/${importPackageName}`)} must use root package export (instead of inner package export)`,
             );
           }
 
           if (context === 'src' && packageName === importPackageName && (!match.endsWith('/') || match.endsWith('/index'))) {
             errors.push(
-              `import of ${pc.red(`@foscia/${packageName}`)} must use inner package export (instead of root package export)`,
+              `import of ${c.red(`@foscia/${packageName}`)} must use inner package export (instead of root package export)`,
             );
           }
         });
 
         if (errors.length) {
           containsErrors = true;
-          console.error(`${pc.underline(file)}\n${errors.map((e) => `  - ${e}`).join('\n')}`);
+          console.error(`${c.underline(file)}\n${errors.map((e) => `  - ${e}`).join('\n')}`);
         }
       }
     }),

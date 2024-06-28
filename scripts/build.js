@@ -1,14 +1,16 @@
+import c from 'ansi-colors';
 import { execa } from 'execa';
 import minimist from 'minimist';
+import { stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import process from 'node:process';
 import { oraPromise } from 'ora';
-import pc from 'picocolors';
 import { rimraf } from 'rimraf';
 import { useRootDirname } from './utils.js';
 
 const require = createRequire(import.meta.url);
+const rootDirname = useRootDirname();
 
 (() => run(process.argv))();
 
@@ -18,7 +20,9 @@ async function run(argv) {
 
     const args = minimist(argv.slice(2));
     const options = {
-      sourceMap: args.sourcemap || args.s,
+      stat: args.stat || false,
+      minify: args.minify || false,
+      noSourceMap: args.nosource || false,
       noDts: args.nodts || false,
     };
 
@@ -27,7 +31,7 @@ async function run(argv) {
       if (targets.some((t) => packagesNames.indexOf(t) === -1)) {
         loader.stop();
 
-        console.error(pc.red(
+        console.error(c.red(
           `Given targets are invalid, valid targets are: ${packagesNames.join(', ')}`,
         ));
 
@@ -72,6 +76,14 @@ async function run(argv) {
         successText: 'Moved DTS.',
       });
     }
+
+    if (options.stat) {
+      targets.reduce((promise, target) => promise.then(async () => {
+        console.log(`${c.green('✔')} Size ${c.bold(target)}`);
+        await logBuildSize(target, 'cjs');
+        await logBuildSize(target, 'mjs');
+      }), Promise.resolve());
+    }
   } catch {
     process.exit(1);
   }
@@ -101,16 +113,24 @@ async function buildTarget(target, options) {
     '-c',
     '--silent',
     '--environment',
-    `TARGET:${target},${options.sourceMap ? 'SOURCE_MAP:true' : ''}`,
+    `TARGET:${target},${options.noSourceMap ? '' : 'SOURCE_MAP:true'},${options.minify ? 'MINIFY:true' : ''}`,
   ]}`;
 }
 
 async function moveTargetDts(target) {
-  const rootDirname = useRootDirname();
-
   await execa({ shell: true, stdio: 'inherit' })`cp ${[
     '-r',
     path.resolve(rootDirname, `dist/packages/${target}/src/*`),
     path.resolve(rootDirname, `packages/${target}/dist`),
   ]}`;
+}
+
+async function logBuildSize(target, format) {
+  const filePath = path.resolve(rootDirname, `packages/${target}/dist/index.${format}`);
+  try {
+    const { size } = await stat(filePath);
+    console.log(`  ${format}: ${c.yellow(`${(size / 1024).toFixed(2)} KB`)}`);
+  } catch {
+    // Ignore error, format not built.
+  }
 }

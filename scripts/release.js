@@ -1,7 +1,7 @@
 import { execa } from 'execa';
 import minimist from 'minimist';
 import process from 'node:process';
-import pc from 'picocolors';
+import c from 'ansi-colors';
 
 (() => run(process.argv))();
 
@@ -25,7 +25,7 @@ function parseOptions(args) {
   ].filter((o) => o);
 
   const invalidArgumentError = (message) => {
-    console.error(pc.red(
+    console.error(c.red(
       `Invalid option: ${message}`,
     ));
 

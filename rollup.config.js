@@ -16,6 +16,7 @@ const require = createRequire(import.meta.url);
 const rootDirname = useRootDirname();
 
 const sourceMap = !!process.env.SOURCE_MAP;
+const minify = !!process.env.MINIFY;
 
 const packages = require('./scripts/entries.cjs')();
 const packagesDir = path.resolve(rootDirname, 'packages');
@@ -23,6 +24,8 @@ const packageDir = path.resolve(packagesDir, targetPackage);
 
 const packageResolve = (p) => path.resolve(packageDir, p);
 const packageOptions = require(packageResolve(`buildOptions.json`));
+
+const minifyPlugins = minify ? [terser()] : [];
 
 const configs = {
   cli: {
@@ -37,6 +40,7 @@ const configs = {
       nodeResolve({
         exportConditions: ['node'],
       }),
+      ...minifyPlugins,
     ],
   },
   esm: {
@@ -45,6 +49,9 @@ const configs = {
       file: packageResolve('dist/index.mjs'),
       format: 'es',
     },
+    plugins: [
+      ...minifyPlugins,
+    ],
   },
   cjs: {
     output: {
@@ -52,18 +59,20 @@ const configs = {
       file: packageResolve('dist/index.cjs'),
       format: 'cjs',
     },
+    plugins: [
+      ...minifyPlugins,
+    ],
   },
   global: {
     output: {
       sourcemap: sourceMap,
+      minify: sourceMap,
       globals: packages.reduce((globals, p) => ({ ...globals, [p.path]: p.global }), {}),
       name: packageOptions.name,
       file: packageResolve('dist/index.global.js'),
       format: 'iife',
     },
-    plugins: [
-      terser(),
-    ],
+    plugins: [terser()],
   },
 };
 
