@@ -31,11 +31,8 @@ describe('unit: makeSerializerWith', () => {
           record[key] = value;
         },
       ),
-      serializeRelated: ({ serializer, context }, related, parents) => serializer.serializeInstance(
-        related,
-        context,
-        parents,
-      ),
+      serializeRelation: ({ serializer, context }, related, parents) => serializer
+        .serializeInstance(related, context, parents),
     });
 
     await expect(

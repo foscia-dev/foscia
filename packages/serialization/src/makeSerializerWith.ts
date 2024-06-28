@@ -18,30 +18,27 @@ import {
 } from '@foscia/serialization/types';
 import { Arrayable, Awaitable, mapArrayable } from '@foscia/shared';
 
-export default function makeSerializerWith<Record, Related, Data>(
+export default <Record, Related, Data>(
   config: SerializerConfig<Record, Related, Data>,
-) {
-  const shouldSerialize = (context: SerializerContext<Record, Related, Data>) => (
-    config.shouldSerialize
-      ? config.shouldSerialize(context)
-      : shouldSync(context.def, ['push'])
+) => {
+  const shouldSerialize = config.shouldSerialize
+    ?? ((context) => (
+      shouldSync(context.def, ['push'])
       && context.value !== undefined
       && changed(context.instance, context.def.key)
-  );
+    ));
 
-  const serializeKey = async (context: SerializerContext<Record, Related, Data>) => (
-    config.serializeKey
-      ? config.serializeKey(context)
-      : normalizeKey(context.instance.$model, context.def.key)
-  );
+  const serializeKey = config.serializeKey
+    ?? ((context) => normalizeKey(context.instance.$model, context.def.key));
 
-  const serializeAttributeValue = async (
-    context: SerializerContext<Record, Related, Data, ModelAttribute>,
-  ) => (
-    config.serializeAttribute
-      ? config.serializeAttribute(context)
-      : (context.def.transformer?.serialize ?? ((v) => v))(context.value)
-  );
+  const serializeAttributeValue = config.serializeAttribute
+    ?? ((context) => (context.def.transformer?.serialize ?? ((v) => v))(context.value));
+
+  const serializeRelation = config.serializeRelation
+    ?? ((_, related) => related.id);
+
+  const serializeRelated = config.serializeRelated
+    ?? ((_, related) => related.id);
 
   const serializeRelationWith = async <T>(
     context: SerializerContext<Record, Related, Data, ModelRelation>,
@@ -57,45 +54,13 @@ export default function makeSerializerWith<Record, Related, Data>(
     parents,
   ));
 
-  const serializeRelation = async (
-    context: SerializerContext<Record, Related, Data, ModelRelation>,
-    related: ModelInstance,
-    parents: SerializerParents,
-  ) => (
-    config.serializeRelated
-      ? config.serializeRelated(context, related, parents)
-      : related.id
-  );
+  const isCircularRelation = config.isCircularRelation
+    ?? ((context, parents) => parents.some((parent) => (
+      parent.instance.$model === context.instance.$model && parent.def === context.def
+    )));
 
-  const serializeRelated = async (
-    context: SerializerContext<Record, Related, Data, ModelRelation>,
-    related: ModelInstance,
-    parents: SerializerParents,
-  ) => (
-    config.serializeRelated
-      ? config.serializeRelated(context, related, parents)
-      : related.id
-  );
-
-  const isCircularRelation = async (
-    context: SerializerContext<Record, Related, Data, ModelRelation>,
-    parents: SerializerParents,
-  ) => (
-    config.isCircularRelation
-      ? config.isCircularRelation(context, parents)
-      : parents.some((parent) => (
-        parent.instance.$model === context.instance.$model && parent.def === context.def
-      ))
-  );
-
-  const circularRelationBehavior = async (
-    context: SerializerContext<Record, Related, Data, ModelRelation>,
-    parents: SerializerParents,
-  ) => (
-    config.circularRelationBehavior
-      ? config.circularRelationBehavior(context, parents)
-      : 'skip'
-  );
+  const circularRelationBehavior = config.circularRelationBehavior
+    ?? (() => 'skip');
 
   let serializer: Serializer<Record, Related, Data>;
 
@@ -184,4 +149,4 @@ export default function makeSerializerWith<Record, Related, Data>(
   };
 
   return serializer;
-}
+};

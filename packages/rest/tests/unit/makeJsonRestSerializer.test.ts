@@ -132,7 +132,7 @@ describe.concurrent('unit: makeJsonRestSerializer', () => {
     [
       post1,
       {
-        serializeRelated: (context, related, parents) => context.serializer
+        serializeRelation: (context, related, parents) => context.serializer
           .serializeInstance(related, context, parents),
       },
       {},
@@ -169,7 +169,7 @@ describe.concurrent('unit: makeJsonRestSerializer', () => {
       post1,
       {
         serializeType: true,
-        serializeRelated: (context, related, parents) => context.serializer
+        serializeRelation: (context, related, parents) => context.serializer
           .serializeInstance(related, context, parents),
         circularRelationBehavior: () => 'keep',
       },
@@ -270,7 +270,7 @@ describe.concurrent('unit: makeJsonRestSerializer', () => {
       post1,
       {
         circularRelationBehavior: () => 'throw',
-        serializeRelated: (context, related, parents) => context.serializer
+        serializeRelation: (context, related, parents) => context.serializer
           .serializeInstance(related, context, parents),
       },
       {},
@@ -322,6 +322,7 @@ describe.concurrent('unit: makeJsonRestSerializer', () => {
       (assertion: Assertion) => assertion.resolves.toStrictEqual({
         id: '1',
         userName: 'JOHN',
+        myPosts: ['1'],
       }),
     ],
   ] as TestDataProvider[])(
