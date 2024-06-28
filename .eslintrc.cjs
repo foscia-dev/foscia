@@ -1,4 +1,5 @@
 const path = require('node:path');
+const { rules: baseStyleRules } = require('eslint-config-airbnb-base/rules/style');
 const entries = require('./scripts/entries.cjs');
 
 module.exports = {
@@ -19,12 +20,8 @@ module.exports = {
   rules: {
     'no-console': [process.env.NODE_ENV === 'production' ? 'error' : 'off'],
     'no-debugger': [process.env.NODE_ENV === 'production' ? 'error' : 'off'],
-    // See https://stackoverflow.com/a/63767419
-    'no-unused-vars': ['off'],
-    // See https://youtrack.jetbrains.com/issue/WEB-21182
-    'import/order': ['off'],
-    // See https://github.com/typescript-eslint/typescript-eslint/issues/1103
-    'class-methods-use-this': ['off'],
+    // https://github.com/typescript-eslint/typescript-eslint/issues/1824
+    '@typescript-eslint/indent': ['error', 2],
     'object-curly-newline': ['off'],
     'import/no-unresolved': ['error'],
     'import/no-relative-packages': ['off'],
