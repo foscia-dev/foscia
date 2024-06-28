@@ -77,12 +77,13 @@ describe('integration: JSON:API', () => {
 
     const action = makeJsonApiActionMock();
 
-    const data = await action()
-      .use(query(PostMock))
-      .use(include('comments'))
-      .use(filterBy('search', 'foo bar'))
-      .use(paginate({ size: 10, number: 1 }))
-      .run(all(usingDocument));
+    const data = await action().run(
+      query(PostMock),
+      include('comments'),
+      filterBy('search', 'foo bar'),
+      paginate({ size: 10, number: 1 }),
+      all(usingDocument),
+    );
     const posts = data.instances;
 
     expect(fetchMock).toHaveBeenCalledOnce();
@@ -223,7 +224,7 @@ describe('integration: JSON:API', () => {
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const request = fetchMock.mock.calls[0][0] as Request;
-    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/relationships/bestComment');
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/relationships/best-comment');
     expect(request.method).toStrictEqual('PATCH');
     expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
     expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
@@ -252,7 +253,7 @@ describe('integration: JSON:API', () => {
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const request = fetchMock.mock.calls[0][0] as Request;
-    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/relationships/bestComment');
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/relationships/best-comment');
     expect(request.method).toStrictEqual('PATCH');
     expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
     expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
@@ -280,7 +281,7 @@ describe('integration: JSON:API', () => {
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const request = fetchMock.mock.calls[0][0] as Request;
-    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/relationships/bestComment');
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1/relationships/best-comment');
     expect(request.method).toStrictEqual('PATCH');
     expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
     expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
