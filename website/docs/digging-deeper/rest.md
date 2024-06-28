@@ -104,6 +104,79 @@ makeJsonRestSerializer({
 });
 ```
 
+### Changing endpoint case
+
+By default, JSON:API use kebab case for models and relations endpoints (e.g.
+`favorite-posts` for a `favoritePosts` relation). If you want to use another
+case for endpoints, you can use `modelPathTransformer` and
+`relationPathTransformer` options.
+
+```typescript
+import { camelCase } from 'lodash-es';
+import { makeJsonRestAdapter } from '@foscia/rest';
+
+makeJsonRestAdapter({
+  modelPathTransformer: (path) => camelCase(path),
+  relationPathTransformer: (path) => camelCase(path),
+});
+```
+
+### Changing serialization keys case
+
+By default, serialized and deserialized attributes and relations keep keys
+specified in the model. If you are using camel cased keys (e.g. `firstName`)
+but want to exchange kebab cased keys (e.g. `first-name`) with your API,
+you can use `serializeKey` and `deserializeKey` options.
+
+```typescript
+import { kebabCase } from 'lodash-es';
+import { makeJsonRestSerializer, makeJsonRestDeserializer } from '@foscia/rest';
+
+makeJsonRestSerializer({
+  serializeKey: ({ key }) => kebabCase(key),
+});
+
+makeJsonRestDeserializer({
+  deserializeKey: ({ key }) => kebabCase(key),
+});
+```
+
+### Customizing relation serialized data
+
+By default, REST implementation will only serialize the related IDs as the
+serialized relation's data. You can customize this behavior using
+`serializeRelation` option.
+
+Here is an example which will serialize ID and type to support polymorphic
+relations:
+
+```typescript
+import { makeJsonRestSerializer } from '@foscia/rest';
+
+makeJsonRestSerializer({
+  serializeRelation: (_, related) => ({ type: related.$model.$type, id: related.id }),
+});
+```
+
+Here is another example where we serialize the whole related record:
+
+```typescript
+import { makeJsonRestSerializer } from '@foscia/rest';
+
+makeJsonRestSerializer({
+  serializeRelation: ({ context, serializer }, related, parents) => serializer
+    .serializeInstance(related, context, parents)
+});
+```
+
+:::tip
+
+If you want to customize relations serialization behavior when writing
+relations (e.g. using `attach`, `associate`, etc.), you can use
+the `serializeRelated` option which have the same signature.
+
+:::
+
 ### Parsing URL IDs
 
 Some API implementation may serialize records IDs as URL to the record endpoint

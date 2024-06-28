@@ -26,15 +26,12 @@ the second one:
 ```typescript title="post.ts"
 import { makeModel } from '@foscia/core';
 
-makeModel(
-  {
-    type: 'posts',
-    /* ...configuration */
-  },
-  {
-    /* ...definition */
-  },
-);
+makeModel({
+  type: 'posts',
+  /* ...configuration */
+}, {
+  /* ...definition */
+});
 ```
 
 When using inside a model factory creation (`makeModelFactory`), the
@@ -44,14 +41,11 @@ Configuration is the first argument and definition is the second one:
 ```typescript title="makeModel.ts"
 import { attr, makeModelFactory, toDateTime } from '@foscia/core';
 
-export default makeModelFactory(
-  {
-    /* ...common configuration */
-  },
-  {
-    /* ...common definition */
-  },
-);
+export default makeModelFactory({
+  /* ...common configuration */
+}, {
+  /* ...common definition */
+});
 ```
 
 ## Configuration options
@@ -196,8 +190,9 @@ import { makeModel, isPluralRelationDef, ModelRelation } from '@foscia/core';
 
 makeModel({
   type: 'posts',
-  guessRelationType: (def: ModelRelation) =>
-    isPluralRelationDef(def) ? def.key : pluralize(def.key),
+  guessRelationType: (def: ModelRelation) => (
+    isPluralRelationDef(def) ? def.key : pluralize(def.key)
+  ),
 });
 ```
 

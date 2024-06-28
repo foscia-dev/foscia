@@ -61,12 +61,11 @@ Our implementation of `first` will target the model and paginate the context.
 import { Action, Model, query } from '@foscia/core';
 import { paginate } from '@foscia/jsonapi';
 
-export default function first<
-  C extends {},
-  M extends Model,
->(model: M) {
-  return (action: Action<C>) =>
-    action.use(query(model)).use(paginate({ number: 1, size: 1 }));
+export default function first<C extends {}, M extends Model>(model: M) {
+  return (action: Action<C>) => action.use(
+    query(model),
+    paginate({ number: 1, size: 1 }),
+  );
 }
 ```
 
@@ -88,7 +87,7 @@ import action from './action';
 import first from './action/enhancers/first';
 import Post from './models/post';
 
-const post = await action().use(first(Post)).run(one());
+const post = await action().run(first(Post), one());
 ```
 
 ## Defining the extension
@@ -119,15 +118,14 @@ import {
 import { paginate } from '@foscia/jsonapi';
 
 // Our previous enhancer code.
-
-function first<
-  C extends {},
-  M extends Model,
->(model: M) {
-  return (action: Action<C>) =>
-    action.use(query(model)).use(paginate({ number: 1, size: 1 }));
+function first<C extends {}, M extends Model>(model: M) {
+  return (action: Action<C>) => action.use(
+    query(model),
+    paginate({ number: 1, size: 1 }),
+  );
 }
 
+// New default export with typed `extension()`.
 export default /* @__PURE__ */ appendExtension(
   'first',
   first,

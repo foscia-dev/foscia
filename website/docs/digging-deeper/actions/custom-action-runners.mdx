@@ -66,19 +66,10 @@ import {
 } from '@foscia/core';
 import { paginate } from '@foscia/jsonapi';
 
-export default function first<
-  C extends {},
-  RawData,
-  Data,
-  Deserialized,
->() {
+export default function first<C extends {}, RawData, Data, Deserialized>() {
   return (
-    action: Action<
-      C &
-        ConsumeAdapter<RawData, Data> &
-        ConsumeDeserializer<Data, Deserialized>
-    >,
-  ) => action.use(paginate({ number: 1, size: 1 })).run(one());
+    action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>>,
+  ) => action.run(paginate({ number: 1, size: 1 }), one());
 }
 ```
 
@@ -100,7 +91,7 @@ import action from './action';
 import first from './action/runners/first';
 import Post from './models/post';
 
-const post = await action().use(query(Post)).run(first());
+const post = await action().run(query(Post), first());
 ```
 
 ## Defining the extension
@@ -132,39 +123,21 @@ import {
 import { paginate } from '@foscia/jsonapi';
 
 // Our previous enhancer code.
-function first<
-  C extends {},
-  RawData,
-  Data,
-  Deserialized,
->() {
+function first<C extends {}, RawData, Data, Deserialized>() {
   return (
-    action: Action<
-      C &
-        ConsumeAdapter<RawData, Data> &
-        ConsumeDeserializer<Data, Deserialized>
-    >,
-  ) => action.use(paginate({ number: 1, size: 1 })).run(one());
+    action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>>,
+  ) => action.run(paginate({ number: 1, size: 1 }), one());
 }
 
+// New default export with typed `extension()`.
 export default /* @__PURE__ */ appendExtension(
   'first',
   first,
   'run',
 ) as WithParsedExtension<typeof first, {
   // The extension typing.
-  first<
-    C extends {},
-    I extends InferConsumedInstance<C>,
-    RawData,
-    Data,
-    Deserialized,
-  >(
-    this: Action<
-      C &
-        ConsumeAdapter<RawData, Data> &
-        ConsumeDeserializer<Data, Deserialized>
-    >,
+  first<C extends {}, I extends InferConsumedInstance<C>, RawData, Data, Deserialized>(
+    this: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>>,
   ): Promise<I | null>;
 }>;
 ```

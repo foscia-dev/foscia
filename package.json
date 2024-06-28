@@ -12,6 +12,7 @@
     "lint": "node scripts/lint.js",
     "build": "node scripts/build.js",
     "release": "node scripts/release.js",
+    "generate-files": "node scripts/generate-files.js",
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky"
   },

@@ -73,12 +73,13 @@ import action from './action';
 import Post from './models/post';
 
 export default async function fetchAllPost(query = {}) {
-  return action()
-    .use(query(Post))
-    .use(when(query.search, (a, s) => a.use(filterBy('search', s))))
-    .use(sortByDesc('createdAt'))
-    .use(paginate({ number: query.page ?? 1 }))
-    .run(all(usingDocument));
+  return action().run(
+    query(Post),
+    when(query.search, (a, s) => a.use(filterBy('search', s))),
+    sortByDesc('createdAt'),
+    paginate({ number: query.page ?? 1 }),
+    all(usingDocument),
+  );
 }
 
 const { instances, document } = await fetchAllPost({ search: 'Hello' });
@@ -92,7 +93,7 @@ import action from './action';
 import Post from './models/post';
 
 export default async function fetchOnePost(id) {
-  return action().use(query(Post, id)).use(include('tags')).run(oneOrFail());
+  return action().run(query(Post, id), include('tags'), oneOrFail());
 }
 
 const post = await fetchOnePost('123-abc');
@@ -109,11 +110,10 @@ export default async function savePost(post, values = {}) {
   fill(post, values);
 
   try {
-    await action()
-      .use(save(post))
-      .run(
-        when(!post.$exists || changed(post), oneOrCurrent(), () => instance),
-      );
+    await action().run(
+      save(post),
+      when(!post.$exists || changed(post), oneOrCurrent(), () => instance),
+    );
   } catch (error) {
     reset(post);
 
@@ -139,7 +139,7 @@ import action from './action';
 import Post from './models/post';
 
 export default async function deletePost(post) {
-  await action().use(destroy(post)).run(none());
+  await action().run(destroy(post), none());
 }
 
 const post = new Post();
@@ -161,22 +161,22 @@ import action from './action';
 import Post from './models/post';
 
 export default function bestPosts() {
-  return action()
-    .use(query(Post))
-    .use(makeGet('actions/best-posts'))
-    .run(all());
+  return action().run(
+    query(Post),
+    .makeGet('actions/best-posts'),
+    all(),
+  );
 }
 
 export default function publishPost(post, query = {}) {
-  return action()
-    .use(query(post))
-    .use(when(query.include, (a, i) => a.use(include(i))))
-    .use(
-      makePost('actions/publish', {
-        publishedAt: new Date(),
-      }),
-    )
-    .run(oneOrFail());
+  return action().run(
+    query(post),
+    when(query.include, (a, i) => a.use(include(i))),
+    makePost('actions/publish', {
+      publishedAt: new Date(),
+    }),
+    oneOrFail(),
+  );
 }
 
 // Sends a GET to "<your-base-url>/posts/actions/best-posts

@@ -61,18 +61,20 @@ will retrieve a fetch `Response` object. You can also pass a callback to `raw`
 to retrieve a value from the `Response` object.
 
 ```typescript
+import { raw } from '@foscia/core';
 import { makeGet, makePost } from '@foscia/http';
 import action from './action';
 
-// GET https://example.com/ (and get Response object)
-const response = await action().use(makeGet('/')).run(raw());
+// GET https://example.com/ (and get Response object).
+const response = await action().run(makeGet('/'), raw());
 
-// POST https://example.com/api/posts (and get JSON payload)
-const data = await action()
-  .use(makePost('/api/posts', {
+// POST https://example.com/api/posts (and get JSON payload).
+const data = await action().run(
+  makePost('/api/posts', {
     data: { title: 'Hello World!' },
-  }))
-  .run(raw((response) => response.json()));
+  }),
+  raw((response) => response.json()),
+);
 ```
 
 ### Advanced usage
@@ -82,13 +84,14 @@ You can pass a lot of options to each request enhancers, from `headers` and
 [Fetch `Request` options](https://developer.mozilla.org/docs/Web/API/Request/Request#options):
 
 ```typescript
+import { raw } from '@foscia/core';
 import { makePost } from '@foscia/http';
 import action from './action';
 
 const abortController = new AbortController();
 
-const data = await action()
-  .use(makePost('/api/posts', {
+const data = await action().run(
+  makePost('/api/posts', {
     data: { title: 'Hello World!' },
   }, {
     headers: { 'Accept-Language': 'fr-FR' },
@@ -111,8 +114,9 @@ const data = await action()
 
       return error;
     }],
-  }))
-  .run(raw((response) => response.json()));
+  }),
+  raw((response) => response.json()),
+);
 ```
 
 ### Custom `Request` object
@@ -121,17 +125,19 @@ You can even pass a custom
 [Fetch `Request` object](https://developer.mozilla.org/docs/Web/API/Request/Request):
 
 ```typescript
+import { raw } from '@foscia/core';
 import { configureRequest } from '@foscia/http';
 import action from './action';
 
-const data = await action()
-  .use(configureRequest({
+const data = await action().run(
+  configureRequest({
     request: new Request('https://example.com', {
       headers: {},
       /* Other init... */
     }),
-  }))
-  .run(raw((response) => response.json()));
+  }),
+  raw((response) => response.json()),
+);
 ```
 
 ## Configuration recipes
@@ -147,7 +153,7 @@ a request transformer (useful for unstable headers, such as `Accept-Language`
 in an internationalized application).
 
 ```typescript
-import {makeHttpAdapter} from '@foscia/http';
+import { makeHttpAdapter } from '@foscia/http';
 
 const { adapter } = makeHttpAdapter({
   headers: { 'Accept-Language': 'fr-FR' },

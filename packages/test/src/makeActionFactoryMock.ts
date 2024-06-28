@@ -47,7 +47,15 @@ export default function makeActionFactoryMock<A extends any[], C extends {}, E e
     }
   };
 
-  const runMockedRun = async <RC extends {}, RE extends {}>(action: Action<RC, RE>) => {
+  const runMockedRun = async <RC extends {}, RE extends {}>(
+    action: Action<RC, RE>,
+    enhancers: any[],
+  ) => {
+    // Drop runner.
+    enhancers.pop();
+
+    (action.use as any)(...enhancers);
+
     const context = await action.useContext();
 
     history.push(makeActionMockedHistoryItem(context));
@@ -73,7 +81,7 @@ export default function makeActionFactoryMock<A extends any[], C extends {}, E e
   const makeAction = (...args: A) => new Proxy(factory(...args), {
     get: (target, property) => (
       property === 'run'
-        ? () => runMockedRun(target)
+        ? (...enhancers: any[]) => runMockedRun(target, enhancers)
         : target[property as keyof Action<C, E>]
     ),
   });

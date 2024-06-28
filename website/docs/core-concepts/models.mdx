@@ -45,7 +45,7 @@ The attributes and relations definition represents the `schema` of the model.
 ```typescript
 import { makeModel, attr, hasMany, toDateTime } from '@foscia/core';
 
-makeModel('posts', {
+export default makeModel('posts', {
   /* The model definition */
   title: attr<string>(),
   description: attr<string>(),
@@ -70,7 +70,7 @@ already provided to `makeModel`.
 
 ```typescript
 /* Initial model creation without definition */
-makeModel('posts')
+export default makeModel('posts')
   .extend({
     title: attr<string>(),
     description: attr<string>(),

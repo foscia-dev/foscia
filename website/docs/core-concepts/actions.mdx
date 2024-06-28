@@ -38,6 +38,14 @@ through your models.
 Foscia uses two typologies of functions to run actions, **enhancers** and
 **runners**, which are described in the [lifecycle guide](#lifecycle).
 
+:::info
+
+Examples of the documentation commonly use
+[**variadic `run` calls**](#variadic-run) on actions, as this is the simplest
+way of using actions.
+
+:::
+
 ### Retrieving records
 
 `query` can target a records index using a model. You can use it in
@@ -46,7 +54,10 @@ combination with `all` to retrieve a list of the model instances.
 ```typescript
 import { query, all } from '@foscia/core';
 
-const posts = await action().use(query(Post)).run(all());
+const posts = await action().run(
+  query(Post),
+  all(),
+);
 
 posts.forEach((post) => {
   console.log(post.title);
@@ -60,22 +71,26 @@ a single record and handle not found errors.
 ```typescript
 import { query, oneOrFail } from '@foscia/core';
 
-const post = await action().use(query(Post, '1')).run(oneOrFail());
+const postOrFail = await action().run(
+  query(Post, '1'),
+  oneOrFail(),
+);
 
-const postOrNull = await action()
-  .use(query(Post, '2'))
-  .run(oneOr(() => null));
+const postOrNull = await action().run(
+  query(Post, '2'),
+  oneOr(() => null),
+);
 ```
 
 Finally, `query` can also be used to target a record using an instance.
 If the instance does not exist, this will target the records index, otherwise
-it will target the record. This can be used when writing a record (e.g. update)
-or when [lazy loading a relation](#lazy-loading-relations).
+it will target the record. This can be used when writing a record (e.g.
+create/update) or when [lazy loading a relation](#lazy-loading-relations).
 
 ```typescript
 import { query, oneOrFail } from '@foscia/core';
 
-const post = await action().use(query(somePost)).run(oneOrFail());
+const post = await action().run(query(somePost), oneOrFail());
 ```
 
 ### Creating and updating records
@@ -96,13 +111,15 @@ source response.
 ```typescript
 import { create, save, fill, oneOrCurrent, none } from '@foscia/core';
 
-const post = await action()
-  .use(create(fill(new Post(), { title: 'Hello World!' })), include('author'))
-  .run(oneOrCurrent());
+const post = await action().run(
+  create(fill(new Post(), { title: 'Hello World!' })),
+  include('author'),
+  oneOrCurrent(),
+);
 
 post.title = 'Edited Hello World!';
 
-await action().use(save(post)).run(none());
+await action().run(save(post), none());
 ```
 
 ### Deleting records
@@ -114,7 +131,7 @@ adapter).
 ```typescript
 import { destroy, none } from '@foscia/core';
 
-await action().use(destroy(post)).run(none());
+await action().run(destroy(post), none());
 ```
 
 ### Relationships
@@ -136,7 +153,11 @@ To eager load a relation, you can use the `include` function.
 ```typescript
 import { query, all, include } from '@foscia/core';
 
-const posts = await action().use(query(Post), include('author')).run(all());
+const posts = await action().run(
+  query(Post),
+  include('author'),
+  all(),
+);
 ```
 
 #### Lazy loading relations
@@ -148,14 +169,15 @@ relation with an already retrieved a record.
 import { query, all, oneOrFail } from '@foscia/core';
 
 // Fetch a post without relations.
-const post = await action().use(query(Post, 1)).run(oneOrFail());
+const post = await action().run(query(Post, 1), oneOrFail());
 // Fetch "comments" relation.
-const comments = await action().use(query(post, 'comments')).run(all());
+const comments = await action().run(query(post, 'comments'), all());
 ```
 
 :::info
 
-Lazy loading a record's relation won't affect the given record instance.
+Lazy loading a record's relation won't affect the given record instance
+(it won't hydrate the relation on parent instance, here `post`).
 
 :::
 
@@ -170,15 +192,17 @@ to change the relation value.
 import { associate, dissociate, none } from '@foscia/core';
 
 // Associate myUser as myPost's author.
-await action()
-  .use(associate(myPost, 'author', myUser))
-  .run(none());
+await action().run(
+  associate(myPost, 'author', myUser),
+  none(),
+);
 console.log(myPost.author); // myUser
 
 // Dissociate author of myPost.
-await action()
-  .use(dissociate(myPost, 'author'))
-  .run(none());
+await action().run(
+  dissociate(myPost, 'author'),
+  none(),
+);
 console.log(myPost.author); // null
 ```
 
@@ -205,19 +229,22 @@ to change the relation value:
 import { attach, detach, updateRelation, none } from '@foscia/core';
 
 // Attach myUser1 and myUser2 to myTeam's members.
-await action()
-  .use(attach(myTeam, 'members', [myUser1, myUser2]))
-  .run(none());
+await action().run(
+  attach(myTeam, 'members', [myUser1, myUser2]),
+  none(),
+);
 
 // Detach myUser1 and myUser2 from myTeam's members.
-await action()
-  .use(detach(myTeam, 'members', [myUser1, myUser2]))
-  .run(none());
+await action().run(
+  detach(myTeam, 'members', [myUser1, myUser2]),
+  none(),
+);
 
 // Sync myUser1 and myUser2 as myTeam's members.
-await action()
-  .use(updateRelation(myTeam, 'members', [myUser1, myUser2]))
-  .run(none());
+await action().run(
+  updateRelation(myTeam, 'members', [myUser1, myUser2]),
+  none(),
+);
 ```
 
 :::warning
@@ -241,7 +268,10 @@ This can be achieved using the `create` enhancer.
 import { create } from '@foscia/core';
 
 // Create a comment through a post.
-await action().use(create(newComment, post, 'comments'));
+await action().run(
+  create(newComment, post, 'comments'),
+  oneOrCurrent(),
+);
 ```
 
 ### Caching
@@ -254,8 +284,8 @@ using `cached` and `cachedOrFail`.
 ```typescript
 import { query, cached, cachedOrFail } from '@foscia/core';
 
-const post = await action().use(query(Post, 1)).run(cached());
-const post = await action().use(query(Post, 1)).run(cachedOrFail());
+const postOrNull = await action().run(query(Post, 1), cached());
+const postOrFail = await action().run(query(Post, 1), cachedOrFail());
 ```
 
 Sometimes, you may want to interact with the cache if your record does not
@@ -264,7 +294,7 @@ have been cached already. For this particular case, you can use `cachedOr`.
 ```typescript
 import { query, cachedOr, oneOrFail } from '@foscia/core';
 
-const post = await action().use(query(Post, 1)).run(cachedOr(oneOrFail()));
+const cachedPostOrFetch = await action().run(query(Post, 1), cachedOr(oneOrFail()));
 ```
 
 :::info
@@ -285,9 +315,10 @@ sort's direction. This can be done easily using the `when` helper:
 import { query, when } from '@foscia/core';
 import { sortByDesc } from '@foscia/jsonapi';
 
-action()
-  .use(query(Post))
-  .use(when(displayLatestFirst, sortByDesc('createdAt')));
+action().run(
+  query(Post),
+  when(displayLatestFirst, sortByDesc('createdAt'),
+);
 ```
 
 `when` returns a new enhancer or runner based on the given value's _truthiness_.
@@ -305,21 +336,43 @@ import { changed, create, oneOrFail, when } from '@foscia/core';
 
 const post = fill(new Post(), userInputData);
 
-action()
-  .use(create(post))
-  .use(when(
+action().run(
+  create(post),
+  when(
     () => /* compute a special value */,
     (a, specialTruthyValue) => /* do something */,
     (a, specialFalsyValue) => /* do something */,
-  ))
-  .run(when(
+  ),
+  when(
     changed(post),
     oneOrFail(),
     () => post,
-  ));
+  ),
+);
 ```
 
 ## Lifecycle
+
+When using [variadic `run` calls](#variadic-run), Foscia actions lifecycle
+is "hidden" by variadic arguments. In fact, all actions execution have
+3 steps: instantiation, enhancements and execution (run).
+
+```typescript
+action().run(               // Instantiation.
+  query(Post),              // `query` enhancement.
+  include('comments'),      // `include` enhancement.
+  all(),                    // `all` run.
+);
+```
+
+The above example is equivalent to and can be decomposed as follows:
+
+```typescript
+action()                    // Instantiation.
+  .use(query(Post))         // `query` enhancement.
+  .use(include('comments')) // `include` enhancement.
+  .run(all());              // `all` run.
+```
 
 ### Instantiation
 
@@ -344,6 +397,8 @@ action()
   .use(include('comments'));
 ```
 
+#### Variadic `use`
+
 `use` also support variadic enhancers. Number of arguments might be limited,
 check the function signature for details.
 
@@ -355,6 +410,8 @@ action().use(
   // etc.
 );
 ```
+
+#### Enhancers API guide
 
 <Link className="button border--gradient" to="/docs/reference/actions-enhancers">
   Available enhancers API guide
@@ -382,6 +439,22 @@ action()
   // Run the action.
   .run(all());
 ```
+
+#### Variadic `run`
+
+`run` also support variadic enhancers. Last argument must be a runner.
+Number of arguments might be limited, check the function signature for details.
+
+```typescript
+const posts = await action().run(
+  query(Post),
+  include('comments'),
+  sortByDesc('publishedAt'),
+  all(),
+);
+```
+
+#### Runners API guide
 
 <Link className="button border--gradient" to="/docs/reference/actions-runners">
   Available runners API guide

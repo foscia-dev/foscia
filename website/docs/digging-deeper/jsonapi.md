@@ -28,7 +28,7 @@ Internally, it will use the JSON:API relationships inclusion features.
 ```typescript
 import { query, all, include } from '@foscia/core';
 
-const posts = await action().use(query(Post), include('author')).run(all());
+const posts = await action().run(query(Post), include('author'), all());
 ```
 
 ### Filtering requests
@@ -41,15 +41,14 @@ both supports key-value or object parameters.
 import { query, all } from '@foscia/core';
 import { filterBy } from '@foscia/jsonapi';
 
-const posts = await action()
-  .use(
-    query(Post),
-    // Key-value pair.
-    filterBy('published', true),
-    // Object.
-    filterBy({ published: true }),
-  )
-  .run(all());
+const posts = await action().run(
+  query(Post),
+  // Key-value pair.
+  filterBy('published', true),
+  // Object.
+  filterBy({ published: true }),
+  all(),
+);
 ```
 
 ### Sorting results
@@ -63,20 +62,19 @@ both object and arrays parameters and will apply ascending sorting by default.
 
 ```typescript
 import { query, all } from '@foscia/core';
-import { sortBy, sortByDesc } from '@foscia/jsonapi';
+import { sortBy, sortByAsc } from '@foscia/jsonapi';
 
-const posts = await action()
-  .use(
-    query(Post),
-    // Ascending sorting.
-    sortBy(['publishedAt', 'createdAt']),
-    // Custom sorting.
-    sortBy(['publishedAt', 'createdAt'], ['desc', 'asc']),
-    sortBy({ publishedAt: 'desc', createdAt: 'asc' }),
-    // Variadic keys.
-    sortByAsc('publishedAt', 'createdAt'),
-  )
-  .run(all());
+const posts = await action().run(
+  query(Post),
+  // Ascending sorting.
+  sortBy(['publishedAt', 'createdAt']),
+  // Custom sorting.
+  sortBy(['publishedAt', 'createdAt'], ['desc', 'asc']),
+  sortBy({ publishedAt: 'desc', createdAt: 'asc' }),
+  // Variadic keys.
+  sortByAsc('publishedAt', 'createdAt'),
+  all(),
+);
 ```
 
 ### Sparse fieldsets
@@ -94,14 +92,13 @@ for the given model.
 import { query, all, include } from '@foscia/core';
 import { sortBy, sortByDesc } from '@foscia/jsonapi';
 
-const posts = await action()
-  .use(
-    query(Post),
-    include('author'),
-    fields('title', 'author'),
-    fieldsFor(User, 'username'),
-  )
-  .run(all());
+const posts = await action().run(
+  query(Post),
+  include('author'),
+  fields('title', 'author'),
+  fieldsFor(User, 'username'),
+  all(),
+);
 ```
 
 ### Paginating results
@@ -119,21 +116,20 @@ serialize pagination metadata in it).
 import { query, all } from '@foscia/core';
 import { paginate, usingDocument } from '@foscia/jsonapi';
 
-const data = await action()
-  .use(
-    query(Post),
-    // A standard pagination.
-    paginate({ size: 10, number: 1 }),
-    // A cursor pagination.
-    paginate({ size: 10, after: 1 }),
-  )
-  .run(all(usingDocument));
+const data = await action().run(
+  query(Post),
+  // A standard pagination.
+  paginate({ size: 10, number: 1 }),
+  // A cursor pagination.
+  paginate({ size: 10, after: 1 }),
+  all(usingDocument),
+);
 
 // The `all` result.
 console.log(data.instances);
 // The JSON:API document.
 console.log(data.document);
-// Some metadata your server gives you.
+// Some pagination metadata your server gives you.
 console.log(data.document.meta!.page.hasMore);
 ```
 
@@ -147,6 +143,43 @@ You can also take a look at
 [HTTP usage and common configuration recipes](/docs/digging-deeper/http), as
 the JSON:API adapter is based on HTTP adapter.
 
+### Changing endpoint case
+
+By default, JSON:API use kebab case for models and relations endpoints (e.g.
+`favorite-posts` for a `favoritePosts` relation). If you want to use another
+case for endpoints, you can use `modelPathTransformer` and
+`relationPathTransformer` options.
+
+```typescript
+import { camelCase } from 'lodash-es';
+import { makeJsonApiAdapter } from '@foscia/rest';
+
+makeJsonApiAdapter({
+  modelPathTransformer: (path) => camelCase(path),
+  relationPathTransformer: (path) => camelCase(path),
+});
+```
+
+### Changing serialization keys case
+
+By default, serialized and deserialized attributes and relations keep keys
+specified in the model. If you are using camel cased keys (e.g. `firstName`)
+but want to exchange kebab cased keys (e.g. `first-name`) with your API,
+you can use `serializeKey` and `deserializeKey` options.
+
+```typescript
+import { kebabCase } from 'lodash-es';
+import { makeJsonApiSerializer, makeJsonApiDeserializer } from '@foscia/rest';
+
+makeJsonApiSerializer({
+  serializeKey: ({ key }) => kebabCase(key),
+});
+
+makeJsonApiDeserializer({
+  deserializeKey: ({ key }) => kebabCase(key),
+});
+```
+
 ### Parsing URL IDs
 
 Some API implementation may serialize records IDs as URL to the record endpoint
@@ -155,9 +188,9 @@ the deserializer to support ID and type extraction from URL ID using the
 `pullIdentifier` option.
 
 ```typescript
-import { makeJsonRestDeserializer } from '@foscia/rest';
+import { makeJsonApiDeserializer } from '@foscia/rest';
 
-makeJsonRestDeserializer({
+makeJsonApiDeserializer({
   pullIdentifier: (record) => {
     // This will support IDs like `https://example.com/api/posts/1`, `/api/posts/1`, etc.
     const [id, type] = String(record.id).split('/').reverse();

@@ -58,7 +58,13 @@ export default function makeActionClass<Extension extends {} = {}>(
       return this;
     }
 
-    public async run(runner: ContextRunner<any, any, any>) {
+    public async run(
+      ...enhancers: (ContextEnhancer<any, any, any> | ContextRunner<any, any, any>)[]
+    ) {
+      const runner = enhancers.pop() as ContextRunner<any, any, any>;
+
+      this.use(...enhancers);
+
       const context = await this.useContext();
 
       await runHooks(this, 'running', { context, runner });

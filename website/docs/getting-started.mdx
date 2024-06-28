@@ -76,7 +76,7 @@ You can find more information about frameworks integrations inside
 If you need specific features to integrate with an unsupported framework,
 feel free to [open an issue or a pull request](https://github.com/foscia-dev/foscia/issues).
 
-## Your first model
+## First model
 
 Models represent the structure of your data and are used to simplify and get
 type safe interactions with your data source.
@@ -129,7 +129,7 @@ console.log(post.$exists); // false
   Read the full guide on models
 </Link>
 
-## Your first actions
+## First actions
 
 ### Action factory
 
@@ -211,9 +211,9 @@ export default makeActionFactory({
 
 #### Builder pattern syntax
 
-If you want to use the builder pattern syntax (e.g. `action().query(Post)`
-instead of `action().use(query(Post))`), you must provide the extensions you
-want to use during your action factory creation.
+If you want to use the builder pattern syntax (e.g. `action().query(Post).all()`
+instead of `action().run(query(Post), all())`), you must provide the extensions
+you want to use during your action factory creation.
 
 Extensions are the second argument passed to `makeActionFactory`.
 
@@ -257,45 +257,41 @@ export default makeActionFactory(
   </TabItem>
 </Tabs>
 
-You can [learn more about extensions](/docs/core-concepts/actions#extensions),
-check the [available extensions packs](/docs/reference/actions-extensions). You
-can also manually import enhancers and runners extensions you need:
+:::warning
 
-```typescript
-import {
-  makeActionFactory,
-  query,
-  include,
-  all,
-  hooksExtensions,
-} from '@foscia/core';
+Be aware that using extensions and builder pattern syntax might increase
+your bundle size, because functions are imported even if you are not
+using it.
 
-export default makeActionFactory(
-  {
-    // makeJsonRestAdapter(), ...etc.
-  },
-  {
-    ...hooksExtensions(),
-    ...query.extension(),
-    ...include.extension(),
-    ...all.extension(),
-  },
-);
-```
+:::
 
 ### Running simple actions
 
 To run an action, you can initialize a new action instance by calling your
-factory. With this instance, you can call **context enhancers** through `use` to
-modify the action context. When you are ready, you can `run` the action with a
-given **context runner**.
+factory. With this instance, you can provide **context enhancers** to
+modify the action context, and a **context runner** to run the action.
+
+Simplest way of running an action is to call `run`, providing enhancers
+as argument and providing a runner as last argument. This is called
+the variadic `run` calls. Documentation is generally using this call format.
+
+You can also decompose those calls through `use` and `run` individual calls,
+which will better show how Foscia actions works.
 
 ```typescript
 import { all, query } from '@foscia/core';
 import Post from './models/post';
 import action from './action';
 
-const posts = await action().use(query(Post)).run(all());
+// Variadic run.
+const posts = await action().run(
+  query(Post),
+  all(),
+);
+// Equivalent: individual calls.
+const posts = await action()
+  .use(query(Post))
+  .run(all());
 ```
 
 In Foscia, the context enhancers are doing the majority of work to customize the
@@ -312,7 +308,10 @@ import { query, oneOrFail } from '@foscia/core';
 import Post from './models/post';
 import action from './action';
 
-const post = await action().use(query(Post, 'abc-123')).run(oneOrFail());
+const post = await action().run(
+  query(Post, 'abc-123'),
+  oneOrFail(),
+);
 ```
 
 This works the same to send write operations through actions. In the following
@@ -328,19 +327,22 @@ const post = fill(new Post(), {
   description: 'Your first post',
 });
 
-const response = await action().use(create(post)).run(oneOrCurrent());
+const createdPost = await action().run(
+  create(post),
+  oneOrCurrent(),
+);
 ```
 
 <Link className="button border--gradient" to="/docs/core-concepts/actions">
   Read the full guide on actions
 </Link>
 
-## Advanced actions
+### Advanced actions
 
-### HTTP custom actions
+#### HTTP custom actions
 
 Using JSON:API or REST blueprints, you can also use Foscia to make non-standard
-API calls.
+(non-CRUD) API calls.
 
 This way, you can standardize all API calls across your application, even when
 those are non JSON:API/REST related.
@@ -351,17 +353,19 @@ import { makePost } from '@foscia/http';
 import Comment from './comment';
 import action from './action';
 
-const comment = await action().use(query(Comment, '1')).run(oneOrFail());
+const comment = await action().run(
+  query(Comment, '1'),
+  oneOrFail(),
+);
 
 // Make a POST call to "https://example.com/api/v1/comments/1/publish"
-const response = await action()
-  .use(
-    query(comment),
-    makePost('publish', {
-      data: { publishedAt: new Date() },
-    }),
-  )
-  .run(raw());
+const response = await action().run(
+  query(comment),
+  makePost('publish', {
+    data: { publishedAt: new Date() },
+  }),
+  raw(),
+);
 
 // This is a raw `fetch` Response object.
 console.log(response.status);

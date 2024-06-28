@@ -1,4 +1,5 @@
 import ActionName from '@foscia/core/actions/actionName';
+import { ActionVariadicRun } from '@foscia/core/actions/actionVariadicRun';
 import { ActionVariadicUse } from '@foscia/core/actions/actionVariadicUse';
 import { Hookable, HookCallback } from '@foscia/core/hooks/types';
 import {
@@ -41,6 +42,7 @@ export type Action<Context extends {} = {}, Extensions extends {} = {}> =
     ): Promise<Awaited<Result>>;
   }
   & ActionVariadicUse<Context, Extensions>
+  & ActionVariadicRun<Context, Extensions>
   & Hookable<ActionHooksDefinition>
   & ExtendedAction<Extensions>;
 

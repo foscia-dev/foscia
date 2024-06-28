@@ -67,6 +67,21 @@ describe.concurrent('unit: mocking', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it('should mock action conditionally with variadic', async () => {
+    const { action, fetch } = makeAction();
+
+    const mock = mockAction(action);
+    mock.mockResult('foo', ({ value }) => value === 'foo');
+    mock.mockResult('bar', ({ value }) => value === 'bar');
+
+    expect(await action().run(context({ value: 'foo' }), raw())).toStrictEqual('foo');
+    expect(await action().run(context({ value: 'bar' }), raw())).toStrictEqual('bar');
+    await expect(() => action().run(context({ value: 'baz' }), raw()))
+      .rejects.toThrowError('Unexpected mocked action run');
+
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('should mock action and run expectations', async () => {
     const { action, fetch } = makeAction();
 
