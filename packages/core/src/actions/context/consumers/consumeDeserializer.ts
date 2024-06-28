@@ -3,7 +3,7 @@ import { ConsumeDeserializer } from '@foscia/core/actions/types';
 import { DeserializedData } from '@foscia/core/types';
 import { value } from '@foscia/shared';
 
-export default function consumeDeserializer<
+export default <
   C extends {},
   Data,
   Deserialized extends DeserializedData = DeserializedData,
@@ -11,6 +11,4 @@ export default function consumeDeserializer<
 >(
   context: C & Partial<ConsumeDeserializer<Data, Deserialized>>,
   defaultValue?: D,
-) {
-  return value(consumeContext(context, 'deserializer', ['context'], defaultValue));
-}
+) => value(consumeContext(context, 'deserializer', ['context'], defaultValue));

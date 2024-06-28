@@ -11,13 +11,13 @@ import { ModelInstance } from '@foscia/core/model/types';
  *
  * @category Enhancers
  */
-function instanceData<C extends {}, Record, Related, Data>(instance: ModelInstance) {
-  return async (
-    action: Action<C & ConsumeSerializer<Record, Related, Data>>,
-  ) => action.use(context({
-    data: await serializeInstance(action, instance),
-  }));
-}
+const instanceData = <C extends {}, Record, Related, Data>(
+  instance: ModelInstance,
+) => async (
+  action: Action<C & ConsumeSerializer<Record, Related, Data>>,
+) => action.use(context({
+  data: await serializeInstance(action, instance),
+}));
 
 export default /* @__PURE__ */ appendExtension(
   'instanceData',

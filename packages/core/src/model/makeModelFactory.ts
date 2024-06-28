@@ -9,12 +9,12 @@ import {
   ModelRawSetup,
 } from '@foscia/core/model/types';
 
-export default function makeModelFactory<ND extends {} = {}>(
+export default <ND extends {} = {}>(
   baseConfig?: ModelConfig,
   // eslint-disable-next-line max-len
   baseRawDefinition?: ND & ThisType<ModelInstance<ModelFlattenDefinition<ModelParsedDefinition<ND>>>>,
   baseRawSetup?: ModelRawSetup<ModelFlattenDefinition<ModelParsedDefinition<ND>>>,
-) {
+) => {
   const baseSetup = makeModelSetup(baseRawSetup);
 
   return <D extends {} = {}>(
@@ -46,4 +46,4 @@ export default function makeModelFactory<ND extends {} = {}>(
       // eslint-disable-next-line max-len
     ) as ExtendableModel<ModelFlattenDefinition<ModelParsedDefinition<ND & D>>, ModelInstance<ModelFlattenDefinition<ModelParsedDefinition<ND & D>>>>;
   };
-}
+};

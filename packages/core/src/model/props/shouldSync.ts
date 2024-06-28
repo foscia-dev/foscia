@@ -1,7 +1,7 @@
-import { RawModelProp, ModelPropSync } from '@foscia/core/model/types';
+import { ModelPropSync, RawModelProp } from '@foscia/core/model/types';
 
-export default function shouldSync(def: RawModelProp, actions: ModelPropSync[]) {
-  return typeof def.sync === 'string'
+export default (def: RawModelProp, actions: ModelPropSync[]) => (
+  typeof def.sync === 'string'
     ? actions.indexOf(def.sync) !== -1
-    : (def.sync ?? true);
-}
+    : (def.sync ?? true)
+);

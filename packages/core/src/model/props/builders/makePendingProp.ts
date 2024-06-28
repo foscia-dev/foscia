@@ -14,9 +14,9 @@ export const PROP_MODIFIERS = {
   nullable: () => ({}),
 };
 
-export default function makePendingProp(
+export default (
   modifiers: Dictionary<(...args: any[]) => Dictionary>,
-) {
+) => {
   const makePendingPropBuilder = (definition: Dictionary): PendingDefinition => ({
     $FOSCIA_TYPE: SYMBOL_MODEL_PROP_PENDING,
     definition,
@@ -30,4 +30,4 @@ export default function makePendingProp(
   } as PendingDefinition);
 
   return makePendingPropBuilder;
-}
+};

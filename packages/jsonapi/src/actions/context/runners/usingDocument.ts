@@ -7,13 +7,8 @@ import { JsonApiDeserializedData } from '@foscia/jsonapi/types';
  *
  * @param data
  */
-export default function usingDocument<
+export default <
   I extends ModelInstance,
   Deserialized extends JsonApiDeserializedData<I>,
   Data extends OneData<any, Deserialized, I> | AllData<any, Deserialized, I>,
->(data: Data) {
-  return {
-    ...data,
-    document: data.deserialized.document,
-  };
-}
+>(data: Data) => ({ ...data, document: data.deserialized.document });

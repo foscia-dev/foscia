@@ -2,11 +2,11 @@ import { consumeRegistry, guessContextModel } from '@foscia/core/actions';
 import FosciaError from '@foscia/core/errors/fosciaError';
 import { Model, ModelRelationKey } from '@foscia/core/model/types';
 
-export default async function groupRelationsByModels<M extends Model>(
+export default async <M extends Model>(
   model: M,
   relations: Map<ModelRelationKey<M>, string[]>,
   context: {},
-) {
+) => {
   const modelsPerRelations = await Promise.all(
     [...relations.entries()].map(async ([relation, nested]) => {
       const def = model.$schema[relation];
@@ -40,4 +40,4 @@ You should either:
   });
 
   return groups;
-}
+};

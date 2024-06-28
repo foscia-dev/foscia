@@ -11,17 +11,15 @@ import { HttpRequestConfig } from '@foscia/http/types';
  *
  * @category Enhancers
  */
-function makePatch(
+const makePatch = (
   pathOrBaseURL: string,
   body?: HttpRequestConfig['body'],
   config?: Omit<HttpRequestConfig, 'method' | 'body'>,
-) {
-  return makeRequest(pathOrBaseURL, {
-    method: 'PATCH',
-    body,
-    ...config,
-  });
-}
+) => makeRequest(pathOrBaseURL, {
+  method: 'PATCH',
+  body,
+  ...config,
+});
 
 export default /* @__PURE__ */ appendExtension(
   'makePatch',

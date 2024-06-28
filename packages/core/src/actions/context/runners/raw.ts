@@ -9,17 +9,15 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Runners
  */
-function raw<C extends {}, RawData, NextData = RawData>(
+const raw = <C extends {}, RawData, NextData = RawData>(
   transform?: (data: RawData) => Awaitable<NextData>,
-) {
-  return async (action: Action<C & ConsumeAdapter<RawData>>) => {
-    const response = await executeContextThroughAdapter(
-      await action.useContext(),
-    );
+) => async (action: Action<C & ConsumeAdapter<RawData>>) => {
+  const response = await executeContextThroughAdapter(
+    await action.useContext(),
+  );
 
-    return (transform ? transform(response.raw) : response.raw) as Awaitable<NextData>;
-  };
-}
+  return (transform ? transform(response.raw) : response.raw) as Awaitable<NextData>;
+};
 
 export default /* @__PURE__ */ appendExtension(
   'raw',

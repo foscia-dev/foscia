@@ -30,7 +30,7 @@ export type OneData<
  *
  * @category Runners
  */
-function oneOr<
+const oneOr = <
   C extends {},
   E extends {},
   I extends InferConsumedInstance<C>,
@@ -43,32 +43,30 @@ function oneOr<
   // eslint-disable-next-line max-len
   nilRunner: ContextRunner<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, E, Awaitable<NilData>>,
   transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
-) {
-  return async (
-    // eslint-disable-next-line max-len
-    action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, E>,
-  ) => {
-    try {
-      const result = await action.run(all((data) => {
-        const instance = data.instances[0];
-        if (instance) {
-          return transform ? transform({ ...data, instance }) : instance;
-        }
+) => async (
+  // eslint-disable-next-line max-len
+  action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, E>,
+) => {
+  try {
+    const result = await action.run(all((data) => {
+      const instance = data.instances[0];
+      if (instance) {
+        return transform ? transform({ ...data, instance }) : instance;
+      }
 
-        return null;
-      }));
-      if (result !== null) {
-        return result as Next;
-      }
-    } catch (error) {
-      if (!isNotFoundError(error)) {
-        throw error;
-      }
+      return null;
+    }));
+    if (result !== null) {
+      return result as Next;
     }
+  } catch (error) {
+    if (!isNotFoundError(error)) {
+      throw error;
+    }
+  }
 
-    return action.run(nilRunner);
-  };
-}
+  return action.run(nilRunner);
+};
 
 export default /* @__PURE__ */ appendExtension(
   'oneOr',

@@ -24,7 +24,7 @@ import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/typ
  *
  * @category Enhancers
  */
-function update<
+const update = <
   C extends {},
   E extends {},
   D extends {},
@@ -32,24 +32,27 @@ function update<
   Record,
   Related,
   Data,
->(instance: ModelClassInstance<D> & I) {
-  return (action: Action<C & ConsumeSerializer<Record, Related, Data>, E>) => action
-    .use(query<C & ConsumeSerializer<Record, Related, Data>, E, D, I>(instance))
-    .use(context({
-      action: ActionName.UPDATE,
-      // Rewrite ID to ensure update targets the record termination point
-      // even if $exists is false.
-      id: (instance as ModelInstance).id,
-    }))
-    .use(instanceData(instance))
-    .use(onRunning(() => runHooks(instance.$model, ['updating', 'saving'], instance)))
-    .use(onSuccess(async () => {
-      // eslint-disable-next-line no-param-reassign
-      instance.$exists = true;
-      markSynced(instance);
-      await runHooks(instance.$model, ['updated', 'saved'], instance);
-    }));
-}
+>(
+  instance: ModelClassInstance<D> & I,
+) => (
+  action: Action<C & ConsumeSerializer<Record, Related, Data>, E>,
+) => action.use(
+  query<C & ConsumeSerializer<Record, Related, Data>, E, D, I>(instance),
+  context({
+    action: ActionName.UPDATE,
+    // Rewrite ID to ensure update targets the record termination point
+    // even if $exists is false.
+    id: (instance as ModelInstance).id,
+  }),
+  instanceData(instance),
+  onRunning(() => runHooks(instance.$model, ['updating', 'saving'], instance)),
+  onSuccess(async () => {
+    // eslint-disable-next-line no-param-reassign
+    instance.$exists = true;
+    markSynced(instance);
+    await runHooks(instance.$model, ['updated', 'saved'], instance);
+  }),
+);
 
 export default /* @__PURE__ */ appendExtension(
   'update',

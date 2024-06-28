@@ -1,4 +1,4 @@
-export default function makeIdentifiersMap<Type, Id, T>() {
+export default <Type, Id, T>() => {
   const values: Map<Type, Map<Id, T>> = new Map();
 
   const find = (type: Type, id: Id) => values.get(type)?.get(id) ?? null;
@@ -30,4 +30,4 @@ export default function makeIdentifiersMap<Type, Id, T>() {
     forgetAll,
     clear,
   };
-}
+};

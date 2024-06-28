@@ -3,8 +3,4 @@
  *
  * @param date
  */
-export default function removeTimezoneOffset(date: Date) {
-  const offset = date.getTimezoneOffset();
-
-  return new Date(date.getTime() - (offset * 60 * 1000));
-}
+export default (date: Date) => new Date(date.getTime() - (date.getTimezoneOffset() * 60 * 1000));

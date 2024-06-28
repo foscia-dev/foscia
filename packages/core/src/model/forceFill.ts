@@ -2,10 +2,10 @@
 import fill from '@foscia/core/model/fill';
 import { ModelInstance, ModelValues } from '@foscia/core/model/types';
 
-export default function forceFill<I extends ModelInstance>(
+export default <I extends ModelInstance>(
   instance: I,
   values: Partial<ModelValues<I>>,
-) {
+) => {
   const { strictReadonly } = instance.$model.$config;
 
   try {
@@ -15,4 +15,4 @@ export default function forceFill<I extends ModelInstance>(
   } finally {
     instance.$model.$config.strictReadonly = strictReadonly;
   }
-}
+};

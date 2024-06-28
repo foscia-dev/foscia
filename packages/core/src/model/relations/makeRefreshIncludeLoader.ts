@@ -37,7 +37,7 @@ type RefreshIncludeLoaderOptions<
   exclude?: <I extends ModelInstance>(instance: I, relation: ModelRelationDotKey<I>) => boolean;
 };
 
-async function refreshLoad<
+const refreshLoad = async <
   RawData,
   Data,
   Deserialized extends DeserializedData,
@@ -49,7 +49,7 @@ async function refreshLoad<
   options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C, E>,
   instances: I[],
   relations: ModelRelationDotKey<I>[],
-) {
+) => {
   const model = instances[0].$model;
   const refreshedInstances = await action()
     .use(query(model as Model))
@@ -81,9 +81,9 @@ async function refreshLoad<
       loadUsingValue(instance, relation, refreshedInstance[relation]);
     });
   });
-}
+};
 
-export default function makeRefreshIncludeLoader<
+export default <
   RawData,
   Data,
   Deserialized extends DeserializedData,
@@ -92,25 +92,23 @@ export default function makeRefreshIncludeLoader<
 >(
   action: ActionFactory<[], C, {}>,
   options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C, E> = {},
-) {
-  return async <I extends ModelInstance>(
-    instances: Arrayable<I>,
-    ...relations: ArrayableVariadic<ModelRelationDotKey<I>>
-  ) => loadUsingCallback(instances, relations, async (allInstances, allRelations) => {
-    let remainingInstances = allInstances;
-    let remainingRelations = allRelations;
-    if (options.exclude) {
-      [remainingInstances, remainingRelations] = excludeInstancesAndRelations(
-        allInstances,
-        allRelations,
-        options.exclude,
-      );
-    }
+) => async <I extends ModelInstance>(
+  instances: Arrayable<I>,
+  ...relations: ArrayableVariadic<ModelRelationDotKey<I>>
+) => loadUsingCallback(instances, relations, async (allInstances, allRelations) => {
+  let remainingInstances = allInstances;
+  let remainingRelations = allRelations;
+  if (options.exclude) {
+    [remainingInstances, remainingRelations] = excludeInstancesAndRelations(
+      allInstances,
+      allRelations,
+      options.exclude,
+    );
+  }
 
-    const chunk = (options.chunk ?? ((i) => [i])) as (instances: I[]) => I[][];
+  const chunk = (options.chunk ?? ((i) => [i])) as (instances: I[]) => I[][];
 
-    await Promise.all(chunk(remainingInstances).map(async (chunkInstances) => {
-      await refreshLoad(action, options, chunkInstances, remainingRelations);
-    }));
-  });
-}
+  await Promise.all(chunk(remainingInstances).map(async (chunkInstances) => {
+    await refreshLoad(action, options, chunkInstances, remainingRelations);
+  }));
+});

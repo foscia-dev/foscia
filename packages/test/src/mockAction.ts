@@ -6,11 +6,11 @@ import { ActionMockableFactory } from '@foscia/test/types';
  *
  * @param factory
  */
-export default function mockAction<A extends any[], C extends {}, E extends {}>(
+export default <A extends any[], C extends {}, E extends {}>(
   factory: ActionMockableFactory<A, C, E>,
-) {
+) => {
   // eslint-disable-next-line no-param-reassign
   factory.$mock = makeActionFactoryMock(factory.$real);
 
   return factory.$mock;
-}
+};

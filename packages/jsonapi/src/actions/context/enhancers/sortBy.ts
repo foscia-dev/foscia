@@ -13,16 +13,14 @@ type SortDirection = 'asc' | 'desc';
  * @param keys
  * @param directions
  */
-function resolveKeysDirections(
+const resolveKeysDirections = (
   keys: Arrayable<string> | Dictionary<SortDirection>,
   directions: Arrayable<SortDirection> = 'asc',
-): [string[], SortDirection[]] {
-  if (typeof keys === 'object' && !Array.isArray(keys)) {
-    return [Object.keys(keys), Object.values(keys)];
-  }
-
-  return [wrap(keys), wrap(directions)];
-}
+): [string[], SortDirection[]] => (
+  typeof keys === 'object' && !Array.isArray(keys)
+    ? [Object.keys(keys), Object.values(keys)]
+    : [wrap(keys), wrap(directions)]
+);
 
 /**
  * Convert a key to a sorted key usable by a JSON:API.
@@ -30,17 +28,10 @@ function resolveKeysDirections(
  * @param key
  * @param direction
  */
-function serializeSort(key: string, direction: SortDirection) {
-  return `${direction === 'desc' ? '-' : ''}${key}`;
-}
-
-function sortBy(
-  keys: Dictionary<SortDirection>,
-): <C extends {}, E extends {}>(action: Action<C, E>) => Promise<void>;
-function sortBy(
-  keys: Arrayable<string>,
-  directions?: Arrayable<SortDirection>,
-): <C extends {}, E extends {}>(action: Action<C, E>) => Promise<void>;
+const serializeSort = (
+  key: string,
+  direction: SortDirection,
+) => `${direction === 'desc' ? '-' : ''}${key}`;
 
 /**
  * [Sort the JSON:API resource](https://jsonapi.org/format/#fetching-sorting)
@@ -53,22 +44,28 @@ function sortBy(
  *
  * @category Enhancers
  */
-function sortBy(
+const sortBy: {
+  (
+    keys: Dictionary<SortDirection>,
+  ): <C extends {}, E extends {}>(action: Action<C, E>) => Promise<void>;
+  (
+    keys: Arrayable<string>,
+    directions?: Arrayable<SortDirection>,
+  ): <C extends {}, E extends {}>(action: Action<C, E>) => Promise<void>;
+} = (
   keys: Arrayable<string> | Dictionary<SortDirection>,
   directions: Arrayable<SortDirection> = 'asc',
-) {
-  return async <C extends {}, E extends {}>(action: Action<C, E>) => {
-    const [newKeys, newDirections] = resolveKeysDirections(keys, directions);
+) => async <C extends {}, E extends {}>(action: Action<C, E>) => {
+  const [newKeys, newDirections] = resolveKeysDirections(keys, directions);
 
-    action.use(param(
-      'sort',
-      optionalJoin(uniqueValues([
-        consumeRequestObjectParams(await action.useContext())?.sort,
-        ...newKeys.map((k, i) => serializeSort(k, newDirections[i] ?? newDirections[0])),
-      ]), ','),
-    ));
-  };
-}
+  action.use(param(
+    'sort',
+    optionalJoin(uniqueValues([
+      consumeRequestObjectParams(await action.useContext())?.sort,
+      ...newKeys.map((k, i) => serializeSort(k, newDirections[i] ?? newDirections[0])),
+    ]), ','),
+  ));
+};
 
 export default /* @__PURE__ */ appendExtension(
   'sortBy',

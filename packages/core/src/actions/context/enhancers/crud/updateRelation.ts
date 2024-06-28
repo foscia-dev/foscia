@@ -28,7 +28,7 @@ type UpdateRelationActionName =
   | ActionName.ATTACH_RELATION
   | ActionName.DETACH_RELATION;
 
-function updateRelation<
+const updateRelation = <
   C extends {},
   E extends {},
   D extends {},
@@ -43,20 +43,18 @@ function updateRelation<
   relation: ModelRelationKey<D> & K,
   value: ModelInferPropValue<RD[K]> | NonNullable<ModelInferPropValue<RD[K]>>[number],
   actionName: UpdateRelationActionName = ActionName.UPDATE_RELATION,
-) {
-  return async (action: Action<C & ConsumeSerializer<Record, Related, Data>, E>) => {
-    const wrappedValue = isSingularRelationDef(instance.$model.$schema[relation] as RD[K])
-      ? value : wrap(value);
+) => async (action: Action<C & ConsumeSerializer<Record, Related, Data>, E>) => {
+  const wrappedValue = isSingularRelationDef(instance.$model.$schema[relation] as RD[K])
+    ? value : wrap(value);
 
-    return action.use(
-      query(instance, relation),
-      context({
-        action: actionName,
-        data: await serializeRelation(action, instance, relation, wrappedValue),
-      }),
-    ) as unknown as Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId, E>;
-  };
-}
+  return action.use(
+    query(instance, relation),
+    context({
+      action: actionName,
+      data: await serializeRelation(action, instance, relation, wrappedValue),
+    }),
+  ) as unknown as Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId, E>;
+};
 
 export default /* @__PURE__ */ appendExtension(
   'updateRelation',

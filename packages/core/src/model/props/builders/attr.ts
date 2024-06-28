@@ -3,17 +3,13 @@ import { PendingModelAttribute } from '@foscia/core/model/props/builders/types';
 import { SYMBOL_MODEL_PROP_ATTRIBUTE } from '@foscia/core/symbols';
 import { ObjectTransformer } from '@foscia/core/transformers/types';
 
-export default function attr<T>(
+export default <T>(
   config?: ObjectTransformer<T | null, any, any> | T | (() => T),
-) {
-  const makePendingAttribute = makePendingProp({
-    ...PROP_MODIFIERS,
-    transform: (transformer: ObjectTransformer<unknown>) => ({ transformer }),
-  });
-
-  return makePendingAttribute({
-    $FOSCIA_TYPE: SYMBOL_MODEL_PROP_ATTRIBUTE,
-    default: typeof config !== 'object' ? config : undefined,
-    transformer: typeof config === 'object' ? config : undefined,
-  }) as unknown as PendingModelAttribute<T, false>;
-}
+) => makePendingProp({
+  ...PROP_MODIFIERS,
+  transform: (transformer: ObjectTransformer<unknown>) => ({ transformer }),
+})({
+  $FOSCIA_TYPE: SYMBOL_MODEL_PROP_ATTRIBUTE,
+  default: typeof config !== 'object' ? config : undefined,
+  transformer: typeof config === 'object' ? config : undefined,
+}) as unknown as PendingModelAttribute<T, false>;

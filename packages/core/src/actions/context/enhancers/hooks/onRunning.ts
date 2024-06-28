@@ -11,13 +11,11 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Enhancers
  */
-function onRunning<C extends {}>(
+const onRunning = <C extends {}>(
   callback: (event: { context: C; runner: Function; }) => Awaitable<unknown>,
-) {
-  return (action: Action<C>) => {
-    registerHook(action, 'running', callback as any);
-  };
-}
+) => (action: Action<C>) => {
+  registerHook(action, 'running', callback as any);
+};
 
 export default /* @__PURE__ */ appendExtension(
   'onRunning',

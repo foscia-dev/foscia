@@ -1,7 +1,7 @@
 import InvalidContextError from '@foscia/core/errors/invalidContextError';
 import { isNil } from '@foscia/shared';
 
-export default function consumeContext<
+export default <
   Context extends {},
   Key extends keyof Context,
   Default = never,
@@ -10,7 +10,7 @@ export default function consumeContext<
   key: Key,
   enhancers: string[],
   defaultValue?: Default,
-): Exclude<Context[Key] | Default, undefined> {
+): Exclude<Context[Key] | Default, undefined> => {
   const value = context[key];
   if (isNil(value)) {
     if (defaultValue !== undefined) {
@@ -25,4 +25,4 @@ export default function consumeContext<
   }
 
   return value! as any;
-}
+};

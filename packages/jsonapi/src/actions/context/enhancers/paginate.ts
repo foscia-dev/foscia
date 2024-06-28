@@ -11,9 +11,7 @@ import { param } from '@foscia/http';
  *
  * @category Enhancers
  */
-function paginate(page: unknown) {
-  return param('page', page);
-}
+const paginate = (page: unknown) => param('page', page);
 
 export default /* @__PURE__ */ appendExtension(
   'paginate',

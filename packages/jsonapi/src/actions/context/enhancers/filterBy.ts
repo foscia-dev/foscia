@@ -13,12 +13,13 @@ import { Dictionary } from '@foscia/shared';
  *
  * @category Enhancers
  */
-function filterBy(key: string | Dictionary, value?: unknown) {
-  return async <C extends {}>(action: Action<C>) => action.use(param('filter', {
-    ...consumeRequestObjectParams(await action.useContext())?.filter,
-    ...(typeof key === 'string' ? { [key]: value } : key),
-  }));
-}
+const filterBy = (
+  key: string | Dictionary,
+  value?: unknown,
+) => async <C extends {}>(action: Action<C>) => action.use(param('filter', {
+  ...consumeRequestObjectParams(await action.useContext())?.filter,
+  ...(typeof key === 'string' ? { [key]: value } : key),
+}));
 
 export default /* @__PURE__ */ appendExtension(
   'filterBy',

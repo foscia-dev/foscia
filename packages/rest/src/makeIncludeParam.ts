@@ -1,10 +1,10 @@
 import { consumeInclude, normalizeInclude } from '@foscia/core';
 import { isNil, optionalJoin } from '@foscia/shared';
 
-export default async function makeIncludeParam(
+export default async (
   context: {},
   includeParamKey: string | null = 'include',
-) {
+) => {
   if (!isNil(includeParamKey)) {
     const include = consumeInclude(context, null) ?? [];
     if (include.length) {
@@ -15,4 +15,4 @@ export default async function makeIncludeParam(
   }
 
   return {};
-}
+};

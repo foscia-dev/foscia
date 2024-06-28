@@ -2,7 +2,7 @@ declare const process: {
   env: { NODE_ENV: string; };
 };
 
-function detectEnv() {
+const detectEnv = () => {
   try {
     if (process.env.NODE_ENV === 'development') {
       return 'development';
@@ -16,7 +16,7 @@ function detectEnv() {
   } catch {
     return false;
   }
-}
+};
 
 const detectedEnv = detectEnv();
 

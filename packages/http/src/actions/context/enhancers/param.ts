@@ -13,16 +13,17 @@ import { Dictionary } from '@foscia/shared';
  *
  * @category Enhancers
  */
-function param(key: string | Dictionary, value?: unknown) {
-  return async <C extends {}>(action: Action<C>) => action.use(
-    configureRequest({
-      params: {
-        ...consumeRequestObjectParams(await action.useContext()),
-        ...(typeof key === 'string' ? { [key]: value } : key),
-      },
-    }),
-  );
-}
+const param = (
+  key: string | Dictionary,
+  value?: unknown,
+) => async <C extends {}>(action: Action<C>) => action.use(
+  configureRequest({
+    params: {
+      ...consumeRequestObjectParams(await action.useContext()),
+      ...(typeof key === 'string' ? { [key]: value } : key),
+    },
+  }),
+);
 
 export default /* @__PURE__ */ appendExtension(
   'param',

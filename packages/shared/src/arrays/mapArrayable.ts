@@ -1,10 +1,10 @@
 import isNil from '@foscia/shared/checks/isNil';
 import { Arrayable, Awaitable, Optional } from '@foscia/shared/types';
 
-export default async function mapArrayable<T, U>(
+export default async <T, U>(
   value: Optional<Arrayable<T>>,
   callback: (value: T) => Awaitable<U>,
-) {
+) => {
   if (Array.isArray(value)) {
     return Promise.all(value.map((v) => callback(v)));
   }
@@ -14,4 +14,4 @@ export default async function mapArrayable<T, U>(
   }
 
   return value;
-}
+};

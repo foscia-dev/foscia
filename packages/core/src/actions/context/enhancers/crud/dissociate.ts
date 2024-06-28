@@ -17,7 +17,7 @@ import {
   ModelSchemaRelations,
 } from '@foscia/core/model/types';
 
-function dissociate<
+const dissociate = <
   C extends {},
   E extends {},
   D extends {},
@@ -30,11 +30,7 @@ function dissociate<
 >(
   instance: ModelClassInstance<D> & I,
   relation: ModelRelationKey<D> & K,
-) {
-  return (action: Action<C & ConsumeSerializer<Record, Related, Data>, E>) => action.use(
-    associate(instance, relation, null as any),
-  );
-}
+) => associate<C, E, D, RD, I, K, Record, Related, Data>(instance, relation, null as any);
 
 export default /* @__PURE__ */ appendExtension(
   'dissociate',

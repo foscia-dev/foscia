@@ -4,7 +4,7 @@ import isPropDef from '@foscia/core/model/checks/isPropDef';
 import { ModelParsedDefinition } from '@foscia/core/model/types';
 import { Dictionary, eachDescriptors, makeDescriptorHolder } from '@foscia/shared';
 
-function parseDescriptor(key: string, descriptor: PropertyDescriptor) {
+const parseDescriptor = (key: string, descriptor: PropertyDescriptor) => {
   if (descriptor.value) {
     if (isComposable(descriptor.value)) {
       return descriptor.value;
@@ -20,9 +20,9 @@ function parseDescriptor(key: string, descriptor: PropertyDescriptor) {
   }
 
   return makeDescriptorHolder(descriptor);
-}
+};
 
-export default function makeDefinition<D extends {} = {}>(definition?: D) {
+export default <D extends {} = {}>(definition?: D) => {
   const parsedDefinition: Dictionary = {};
 
   eachDescriptors(definition ?? {}, (key, descriptor) => {
@@ -30,4 +30,4 @@ export default function makeDefinition<D extends {} = {}>(definition?: D) {
   });
 
   return parsedDefinition as ModelParsedDefinition<D>;
-}
+};

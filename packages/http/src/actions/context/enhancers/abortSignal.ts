@@ -10,16 +10,13 @@ import { Optional } from '@foscia/shared';
  *
  * @category Enhancers
  */
-function abortSignal(controllerOrSignal?: Optional<AbortController | AbortSignal>) {
-  let signal: Optional<AbortSignal>;
-  if (controllerOrSignal) {
-    signal = controllerOrSignal instanceof AbortController
-      ? controllerOrSignal.signal
-      : controllerOrSignal;
-  }
-
-  return configureRequest({ signal });
-}
+const abortSignal = (
+  controllerOrSignal?: Optional<AbortController | AbortSignal>,
+) => configureRequest({
+  signal: controllerOrSignal instanceof AbortController
+    ? controllerOrSignal.signal
+    : controllerOrSignal,
+});
 
 export default /* @__PURE__ */ appendExtension(
   'abortSignal',

@@ -17,27 +17,25 @@ export type CatchCallback<C extends {}, E extends {}, CD> = (
  *
  * @category Runners
  */
-function catchIf<C extends {}, E extends {}, RD, CD = null>(
+const catchIf = <C extends {}, E extends {}, RD, CD = null>(
   runner: ContextRunner<C, E, Awaitable<RD>>,
   catchCallback?: CatchCallback<C, E, CD>,
-) {
-  return async (action: Action<C, E>): Promise<RD | CD> => {
-    try {
-      return await action.run(runner);
-    } catch (error) {
-      const catchRunner = await (catchCallback ?? (() => true))(error);
-      if (typeof catchRunner === 'function') {
-        return action.run(catchRunner);
-      }
-
-      if (!catchRunner) {
-        throw error;
-      }
-
-      return null as any;
+) => async (action: Action<C, E>): Promise<RD | CD> => {
+  try {
+    return await action.run(runner);
+  } catch (error) {
+    const catchRunner = await (catchCallback ?? (() => true))(error);
+    if (typeof catchRunner === 'function') {
+      return action.run(catchRunner);
     }
-  };
-}
+
+    if (!catchRunner) {
+      throw error;
+    }
+
+    return null as any;
+  }
+};
 
 export default /* @__PURE__ */ appendExtension(
   'catchIf',

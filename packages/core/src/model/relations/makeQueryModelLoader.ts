@@ -55,7 +55,7 @@ type QueryModelLoaderOptions<
   exclude?: <I extends ModelInstance>(instance: I, relation: ModelRelationDotKey<I>) => boolean;
 };
 
-function extractIdsMap<
+const extractIdsMap = <
   RawData,
   Data,
   Deserialized extends DeserializedData,
@@ -66,7 +66,7 @@ function extractIdsMap<
   options: QueryModelLoaderOptions<RawData, Data, Deserialized, C, E>,
   instances: I[],
   relations: Map<ModelRelationKey<I>, string[]>,
-) {
+) => {
   const { exclude } = options;
   const extract = options.extract ?? makeQueryModelLoaderExtractor(
     (instance, relation) => instance.$raw[normalizeKey(instance.$model, relation)],
@@ -98,9 +98,9 @@ function extractIdsMap<
   });
 
   return extractedIdsMap;
-}
+};
 
-async function fetchRelatedMap<
+const fetchRelatedMap = async <
   RawData,
   Data,
   Deserialized extends DeserializedData,
@@ -112,7 +112,7 @@ async function fetchRelatedMap<
   options: QueryModelLoaderOptions<RawData, Data, Deserialized, C, E>,
   relations: Map<Model, { relations: ModelRelationKey<I>[]; nested: string[] }>,
   ids: Map<I, Map<ModelRelationKey<I>, Arrayable<ExtractedId> | null>>,
-) {
+) => {
   const related = makeIdentifiersMap<string, ModelIdType, ModelInstance>();
 
   await Promise.all([...relations.entries()].map(async ([model, relationsData]) => {
@@ -160,12 +160,12 @@ async function fetchRelatedMap<
   }));
 
   return related;
-}
+};
 
-function extractRelated(
+const extractRelated = (
   ids: Arrayable<ExtractedId> | null,
   related: IdentifiersMap<string, ModelIdType, ModelInstance>,
-) {
+) => {
   if (Array.isArray(ids)) {
     return ids
       .map(({ type, id }) => related.find(type ?? '', id))
@@ -177,25 +177,23 @@ function extractRelated(
   }
 
   return null;
-}
+};
 
-function remapRelated<I extends ModelInstance>(
+const remapRelated = <I extends ModelInstance>(
   ids: Map<I, Map<ModelRelationKey<I>, Arrayable<ExtractedId> | null>>,
   related: IdentifiersMap<string, ModelIdType, ModelInstance>,
-) {
-  ids.forEach((idsForInstance, instance) => {
-    idsForInstance.forEach((extractIds, relation) => {
-      const value = extractRelated(extractIds, related);
-      if (value === undefined) {
-        return;
-      }
+) => ids.forEach((idsForInstance, instance) => {
+  idsForInstance.forEach((extractIds, relation) => {
+    const value = extractRelated(extractIds, related);
+    if (value === undefined) {
+      return;
+    }
 
-      loadUsingValue(instance, relation, value as any);
-    });
+    loadUsingValue(instance, relation, value as any);
   });
-}
+});
 
-export default function makeQueryModelLoader<
+export default <
   RawData,
   Data,
   Deserialized extends DeserializedData,
@@ -204,33 +202,31 @@ export default function makeQueryModelLoader<
 >(
   action: ActionFactory<[], C, E>,
   options: QueryModelLoaderOptions<RawData, Data, Deserialized, C, E> = {},
-) {
-  return async <I extends ModelInstance>(
-    instances: Arrayable<I>,
-    ...relations: ArrayableVariadic<ModelRelationDotKey<I>>
-  ) => loadUsingCallback(instances, relations, async (allInstances, allRelations) => {
-    // First, we will extract all IDs for targeted model for each root relations.
-    // This will allow us to remap values on each relation.
-    const groupedRelations = groupRelationsByRoots(allRelations);
-    const extractedIds = extractIdsMap(options, allInstances, groupedRelations);
+) => async <I extends ModelInstance>(
+  instances: Arrayable<I>,
+  ...relations: ArrayableVariadic<ModelRelationDotKey<I>>
+) => loadUsingCallback(instances, relations, async (allInstances, allRelations) => {
+  // First, we will extract all IDs for targeted model for each root relations.
+  // This will allow us to remap values on each relation.
+  const groupedRelations = groupRelationsByRoots(allRelations);
+  const extractedIds = extractIdsMap(options, allInstances, groupedRelations);
 
-    const groupedRelationsModels = await groupRelationsByModels(
-      allInstances[0].$model as Model,
-      groupedRelations,
-      await action().useContext(),
-    );
+  const groupedRelationsModels = await groupRelationsByModels(
+    allInstances[0].$model as Model,
+    groupedRelations,
+    await action().useContext(),
+  );
 
-    // When there are extracted IDs for instances' relations, we will query
-    // each related model to retrieve all related instances.
-    const fetchedRelated = await fetchRelatedMap(
-      action,
-      options,
-      groupedRelationsModels as Map<Model, { relations: ModelRelationKey<I>[]; nested: string[] }>,
-      extractedIds,
-    );
+  // When there are extracted IDs for instances' relations, we will query
+  // each related model to retrieve all related instances.
+  const fetchedRelated = await fetchRelatedMap(
+    action,
+    options,
+    groupedRelationsModels as Map<Model, { relations: ModelRelationKey<I>[]; nested: string[] }>,
+    extractedIds,
+  );
 
-    // Once related instances are retrieved, we will define relation values
-    // based on extracted IDs format.
-    remapRelated(extractedIds, fetchedRelated);
-  });
-}
+  // Once related instances are retrieved, we will define relation values
+  // based on extracted IDs format.
+  remapRelated(extractedIds, fetchedRelated);
+});

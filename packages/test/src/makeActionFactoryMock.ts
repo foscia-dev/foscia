@@ -12,9 +12,9 @@ import {
 } from '@foscia/test/types';
 import UnexpectedMockedRunError from '@foscia/test/unexpectedMockedRunError';
 
-export default function makeActionFactoryMock<A extends any[], C extends {}, E extends {}>(
+export default <A extends any[], C extends {}, E extends {}>(
   factory: ActionFactory<A, C, E>,
-): ActionFactoryMock<A, C, E> {
+): ActionFactoryMock<A, C, E> => {
   const mocks = [] as ActionMockedRun[];
   const history = [] as ActionMockedHistoryItem[];
 
@@ -164,4 +164,4 @@ export default function makeActionFactoryMock<A extends any[], C extends {}, E e
     resetHistory,
     reset,
   };
-}
+};

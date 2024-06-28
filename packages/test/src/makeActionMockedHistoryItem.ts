@@ -3,6 +3,4 @@
  *
  * @param context
  */
-export default function makeActionMockedHistoryItem(context: any) {
-  return { context };
-}
+export default (context: any) => ({ context });

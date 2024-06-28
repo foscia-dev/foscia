@@ -19,7 +19,7 @@ import {
   ModelSchemaRelations,
 } from '@foscia/core/model/types';
 
-function attach<
+const attach = <
   C extends {},
   E extends {},
   D extends {},
@@ -33,11 +33,12 @@ function attach<
   instance: ModelClassInstance<D> & I,
   relation: ModelRelationKey<D> & K,
   value: ModelInferPropValue<RD[K]> | NonNullable<ModelInferPropValue<RD[K]>>[number],
-) {
-  return (action: Action<C & ConsumeSerializer<Record, Related, Data>, E>) => action.use(
-    updateRelation(instance, relation, value, ActionName.ATTACH_RELATION),
-  );
-}
+) => updateRelation<C, E, D, RD, I, K, Record, Related, Data>(
+  instance,
+  relation,
+  value,
+  ActionName.ATTACH_RELATION,
+);
 
 export default /* @__PURE__ */ appendExtension(
   'attach',

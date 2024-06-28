@@ -1,15 +1,16 @@
 import { paramsSerializer } from '@foscia/http';
 import makeRestAdapterWith from '@foscia/rest/makeRestAdapterWith';
 import { RestAdapterConfig } from '@foscia/rest/types';
+import { toKebabCase } from '@foscia/shared';
 
-export default function makeJsonRestAdapter<Data = any>(
+export default <Data = any>(
   config: Partial<RestAdapterConfig<Data>> = {},
-) {
-  return {
-    adapter: makeRestAdapterWith({
-      baseURL: '/api',
-      serializeParams: paramsSerializer,
-      ...config,
-    }),
-  };
-}
+) => ({
+  adapter: makeRestAdapterWith({
+    baseURL: '/api',
+    serializeParams: paramsSerializer,
+    modelPathTransformer: toKebabCase,
+    relationPathTransformer: toKebabCase,
+    ...config,
+  }),
+});

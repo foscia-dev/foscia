@@ -12,16 +12,14 @@ import { ModelInstance, ModelRelationKey } from '@foscia/core/model/types';
  *
  * @category Enhancers
  */
-function relationData<C extends {}, I extends ModelInstance, Record, Related, Data>(
+const relationData = <C extends {}, I extends ModelInstance, Record, Related, Data>(
   instance: I,
   key: ModelRelationKey<I>,
-) {
-  return async (
-    action: Action<C & ConsumeSerializer<Record, Related, Data>>,
-  ) => action.use(context({
-    data: await serializeRelation(action, instance, key, instance[key]),
-  }));
-}
+) => async (
+  action: Action<C & ConsumeSerializer<Record, Related, Data>>,
+) => action.use(context({
+  data: await serializeRelation(action, instance, key, instance[key]),
+}));
 
 export default /* @__PURE__ */ appendExtension(
   'relationData',

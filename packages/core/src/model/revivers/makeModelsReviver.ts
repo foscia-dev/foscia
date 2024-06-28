@@ -9,7 +9,7 @@ import {
 import { Model, ModelInstance, ModelSnapshot } from '@foscia/core/model/types';
 import { Dictionary } from '@foscia/shared';
 
-export default function makeModelsReviver(options: { models: Model[]; }) {
+export default (options: { models: Model[]; }) => {
   let reviveInstance: (
     instance: ReducedModelInstance | ReducedModelCircularRef,
     parents: Map<string, ModelInstance>,
@@ -124,4 +124,4 @@ export default function makeModelsReviver(options: { models: Model[]; }) {
       instance: ReducedModelInstance,
     ) => reviveInstance(instance, new Map()),
   };
-}
+};

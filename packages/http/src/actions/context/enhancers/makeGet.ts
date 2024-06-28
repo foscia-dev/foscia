@@ -10,15 +10,13 @@ import { HttpRequestConfig } from '@foscia/http/types';
  *
  * @category Enhancers
  */
-function makeGet(
+const makeGet = (
   pathOrBaseURL: string,
   config?: Omit<HttpRequestConfig, 'method' | 'body'>,
-) {
-  return makeRequest(pathOrBaseURL, {
-    method: 'GET',
-    ...config,
-  });
-}
+) => makeRequest(pathOrBaseURL, {
+  method: 'GET',
+  ...config,
+});
 
 export default /* @__PURE__ */ appendExtension(
   'makeGet',

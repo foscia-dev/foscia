@@ -2,15 +2,12 @@ import consumeContext from '@foscia/core/actions/context/consumers/consumeContex
 import { ConsumeInstance } from '@foscia/core/actions/types';
 import { ModelInstance } from '@foscia/core/model/types';
 
-export default function consumeInstance<C extends {}, I extends ModelInstance, D = never>(
+export default <C extends {}, I extends ModelInstance, D = never>(
   context: C & Partial<ConsumeInstance<I>>,
   defaultValue?: D,
-) {
-  return consumeContext(context, 'instance', [
-    'create',
-    'update',
-    'save',
-    'destroy',
-    'forInstance',
-  ], defaultValue) as I | D;
-}
+) => consumeContext(context, 'instance', [
+  'create',
+  'update',
+  'save',
+  'destroy',
+], defaultValue) as I | D;

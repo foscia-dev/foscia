@@ -11,13 +11,11 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Enhancers
  */
-function onError<C extends {}>(
+const onError = <C extends {}>(
   callback: (event: { context: C; error: unknown; }) => Awaitable<unknown>,
-) {
-  return (action: Action<C>) => {
-    registerHook(action, 'error', callback as any);
-  };
-}
+) => (action: Action<C>) => {
+  registerHook(action, 'error', callback as any);
+};
 
 export default /* @__PURE__ */ appendExtension(
   'onError',

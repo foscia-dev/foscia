@@ -1,10 +1,10 @@
 /* eslint-disable no-param-reassign */
 import { Hookable } from '@foscia/core/hooks/types';
 
-export default function withoutHooks<T extends Hookable<any>, R>(
+export default <T extends Hookable<any>, R>(
   hookable: T,
   callback: (hookable: T) => R,
-): R extends Promise<infer A> ? Promise<A> : R {
+): R extends Promise<infer A> ? Promise<A> : R => {
   const hooksBackup = hookable.$hooks;
   let restoreHooksImmediately = true;
 
@@ -34,4 +34,4 @@ export default function withoutHooks<T extends Hookable<any>, R>(
       hookable.$hooks = hooksBackup;
     }
   }
-}
+};

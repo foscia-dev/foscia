@@ -18,35 +18,35 @@ import { HttpRequestConfig } from '@foscia/http/types';
  *
  * @category Enhancers
  */
-function configureRequest(nextConfig: HttpRequestConfig) {
-  return async <C extends {}>(action: Action<C>) => {
-    const prevRequestConfig = consumeRequestConfig(await action.useContext(), null);
+const configureRequest = (
+  nextConfig: HttpRequestConfig,
+) => async <C extends {}>(action: Action<C>) => {
+  const prevRequestConfig = consumeRequestConfig(await action.useContext(), null);
 
-    return action.use(context({
-      httpRequestConfig: {
-        ...prevRequestConfig,
-        ...nextConfig,
-        headers: { ...prevRequestConfig?.headers, ...nextConfig?.headers },
-        params: typeof nextConfig.params === 'string' ? nextConfig.params : {
-          ...(typeof prevRequestConfig?.params === 'string' ? {} : prevRequestConfig?.params),
-          ...nextConfig.params,
-        },
-        requestTransformers: [
-          ...(prevRequestConfig?.requestTransformers ?? []),
-          ...(nextConfig?.requestTransformers ?? []),
-        ],
-        responseTransformers: [
-          ...(prevRequestConfig?.responseTransformers ?? []),
-          ...(nextConfig?.responseTransformers ?? []),
-        ],
-        errorTransformers: [
-          ...(prevRequestConfig?.errorTransformers ?? []),
-          ...(nextConfig?.errorTransformers ?? []),
-        ],
-      } as HttpRequestConfig,
-    }));
-  };
-}
+  return action.use(context({
+    httpRequestConfig: {
+      ...prevRequestConfig,
+      ...nextConfig,
+      headers: { ...prevRequestConfig?.headers, ...nextConfig?.headers },
+      params: typeof nextConfig.params === 'string' ? nextConfig.params : {
+        ...(typeof prevRequestConfig?.params === 'string' ? {} : prevRequestConfig?.params),
+        ...nextConfig.params,
+      },
+      requestTransformers: [
+        ...(prevRequestConfig?.requestTransformers ?? []),
+        ...(nextConfig?.requestTransformers ?? []),
+      ],
+      responseTransformers: [
+        ...(prevRequestConfig?.responseTransformers ?? []),
+        ...(nextConfig?.responseTransformers ?? []),
+      ],
+      errorTransformers: [
+        ...(prevRequestConfig?.errorTransformers ?? []),
+        ...(nextConfig?.errorTransformers ?? []),
+      ],
+    } as HttpRequestConfig,
+  }));
+};
 
 export default /* @__PURE__ */ appendExtension(
   'configureRequest',

@@ -11,17 +11,15 @@ import { HttpRequestConfig } from '@foscia/http/types';
  *
  * @category Enhancers
  */
-function makePost(
+const makePost = (
   pathOrBaseURL: string,
   body?: HttpRequestConfig['body'],
   config?: Omit<HttpRequestConfig, 'method' | 'body'>,
-) {
-  return makeRequest(pathOrBaseURL, {
-    method: 'POST',
-    body,
-    ...config,
-  });
-}
+) => makeRequest(pathOrBaseURL, {
+  method: 'POST',
+  body,
+  ...config,
+});
 
 export default /* @__PURE__ */ appendExtension(
   'makePost',

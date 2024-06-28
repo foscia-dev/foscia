@@ -9,17 +9,15 @@ import oneOrCurrent from '@foscia/core/actions/context/runners/oneOrCurrent';
 import oneOrFail from '@foscia/core/actions/context/runners/oneOrFail';
 import raw from '@foscia/core/actions/context/runners/raw';
 
-export default function readExtensions() {
-  return {
-    ...all.extension(),
-    ...one.extension(),
-    ...oneOrFail.extension(),
-    ...oneOrCurrent.extension(),
-    ...oneOr.extension(),
-    ...none.extension(),
-    ...raw.extension(),
-    ...cached.extension(),
-    ...cachedOrFail.extension(),
-    ...cachedOr.extension(),
-  };
-}
+export default () => ({
+  ...all.extension(),
+  ...one.extension(),
+  ...oneOrFail.extension(),
+  ...oneOrCurrent.extension(),
+  ...oneOr.extension(),
+  ...none.extension(),
+  ...raw.extension(),
+  ...cached.extension(),
+  ...cachedOrFail.extension(),
+  ...cachedOr.extension(),
+});

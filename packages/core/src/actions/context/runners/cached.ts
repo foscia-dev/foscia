@@ -18,14 +18,14 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Runners
  */
-function cached<
+const cached = <
   C extends {},
   M extends Model,
   I extends InstanceType<M>,
   ND = I,
->(transform?: (data: CachedData<I>) => Awaitable<ND>) {
-  return cachedOr<C, any, M, I, null, ND>(() => null, transform);
-}
+>(
+  transform?: (data: CachedData<I>) => Awaitable<ND>,
+) => cachedOr<C, any, M, I, null, ND>(() => null, transform);
 
 export default /* @__PURE__ */ appendExtension(
   'cached',

@@ -1,9 +1,9 @@
 import { ModelInstance, ModelRelationDotKey, ModelRelationKey } from '@foscia/core/model/types';
 import { uniqueValues } from '@foscia/shared';
 
-export default function groupRelationsByRoots<I extends ModelInstance>(
+export default <I extends ModelInstance>(
   relations: ModelRelationDotKey<I>[],
-) {
+) => {
   const groups = new Map<ModelRelationKey<I>, string[]>();
 
   relations.forEach((relation) => {
@@ -16,4 +16,4 @@ export default function groupRelationsByRoots<I extends ModelInstance>(
   });
 
   return groups;
-}
+};

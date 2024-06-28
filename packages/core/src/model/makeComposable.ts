@@ -15,13 +15,11 @@ import { SYMBOL_MODEL_COMPOSABLE } from '@foscia/core/symbols';
  * @param rawDefinition
  * @param rawSetup
  */
-export default function makeComposable<D extends {} = {}>(
+export default <D extends {} = {}>(
   rawDefinition?: D & ThisType<ModelInstance<ModelFlattenDefinition<D>>>,
   rawSetup?: ModelRawSetup<D>,
-) {
-  return {
-    $FOSCIA_TYPE: SYMBOL_MODEL_COMPOSABLE,
-    $definition: makeDefinition(rawDefinition),
-    $setup: makeModelSetup(rawSetup),
-  } as ModelComposable<ModelParsedDefinition<D>>;
-}
+) => ({
+  $FOSCIA_TYPE: SYMBOL_MODEL_COMPOSABLE,
+  $definition: makeDefinition(rawDefinition),
+  $setup: makeModelSetup(rawSetup),
+} as ModelComposable<ModelParsedDefinition<D>>);

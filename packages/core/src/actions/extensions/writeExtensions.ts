@@ -10,18 +10,16 @@ import save from '@foscia/core/actions/context/enhancers/crud/save';
 import update from '@foscia/core/actions/context/enhancers/crud/update';
 import updateRelation from '@foscia/core/actions/context/enhancers/crud/updateRelation';
 
-export default function writeExtensions() {
-  return {
-    ...create.extension(),
-    ...update.extension(),
-    ...save.extension(),
-    ...destroy.extension(),
-    ...instanceData.extension(),
-    ...attach.extension(),
-    ...detach.extension(),
-    ...associate.extension(),
-    ...dissociate.extension(),
-    ...updateRelation.extension(),
-    ...relationData.extension(),
-  };
-}
+export default () => ({
+  ...create.extension(),
+  ...update.extension(),
+  ...save.extension(),
+  ...destroy.extension(),
+  ...instanceData.extension(),
+  ...attach.extension(),
+  ...detach.extension(),
+  ...associate.extension(),
+  ...dissociate.extension(),
+  ...updateRelation.extension(),
+  ...relationData.extension(),
+});

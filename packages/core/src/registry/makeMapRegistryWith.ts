@@ -15,7 +15,7 @@ import { wrap } from '@foscia/shared';
  *
  * @param config
  */
-export default function makeMapRegistryWith(config: MapRegistryConfig): MapRegistry {
+export default (config: MapRegistryConfig): MapRegistry => {
   const resolvers = [] as ModelObjectResolver[];
   const modelsMap = new Map<string, Model>();
 
@@ -80,4 +80,4 @@ export default function makeMapRegistryWith(config: MapRegistryConfig): MapRegis
     register,
     registerModel,
   };
-}
+};

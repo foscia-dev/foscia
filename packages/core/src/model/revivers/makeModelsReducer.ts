@@ -10,7 +10,7 @@ import {
 import { ModelClass, ModelInstance, ModelSnapshot } from '@foscia/core/model/types';
 import { Dictionary, uniqueId, unsafeId } from '@foscia/shared';
 
-export default function makeModelsReducer() {
+export default () => {
   let reduceInstance: (
     instance: ModelInstance,
     parents: Map<ModelInstance, string>,
@@ -99,4 +99,4 @@ export default function makeModelsReducer() {
       instance: ModelInstance,
     ) => reduceInstance(instance, new Map()) as ReducedModelInstance,
   };
-}
+};

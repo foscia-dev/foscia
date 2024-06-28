@@ -21,81 +21,48 @@ import {
 } from '@foscia/core/model/types';
 
 /**
- * Query the given model.
+ * Query the given model, instance or relation.
  *
- * @param model
- *
- * @category Enhancers
- */
-function query<
-  C extends {},
-  E extends {},
-  M extends Model,
->(model: M): ContextEnhancer<C, E, C & ConsumeModel<M>>;
-
-/**
- * Query the given model record by ID.
- *
- * @param model
- * @param id
+ * @param modelOrInstance
+ * @param idOrRelation
  *
  * @category Enhancers
  */
-function query<
-  C extends {},
-  E extends {},
-  M extends Model,
->(model: M, id: ModelIdType): ContextEnhancer<C, E, C & ConsumeModel<M> & ConsumeId>;
-
-/**
- * Query the given model instance.
- *
- * @param instance
- *
- * @category Enhancers
- */
-function query<
-  C extends {},
-  E extends {},
-  D extends {},
-  I extends ModelInstance<D>,
->(
-  instance: ModelClassInstance<D> & I,
-): ContextEnhancer<C, E, C & ConsumeModel<Model<D, I>> & ConsumeInstance<I> & ConsumeId>;
-
-/**
- * Query the given model instance's relation.
- *
- * @param instance
- * @param relation
- *
- * @category Enhancers
- */
-function query<
-  C extends {},
-  E extends {},
-  D extends {},
-  RD extends ModelSchemaRelations<D>,
-  I extends ModelInstance<D>,
-  K extends keyof ModelSchema<D> & keyof RD & string,
->(
-  instance: ModelClassInstance<D> & I,
-  relation: ModelRelationKey<D> & K,
-): ContextEnhancer<C, E, C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId>;
-
-function query(
+const query: {
+  <C extends {}, E extends {}, M extends Model>(
+    model: M,
+  ): ContextEnhancer<C, E, C & ConsumeModel<M>>;
+  <C extends {}, E extends {}, M extends Model>(
+    model: M,
+    id: ModelIdType,
+  ): ContextEnhancer<C, E, C & ConsumeModel<M> & ConsumeId>;
+  <C extends {}, E extends {}, D extends {}, I extends ModelInstance<D>>(
+    instance: ModelClassInstance<D> & I,
+  ): ContextEnhancer<C, E, C & ConsumeModel<Model<D, I>> & ConsumeInstance<I> & ConsumeId>;
+  <
+    C extends {},
+    E extends {},
+    D extends {},
+    RD extends ModelSchemaRelations<D>,
+    I extends ModelInstance<D>,
+    K extends keyof ModelSchema<D> & keyof RD & string,
+  >(
+    instance: ModelClassInstance<D> & I,
+    relation: ModelRelationKey<D> & K,
+  ): ContextEnhancer<C, E, C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId>;
+} = (
   modelOrInstance: Model | ModelInstance,
   idOrRelation?: ModelIdType | ModelRelationKey<any>,
-) {
-  return isModel(modelOrInstance)
+) => (
+  isModel(modelOrInstance)
     ? context({ model: modelOrInstance, id: idOrRelation })
     : context({
       model: modelOrInstance.$model,
       instance: idOrRelation ? undefined : modelOrInstance,
       id: modelOrInstance.$exists ? modelOrInstance.id : undefined,
       relation: idOrRelation && modelOrInstance.$model.$schema[idOrRelation],
-    });
-}
+    })
+);
 
 export default /* @__PURE__ */ appendExtension(
   'query',

@@ -12,9 +12,9 @@ import withoutHooks from '@foscia/core/hooks/withoutHooks';
 import logger from '@foscia/core/logger/logger';
 import { Dictionary, eachDescriptors, sequentialTransform } from '@foscia/shared';
 
-export default function makeActionClass<Extension extends {} = {}>(
+export default <Extension extends {} = {}>(
   extensions?: Extension & ThisType<Action<{}, Extension>>,
-) {
+) => {
   class CustomActionClass {
     public $hooks: HooksRegistrar<ActionHooksDefinition> | null;
 
@@ -102,4 +102,4 @@ export default function makeActionClass<Extension extends {} = {}>(
   }
 
   return CustomActionClass.extend(extensions) as ActionClass<{}, Extension>;
-}
+};

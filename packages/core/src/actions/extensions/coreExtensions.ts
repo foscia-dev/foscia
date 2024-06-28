@@ -4,12 +4,10 @@ import query from '@foscia/core/actions/context/enhancers/query';
 import catchIf from '@foscia/core/actions/context/runners/catchIf';
 import when from '@foscia/core/actions/when';
 
-export default function coreExtension() {
-  return {
-    ...query.extension(),
-    ...include.extension(),
-    ...context.extension(),
-    ...when.extension(),
-    ...catchIf.extension(),
-  };
-}
+export default () => ({
+  ...query.extension(),
+  ...include.extension(),
+  ...context.extension(),
+  ...when.extension(),
+  ...catchIf.extension(),
+});

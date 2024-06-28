@@ -1,3 +1,1 @@
-export default function jsonRestExtensions() {
-  return {};
-}
+export default () => ({});

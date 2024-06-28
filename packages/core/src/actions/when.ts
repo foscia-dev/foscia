@@ -7,34 +7,6 @@ import {
 } from '@foscia/core/actions/types';
 import { Awaitable, OnlyFalsy, OnlyTruthy, Value, value } from '@foscia/shared';
 
-function when<C extends {}, E extends {}, V, TC extends {} = C>(
-  expression: V,
-  truthyCallback: (
-    action: Action<C, E>,
-    value: OnlyTruthy<Awaited<Value<V>>>,
-  ) => Awaitable<Action<TC, E> | void>,
-): ContextEnhancer<C, E, TC>;
-function when<C extends {}, E extends {}, V, TC extends {} = C, FC extends {} = C>(
-  expression: V,
-  truthyCallback: (
-    action: Action<C, E>,
-    value: OnlyTruthy<Awaited<Value<V>>>,
-  ) => Awaitable<Action<TC, E> | void>,
-  falsyCallback: (
-    action: Action<C, E>,
-    value: OnlyFalsy<Awaited<Value<V>>>,
-  ) => Awaitable<Action<FC, E> | void>,
-): ContextEnhancer<C, E, TC | FC>;
-function when<C extends {}, E extends {}, V, TR>(
-  expression: V,
-  truthyCallback: (action: Action<C, E>, value: OnlyTruthy<Awaited<Value<V>>>) => TR,
-): ContextRunner<C, E, TR | void>;
-function when<C extends {}, E extends {}, V, TR, FR>(
-  expression: V,
-  truthyCallback: (action: Action<C, E>, value: OnlyTruthy<Awaited<Value<V>>>) => TR,
-  falsyCallback: (action: Action<C, E>, value: OnlyFalsy<Awaited<Value<V>>>) => FR,
-): ContextRunner<C, E, TR | FR>;
-
 /**
  * Create a new enhancer or runner from a conditional expression and given
  * enhancer/runner factories.
@@ -47,24 +19,50 @@ function when<C extends {}, E extends {}, V, TR, FR>(
  * @param truthyCallback
  * @param falsyCallback
  */
-function when<C extends {}, E extends {}, V, TR, FR = void>(
+const when: {
+  <C extends {}, E extends {}, V, TC extends {} = C>(
+    expression: V,
+    truthyCallback: (
+      action: Action<C, E>,
+      value: OnlyTruthy<Awaited<Value<V>>>,
+    ) => Awaitable<Action<TC, E> | void>,
+  ): ContextEnhancer<C, E, TC>;
+  <C extends {}, E extends {}, V, TC extends {} = C, FC extends {} = C>(
+    expression: V,
+    truthyCallback: (
+      action: Action<C, E>,
+      value: OnlyTruthy<Awaited<Value<V>>>,
+    ) => Awaitable<Action<TC, E> | void>,
+    falsyCallback: (
+      action: Action<C, E>,
+      value: OnlyFalsy<Awaited<Value<V>>>,
+    ) => Awaitable<Action<FC, E> | void>,
+  ): ContextEnhancer<C, E, TC | FC>;
+  <C extends {}, E extends {}, V, TR>(
+    expression: V,
+    truthyCallback: (action: Action<C, E>, value: OnlyTruthy<Awaited<Value<V>>>) => TR,
+  ): ContextRunner<C, E, TR | void>;
+  <C extends {}, E extends {}, V, TR, FR>(
+    expression: V,
+    truthyCallback: (action: Action<C, E>, value: OnlyTruthy<Awaited<Value<V>>>) => TR,
+    falsyCallback: (action: Action<C, E>, value: OnlyFalsy<Awaited<Value<V>>>) => FR,
+  ): ContextRunner<C, E, TR | FR>;
+} = <C extends {}, E extends {}, V, TR, FR = void>(
   expression: V,
   truthyCallback: (action: Action<C, E>, value: OnlyTruthy<Awaited<Value<V>>>) => TR,
   falsyCallback?: (action: Action<C, E>, value: OnlyFalsy<Awaited<Value<V>>>) => FR,
-) {
-  return async (action: Action<C, E>) => {
-    const exprValue = await value(expression as Function);
-    if (exprValue) {
-      return truthyCallback(action, exprValue as OnlyTruthy<Awaited<Value<V>>>);
-    }
+) => async (action: Action<C, E>) => {
+  const exprValue = await value(expression as Function);
+  if (exprValue) {
+    return truthyCallback(action, exprValue as OnlyTruthy<Awaited<Value<V>>>);
+  }
 
-    if (falsyCallback !== undefined) {
-      return falsyCallback(action, exprValue as OnlyFalsy<Awaited<Value<V>>>);
-    }
+  if (falsyCallback !== undefined) {
+    return falsyCallback(action, exprValue as OnlyFalsy<Awaited<Value<V>>>);
+  }
 
-    return undefined as any;
-  };
-}
+  return undefined as any;
+};
 
 export default /* @__PURE__ */ appendExtension(
   'when',

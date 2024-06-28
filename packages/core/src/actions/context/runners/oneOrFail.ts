@@ -18,7 +18,7 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Runners
  */
-function oneOrFail<
+const oneOrFail = <
   C extends {},
   I extends InferConsumedInstance<C>,
   RawData,
@@ -27,13 +27,11 @@ function oneOrFail<
   Next = I,
 >(
   transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
-) {
-  return oneOr<C, any, I, RawData, Data, Deserialized, never, Next>(() => {
-    throw new ExpectedRunFailureError(
-      '`oneOrFail` failed. You may handle this error globally as a "not found" record error.',
-    );
-  }, transform);
-}
+) => oneOr<C, any, I, RawData, Data, Deserialized, never, Next>(() => {
+  throw new ExpectedRunFailureError(
+    '`oneOrFail` failed. You may handle this error globally as a "not found" record error.',
+  );
+}, transform);
 
 export default /* @__PURE__ */ appendExtension(
   'oneOrFail',

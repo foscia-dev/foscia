@@ -176,11 +176,9 @@ const createModelClass = (
   return ModelClass;
 };
 
-export default function makeModelClass(
+export default (
   type: string,
   config: ModelConfig,
   setup: ModelSetup,
   definition: object,
-) {
-  return createModelClass(type, config, setup, { id: id(), lid: id(), ...definition });
-}
+) => createModelClass(type, config, setup, { id: id(), lid: id(), ...definition });

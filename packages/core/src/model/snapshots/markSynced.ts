@@ -3,10 +3,10 @@ import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
 import { ModelInstance, ModelKey } from '@foscia/core/model/types';
 import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
 
-export default function markSynced<I extends ModelInstance>(
+export default <I extends ModelInstance>(
   instance: I,
   ...only: ArrayableVariadic<ModelKey<I>>
-) {
+) => {
   const snapshot = takeSnapshot(instance);
   const keys = wrapVariadic(...only);
   if (keys.length) {
@@ -22,4 +22,4 @@ export default function markSynced<I extends ModelInstance>(
   }
 
   return instance;
-}
+};

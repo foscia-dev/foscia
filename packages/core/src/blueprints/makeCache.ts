@@ -4,11 +4,9 @@ import weakRefManager from '@foscia/core/cache/weakRefManager';
 
 type CacheConfig = Partial<RefsCacheConfig>;
 
-export default function makeCache(config: CacheConfig = {}) {
-  const cache = makeRefsCacheWith({
+export default (config: CacheConfig = {}) => ({
+  cache: makeRefsCacheWith({
     manager: weakRefManager,
     ...config,
-  });
-
-  return { cache };
-}
+  }),
+});

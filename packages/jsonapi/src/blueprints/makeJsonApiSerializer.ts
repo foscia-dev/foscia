@@ -7,11 +7,11 @@ import {
 import { makeSerializerRecordFactory, makeSerializerWith } from '@foscia/serialization';
 import { Arrayable, isNil, Optional } from '@foscia/shared';
 
-export default function makeJsonApiSerializer<
+export default <
   Record extends JsonApiNewResource = JsonApiNewResource,
   Related extends JsonApiResourceIdentifier = JsonApiResourceIdentifier,
   Data = { data: Arrayable<JsonApiNewResource> | null },
->(config?: Partial<JsonApiSerializerConfig<Record, Related, Data>>) {
+>(config?: Partial<JsonApiSerializerConfig<Record, Related, Data>>) => {
   const serializeId = (id: Optional<ModelIdType>) => (isNil(id) ? undefined : String(id));
 
   return {
@@ -47,4 +47,4 @@ export default function makeJsonApiSerializer<
       ...config,
     }),
   };
-}
+};

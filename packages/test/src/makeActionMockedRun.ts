@@ -5,9 +5,9 @@ import { ActionMockedRunOptions } from '@foscia/test/types';
  *
  * @param options
  */
-export default function makeActionMockedRun<C extends {} = any>(
+export default <C extends {} = any>(
   options: ActionMockedRunOptions<C>,
-) {
+) => {
   let remaining = options.times ?? null;
 
   const shouldRun = async (context: C) => (
@@ -35,4 +35,4 @@ export default function makeActionMockedRun<C extends {} = any>(
     shouldForget,
     run,
   };
-}
+};

@@ -9,9 +9,7 @@ import { ModelInstance } from '@foscia/core/model/types';
  *
  * @param instance
  */
-export default function filled(instance: ModelInstance) {
-  return Object.keys(instance.$model.$schema).length <= 2
-    || Object.keys(instance.$values).some(
-      (key) => (key !== 'id' && key !== 'lid' && instance.$values[key] !== undefined),
-    );
-}
+export default (instance: ModelInstance) => Object.keys(instance.$model.$schema).length <= 2
+  || Object.keys(instance.$values).some(
+    (key) => (key !== 'id' && key !== 'lid' && instance.$values[key] !== undefined),
+  );

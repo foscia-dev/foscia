@@ -14,11 +14,11 @@ import {
 } from '@foscia/core/model/types';
 import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
 
-export default function restoreSnapshot<I extends ModelInstance>(
+export default <I extends ModelInstance>(
   instance: I,
   snapshot: ModelSnapshot<I>,
   ...only: ArrayableVariadic<ModelKey<I>>
-) {
+) => {
   const keys = wrapVariadic(...only);
 
   if (!keys.length) {
@@ -47,4 +47,4 @@ export default function restoreSnapshot<I extends ModelInstance>(
   markSynced(instance, ...only);
 
   return instance;
-}
+};

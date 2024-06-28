@@ -1,10 +1,10 @@
 import { ModelInstance, ModelRelationDotKey } from '@foscia/core/model/types';
 
-export default function excludeInstancesAndRelations<I extends ModelInstance>(
+export default <I extends ModelInstance>(
   instances: I[],
   relations: ModelRelationDotKey<I>[],
   exclude: (instance: I, relation: ModelRelationDotKey<I>) => boolean,
-) {
+) => {
   const remainingInstances = new Set<I>();
   const remainingRelations = new Set<ModelRelationDotKey<I>>();
 
@@ -21,4 +21,4 @@ export default function excludeInstancesAndRelations<I extends ModelInstance>(
     [...remainingInstances.values()],
     [...remainingRelations.values()],
   ] as [I[], ModelRelationDotKey<I>[]];
-}
+};

@@ -2,11 +2,11 @@ import compareModelValue from '@foscia/core/model/snapshots/compareModelValue';
 import { ModelClass, ModelKey, ModelSnapshot } from '@foscia/core/model/types';
 import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
 
-export default function compareSnapshots<M extends ModelClass>(
+export default <M extends ModelClass>(
   nextSnapshot: ModelSnapshot<M>,
   prevSnapshot: ModelSnapshot<M>,
   ...only: ArrayableVariadic<ModelKey<M>>
-) {
+) => {
   if (nextSnapshot.$model !== prevSnapshot.$model) {
     return false;
   }
@@ -26,4 +26,4 @@ export default function compareSnapshots<M extends ModelClass>(
       prevSnapshot.$values[key],
     ),
   );
-}
+};

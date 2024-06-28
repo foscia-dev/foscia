@@ -1,13 +1,11 @@
 import isInstance from '@foscia/core/model/checks/isInstance';
 import { isNil } from '@foscia/shared';
 
-export default function isSame(
+export default (
   value: unknown,
   otherValue: unknown,
-): boolean {
-  return isInstance(value) && isInstance(otherValue) && (value === otherValue || (
-    value.$model.$type === otherValue.$model.$type
-    && !isNil(value.id)
-    && value.id === otherValue.id
-  ));
-}
+): boolean => isInstance(value) && isInstance(otherValue) && (value === otherValue || (
+  value.$model.$type === otherValue.$model.$type
+  && !isNil(value.id)
+  && value.id === otherValue.id
+));

@@ -17,7 +17,7 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Runners
  */
-function one<
+const one = <
   C extends {},
   I extends InferConsumedInstance<C>,
   RawData,
@@ -26,9 +26,7 @@ function one<
   Next = I,
 >(
   transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
-) {
-  return oneOr<C, any, I, RawData, Data, Deserialized, null, Next>(() => null, transform);
-}
+) => oneOr<C, any, I, RawData, Data, Deserialized, null, Next>(() => null, transform);
 
 export default /* @__PURE__ */ appendExtension(
   'one',

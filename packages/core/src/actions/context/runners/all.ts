@@ -32,7 +32,7 @@ export type AllData<
  *
  * @category Runners
  */
-function all<
+const all = <
   C extends {},
   I extends InferConsumedInstance<C>,
   RawData,
@@ -41,27 +41,25 @@ function all<
   Next = I[],
 >(transform?: (
   data: AllData<Data, DeserializedDataOf<I, Deserialized>, I>,
-) => Awaitable<Next>) {
-  return async (
-    // eslint-disable-next-line max-len
-    action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>>,
-  ) => {
-    const response = await executeContextThroughAdapter(
-      await action.useContext(),
-    );
-    const data = await response.read();
-    const deserialized = await deserializeInstances(
-      action,
-      data,
-    ) as DeserializedDataOf<I, Deserialized>;
+) => Awaitable<Next>) => async (
+  // eslint-disable-next-line max-len
+  action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>>,
+) => {
+  const response = await executeContextThroughAdapter(
+    await action.useContext(),
+  );
+  const data = await response.read();
+  const deserialized = await deserializeInstances(
+    action,
+    data,
+  ) as DeserializedDataOf<I, Deserialized>;
 
-    return (
-      transform
-        ? transform({ data, deserialized, instances: deserialized.instances })
-        : deserialized.instances
-    ) as Awaitable<Next>;
-  };
-}
+  return (
+    transform
+      ? transform({ data, deserialized, instances: deserialized.instances })
+      : deserialized.instances
+  ) as Awaitable<Next>;
+};
 
 export default /* @__PURE__ */ appendExtension(
   'all',

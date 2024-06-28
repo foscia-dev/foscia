@@ -8,7 +8,7 @@ import { makeIdentifiersMap } from '@foscia/shared';
  *
  * @param config
  */
-export default function makeRefsCacheWith(config: RefsCacheConfig): RefsCache {
+export default (config: RefsCacheConfig): RefsCache => {
   const instances = makeIdentifiersMap<string, ModelIdType, unknown>();
 
   const forget = async (type: string, id: ModelIdType) => instances.forget(type, id);
@@ -44,4 +44,4 @@ export default function makeRefsCacheWith(config: RefsCacheConfig): RefsCache {
     find,
     put,
   };
-}
+};

@@ -19,20 +19,22 @@ import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/typ
  *
  * @category Enhancers
  */
-function save<
+const save = <
   C extends {},
   D extends {},
   I extends ModelInstance<D>,
   Record,
   Related,
   Data,
->(instance: ModelClassInstance<D> & I) {
-  return (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => (
-    instance.$exists
-      ? action.use(update(instance))
-      : action.use(create(instance))
-  ) as Action<C & ConsumeModel<Model<D, I>> & ConsumeInstance<I> & ConsumeId>;
-}
+>(
+  instance: ModelClassInstance<D> & I,
+) => (
+  action: Action<C & ConsumeSerializer<Record, Related, Data>>,
+) => (
+  instance.$exists
+    ? action.use(update(instance))
+    : action.use(create(instance))
+) as Action<C & ConsumeModel<Model<D, I>> & ConsumeInstance<I> & ConsumeId>;
 
 export default /* @__PURE__ */ appendExtension(
   'save',

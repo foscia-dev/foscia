@@ -20,7 +20,7 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Runners
  */
-function oneOrCurrent<
+const oneOrCurrent = <
   C extends ConsumeInstance<CI>,
   I extends InferConsumedInstance<C>,
   CI extends ModelInstance,
@@ -30,12 +30,10 @@ function oneOrCurrent<
   Next = CI,
 >(
   transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
-) {
-  return oneOr<C & ConsumeInstance<CI>, any, I, RawData, Data, Deserialized, CI, Next>(
-    async (action) => consumeInstance(await action.useContext()) as Promise<CI>,
-    transform,
-  );
-}
+) => oneOr<C & ConsumeInstance<CI>, any, I, RawData, Data, Deserialized, CI, Next>(
+  async (action) => consumeInstance(await action.useContext()) as Promise<CI>,
+  transform,
+);
 
 export default /* @__PURE__ */ appendExtension(
   'oneOrCurrent',

@@ -30,7 +30,7 @@ export type CachedData<I extends ModelInstance> = {
  *
  * @category Runners
  */
-function cachedOr<
+const cachedOr = <
   C extends {},
   E extends {},
   M extends Model,
@@ -40,23 +40,21 @@ function cachedOr<
 >(
   nilRunner: ContextRunner<C & ConsumeCache & ConsumeModel<M>, E, Awaitable<RD>>,
   transform?: (data: CachedData<I>) => Awaitable<ND>,
-) {
-  return async (
-    action: Action<C & ConsumeCache & ConsumeModel<M> & ConsumeInclude & ConsumeId, E>,
-  ) => {
-    const context = await action.useContext();
-    const id = consumeId(context);
-    const cache = await consumeCache(context);
-    const instance = !isNil(id)
-      ? await cache.find(consumeModel(context).$type, id)
-      : null;
-    if (isNil(instance) || !filled(instance) || !loaded(instance, context.include ?? [])) {
-      return action.run(nilRunner);
-    }
+) => async (
+  action: Action<C & ConsumeCache & ConsumeModel<M> & ConsumeInclude & ConsumeId, E>,
+) => {
+  const context = await action.useContext();
+  const id = consumeId(context);
+  const cache = await consumeCache(context);
+  const instance = !isNil(id)
+    ? await cache.find(consumeModel(context).$type, id)
+    : null;
+  if (isNil(instance) || !filled(instance) || !loaded(instance, context.include ?? [])) {
+    return action.run(nilRunner);
+  }
 
-    return (transform ? transform({ instance: instance as I }) : instance) as ND;
-  };
-}
+  return (transform ? transform({ instance: instance as I }) : instance) as ND;
+};
 
 export default /* @__PURE__ */ appendExtension(
   'cachedOr',

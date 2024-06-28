@@ -18,18 +18,16 @@ import { ArrayableVariadic, uniqueValues, wrapVariadic } from '@foscia/shared';
  *
  * @category Enhancers
  */
-function include<C extends {}>(
+const include = <C extends {}>(
   ...relations: ArrayableVariadic<ModelRelationDotKey<InferConsumedModelOrInstance<C>>>
-) {
-  return async (
-    action: Action<C & ConsumeInclude>,
-  ) => action.use(context({
-    include: uniqueValues([
-      ...((await action.useContext()).include ?? []),
-      ...wrapVariadic(...relations),
-    ]),
-  }));
-}
+) => async (
+  action: Action<C & ConsumeInclude>,
+) => action.use(context({
+  include: uniqueValues([
+    ...((await action.useContext()).include ?? []),
+    ...wrapVariadic(...relations),
+  ]),
+}));
 
 export default /* @__PURE__ */ appendExtension(
   'include',

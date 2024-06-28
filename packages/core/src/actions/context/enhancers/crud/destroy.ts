@@ -22,28 +22,27 @@ import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/typ
  *
  * @category Enhancers
  */
-function destroy<
+const destroy = <
   C extends {},
   E extends {},
   D extends {},
   I extends ModelInstance<D>,
->(instance: ModelClassInstance<D> & I) {
-  return (action: Action<C, E>) => action
-    .use(query<C, E, D, I>(instance))
-    .use(context({
-      action: ActionName.DESTROY,
-      // Rewrite ID to ensure destroy targets the record termination point
-      // even if $exists is false.
-      id: (instance as ModelInstance).id,
-    }))
-    .use(onRunning(() => runHooks(instance.$model, 'destroying', instance)))
-    .use(onSuccess(async () => {
-      // eslint-disable-next-line no-param-reassign
-      instance.$exists = false;
-      markSynced(instance);
-      await runHooks(instance.$model, 'destroyed', instance);
-    }));
-}
+>(instance: ModelClassInstance<D> & I) => (action: Action<C, E>) => action.use(
+  query<C, E, D, I>(instance),
+  context({
+    action: ActionName.DESTROY,
+    // Rewrite ID to ensure destroy targets the record termination point
+    // even if $exists is false.
+    id: (instance as ModelInstance).id,
+  }),
+  onRunning(() => runHooks(instance.$model, 'destroying', instance)),
+  onSuccess(async () => {
+    // eslint-disable-next-line no-param-reassign
+    instance.$exists = false;
+    markSynced(instance);
+    await runHooks(instance.$model, 'destroyed', instance);
+  }),
+);
 
 export default /* @__PURE__ */ appendExtension(
   'destroy',

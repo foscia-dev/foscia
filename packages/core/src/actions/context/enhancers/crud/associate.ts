@@ -21,7 +21,7 @@ import {
   ModelSchemaRelations,
 } from '@foscia/core/model/types';
 
-function associate<
+const associate = <
   C extends {},
   E extends {},
   D extends {},
@@ -35,14 +35,12 @@ function associate<
   instance: ModelClassInstance<D> & I,
   relation: ModelRelationKey<D> & K,
   value: ModelInferPropValue<RD[K]>,
-) {
-  return (action: Action<C & ConsumeSerializer<Record, Related, Data>, E>) => action.use(
-    updateRelation(instance, relation, value),
-    onSuccess(
-      () => syncRelationValue(instance, instance.$model.$schema[relation] as ModelRelation, value),
-    ),
-  );
-}
+) => (action: Action<C & ConsumeSerializer<Record, Related, Data>, E>) => action.use(
+  updateRelation(instance, relation, value),
+  onSuccess(
+    () => syncRelationValue(instance, instance.$model.$schema[relation] as ModelRelation, value),
+  ),
+);
 
 export default /* @__PURE__ */ appendExtension(
   'associate',

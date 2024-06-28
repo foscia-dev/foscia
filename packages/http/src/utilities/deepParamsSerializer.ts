@@ -1,6 +1,6 @@
 import { Dictionary } from '@foscia/shared';
 
-export default function deepParamsSerializer(params: Dictionary<any>) {
+export default (params: Dictionary<any>) => {
   const urlSearchParams = new URLSearchParams();
 
   const appendParam = (key: string, value: unknown) => {
@@ -23,4 +23,4 @@ export default function deepParamsSerializer(params: Dictionary<any>) {
   });
 
   return urlSearchParams.toString() || undefined;
-}
+};

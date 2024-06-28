@@ -1,4 +1,4 @@
-export default function toKebabCase(value: string): string {
+export default (value: string): string => {
   const matches = value.match(
     /[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g,
   );
@@ -7,4 +7,4 @@ export default function toKebabCase(value: string): string {
   }
 
   return matches.map((x) => x.toLowerCase()).join('-');
-}
+};

@@ -2,9 +2,7 @@ import registerHook from '@foscia/core/hooks/registerHook';
 import { Model, ModelInstance, ModelInstanceHookCallback } from '@foscia/core/model/types';
 import { Awaitable } from '@foscia/shared';
 
-export default function onCreating<I extends ModelInstance>(
+export default <I extends ModelInstance>(
   model: Model<any, I>,
   callback: (instance: I) => Awaitable<unknown>,
-) {
-  return registerHook(model, 'creating', callback as ModelInstanceHookCallback);
-}
+) => registerHook(model, 'creating', callback as ModelInstanceHookCallback);

@@ -1,3 +1,1 @@
-export default function unsafeId() {
-  return Math.random().toString(26).slice(2);
-}
+export default () => Math.random().toString(26).slice(2);

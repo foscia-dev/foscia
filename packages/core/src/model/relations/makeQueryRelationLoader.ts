@@ -16,42 +16,43 @@ type QueryRelationLoaderOptions = {
   disablePerformanceWarning?: boolean;
 };
 
-export default function makeQueryRelationLoader<
+export default <
   RawData,
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
->(action: ActionFactory<[], C, {}>, options: QueryRelationLoaderOptions = {}) {
-  return async <I extends ModelInstance>(
-    instances: Arrayable<I>,
-    ...relations: ArrayableVariadic<ModelRelationDotKey<I>>
-  ) => loadUsingCallback(instances, relations, async (allInstances, allRelations) => {
-    const groupedRelations = groupRelationsByRoots(allRelations);
-    const actionsCount = allInstances.length * groupedRelations.size;
-    if (!options.disablePerformanceWarning && actionsCount > 1) {
-      logger.warn(
-        `Loading \`${groupedRelations.size}\` relations on \`${allInstances.length}\` instances using \`makeQueryRelationLoader\` is not recommended, as this will execute ${actionsCount} actions and may cause performance issues. You can disable this warning by passing \`disablePerformanceWarning\` option to your loader factory.`,
-      );
-    }
+>(
+  action: ActionFactory<[], C, {}>,
+  options: QueryRelationLoaderOptions = {},
+) => async <I extends ModelInstance>(
+  instances: Arrayable<I>,
+  ...relations: ArrayableVariadic<ModelRelationDotKey<I>>
+) => loadUsingCallback(instances, relations, async (allInstances, allRelations) => {
+  const groupedRelations = groupRelationsByRoots(allRelations);
+  const actionsCount = allInstances.length * groupedRelations.size;
+  if (!options.disablePerformanceWarning && actionsCount > 1) {
+    logger.warn(
+      `Loading \`${groupedRelations.size}\` relations on \`${allInstances.length}\` instances using \`makeQueryRelationLoader\` is not recommended, as this will execute ${actionsCount} actions and may cause performance issues. You can disable this warning by passing \`disablePerformanceWarning\` option to your loader factory.`,
+    );
+  }
 
-    await Promise.all(allInstances.map(async (instance) => {
-      await Promise.all([...groupedRelations.entries()].map(async ([relation, nested]) => {
-        if (
-          options.exclude
-          && shouldExcludeInstanceAndRelation(instance, relation, nested, options.exclude)
-        ) {
-          return;
-        }
+  await Promise.all(allInstances.map(async (instance) => {
+    await Promise.all([...groupedRelations.entries()].map(async ([relation, nested]) => {
+      if (
+        options.exclude
+        && shouldExcludeInstanceAndRelation(instance, relation, nested, options.exclude)
+      ) {
+        return;
+      }
 
-        const def = instance.$model.$schema[relation];
-        const isPlural = isPluralRelationDef(def);
+      const def = instance.$model.$schema[relation];
+      const isPlural = isPluralRelationDef(def);
 
-        const value = await action()
-          .use(query(instance, relation), include(nested as any))
-          .run(when(isPlural, all(), one()));
+      const value = await action()
+        .use(query(instance, relation), include(nested as any))
+        .run(when(isPlural, all(), one()));
 
-        loadUsingValue(instance, relation as ModelRelationKey<I>, value as any);
-      }));
+      loadUsingValue(instance, relation as ModelRelationKey<I>, value as any);
     }));
-  });
-}
+  }));
+});

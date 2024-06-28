@@ -6,7 +6,7 @@ const rules: [RegExp, string][] = [
   [/(.)$/i, '$1s'],
 ];
 
-export default function pluralize(word: string) {
+export default (word: string) => {
   let pluralizedWord: string | undefined;
   rules.some(([regexp, replacement]) => {
     pluralizedWord = word.replace(regexp, replacement);
@@ -15,4 +15,4 @@ export default function pluralize(word: string) {
   });
 
   return pluralizedWord ?? word;
-}
+};

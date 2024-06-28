@@ -11,17 +11,15 @@ import { HttpRequestConfig } from '@foscia/http/types';
  *
  * @category Enhancers
  */
-function makeDelete(
+const makeDelete = (
   pathOrBaseURL: string,
   body?: HttpRequestConfig['body'],
   config?: Omit<HttpRequestConfig, 'method' | 'body'>,
-) {
-  return makeRequest(pathOrBaseURL, {
-    method: 'DELETE',
-    body,
-    ...config,
-  });
-}
+) => makeRequest(pathOrBaseURL, {
+  method: 'DELETE',
+  body,
+  ...config,
+});
 
 export default /* @__PURE__ */ appendExtension(
   'makeDelete',

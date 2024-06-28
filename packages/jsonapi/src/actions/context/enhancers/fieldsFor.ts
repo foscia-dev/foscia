@@ -18,24 +18,22 @@ import { ArrayableVariadic, optionalJoin, uniqueValues, wrapVariadic } from '@fo
  *
  * @category Enhancers
  */
-function fieldsFor<C extends {}, M extends Model>(
+const fieldsFor = <C extends {}, M extends Model>(
   model: M,
   ...fieldset: ArrayableVariadic<ModelKey<M>>
-) {
-  return async (action: Action<C>) => {
-    const context = await action.useContext();
-    const prevFields = consumeRequestObjectParams(context)?.fields;
-    const nextFields = wrapVariadic(...fieldset).map((key) => normalizeKey(model, key));
+) => async (action: Action<C>) => {
+  const context = await action.useContext();
+  const prevFields = consumeRequestObjectParams(context)?.fields;
+  const nextFields = wrapVariadic(...fieldset).map((key) => normalizeKey(model, key));
 
-    return action.use(param('fields', {
-      ...prevFields,
-      [model.$type]: optionalJoin(uniqueValues([
-        ...((prevFields ?? {})[model.$type] ?? []),
-        ...nextFields,
-      ]), ','),
-    }));
-  };
-}
+  return action.use(param('fields', {
+    ...prevFields,
+    [model.$type]: optionalJoin(uniqueValues([
+      ...((prevFields ?? {})[model.$type] ?? []),
+      ...nextFields,
+    ]), ','),
+  }));
+};
 
 export default /* @__PURE__ */ appendExtension(
   'fieldsFor',

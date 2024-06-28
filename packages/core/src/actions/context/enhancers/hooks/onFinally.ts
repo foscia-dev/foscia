@@ -11,13 +11,11 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Enhancers
  */
-function onFinally<C extends {}>(
+const onFinally = <C extends {}>(
   callback: (event: { context: C; }) => Awaitable<unknown>,
-) {
-  return (action: Action<C>) => {
-    registerHook(action, 'finally', callback as any);
-  };
-}
+) => (action: Action<C>) => {
+  registerHook(action, 'finally', callback as any);
+};
 
 export default /* @__PURE__ */ appendExtension(
   'onFinally',

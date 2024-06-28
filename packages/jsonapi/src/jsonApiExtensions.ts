@@ -6,14 +6,12 @@ import sortBy from '@foscia/jsonapi/actions/context/enhancers/sortBy';
 import sortByAsc from '@foscia/jsonapi/actions/context/enhancers/sortByAsc';
 import sortByDesc from '@foscia/jsonapi/actions/context/enhancers/sortByDesc';
 
-export default function jsonApiExtensions() {
-  return {
-    ...filterBy.extension(),
-    ...fields.extension(),
-    ...fieldsFor.extension(),
-    ...sortBy.extension(),
-    ...sortByAsc.extension(),
-    ...sortByDesc.extension(),
-    ...paginate.extension(),
-  };
-}
+export default () => ({
+  ...filterBy.extension(),
+  ...fields.extension(),
+  ...fieldsFor.extension(),
+  ...sortBy.extension(),
+  ...sortByAsc.extension(),
+  ...sortByDesc.extension(),
+  ...paginate.extension(),
+});

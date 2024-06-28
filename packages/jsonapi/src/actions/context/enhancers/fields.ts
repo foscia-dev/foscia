@@ -19,22 +19,20 @@ import { ArrayableVariadic, isNil } from '@foscia/shared';
  *
  * @category Enhancers
  */
-function fields<C extends {}>(
+const fields = <C extends {}>(
   ...fieldset: ArrayableVariadic<ModelKey<InferConsumedModelOrInstance<C>>>
-) {
-  return async (action: Action<C>) => {
-    const context = await action.useContext();
-    const model = await guessContextModel(context);
+) => async (action: Action<C>) => {
+  const context = await action.useContext();
+  const model = await guessContextModel(context);
 
-    if (isNil(model)) {
-      throw new FosciaError(
-        'Could not detect context\'s model when applying fieldsets.',
-      );
-    }
+  if (isNil(model)) {
+    throw new FosciaError(
+      'Could not detect context\'s model when applying fieldsets.',
+    );
+  }
 
-    return action.use(fieldsFor(model as any, ...fieldset));
-  };
-}
+  return action.use(fieldsFor(model as any, ...fieldset));
+};
 
 export default /* @__PURE__ */ appendExtension(
   'fields',

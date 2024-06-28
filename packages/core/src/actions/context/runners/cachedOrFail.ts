@@ -19,18 +19,18 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Runners
  */
-function cachedOrFail<
+const cachedOrFail = <
   C extends {},
   M extends Model,
   I extends InstanceType<M>,
   ND = I,
->(transform?: (data: CachedData<I>) => Awaitable<ND>) {
-  return cachedOr<C, any, M, I, never, ND>(() => {
-    throw new ExpectedRunFailureError(
-      '`cachedOrFail` failed. You may handle this error globally as a "not found" record error.',
-    );
-  }, transform);
-}
+>(
+  transform?: (data: CachedData<I>) => Awaitable<ND>,
+) => cachedOr<C, any, M, I, never, ND>(() => {
+  throw new ExpectedRunFailureError(
+    '`cachedOrFail` failed. You may handle this error globally as a "not found" record error.',
+  );
+}, transform);
 
 export default /* @__PURE__ */ appendExtension(
   'cachedOrFail',

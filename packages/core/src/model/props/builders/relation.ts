@@ -14,10 +14,10 @@ import { SYMBOL_MODEL_PROP_RELATION } from '@foscia/core/symbols';
  *
  * @internal
  */
-export default function relation(
+export default (
   relationType: ModelRelationType,
   config?: PendingModelRelationConfig,
-) {
+) => {
   const resolveConfig = (configValue: PendingModelRelationConfig) => {
     if (typeof configValue === 'string' || Array.isArray(configValue)) {
       return { type: configValue };
@@ -40,4 +40,4 @@ export default function relation(
     $RELATION_TYPE: relationType,
     ...resolveConfig(config ?? {}),
   }) as unknown as PendingModelRelation<ModelInstance | ModelInstance[] | null, false>;
-}
+};

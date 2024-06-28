@@ -10,11 +10,11 @@ type GuessContextModelContext = {
   ensureType?: Optional<string>;
 };
 
-function guessModelIn(
+const guessModelIn = (
   model: Optional<Model | Model[]>,
   ensureType: Optional<string>,
   multiple: boolean,
-) {
+) => {
   const models = wrap(model);
   if (multiple) {
     return models;
@@ -29,22 +29,12 @@ function guessModelIn(
   }
 
   return models.find((m) => m.$type === ensureType) ?? null;
-}
+};
 
-function guessContextModel(
-  context: GuessContextModelContext,
-  multiple?: false,
-): Promise<Model | null>;
-
-function guessContextModel(
-  context: GuessContextModelContext,
-  multiple: true,
-): Promise<Model[]>;
-
-async function guessContextModel(
+export default (async (
   context: GuessContextModelContext,
   multiple: boolean = false,
-): Promise<Model[] | Model | null> {
+): Promise<Model[] | Model | null> => {
   if (context.relation) {
     if (context.relation.model) {
       return guessModelIn(await context.relation.model(), context.ensureType, multiple);
@@ -71,6 +61,7 @@ async function guessContextModel(
   }
 
   return guessModelIn(context.model, context.ensureType, multiple);
-}
-
-export default guessContextModel;
+}) as {
+  (context: GuessContextModelContext, multiple?: false): Promise<Model | null>;
+  (context: GuessContextModelContext, multiple: true): Promise<Model[]>;
+};

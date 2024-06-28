@@ -8,11 +8,9 @@ import { Action, ConsumeAdapter, WithParsedExtension } from '@foscia/core/action
  *
  * @category Runners
  */
-function none<C extends {}>() {
-  return async (action: Action<C & ConsumeAdapter>) => {
-    await action.run(raw());
-  };
-}
+const none = <C extends {}>() => async (action: Action<C & ConsumeAdapter>) => {
+  await action.run(raw());
+};
 
 export default /* @__PURE__ */ appendExtension(
   'none',

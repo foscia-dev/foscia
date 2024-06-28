@@ -6,9 +6,9 @@ import type { ActionFactoryMock, ActionMockableFactory } from '@foscia/test/type
  *
  * @param factory
  */
-export default function makeActionFactoryMockable<A extends any[], C extends {}, E extends {}>(
+export default <A extends any[], C extends {}, E extends {}>(
   factory: ActionFactory<A, C, E>,
-): ActionMockableFactory<A, C, E> {
+): ActionMockableFactory<A, C, E> => {
   const mockableFactory = (...args: A) => (
     mockableFactory.$mock
       ? mockableFactory.$mock.makeAction(...args)
@@ -19,4 +19,4 @@ export default function makeActionFactoryMockable<A extends any[], C extends {},
   mockableFactory.$real = factory;
 
   return mockableFactory;
-}
+};

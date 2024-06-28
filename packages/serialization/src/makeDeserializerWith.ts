@@ -42,12 +42,12 @@ import {
 // eslint-disable-next-line max-len
 /* eslint no-param-reassign: ["error",  { "props": true, "ignorePropertyModificationsForRegex": ["^instance"] } ] */
 
-export default function makeDeserializerWith<
+export default <
   Record,
   Data,
   Deserialized extends DeserializedData,
   Extract extends DeserializerExtract<Record>,
->(config: DeserializerConfig<Record, Data, Deserialized, Extract>) {
+>(config: DeserializerConfig<Record, Data, Deserialized, Extract>) => {
   const NON_IDENTIFIED_LOCAL_ID = '__foscia_non_identified_local_id__';
 
   const makeModelIdentifier = async (
@@ -134,29 +134,18 @@ You should either:
     && await (config.shouldDeserialize ?? (() => true))(context)
   );
 
-  const deserializeKey = async (context: DeserializerContext<Record, Data, Deserialized>) => (
-    config.deserializeKey
-      ? config.deserializeKey(context)
-      : normalizeKey(context.instance.$model, context.def.key)
-  );
+  const deserializeKey = config.deserializeKey
+    ?? ((context) => normalizeKey(context.instance.$model, context.def.key));
 
-  const deserializeAttributeValue = async (
-    context: DeserializerContext<Record, Data, Deserialized, ModelAttribute>,
-  ) => (
-    config.deserializeAttribute
-      ? config.deserializeAttribute(context)
-      : (context.def.transformer?.deserialize ?? ((v) => v))(context.value)
-  );
+  const deserializeAttributeValue = config.deserializeAttribute
+    ?? ((context) => (context.def.transformer?.deserialize ?? ((v) => v))(context.value));
 
-  const deserializeRelated = async (
-    context: DeserializerContext<Record, Data, Deserialized, ModelRelation>,
-    related: DeserializerRecord<Record, Data, Deserialized>,
-    instancesMap: DeserializerInstancesMap,
-  ) => (
-    config.deserializeRelated
-      ? config.deserializeRelated(context, related, instancesMap)
-      : context.deserializer.deserializeRecord(related, context.context, instancesMap)
-  );
+  const deserializeRelated = config.deserializeRelated
+    ?? ((context, related, instancesMap) => context.deserializer.deserializeRecord(
+      related,
+      context.context,
+      instancesMap,
+    ));
 
   const deserializeRelationValue = async (
     context: DeserializerContext<Record, Data, Deserialized, ModelRelation>,
@@ -212,6 +201,7 @@ You should either:
         forceFill(instance, { [key]: newId });
       }
     };
+
     setInstanceId('id');
     setInstanceId('lid');
 
@@ -336,4 +326,4 @@ You should either:
   };
 
   return deserializer;
-}
+};

@@ -16,13 +16,13 @@ const LOGGER_LEVELS_WEIGHTS = {
 
 type LoggerLevel = keyof typeof LOGGER_LEVELS;
 
-function defaultLoggerLevel(): LoggerLevel | null {
+const defaultLoggerLevel = (): LoggerLevel | null => {
   if (IS_TEST) {
     return null;
   }
 
   return IS_DEV ? 'warn' : 'error';
-}
+};
 
 class Logger {
   public level: LoggerLevel | null = defaultLoggerLevel();

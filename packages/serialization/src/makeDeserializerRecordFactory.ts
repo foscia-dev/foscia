@@ -8,7 +8,7 @@ import {
 } from '@foscia/serialization/types';
 import { Arrayable, Awaitable, mapArrayable } from '@foscia/shared';
 
-export default function makeDeserializerRecordFactory<
+export default <
   Record,
   Data = unknown,
   Deserialized extends DeserializedData = DeserializedData,
@@ -25,7 +25,7 @@ export default function makeDeserializerRecordFactory<
     deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelRelation>,
     extract: Extract,
   ) => Awaitable<Arrayable<Record> | null | undefined>,
-): DeserializerRecordFactory<Record, Data, Deserialized, Extract> {
+): DeserializerRecordFactory<Record, Data, Deserialized, Extract> => {
   const factory = async (
     extract: Extract,
     record: Record,
@@ -50,4 +50,4 @@ export default function makeDeserializerRecordFactory<
   });
 
   return factory;
-}
+};

@@ -27,7 +27,7 @@ import {
 import clearEndpoint from '@foscia/http/utilities/clearEndpoint';
 import { Dictionary, isNil, optionalJoin, sequentialTransform } from '@foscia/shared';
 
-export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfig<Data>) {
+export default <Data = any>(config: HttpAdapterConfig<Data>) => {
   const transformRequest = (
     contextConfig: HttpRequestConfig,
     request: Request,
@@ -63,22 +63,14 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
   );
 
   const makeResponseError = (request: Request, response: Response) => {
-    switch (true) {
-      case response.status >= 500:
-        return new HttpServerError(request, response);
-      case response.status === 401:
-        return new HttpUnauthorizedError(request, response);
-      case response.status === 403:
-        return new HttpForbiddenError(request, response);
-      case response.status === 404:
-        return new HttpNotFoundError(request, response);
-      case response.status === 409:
-        return new HttpConflictError(request, response);
-      case response.status === 429:
-        return new HttpTooManyRequestsError(request, response);
-      default:
-        return new HttpInvalidRequestError(request, response);
-    }
+    if (response.status >= 500) return new HttpServerError(request, response);
+    if (response.status === 401) return new HttpUnauthorizedError(request, response);
+    if (response.status === 403) return new HttpForbiddenError(request, response);
+    if (response.status === 404) return new HttpNotFoundError(request, response);
+    if (response.status === 409) return new HttpConflictError(request, response);
+    if (response.status === 429) return new HttpTooManyRequestsError(request, response);
+
+    return new HttpInvalidRequestError(request, response);
   };
 
   const makeRequestEndpoint = (context: {}, contextConfig: HttpRequestConfig) => {
@@ -184,14 +176,12 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
     config.serializeParams(await (config.appendParams ?? (() => ({})))(context)),
   ], '&');
 
-  const makeRequestURL = async (context: {}, contextConfig: HttpRequestConfig) => optionalJoin([
-    makeRequestEndpoint(context, contextConfig),
-    await makeRequestQuery(context, contextConfig),
-  ], '?');
-
   const makeRequest = async (context: {}, contextConfig: HttpRequestConfig) => (
     contextConfig.request ?? new Request(
-      await makeRequestURL(context, contextConfig),
+      optionalJoin([
+        makeRequestEndpoint(context, contextConfig),
+        await makeRequestQuery(context, contextConfig),
+      ], '?'),
       await makeRequestInit(context, contextConfig),
     )
   );
@@ -226,4 +216,4 @@ export default function makeHttpAdapterWith<Data = any>(config: HttpAdapterConfi
   };
 
   return { execute } as HttpAdapter<Data>;
-}
+};

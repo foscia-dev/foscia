@@ -11,13 +11,11 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Enhancers
  */
-function onSuccess<C extends {}>(
+const onSuccess = <C extends {}>(
   callback: (event: { context: C; result: unknown; }) => Awaitable<unknown>,
-) {
-  return (action: Action<C>) => {
-    registerHook(action, 'success', callback as any);
-  };
-}
+) => (action: Action<C>) => {
+  registerHook(action, 'success', callback as any);
+};
 
 export default /* @__PURE__ */ appendExtension(
   'onSuccess',

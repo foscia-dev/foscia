@@ -2,13 +2,11 @@ import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
 import configureRequest from '@foscia/http/actions/context/enhancers/configureRequest';
 import { HttpRequestConfig } from '@foscia/http/types';
 
-function decomposeURL(pathOrBaseURL: string) {
-  if (/^(\/|(https?|s?ftp):)/.test(pathOrBaseURL)) {
-    return { baseURL: pathOrBaseURL };
-  }
-
-  return { path: pathOrBaseURL };
-}
+const decomposeURL = (pathOrBaseURL: string) => (
+  /^(\/|(https?|s?ftp):)/.test(pathOrBaseURL)
+    ? { baseURL: pathOrBaseURL }
+    : { path: pathOrBaseURL }
+);
 
 /**
  * Prepare a generic HTTP request.
@@ -20,12 +18,10 @@ function decomposeURL(pathOrBaseURL: string) {
  *
  * @category Enhancers
  */
-function makeRequest(
+const makeRequest = (
   pathOrBaseURL: string,
   config?: HttpRequestConfig,
-) {
-  return configureRequest({ ...decomposeURL(pathOrBaseURL), ...config });
-}
+) => configureRequest({ ...decomposeURL(pathOrBaseURL), ...config });
 
 export default /* @__PURE__ */ appendExtension(
   'makeRequest',

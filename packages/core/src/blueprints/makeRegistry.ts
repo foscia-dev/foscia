@@ -3,13 +3,13 @@ import { MapRegistryConfig, MapRegistryModelsRegistration } from '@foscia/core/r
 
 type RegistryConfig = Partial<MapRegistryConfig>;
 
-export default function makeRegistry(
+export default (
   models: MapRegistryModelsRegistration,
   config: RegistryConfig = {},
-) {
+) => {
   const registry = makeMapRegistryWith(config);
 
   registry.register(models);
 
   return { registry };
-}
+};

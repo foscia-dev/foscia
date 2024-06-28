@@ -9,12 +9,12 @@ import { Action, WithParsedExtension } from '@foscia/core/actions/types';
  *
  * @category Enhancers
  */
-function context<NC extends {}>(contextToMerge: NC) {
-  return async <C extends {}>(action: Action<C>) => action.updateContext({
-    ...await action.useContext(),
-    ...contextToMerge,
-  });
-}
+const context = <NC extends {}>(
+  contextToMerge: NC,
+) => async <C extends {}>(action: Action<C>) => action.updateContext({
+  ...await action.useContext(),
+  ...contextToMerge,
+});
 
 export default /* @__PURE__ */ appendExtension(
   'context',

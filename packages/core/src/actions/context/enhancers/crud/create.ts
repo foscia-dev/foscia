@@ -31,59 +31,34 @@ import {
  * Prepare context for an instance creation.
  *
  * @param instance
- *
- * @category Enhancers
- */
-function create<
-  C extends {},
-  E extends {},
-  D extends {},
-  I extends ModelInstance<D>,
-  Record,
-  Related,
-  Data,
->(
-  instance: ModelClassInstance<D> & I,
-  // eslint-disable-next-line max-len
-): ContextEnhancer<C & ConsumeSerializer<Record, Related, Data>, E, C & ConsumeModel<Model<D, I>> & ConsumeInstance<I>>;
-
-/**
- * Prepare context for an instance creation through another instance relation.
- *
  * @param throughInstance
  * @param throughRelation
- * @param instance
  *
  * @category Enhancers
  */
-function create<
-  C extends {},
-  E extends {},
-  D extends {},
-  RD extends ModelSchemaRelations<D>,
-  I extends ModelInstance<D>,
-  K extends keyof ModelSchema<D> & keyof RD & string,
-  RI extends InferConsumedInstance<ConsumeRelation<RD[K]>>,
-  Record,
-  Related,
-  Data,
->(
-  instance: RI,
-  throughInstance: ModelClassInstance<D> & I,
-  throughRelation: ModelRelationKey<D> & K,
-  // eslint-disable-next-line max-len
-): ContextEnhancer<C & ConsumeSerializer<Record, Related, Data>, E, C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeInstance<RI> & ConsumeId>;
-
-/**
- * Prepare context for an instance creation.
- *
- * @param throughInstance
- * @param throughRelation
- * @param instance
- *
- * @category Enhancers
- */
-function create<
+const create: {
+  <C extends {}, E extends {}, D extends {}, I extends ModelInstance<D>, Record, Related, Data>(
+    instance: ModelClassInstance<D> & I,
+    // eslint-disable-next-line max-len
+  ): ContextEnhancer<C & ConsumeSerializer<Record, Related, Data>, E, C & ConsumeModel<Model<D, I>> & ConsumeInstance<I>>;
+  <
+    C extends {},
+    E extends {},
+    D extends {},
+    RD extends ModelSchemaRelations<D>,
+    I extends ModelInstance<D>,
+    K extends keyof ModelSchema<D> & keyof RD & string,
+    RI extends InferConsumedInstance<ConsumeRelation<RD[K]>>,
+    Record,
+    Related,
+    Data,
+  >(
+    instance: RI,
+    throughInstance: ModelClassInstance<D> & I,
+    throughRelation: ModelRelationKey<D> & K,
+    // eslint-disable-next-line max-len
+  ): ContextEnhancer<C & ConsumeSerializer<Record, Related, Data>, E, C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeInstance<RI> & ConsumeId>;
+} = <
   C extends {},
   E extends {},
   D extends {},
@@ -98,24 +73,23 @@ function create<
   instance: (ModelClassInstance<D> & I) | RI,
   throughInstance?: ModelClassInstance<D> & I,
   throughRelation?: ModelRelationKey<D> & K,
-) {
-  return (action: Action<C & ConsumeSerializer<Record, Related, Data>, E>) => action
-    .use(query(throughInstance ?? instance, throughRelation as any))
-    .use(context({
-      action: ActionName.CREATE,
-      instance,
-      // Rewrite ID when creating through another record.
-      id: throughInstance ? (throughInstance as ModelInstance).id : undefined,
-    }))
-    .use(instanceData(instance))
-    .use(onRunning(() => runHooks(instance.$model, ['creating', 'saving'], instance)))
-    .use(onSuccess(async () => {
-      // eslint-disable-next-line no-param-reassign
-      instance.$exists = true;
-      markSynced(instance);
-      await runHooks(instance.$model, ['created', 'saved'], instance);
-    }));
-}
+) => (action: Action<C & ConsumeSerializer<Record, Related, Data>, E>) => action.use(
+  query(throughInstance ?? instance, throughRelation as any),
+  context({
+    action: ActionName.CREATE,
+    instance,
+    // Rewrite ID when creating through another record.
+    id: throughInstance ? (throughInstance as ModelInstance).id : undefined,
+  }),
+  instanceData(instance),
+  onRunning(() => runHooks(instance.$model, ['creating', 'saving'], instance)),
+  onSuccess(async () => {
+    // eslint-disable-next-line no-param-reassign
+    instance.$exists = true;
+    markSynced(instance);
+    await runHooks(instance.$model, ['created', 'saved'], instance);
+  }),
+);
 
 export default /* @__PURE__ */ appendExtension(
   'create',

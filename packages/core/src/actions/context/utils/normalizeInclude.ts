@@ -3,10 +3,10 @@ import guessContextModel from '@foscia/core/actions/context/guessers/guessContex
 import logger from '@foscia/core/logger/logger';
 import normalizeDotRelations from '@foscia/core/normalization/normalizeDotRelations';
 
-export default async function normalizeInclude(
+export default async (
   context: {},
   include: string[],
-) {
+) => {
   const model = await guessContextModel(context);
   if (model) {
     const registry = await consumeRegistry(context, null);
@@ -19,4 +19,4 @@ export default async function normalizeInclude(
   );
 
   return include;
-}
+};

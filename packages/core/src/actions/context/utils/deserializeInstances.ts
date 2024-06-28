@@ -8,9 +8,9 @@ export type DeserializedDataOf<I extends ModelInstance, DD extends DeserializedD
   instances: I[];
 } & Omit<DD, 'instances'>;
 
-export default async function deserializeInstances<
+export default async <
   C extends {}, Data, Deserialized extends DeserializedData = DeserializedData,
->(action: Action<C & ConsumeDeserializer<NonNullable<Data>, Deserialized>>, data: Data) {
+>(action: Action<C & ConsumeDeserializer<NonNullable<Data>, Deserialized>>, data: Data) => {
   if (isNil(data)) {
     return { instances: [] };
   }
@@ -19,4 +19,4 @@ export default async function deserializeInstances<
   const deserializer = await consumeDeserializer(context);
 
   return deserializer.deserialize(data!, context);
-}
+};

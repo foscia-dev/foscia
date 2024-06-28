@@ -9,9 +9,7 @@ import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
  *
  * @category Enhancers
  */
-function sortByDesc(...keys: ArrayableVariadic<string>) {
-  return sortBy(wrapVariadic(...keys), 'desc');
-}
+const sortByDesc = (...keys: ArrayableVariadic<string>) => sortBy(wrapVariadic(...keys), 'desc');
 
 export default /* @__PURE__ */ appendExtension(
   'sortByDesc',
