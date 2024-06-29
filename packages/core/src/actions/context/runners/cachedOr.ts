@@ -11,6 +11,7 @@ import {
   ContextRunner,
   WithParsedExtension,
 } from '@foscia/core/actions/types';
+import logger from '@foscia/core/logger/logger';
 import filled from '@foscia/core/model/filled';
 import loaded from '@foscia/core/model/relations/loaded';
 import { Model, ModelInstance } from '@foscia/core/model/types';
@@ -44,16 +45,27 @@ const cachedOr = <
   action: Action<C & ConsumeCache & ConsumeModel<M> & ConsumeInclude & ConsumeId, E>,
 ) => {
   const context = await action.useContext();
+  const model = consumeModel(context);
   const id = consumeId(context);
   const cache = await consumeCache(context);
-  const instance = !isNil(id)
-    ? await cache.find(consumeModel(context).$type, id)
-    : null;
-  if (isNil(instance) || !filled(instance) || !loaded(instance, context.include ?? [])) {
-    return action.run(nilRunner);
+  if (!isNil(id)) {
+    const instance = await cache.find(model.$type, id);
+    if (!isNil(instance)) {
+      if (filled(instance) && loaded(instance, context.include ?? [])) {
+        return (transform ? transform({ instance: instance as I }) : instance) as ND;
+      }
+
+      logger.debug(
+        `Record matching \`${model.$type}:${id}\` found in cache, but missing attributes or relations.`,
+      );
+    } else {
+      logger.debug(`No record matching \`${model.$type}:${id}\` found in cache.`);
+    }
+  } else {
+    logger.warn('`cachedOr` has no effect when context ID is null or undefined.');
   }
 
-  return (transform ? transform({ instance: instance as I }) : instance) as ND;
+  return action.run(nilRunner);
 };
 
 export default /* @__PURE__ */ appendExtension(
