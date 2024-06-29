@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.11.3](https://github.com/foscia-dev/foscia/compare/v0.11.2...v0.11.3) (2024-06-29)
+
+
+### Bug Fixes
+
+* **jsonapi:** convert models path to kebab case as default ([72cee5c](https://github.com/foscia-dev/foscia/commit/72cee5c1b08bc6feeb469e60a28331d3df9dd701))
+* **serialization:** use correct option to serialize relation ([6590c20](https://github.com/foscia-dev/foscia/commit/6590c20b8b3465cf7af211f85cc6f483b26b447b))
+
+
+### Features
+
+* **core:** add `run` variadic call to actions ([00667ba](https://github.com/foscia-dev/foscia/commit/00667bacefa68060485ec6a0a3329289e2b378c8))
+* **core:** add logs to `cachedOr` ([7b5c5b5](https://github.com/foscia-dev/foscia/commit/7b5c5b54f97723e834be4097bad50fa7411cf1bf))
+* **http:** add models path transformer options ([0939d80](https://github.com/foscia-dev/foscia/commit/0939d8053d12dc5268e2b72f01dba82484f484a8))
+
 ## [0.11.2](https://github.com/foscia-dev/foscia/compare/v0.11.1...v0.11.2) (2024-06-25)
 
 
