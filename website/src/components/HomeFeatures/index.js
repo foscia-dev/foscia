@@ -29,17 +29,17 @@ function HomeActionsPresentation() {
   </>;
 
   const example = `
-const posts = await action()
-  .use(query(Post), include('author'))
-  .run(all());
+const posts = await action().run(
+  query(Post),
+  include('author'),
+  all(),
+);
 
 const post = fill(new Post(), {
   title: 'Hello World!',
 });
 
-await action()
-  .use(create(post))
-  .run(one());
+await action().run(create(post), one());
   `.trim();
 
   return <HomeCard
