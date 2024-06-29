@@ -22,7 +22,7 @@ async function run(argv) {
     const options = {
       stat: args.stat || false,
       minify: args.minify || false,
-      noSourceMap: args.nosource || false,
+      sourceMap: args.sourcemap || false,
       noDts: args.nodts || false,
     };
 
@@ -113,7 +113,7 @@ async function buildTarget(target, options) {
     '-c',
     '--silent',
     '--environment',
-    `TARGET:${target},${options.noSourceMap ? '' : 'SOURCE_MAP:true'},${options.minify ? 'MINIFY:true' : ''}`,
+    `TARGET:${target},${options.sourceMap ? 'SOURCE_MAP:true' : ''},${options.minify ? 'MINIFY:true' : ''}`,
   ]}`;
 }
 
