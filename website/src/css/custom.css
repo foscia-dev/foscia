@@ -21,6 +21,8 @@
     --ifm-alert-border-left-width: 0px;
     --ifm-navbar-shadow: none;
     --ifm-navbar-height: 76px;
+    --ifm-navbar-item-padding-vertical: 0.25rem;
+    --ifm-navbar-item-padding-horizontal: 0.5rem;
 
     --ifm-background-color: #ffffff;
     --ifm-background-surface-color: #fef7fa;
@@ -415,6 +417,11 @@ details > div > div > :last-child {
 
 .navbar .navbar-sidebar {
     z-index: 2;
+}
+
+.navbar .navbar__item {
+    font-size: 0.875rem;
+    letter-spacing: 0.01rem;
 }
 
 div[class^="announcementBar"] {

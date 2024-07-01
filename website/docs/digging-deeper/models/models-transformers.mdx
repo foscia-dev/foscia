@@ -160,16 +160,15 @@ export default () => makeTransformer((value: string) => Number(value));
 ```typescript title="transformers/toDateTime.ts"
 import { makeTransformer } from '@foscia/core';
 
-export default () =>
-  makeTransformer(
-    (value: string) => {
-      const date = new Date();
-      date.setTime(Date.parse(value));
+export default () => makeTransformer(
+  (value: string) => {
+    const date = new Date();
+    date.setTime(Date.parse(value));
 
-      return date;
-    },
-    (value: Date) => value.toISOString(),
-  );
+    return date;
+  },
+  (value: Date) => value.toISOString(),
+);
 ```
 
 The return value of `makeTransformer` is a transformer object.

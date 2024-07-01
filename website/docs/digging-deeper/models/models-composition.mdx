@@ -107,7 +107,7 @@ timestamp for every record.
 import { attr, makeComposable, onSaving } from '@foscia/core';
 
 export default makeComposable({
-  timestamps: attr().default(true).sync(false),
+  timestamps: true,
   createdAt: attr(toDateTime()),
   updatedAt: attr(toDateTime()),
 }, {
