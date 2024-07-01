@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.4](https://github.com/foscia-dev/foscia/compare/v0.11.3...v0.11.4) (2024-07-01)
+
+
+### Bug Fixes
+
+* **core:** composition this typing ([e4ac5fd](https://github.com/foscia-dev/foscia/commit/e4ac5fd992ebcf25f2437d8a01bf65833a4cae09))
+
 ## [0.11.3](https://github.com/foscia-dev/foscia/compare/v0.11.2...v0.11.3) (2024-06-29)
 
 

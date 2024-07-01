@@ -150,76 +150,76 @@ importers:
   packages/core:
     dependencies:
       '@foscia/shared':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
 
   packages/http:
     dependencies:
       '@foscia/core':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
       '@foscia/shared':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
 
   packages/jsonapi:
     dependencies:
       '@foscia/core':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
       '@foscia/http':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
       '@foscia/rest':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
       '@foscia/serialization':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
       '@foscia/shared':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
       '@foscia/test':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
 
   packages/rest:
     dependencies:
       '@foscia/core':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
       '@foscia/http':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
       '@foscia/serialization':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
       '@foscia/shared':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
       '@foscia/test':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
 
   packages/serialization:
     dependencies:
       '@foscia/core':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
       '@foscia/shared':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
 
   packages/shared: {}
 
   packages/test:
     dependencies:
       '@foscia/core':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
       '@foscia/shared':
-        specifier: 0.11.3
-        version: 0.11.3
+        specifier: 0.11.4
+        version: 0.11.4
 
   website:
     dependencies:
@@ -1411,23 +1411,23 @@ packages:
   '@fontsource/fira-mono@5.0.13':
     resolution: {integrity: sha512-fZDjR2BdAqmauEbTjcIT62zYzbOgDa5+IQH34D2k8Pxmy1T815mAqQkZciWZVQ9dc/BgdTtTUV9HJ2ulBNwchg==}
 
-  '@foscia/core@0.11.3':
-    resolution: {integrity: sha512-AyHeR6y5DfA9jjyRCnbzi6chWYWqj5ITn20iLLyEhd7gwbmbf/XmdPWvjIlWTJSscvEifLVk8xZZgD1CTQQzUg==}
+  '@foscia/core@0.11.4':
+    resolution: {integrity: sha512-tQ+oRQ0IFOPku+8Nt98JqrEreI8lvPjTidyMaf0NeoucgXC+/4ngREwL7ZTfOaAsS4qqcKbICA1AQSSMA7Iaog==}
 
-  '@foscia/http@0.11.3':
-    resolution: {integrity: sha512-rFYkBaEfPFvayaq30LfKhhlisbpz/qXEKhvm4+MT6V43mXcM2X2GuWyzteBW5Fo1g+BClhLc3t2nWO6bG2iH2w==}
+  '@foscia/http@0.11.4':
+    resolution: {integrity: sha512-bIj1HB2+977X52Tx+70K/ggJjgrjree+b812xDK79V7HKe0Ia6s+D78qPknTPojUiHDPkPi2D0m+ORrxKs/2DA==}
 
-  '@foscia/rest@0.11.3':
-    resolution: {integrity: sha512-ntgIFmKZOdAO49PvxOhiZ86F60qa1ULPJi6ldcXNpbYBYZUKFEgPjRT5fNL+hxW/iVTlhgSH81vCR+0HgI6fmg==}
+  '@foscia/rest@0.11.4':
+    resolution: {integrity: sha512-fL7ORN9wXx44xjIP6qzzCuH4yb6pVWoV1+0ihFFY6APvqiHgKMy4iISmRTr/40sPJ8rKQgSU13vl5zj8i1htrA==}
 
-  '@foscia/serialization@0.11.3':
-    resolution: {integrity: sha512-dOWF52A8WRDV1DfM/3ZLMRVc1hcF6XmkJ4Z1jsUx+LC4LU0kO24v2eR4votpyXujsuxWboAk16KoZfC/tCAvUA==}
+  '@foscia/serialization@0.11.4':
+    resolution: {integrity: sha512-bkfqZMKfwdhPKgaM+oOIwlJBA68hpIa34kTSbHC5ygknmAWfmzoIcCtXBXvZc4PZGsk6QHim2beXY2Ai+ZTyBg==}
 
-  '@foscia/shared@0.11.3':
-    resolution: {integrity: sha512-Frny7wzwKpWCyWMs0/Gg9awhGgHmQY7+W9uYmJdkvTtXLGRvqnjbRddjQ0OQhfSU6k1q0oBUHo+UTu2PLp/Qkw==}
+  '@foscia/shared@0.11.4':
+    resolution: {integrity: sha512-iQjBbfEmBcFEDEiM78xlIHvO/SwtNoIrdhZGDlt1yyxC2X9UmUReKJDjUThIBEaopdmJO6GS04bIkzHbVixqUA==}
 
-  '@foscia/test@0.11.3':
-    resolution: {integrity: sha512-Cc9QeyfdA/aS4y+4u0ZVzMhMpHN7VxDPbJAWsse6c/nPtxP9w7Iq7gB8H51BR36Jkvt0wqkpKbMzmlNLsextxQ==}
+  '@foscia/test@0.11.4':
+    resolution: {integrity: sha512-m+U9hHc27LjeblqD0Emrg4GlH/nXUvun71O+w6F1rKSlfjjUE8bjqaNJCicH9bxsU1Lc09w7gak0EZw1GaYMWw==}
 
   '@hapi/hoek@9.3.0':
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
@@ -8977,34 +8977,34 @@ snapshots:
 
   '@fontsource/fira-mono@5.0.13': {}
 
-  '@foscia/core@0.11.3':
+  '@foscia/core@0.11.4':
     dependencies:
-      '@foscia/shared': 0.11.3
+      '@foscia/shared': 0.11.4
 
-  '@foscia/http@0.11.3':
+  '@foscia/http@0.11.4':
     dependencies:
-      '@foscia/core': 0.11.3
-      '@foscia/shared': 0.11.3
+      '@foscia/core': 0.11.4
+      '@foscia/shared': 0.11.4
 
-  '@foscia/rest@0.11.3':
+  '@foscia/rest@0.11.4':
     dependencies:
-      '@foscia/core': 0.11.3
-      '@foscia/http': 0.11.3
-      '@foscia/serialization': 0.11.3
-      '@foscia/shared': 0.11.3
-      '@foscia/test': 0.11.3
+      '@foscia/core': 0.11.4
+      '@foscia/http': 0.11.4
+      '@foscia/serialization': 0.11.4
+      '@foscia/shared': 0.11.4
+      '@foscia/test': 0.11.4
 
-  '@foscia/serialization@0.11.3':
+  '@foscia/serialization@0.11.4':
     dependencies:
-      '@foscia/core': 0.11.3
-      '@foscia/shared': 0.11.3
+      '@foscia/core': 0.11.4
+      '@foscia/shared': 0.11.4
 
-  '@foscia/shared@0.11.3': {}
+  '@foscia/shared@0.11.4': {}
 
-  '@foscia/test@0.11.3':
+  '@foscia/test@0.11.4':
     dependencies:
-      '@foscia/core': 0.11.3
-      '@foscia/shared': 0.11.3
+      '@foscia/core': 0.11.4
+      '@foscia/shared': 0.11.4
 
   '@hapi/hoek@9.3.0': {}
 
