@@ -5,13 +5,18 @@ import {
   isModelUsing,
   makeComposable,
   makeModel,
-  onCreating, onDestroying, onUpdating,
+  onCreating,
+  onDestroying,
+  onUpdating,
+  runHooks,
+  toDate,
 } from '@foscia/core';
 import { describe, expect, it } from 'vitest';
 
 describe.concurrent('unit: composition', () => {
   it('should apply composables to models', () => {
     const foo = makeComposable({
+      foob: false,
       foo: attr(() => 'foo'),
     });
 
@@ -34,6 +39,7 @@ describe.concurrent('unit: composition', () => {
     }
 
     const model = new Model();
+    expect(model.foob).toStrictEqual(false);
     expect(model.foo).toStrictEqual('foo');
     expect(model.bar).toStrictEqual('bar');
     expect(model.baz).toStrictEqual('baz');
@@ -131,5 +137,33 @@ describe.concurrent('unit: composition', () => {
     expect(baz).toBeInstanceOf(FooModel);
     expect(baz).toBeInstanceOf(BarModel);
     expect(baz).toBeInstanceOf(BazModel);
+  });
+
+  it('should have common setup', async () => {
+    const timestampable = makeComposable({
+      timestamps: true,
+      createdAt: attr(toDate()),
+    }, {
+      boot: (model) => {
+        onCreating(model, (instance) => {
+          if (instance.timestamps) {
+            // eslint-disable-next-line no-param-reassign
+            instance.createdAt = new Date();
+          }
+        });
+      },
+    });
+
+    class Post extends makeModel('posts', { timestampable }) {
+    }
+
+    const post1 = new Post();
+    await runHooks(post1.$model, ['creating'], post1);
+    expect(post1.createdAt).toBeInstanceOf(Date);
+
+    const post2 = new Post();
+    post2.timestamps = false;
+    await runHooks(post2.$model, ['creating'], post2);
+    expect(post2.createdAt).toBeUndefined();
   });
 });
