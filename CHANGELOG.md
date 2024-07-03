@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.1](https://github.com/foscia-dev/foscia/compare/v0.12.0...v0.12.1) (2024-07-03)
+
+
+### Features
+
+* **core:** normalize IDs to string inside default cache implementation ([4de6033](https://github.com/foscia-dev/foscia/commit/4de6033f254d9e366b5cd29c99a5102a01a1a14a))
+
 ## [0.12.0](https://github.com/foscia-dev/foscia/compare/v0.11.4...v0.12.0) (2024-07-03)
 
 [**➜ Migration from 0.11.x to 0.12.x**](https://foscia.dev/docs/upgrade/migration#012x-from-011x)
