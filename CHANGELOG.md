@@ -2,6 +2,7 @@
 
 ## [0.12.0](https://github.com/foscia-dev/foscia/compare/v0.11.4...v0.12.0) (2024-07-03)
 
+[**➜ Migration from 0.11.x to 0.12.x**](https://foscia.dev/docs/upgrade/migration#012x-from-011x)
 
 ### Features
 
