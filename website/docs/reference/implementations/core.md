@@ -127,9 +127,10 @@ cache.find('posts', '1');
 
 #### Configuration
 
-| Name      | Type                                                                     | Description                                                      |
-|-----------|--------------------------------------------------------------------------|------------------------------------------------------------------|
-| `manager` | [`RefManager`](/docs/reference/api/@foscia/core/type-aliases/RefManager) | Create refs to instances and retrieve/expire those refs' values. |
+| Name          | Type                                                                     | Description                                                      |
+|---------------|--------------------------------------------------------------------------|------------------------------------------------------------------|
+| `manager`     | [`RefManager`](/docs/reference/api/@foscia/core/type-aliases/RefManager) | Create refs to instances and retrieve/expire those refs' values. |
+| `normalizeId` | <code>((id: ModelIdType) => ModelIdType) &vert; null</code>              | Normalize the type before registering or resolving models.       |
 
 #### Defined in
 
