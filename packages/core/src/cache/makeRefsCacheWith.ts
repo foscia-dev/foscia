@@ -11,21 +11,23 @@ import { makeIdentifiersMap } from '@foscia/shared';
 export default (config: RefsCacheConfig): RefsCache => {
   const instances = makeIdentifiersMap<string, ModelIdType, unknown>();
 
-  const forget = async (type: string, id: ModelIdType) => instances.forget(type, id);
+  const normalizeId = config.normalizeId ?? ((v) => v);
+
+  const forget = async (type: string, id: ModelIdType) => instances.forget(type, normalizeId(id));
 
   const forgetAll = async (type: string) => instances.forgetAll(type);
 
   const clear = async () => instances.clear();
 
   const find = async (type: string, id: ModelIdType) => {
-    const ref = instances.find(type, id);
+    const ref = instances.find(type, normalizeId(id));
     if (!ref) {
       return null;
     }
 
     const instance = await config.manager.value(ref);
     if (!instance) {
-      await forget(type, id);
+      await forget(type, normalizeId(id));
 
       return null;
     }
@@ -34,7 +36,7 @@ export default (config: RefsCacheConfig): RefsCache => {
   };
 
   const put = async (type: string, id: ModelIdType, instance: ModelInstance) => {
-    instances.put(type, id, await config.manager.ref(instance));
+    instances.put(type, normalizeId(id), await config.manager.ref(instance));
   };
 
   return {

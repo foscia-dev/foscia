@@ -7,6 +7,7 @@ type CacheConfig = Partial<RefsCacheConfig>;
 export default (config: CacheConfig = {}) => ({
   cache: makeRefsCacheWith({
     manager: weakRefManager,
+    normalizeId: (id) => String(id),
     ...config,
   }),
 });
