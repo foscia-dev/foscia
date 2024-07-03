@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.12.0](https://github.com/foscia-dev/foscia/compare/v0.11.4...v0.12.0) (2024-07-03)
+
+
+### Features
+
+* **core:** replace models setups with hooks ([b136fe1](https://github.com/foscia-dev/foscia/commit/b136fe1f9316d4b3424cbd4f1367e22cc06e2171))
+
+
+### BREAKING CHANGES
+
+* **core:** setup tasks objects and typings have been removed and
+replaced by `onBoot` and `onInit` hook registrer functions.
+
 ## [0.11.4](https://github.com/foscia-dev/foscia/compare/v0.11.3...v0.11.4) (2024-07-01)
 
 
