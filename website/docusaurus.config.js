@@ -127,7 +127,7 @@ const config = {
               ? `${process.env.VERSION} v${packageJson.version}`
               : `v${packageJson.version}`,
             to: '/docs/upgrade/changelog',
-            className: 'header-version-link button border--gradient',
+            className: 'header-version-link button',
           },
           {
             href: 'https://github.com/foscia-dev/foscia',
