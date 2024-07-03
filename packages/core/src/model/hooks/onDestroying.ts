@@ -1,8 +1,3 @@
-import registerHook from '@foscia/core/hooks/registerHook';
-import { Model, ModelInstance, ModelInstanceHookCallback } from '@foscia/core/model/types';
-import { Awaitable } from '@foscia/shared';
+import makeInstanceHook from '@foscia/core/model/hooks/makeInstanceHook';
 
-export default <I extends ModelInstance>(
-  model: Model<any, I>,
-  callback: (instance: I) => Awaitable<unknown>,
-) => registerHook(model, 'destroying', callback as ModelInstanceHookCallback);
+export default makeInstanceHook('destroying');

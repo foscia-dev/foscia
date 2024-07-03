@@ -5,6 +5,7 @@ import {
   isModelUsing,
   makeComposable,
   makeModel,
+  onBoot,
   onCreating,
   onDestroying,
   onUpdating,
@@ -63,9 +64,10 @@ describe.concurrent('unit: composition', () => {
       get getSomething() {
         return this.foo;
       },
-    }).setup({ boot: () => undefined }) {
+    }) {
     }
 
+    onBoot(FooModel, () => undefined);
     onCreating(FooModel, () => 'foo');
 
     const BarModel = FooModel.extend({
@@ -73,8 +75,9 @@ describe.concurrent('unit: composition', () => {
       get getSomething() {
         return this.bar;
       },
-    }).setup({ boot: () => undefined });
+    });
 
+    onBoot(BarModel, () => undefined);
     onUpdating(BarModel, () => undefined);
 
     class BazModel extends BarModel.extend({
@@ -82,20 +85,23 @@ describe.concurrent('unit: composition', () => {
       get getSomething() {
         return this.baz;
       },
-    }).setup({ boot: () => undefined }) {
+    }) {
     }
 
+    onBoot(BazModel, () => undefined);
     onDestroying(BazModel, () => undefined);
 
-    expect(Object.values(FooModel.$hooks!).length).toStrictEqual(1);
+    expect(Object.values(FooModel.$hooks!).length).toStrictEqual(2);
+    expect(FooModel.$hooks!.boot!.length).toStrictEqual(1);
     expect(FooModel.$hooks!.creating!.length).toStrictEqual(1);
-    expect(Object.values(BarModel.$hooks!).length).toStrictEqual(1);
+    expect(Object.values(BarModel.$hooks!).length).toStrictEqual(3);
+    expect(BarModel.$hooks!.boot!.length).toStrictEqual(2);
     expect(BarModel.$hooks!.updating!.length).toStrictEqual(1);
-    expect(Object.values(BazModel.$hooks!).length).toStrictEqual(1);
+    expect(Object.values(BazModel.$hooks!).length).toStrictEqual(4);
+    expect(BazModel.$hooks!.boot!.length).toStrictEqual(3);
+    expect(FooModel.$hooks!.creating!.length).toStrictEqual(1);
+    expect(BarModel.$hooks!.updating!.length).toStrictEqual(1);
     expect(BazModel.$hooks!.destroying!.length).toStrictEqual(1);
-    expect(FooModel.$setup.boot.length).toStrictEqual(1);
-    expect(BarModel.$setup.boot.length).toStrictEqual(2);
-    expect(BazModel.$setup.boot.length).toStrictEqual(3);
 
     const base = new BaseModel();
     // @ts-expect-error property does not exist
@@ -139,19 +145,17 @@ describe.concurrent('unit: composition', () => {
     expect(baz).toBeInstanceOf(BazModel);
   });
 
-  it('should have common setup', async () => {
+  it('should have common hooks', async () => {
     const timestampable = makeComposable({
       timestamps: true,
       createdAt: attr(toDate()),
-    }, {
-      boot: (model) => {
-        onCreating(model, (instance) => {
-          if (instance.timestamps) {
-            // eslint-disable-next-line no-param-reassign
-            instance.createdAt = new Date();
-          }
-        });
-      },
+    });
+
+    onCreating(timestampable, (instance) => {
+      if (instance.timestamps) {
+        // eslint-disable-next-line no-param-reassign
+        instance.createdAt = new Date();
+      }
     });
 
     class Post extends makeModel('posts', { timestampable }) {

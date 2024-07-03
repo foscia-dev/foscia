@@ -12,7 +12,6 @@ import {
 } from '@foscia/core/symbols';
 import { ObjectTransformer } from '@foscia/core/transformers/types';
 import {
-  Arrayable,
   Awaitable,
   Constructor,
   DescriptorHolder,
@@ -44,40 +43,14 @@ export type ModelConfig = {
 };
 
 /**
- * Callback run after the model factory tasks (definition parsing, etc.).
- */
-export type ModelBootCallback<D extends {}> = (model: Model<D, ModelInstance<D>>) => void;
-
-/**
- * Callback run after the model constructor tasks (properties setup, etc.).
- */
-export type ModelInitCallback<D extends {}> = (instance: ModelInstance<D>) => void;
-
-/**
- * Raw model setup configuration.
- */
-export type ModelRawSetup<D extends {} = any> = {
-  boot?: Arrayable<ModelBootCallback<D>>;
-  init?: Arrayable<ModelInitCallback<D>>;
-};
-
-/**
- * Parsed model setup configuration.
- */
-export type ModelSetup<D extends {} = any> = {
-  boot: ModelBootCallback<D>[];
-  init: ModelInitCallback<D>[];
-};
-
-/**
  * Model composable definition which can be included on any models.
  */
 export type ModelComposable<D extends {} = any> =
   & {
     $definition: D;
-    $setup: ModelSetup<D>;
   }
-  & FosciaObject<typeof SYMBOL_MODEL_COMPOSABLE>;
+  & FosciaObject<typeof SYMBOL_MODEL_COMPOSABLE>
+  & Hookable<ModelHooksDefinition>;
 
 /**
  * Model instance ID default typing.
@@ -260,6 +233,8 @@ export type ModelSchemaRelations<D extends {} = {}> = {
 
 /**
  * Model instance generic hook callback function.
+ *
+ * @deprecated Use `HookCallback<ModelInstance>` instead.
  */
 export type ModelInstanceHookCallback = HookCallback<ModelInstance>;
 
@@ -287,15 +262,17 @@ export type ModelInstancePropertyWriteHookCallback = SyncHookCallback<{
  */
 export type ModelHooksDefinition =
   & {
-    retrieved: ModelInstanceHookCallback;
-    creating: ModelInstanceHookCallback;
-    created: ModelInstanceHookCallback;
-    updating: ModelInstanceHookCallback;
-    updated: ModelInstanceHookCallback;
-    saving: ModelInstanceHookCallback;
-    saved: ModelInstanceHookCallback;
-    destroying: ModelInstanceHookCallback;
-    destroyed: ModelInstanceHookCallback;
+    boot: SyncHookCallback<Model>;
+    init: SyncHookCallback<ModelInstance>;
+    retrieved: HookCallback<ModelInstance>;
+    creating: HookCallback<ModelInstance>;
+    created: HookCallback<ModelInstance>;
+    updating: HookCallback<ModelInstance>;
+    updated: HookCallback<ModelInstance>;
+    saving: HookCallback<ModelInstance>;
+    saved: HookCallback<ModelInstance>;
+    destroying: HookCallback<ModelInstance>;
+    destroyed: HookCallback<ModelInstance>;
     'property:reading': ModelInstancePropertyReadHookCallback;
     'property:read': ModelInstancePropertyReadHookCallback;
     'property:writing': ModelInstancePropertyWriteHookCallback;
@@ -315,7 +292,7 @@ export type ModelClass<D extends {} = any> =
     readonly $config: ModelConfig;
     readonly $schema: ModelSchema<D>;
     readonly $composables: ModelComposable[];
-    readonly $setup: ModelSetup;
+    $booted: boolean;
   }
   & FosciaObject<typeof SYMBOL_MODEL_CLASS>
   & Hookable<ModelHooksDefinition>;
@@ -340,14 +317,25 @@ export type ModelUsing<C extends ModelComposable> =
 export type ExtendableModel<D extends {} = any, I extends ModelInstance<D> = any> =
   & {
     configure(config: ModelConfig, override?: boolean): ExtendableModel<D, ModelInstance<D>>;
-    setup(rawSetup: ModelRawSetup<D>): ExtendableModel<D, ModelInstance<D>>;
     extend<ND extends {} = {}>(
       // eslint-disable-next-line max-len
-      rawDefinition?: ND & ThisType<ModelInstance<ModelFlattenDefinition<D & ModelParsedDefinition<ND>>>>,
+      rawDefinition?: ND & ThisType<ModelInstance<D & ModelFlattenDefinition<ModelParsedDefinition<ND>>>>,
       // eslint-disable-next-line max-len
-    ): ExtendableModel<ModelFlattenDefinition<D & ModelParsedDefinition<ND>>, ModelInstance<ModelFlattenDefinition<D & ModelParsedDefinition<ND>>>>;
+    ): ExtendableModel<D & ModelFlattenDefinition<ModelParsedDefinition<ND>>, ModelInstance<D & ModelFlattenDefinition<ModelParsedDefinition<ND>>>>;
   }
   & Model<D, I>;
+
+/**
+ * Model class factory.
+ */
+export type ModelFactory<
+  D extends {} = {},
+> = Hookable<ModelHooksDefinition> & (<ND extends {}>(
+  rawConfig: string | (ModelConfig & { type: string; }),
+  // eslint-disable-next-line max-len
+  rawDefinition?: ND & ThisType<ModelInstance<D & ModelFlattenDefinition<ModelParsedDefinition<ND>>>>,
+  // eslint-disable-next-line max-len
+) => ExtendableModel<D & ModelFlattenDefinition<ModelParsedDefinition<ND>>, ModelInstance<D & ModelFlattenDefinition<ModelParsedDefinition<ND>>>>);
 
 /**
  * Model instance for a dedicated model class.

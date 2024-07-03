@@ -20,9 +20,7 @@ export default function renderModelFactory(
   const modelFactory = `
 makeModelFactory({
 ${toIndent(config, '// TODO Write configuration.')}
-}, ${modelDef}, {
-${toIndent(config, '// TODO Write setup.')}
-})
+}, ${modelDef})
 `.trim();
 
   imports.add('makeModelFactory', '@foscia/core');

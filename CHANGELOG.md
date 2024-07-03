@@ -38,6 +38,8 @@
 
 ## [0.11.0](https://github.com/foscia-dev/foscia/compare/v0.9.3...v0.11.0) (2024-06-24)
 
+[**➜ Migration from 0.9.x to 0.11.x**](https://foscia.dev/docs/upgrade/migration#011x-from-09x)
+
 ### Bug Fixes
 
 * package exports definition in package.json ([b026e47](https://github.com/foscia-dev/foscia/commit/b026e478262634273d53419a7811570b2b15b1e6))
@@ -93,7 +95,7 @@ been removed in favor of `appendExtension` function.
 
 ## [0.9.0](https://github.com/foscia-dev/foscia/compare/v0.8.7...v0.9.0) (2024-06-16)
 
-[**Migration from 0.8.x to 0.9.x**](https://foscia.dev/docs/upgrade/migration#09x-from-08x)
+[**➜ Migration from 0.8.x to 0.9.x**](https://foscia.dev/docs/upgrade/migration#09x-from-08x)
 
 ### Features
 
@@ -183,7 +185,7 @@ been removed in favor of `appendExtension` function.
 
 ## [0.8.0](https://github.com/foscia-dev/foscia/compare/v0.7.2...v0.8.0) (2024-04-11)
 
-[**Migration from 0.7.x to 0.8.x**](https://foscia.dev/docs/upgrade/migration#08x-from-07x)
+[**➜ Migration from 0.7.x to 0.8.x**](https://foscia.dev/docs/upgrade/migration#08x-from-07x)
 
 ### Bug Fixes
 
@@ -230,7 +232,7 @@ been removed in favor of `appendExtension` function.
 
 ## [0.7.0](https://github.com/foscia-dev/foscia/compare/v0.6.3...v0.7.0) (2024-02-06)
 
-[**Migration from 0.6.x to 0.7.x**](https://foscia.dev/docs/upgrade/migration#07x-from-06x)
+[**➜ Migration from 0.6.x to 0.7.x**](https://foscia.dev/docs/upgrade/migration#07x-from-06x)
 
 ### Features
 

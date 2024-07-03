@@ -1,49 +1,34 @@
 import makeModelClass from '@foscia/core/model/makeModelClass';
-import makeModelSetup from '@foscia/core/model/makeModelSetup';
 import {
-  ExtendableModel,
-  ModelConfig,
+  ModelConfig, ModelFactory,
   ModelFlattenDefinition,
   ModelInstance,
   ModelParsedDefinition,
-  ModelRawSetup,
 } from '@foscia/core/model/types';
 
-export default <ND extends {} = {}>(
+export default <D extends {} = {}>(
   baseConfig?: ModelConfig,
   // eslint-disable-next-line max-len
-  baseRawDefinition?: ND & ThisType<ModelInstance<ModelFlattenDefinition<ModelParsedDefinition<ND>>>>,
-  baseRawSetup?: ModelRawSetup<ModelFlattenDefinition<ModelParsedDefinition<ND>>>,
+  baseRawDefinition?: D & ThisType<ModelInstance<ModelFlattenDefinition<ModelParsedDefinition<D>>>>,
 ) => {
-  const baseSetup = makeModelSetup(baseRawSetup);
-
-  return <D extends {} = {}>(
+  const factory = (
     rawConfig: string | (ModelConfig & { type: string; }),
-    // eslint-disable-next-line max-len
-    rawDefinition?: D & ThisType<ModelInstance<ModelFlattenDefinition<ModelParsedDefinition<ND & D>>>>,
-    rawSetup?: ModelRawSetup<ModelFlattenDefinition<ModelParsedDefinition<ND & D>>>,
+    rawDefinition?: object,
   ) => {
-    const setup = makeModelSetup(rawSetup);
-
     const { type, ...config } = typeof rawConfig === 'string'
       ? { type: rawConfig }
       : rawConfig;
 
-    return makeModelClass(
-      type,
-      {
-        ...baseConfig,
-        ...config,
-      },
-      {
-        boot: [...baseSetup.boot, ...setup.boot],
-        init: [...baseSetup.init, ...setup.init],
-      },
-      {
-        ...baseRawDefinition,
-        ...rawDefinition,
-      },
-      // eslint-disable-next-line max-len
-    ) as ExtendableModel<ModelFlattenDefinition<ModelParsedDefinition<ND & D>>, ModelInstance<ModelFlattenDefinition<ModelParsedDefinition<ND & D>>>>;
+    return makeModelClass(type, {
+      ...baseConfig,
+      ...config,
+    }, factory.$hooks, {
+      ...baseRawDefinition,
+      ...rawDefinition,
+    });
   };
+
+  factory.$hooks = {};
+
+  return factory as ModelFactory<ModelFlattenDefinition<ModelParsedDefinition<D>>>;
 };

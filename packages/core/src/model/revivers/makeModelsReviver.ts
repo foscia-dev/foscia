@@ -7,7 +7,7 @@ import {
   ReducedModelSnapshot,
 } from '@foscia/core/model/revivers/types';
 import { Model, ModelInstance, ModelSnapshot } from '@foscia/core/model/types';
-import { Dictionary } from '@foscia/shared';
+import { Dictionary, mapWithKeys } from '@foscia/shared';
 
 export default (options: { models: Model[]; }) => {
   let reviveInstance: (
@@ -57,12 +57,10 @@ export default (options: { models: Model[]; }) => {
     return value;
   };
 
-  const reviveValues = (values: Dictionary, parents: Map<string, ModelInstance>) => Object
-    .entries(values)
-    .reduce((reduced, [key, value]) => ({
-      ...reduced,
-      [key]: reviveValue(value, parents),
-    }), {} as Dictionary);
+  const reviveValues = (values: Dictionary, parents: Map<string, ModelInstance>) => mapWithKeys(
+    values,
+    (value, key) => ({ [key]: reviveValue(value, parents) }),
+  );
 
   const reviveSnapshot = (snapshot: ReducedModelSnapshot, parents: Map<string, ModelInstance>) => ({
     $model: reviveModel(snapshot.$model),

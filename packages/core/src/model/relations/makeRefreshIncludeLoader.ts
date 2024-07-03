@@ -20,7 +20,7 @@ import {
   ModelRelationKey,
 } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
-import { Arrayable, ArrayableVariadic, Awaitable, uniqueValues } from '@foscia/shared';
+import { Arrayable, ArrayableVariadic, Awaitable, mapWithKeys, uniqueValues } from '@foscia/shared';
 
 type RefreshIncludeLoaderOptions<
   RawData,
@@ -59,10 +59,9 @@ const refreshLoad = async <
     }))
     .run(all());
 
-  const refreshedInstancesMap = refreshedInstances.reduce((instancesMap, instance) => ({
-    ...instancesMap,
+  const refreshedInstancesMap = mapWithKeys(refreshedInstances, (instance) => ({
     [instance.id as ModelIdType]: instance,
-  }), {} as Record<ModelIdType, I>);
+  })) as Record<ModelIdType, I>;
   const relationRootKeys = uniqueValues(relations.map(
     (relation) => relation.split('.')[0],
   )) as ModelRelationKey<I>[];

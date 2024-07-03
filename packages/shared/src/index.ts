@@ -1,4 +1,5 @@
 import mapArrayable from '@foscia/shared/arrays/mapArrayable';
+import mapWithKeys from '@foscia/shared/arrays/mapWithKeys';
 import sequentialTransform from '@foscia/shared/arrays/sequentialTransform';
 import uniqueValues from '@foscia/shared/arrays/uniqueValues';
 import wrap from '@foscia/shared/arrays/wrap';
@@ -33,6 +34,7 @@ export {
   makeDescriptorHolder,
   makeIdentifiersMap,
   mapArrayable,
+  mapWithKeys,
   isDescriptorHolder,
   isFosciaType,
   isNil,

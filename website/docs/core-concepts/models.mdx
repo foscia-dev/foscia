@@ -30,15 +30,13 @@ You can generate a new model using [`@foscia/cli`](/docs/digging-deeper/cli).
 ### Model factory
 
 `makeModel` is the default model factory function. It defines a new model using
-3 arguments and returns an ES6 class:
+2 arguments and returns an ES6 class:
 
 - The string `type` or a
 [configuration object](/docs/digging-deeper/models/models-configuration).
 - The [optional `definition` of the model](#definition): an object map
 containing IDs/attributes/relations definitions, custom properties, custom
 methods and composables.
-- The [optional `setup` of the model](#setup): an object describing setup
-tasks for the model and created instances.
 
 The attributes and relations definition represents the `schema` of the model.
 
@@ -83,9 +81,6 @@ export default makeModel('posts')
   })
   .configure({
     /* ...configuration */
-  })
-  .setup({
-    /* ...setup */
   });
 ```
 
@@ -98,7 +93,7 @@ should read the
 
 :::info
 
-Each call to `extend`, `configure` or `setup` will return a child class of the
+Each call to `extend` or `configure` will return a child class of the
 original model class.
 
 :::
@@ -533,15 +528,17 @@ without model's hooks, as those hooks will also be disable.
 
 ### Instances hooks
 
-:::tip
+:::info
 
-Instances hooks callbacks can be asynchronous and are executed in a sequential
-fashion (one by one, not parallelized).
+Most instances hooks callbacks can be asynchronous and are executed in a
+sequential fashion (one by one, not parallelized). Only `init` is a sync
+hook callback.
 
 :::
 
 You can hook on multiple events on instances:
 
+- `onInit`: instance was constructed by calling `new` on model class.
 - `onRetrieved`: instance was deserialized from a backend response.
 - `onCreating`: action to create instance will run soon.
 - `onCreated`: action to create instance was ran successfully.
@@ -563,9 +560,29 @@ onCreating(User, async (user) => {
 });
 ```
 
+### Models hooks
+
+:::info
+
+Models hooks callbacks are synchronous and are executed in
+a sequential fashion (one by one, not parallelized).
+
+:::
+
+Only `boot` event can be hooked on a model class, using `onBoot`.
+It is like `onInit`, but will be called only once per model and will
+receive the model class.
+
+```typescript
+import { onBoot } from '@foscia/core';
+
+onBoot(User, async (UserModel) => {
+});
+```
+
 ### Properties hooks
 
-:::warning
+:::info
 
 Instances properties hooks callbacks are synchronous and are executed in
 a sequential fashion (one by one, not parallelized).
@@ -635,63 +652,11 @@ unregisterHook(User, 'property:writing', registeredCallback);
 unregisterHook(User, 'property:write', registeredCallback);
 ```
 
-## Setup
+### Using hooks with composition
 
-As stated at the start of this guide, you can pass a third argument to your
-model factory. It is called the setup, and allow you to give one or more
-`boot` and `init` callbacks:
-
-- `boot` occurs at the end of a model creation, just before it is returned
-by `makeModel`.
-- `init` occurs at the end of a new model instance construction (calling `new`).
-
-```typescript
-import { attr, makeModel } from '@foscia/core';
-
-export default class Post extends makeModel('posts', {
-  title: attr<string>(),
-}, {
-  boot: (model) => {
-  // Do something with model.
-  },
-  init: (instance) => {
-  // Do something with instance.
-  },
-}) {}
-```
-
-:::tip
-
-[**Setup can be used inside composable**](/docs/digging-deeper/models/models-composition#defining-setup-tasks)
-to share common `boot` or `init` behaviors between models, such as generating
-an ID before creation.
-
-:::
-
-It is important to note that in this previous example, where our `makeModel`
-return value is extended by a class, that model setup functions won't
-receive a `Post` class and a `Post` class instance, because those do not exist
-at the time of model setup. They only receive the original Foscia class.
-
-If you really need to interact with those objects instead of the non-extended
-ones, you should prefer running your code after the class definition
-and overriding the class constructor.
-
-```typescript
-import { attr, makeModel } from '@foscia/core';
-
-export default class Post extends makeModel('posts', {
-  title: attr<string>(),
-}) {
-  public constructor() {
-    super();
-
-    // Do something with instance.
-  }
-}
-
-// Do something with model.
-```
+All models, instances and properties hooks can be used on
+[composables](/docs/digging-deeper/models/models-composition#composable-using-hooks)
+and [models factories](/docs/digging-deeper/models/models-composition#factory-using-hooks).
 
 ## Special properties
 
@@ -718,4 +683,4 @@ Each model have the following special properties:
 | `$config`      | [`ModelConfig`](/docs/reference/api/@foscia/core/type-aliases/ModelConfig)           | Configuration options.                                 |
 | `$schema`      | [`ModelSchema`](/docs/reference/api/@foscia/core/type-aliases/ModelSchema)           | Schema containing IDs/attributes/relations definition. |
 | `$composables` | [`ModelComposable[]`](/docs/reference/api/@foscia/core/type-aliases/ModelComposable) | Array of used composables.                             |
-| `$setup`       | [`ModelSetup`](/docs/reference/api/@foscia/core/type-aliases/ModelSetup)             | Model setup configuration.                             |
+| `$booted`      | `boolean`                                                                            | Tells if model is booted (constructed at least once).  |

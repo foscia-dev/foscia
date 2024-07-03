@@ -1,4 +1,15 @@
-import { attr, makeComposable, makeModel, ModelInstanceUsing, ModelUsing } from '@foscia/core';
+import {
+  attr,
+  makeComposable,
+  makeModel,
+  ModelInstanceUsing,
+  ModelUsing,
+  onBoot,
+  onInit,
+  onPropertyWrite,
+  onSaving,
+  toDateTime,
+} from '@foscia/core';
 import { expectTypeOf, test } from 'vitest';
 
 test('Models compositions are type safe', () => {
@@ -14,7 +25,38 @@ test('Models compositions are type safe', () => {
     baz: attr<boolean>(),
   });
 
+  onBoot(foo, () => undefined);
+  onInit(foo, (instance) => {
+    expectTypeOf(instance.foo).toMatchTypeOf<string>();
+    // @ts-expect-error property does not exist
+    expectTypeOf(instance.bar).toMatchTypeOf<any>();
+  });
+  onPropertyWrite(foo, 'foo', ({ instance }) => {
+    expectTypeOf(instance.foo).toMatchTypeOf<string>();
+    // @ts-expect-error property does not exist
+    expectTypeOf(instance.bar).toMatchTypeOf<any>();
+  });
+  // @ts-expect-error property does not exist
+  onPropertyWrite(foo, 'bar', () => undefined);
+
   const Model = makeModel('model', { baz });
+
+  onBoot(Model, () => undefined);
+  onInit(Model, (instance) => {
+    expectTypeOf(instance.foo).toMatchTypeOf<string>();
+    expectTypeOf(instance.baz).toMatchTypeOf<boolean>();
+    // @ts-expect-error property does not exist
+    expectTypeOf(instance.unknown).toMatchTypeOf<any>();
+  });
+  onPropertyWrite(Model, 'foo', ({ instance }) => {
+    expectTypeOf(instance.foo).toMatchTypeOf<string>();
+    expectTypeOf(instance.baz).toMatchTypeOf<boolean>();
+    // @ts-expect-error property does not exist
+    expectTypeOf(instance.unknown).toMatchTypeOf<any>();
+  });
+  onPropertyWrite(Model, 'baz', () => undefined);
+  // @ts-expect-error property does not exist
+  onPropertyWrite(Model, 'unknown', () => undefined);
 
   expectTypeOf(Model).toMatchTypeOf<ModelUsing<typeof foo>>();
   expectTypeOf(Model).toMatchTypeOf<ModelUsing<typeof bar>>();
@@ -57,4 +99,21 @@ test('Models compositions are type safe', () => {
   expectTypeOf(instanceUsingType.bar).toMatchTypeOf<null>();
   // @ts-expect-error property cannot be null
   expectTypeOf(instanceUsingType.baz).toMatchTypeOf<null>();
+
+  const timestamps = makeComposable({
+    timestamps: true,
+    createdAt: attr(toDateTime()),
+    updatedAt: attr(toDateTime()),
+  });
+
+  onSaving(timestamps, (instance) => {
+    if (instance.timestamps) {
+      // eslint-disable-next-line no-param-reassign
+      instance.updatedAt = new Date();
+      if (!instance.$exists) {
+        // eslint-disable-next-line no-param-reassign
+        instance.createdAt = instance.updatedAt;
+      }
+    }
+  });
 });

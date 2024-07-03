@@ -8,7 +8,7 @@ import {
   ReducedModelSnapshot,
 } from '@foscia/core/model/revivers/types';
 import { ModelClass, ModelInstance, ModelSnapshot } from '@foscia/core/model/types';
-import { Dictionary, uniqueId, unsafeId } from '@foscia/shared';
+import { Dictionary, mapWithKeys, uniqueId, unsafeId } from '@foscia/shared';
 
 export default () => {
   let reduceInstance: (
@@ -40,12 +40,10 @@ export default () => {
     return value;
   };
 
-  const reduceValues = (values: Dictionary, parents: Map<ModelInstance, string>) => Object
-    .entries(values)
-    .reduce((reduced, [key, value]) => ({
-      ...reduced,
-      [key]: reduceValue(value, parents),
-    }), {} as Dictionary);
+  const reduceValues = (values: Dictionary, parents: Map<ModelInstance, string>) => mapWithKeys(
+    values,
+    (value, key) => ({ [key]: reduceValue(value, parents) }),
+  );
 
   const reduceSnapshot = (snapshot: ModelSnapshot, parents: Map<ModelInstance, string>) => ({
     $FOSCIA_TYPE: 'snapshot',

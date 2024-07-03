@@ -6,6 +6,46 @@ sidebar_position: 5
 
 # Migration
 
+## 0.12.x from 0.11.x
+
+### Medium impacts changes
+
+- [Models setups are replaced with hooks](#models-setups-are-replaced-with-hooks)
+
+### Models setups are replaced with hooks
+
+**Likelihood Of Impact: Medium**
+
+Models, composables and models factories setup functions (`boot` and `init`)
+are replaced by already implemented hook system. If you are using them,
+you can remove the setup object and pass your callbacks to new `onBoot`
+and `onInit` functions. This provides a full-featured and unified way to hook
+on models events.
+
+As a consequence, `setup` static method on model classes and typings
+for models setup have been removed.
+
+```typescript
+import { makeComposable, onBoot } from '@foscia/core';
+
+const publishable = makeComposable({
+  /* ...definition */
+// highlight.deletion
+}, {
+// highlight.deletion
+  boot: (model) => {
+// highlight.deletion
+  }
+});
+
+// highlight.addition
+onBoot(publishable, (model) => {
+// highlight.addition
+});
+
+export default publishable;
+```
+
 ## 0.11.x from 0.9.x
 
 ### Medium impacts changes

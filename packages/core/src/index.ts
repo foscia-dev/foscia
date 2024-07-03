@@ -27,10 +27,12 @@ import isRelationDef from '@foscia/core/model/checks/isRelationDef';
 import isSingularRelationDef from '@foscia/core/model/checks/isSingularRelationDef';
 import fill from '@foscia/core/model/fill';
 import forceFill from '@foscia/core/model/forceFill';
+import onBoot from '@foscia/core/model/hooks/onBoot';
 import onCreated from '@foscia/core/model/hooks/onCreated';
 import onCreating from '@foscia/core/model/hooks/onCreating';
 import onDestroyed from '@foscia/core/model/hooks/onDestroyed';
 import onDestroying from '@foscia/core/model/hooks/onDestroying';
+import onInit from '@foscia/core/model/hooks/onInit';
 import onRetrieved from '@foscia/core/model/hooks/onRetrieved';
 import onSaved from '@foscia/core/model/hooks/onSaved';
 import onSaving from '@foscia/core/model/hooks/onSaving';
@@ -141,6 +143,8 @@ export {
   toNumber,
   toString,
   makeTransformer,
+  onBoot,
+  onInit,
   onRetrieved,
   onCreating,
   onCreated,
