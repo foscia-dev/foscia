@@ -3,8 +3,8 @@
      xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="logo-gradient" x1="-25%" y1="-25%" x2="150%" y2="150%" gradientTransform="rotate(315deg)">
-      <stop class="logo-gradient__start" offset="0" stop-color="#ff6bc1"/>
-      <stop class="logo-gradient__end" offset="1" stop-color="#ffc013"/>
+      <stop class="logo-gradient__start" offset="0" stop-color="#ffa44c"/>
+      <stop class="logo-gradient__end" offset="1" stop-color="#ff6bc1"/>
     </linearGradient>
   </defs>
   <path fill="url(#logo-gradient)"

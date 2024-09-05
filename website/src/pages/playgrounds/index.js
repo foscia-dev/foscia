@@ -12,7 +12,7 @@ export default function Playground() {
     >
       <main>
         <div className={clsx('container')}>
-          <h1 className={clsx('text--center')}>
+          <h1 className={clsx('text--center margin-top--lg')}>
             Try Foscia in <span className={clsx('text--gradient')}>your browser</span>
           </h1>
           <p className={clsx('text--center')}>

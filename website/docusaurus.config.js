@@ -74,6 +74,11 @@ const config = {
         apiKey: '216b2058f40470b073a59c2867d9d51a',
         indexName: 'fosciadev',
       },
+      docs: {
+        sidebar: {
+          autoCollapseCategories: true,
+        },
+      },
       announcementBar: process.env.VERSION ? {
         // Dev/next version announcement.
         id: `${process.env.VERSION}-announcement`,

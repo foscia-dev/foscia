@@ -100,7 +100,7 @@ function HomeFeaturesPresentation() {
       title: 'Modular',
       description: (
         <>
-          Simple configuration and framework-agnostic.
+          Simple but complete config, framework-agnostic.
         </>
       ),
     },
@@ -109,7 +109,7 @@ function HomeFeaturesPresentation() {
       title: 'Lightweight',
       description: (
         <>
-          Fully tree-shakable for optimal build size.
+          Zero-dependencies and tree-shakable for optimal build size.
         </>
       ),
     },
@@ -118,7 +118,7 @@ function HomeFeaturesPresentation() {
       title: 'Type safe',
       description: (
         <>
-          Strong type your data structure with TS.
+          Across all your data interactions, thanks to TS.
         </>
       ),
     },

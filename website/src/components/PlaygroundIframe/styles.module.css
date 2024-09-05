@@ -1,5 +1,5 @@
 .playgroundIframe {
     width: 100%;
     flex-grow: 1;
-    border-radius: 8px;
+    border-radius: 0;
 }

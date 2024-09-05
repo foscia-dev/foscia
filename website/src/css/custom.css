@@ -55,14 +55,14 @@ html[data-theme="dark"], .theme--dark {
     --ifm-details-background: #1c1216;
     --ifm-details-code-background: #1f1418;
     --ifm-hover-overlay: #1c1216;
-    --ifm-color-accent: #ffc013;
-    --ifm-color-primary: #ff6bc1;
-    --ifm-color-primary-dark: #ff47b2;
-    --ifm-color-primary-darker: #ff35aa;
-    --ifm-color-primary-darkest: #fd0093;
-    --ifm-color-primary-light: #ff8fd0;
-    --ifm-color-primary-lighter: #ffa1d8;
-    --ifm-color-primary-lightest: #ffd8ee;
+    --ifm-color-accent: #ff6bc1;
+    --ifm-color-primary: #ffa44c;
+    --ifm-color-primary-dark: #ff932b;
+    --ifm-color-primary-darker: #ff8b1a;
+    --ifm-color-primary-darkest: #e87200;
+    --ifm-color-primary-light: #ffb56d;
+    --ifm-color-primary-lighter: #ffbd7e;
+    --ifm-color-primary-lightest: #ffd6af;
     --ifm-table-stripe-background: rgba(255, 255, 255, 0.02);
 }
 
