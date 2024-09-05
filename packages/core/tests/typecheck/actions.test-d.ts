@@ -14,7 +14,7 @@ import {
   one,
   oneOrCurrent,
   oneOrFail,
-  query,
+  query, queryAs,
   raw,
   SerializerI,
   update,
@@ -29,6 +29,7 @@ test('Actions are type safe', async () => {
   const action = () => {
     const ActionClass = makeActionClass().extend({
       ...query.extension(),
+      ...queryAs.extension(),
       ...include.extension(),
       ...all.extension(),
       ...oneOrFail.extension(),
@@ -65,11 +66,15 @@ test('Actions are type safe', async () => {
     include('comments.postedBy'),
     all(),
   );
+  const manualPostsUsingRunVariadic = await action().run(
+    all(),
+  ) as PostMock[];
 
   expectTypeOf(postsUsingFunc).toMatchTypeOf<PostMock[]>();
   expectTypeOf(postsUsingBuild).toMatchTypeOf<PostMock[]>();
   expectTypeOf(postsUsingVariadic).toMatchTypeOf<PostMock[]>();
   expectTypeOf(postsUsingRunVariadic).toMatchTypeOf<PostMock[]>();
+  expectTypeOf(manualPostsUsingRunVariadic).toMatchTypeOf<PostMock[]>();
 
   const postUsingFunc = await action()
     .use(query(new PostMock()))
@@ -87,6 +92,45 @@ test('Actions are type safe', async () => {
   expectTypeOf(postUsingBuild).toMatchTypeOf<PostMock>();
   expectTypeOf(postUsingVariadic).toMatchTypeOf<PostMock>();
   expectTypeOf(postUsingRunVariadic).toMatchTypeOf<PostMock>();
+
+  const asPostsUsingFunc = await action()
+    .use(queryAs(PostMock))
+    .use(include('comments.postedBy'))
+    .run(all());
+  const asPostsUsingBuild = await action()
+    .queryAs(PostMock)
+    .include('comments.postedBy')
+    .all();
+  const asPostsOrCommentsUsingFunc = await action()
+    .use(queryAs(PostMock, CommentMock))
+    .use(include('images'))
+    .run(all());
+  const asPostsOrCommentsUsingBuild = await action()
+    .queryAs(PostMock, CommentMock)
+    .include('images')
+    .all();
+  const asPostsOrCommentsArrayUsingFunc = await action()
+    .use(queryAs([PostMock, CommentMock]))
+    .use(include('images'))
+    .run(all());
+  const asPostsOrCommentsArrayUsingBuild = await action()
+    .queryAs([PostMock, CommentMock])
+    .include('images')
+    .all();
+
+  expectTypeOf(asPostsUsingFunc).toMatchTypeOf<PostMock[]>();
+  expectTypeOf(asPostsUsingBuild).toMatchTypeOf<PostMock[]>();
+  expectTypeOf(asPostsOrCommentsUsingFunc).toMatchTypeOf<(PostMock | CommentMock)[]>();
+  expectTypeOf(asPostsOrCommentsUsingBuild).toMatchTypeOf<(PostMock | CommentMock)[]>();
+  expectTypeOf(asPostsOrCommentsArrayUsingFunc).toMatchTypeOf<(PostMock | CommentMock)[]>();
+  expectTypeOf(asPostsOrCommentsArrayUsingBuild).toMatchTypeOf<(PostMock | CommentMock)[]>();
+
+  // @ts-expect-error title is not a post relation
+  await action().use(queryAs(PostMock), include('title'));
+  // @ts-expect-error title is not a post and comment relation
+  await action().use(queryAs(PostMock, CommentMock), include('title'));
+  // @ts-expect-error comments is not a post and comment relation
+  await action().use(queryAs(PostMock, CommentMock), include('comments'));
 
   const createdPostUsingFunc = await action()
     .use(query(new PostMock()))

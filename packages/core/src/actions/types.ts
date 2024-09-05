@@ -79,17 +79,19 @@ export type ContextRunner<C extends {}, E extends {}, R> = (
 ) => R;
 
 export type InferConsumedInstance<C extends {}> =
-  C extends { relation: RawModelRelation<Array<infer I>> } ? I extends ModelInstance ? I : never
-    : C extends { relation: RawModelRelation<infer I> } ? I extends ModelInstance ? I : never
-      : C extends { instance: infer I } ? I extends ModelInstance ? I : never
-        : C extends { model: Constructor<infer I> } ? I extends ModelInstance ? I : never
-          : never;
+  C extends { queryAs: Constructor<infer I>[] } ? I extends ModelInstance ? I : never
+    : C extends { relation: RawModelRelation<Array<infer I>> } ? I extends ModelInstance ? I : never
+      : C extends { relation: RawModelRelation<infer I> } ? I extends ModelInstance ? I : never
+        : C extends { instance: infer I } ? I extends ModelInstance ? I : never
+          : C extends { model: Constructor<infer I> } ? I extends ModelInstance ? I : never
+            : never;
 
 export type InferConsumedModelOrInstance<C extends {}> =
-  C extends { relation: RawModelRelation<Array<infer I>> } ? I extends ModelInstance ? I : never
-    : C extends { relation: RawModelRelation<infer I> } ? I extends ModelInstance ? I : never
-      : C extends { model: infer M } ? M
-        : InferConsumedInstance<C>;
+  C extends { queryAs: Constructor<infer I>[] } ? I extends ModelInstance ? I : never
+    : C extends { relation: RawModelRelation<Array<infer I>> } ? I extends ModelInstance ? I : never
+      : C extends { relation: RawModelRelation<infer I> } ? I extends ModelInstance ? I : never
+        : C extends { model: infer M } ? M
+          : InferConsumedInstance<C>;
 
 export type ConsumeAction = {
   action: ActionName | string;
@@ -97,6 +99,10 @@ export type ConsumeAction = {
 
 export type ConsumeData = {
   data: unknown;
+};
+
+export type ConsumeQueryAs<M extends Model = Model> = {
+  queryAs: M[];
 };
 
 export type ConsumeModel<M extends Model = Model> = {

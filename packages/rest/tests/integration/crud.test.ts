@@ -11,10 +11,11 @@ import {
   none,
   one,
   query,
+  queryAs,
   save,
   when,
 } from '@foscia/core';
-import { param } from '@foscia/http';
+import { makeGet, param } from '@foscia/http';
 import { describe, expect, it, vi } from 'vitest';
 import createFetchMock from '../../../../tests/mocks/createFetchMock.mock';
 import createFetchResponse from '../../../../tests/mocks/createFetchResponse.mock';
@@ -287,6 +288,63 @@ describe('integration: JSON REST', () => {
     expect(post.title).toStrictEqual('Foo');
     expect(post.body).toStrictEqual('Foo Body');
     expect(post.comments).toBeUndefined();
+  });
+
+  it('should run action: custom query as models', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json([
+      { id: '1', title: 'Foo' },
+    ]));
+
+    const action = makeJsonRestActionMock();
+
+    const [post] = await action()
+      .use(
+        queryAs(PostMock),
+        makeGet('global-search', { params: { search: 'foo' } }),
+      )
+      .run(all());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/global-search?search=foo');
+    expect(request.method).toStrictEqual('GET');
+    expect(request.headers.get('Accept')).toStrictEqual('application/json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/json');
+    expect(request.body).toBeNull();
+
+    expect(post).toBeInstanceOf(PostMock);
+    expect((post as PostMock).title).toStrictEqual('Foo');
+  });
+
+  it('should run action: custom query as models (polymorphic)', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json([
+      { type: 'posts', id: '1', title: 'Foo' },
+      { type: 'comments', id: '1', body: 'Foo bar' },
+    ]));
+
+    const action = makeJsonRestActionMock();
+
+    const [post, comment] = await action()
+      .use(
+        queryAs(PostMock, CommentMock),
+        makeGet('global-search', { params: { search: 'foo' } }),
+      )
+      .run(all());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/global-search?search=foo');
+    expect(request.method).toStrictEqual('GET');
+    expect(request.headers.get('Accept')).toStrictEqual('application/json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/json');
+    expect(request.body).toBeNull();
+
+    expect(post).toBeInstanceOf(PostMock);
+    expect((post as PostMock).title).toStrictEqual('Foo');
+    expect(comment).toBeInstanceOf(CommentMock);
+    expect((comment as CommentMock).body).toStrictEqual('Foo bar');
   });
 
   it('should load relations with model query', async () => {

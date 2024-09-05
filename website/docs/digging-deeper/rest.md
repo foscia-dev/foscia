@@ -31,6 +31,50 @@ to serialize relationships inclusion in every request.
 If you need something specific, you can
 [open a new issue on the repository](https://github.com/foscia-dev/foscia/issues/new/choose).
 
+### Supporting polymorphism
+
+If you want your Foscia deserialization process to support polymorphism,
+your server should return a `type` key which match the Foscia model's type
+in addition to other attributes (ID, etc.). Without this, Foscia
+cannot precisely determine which record match which model.
+
+```json
+{
+  "id": 1,
+  // highlight.addition
+  "type": "posts",
+  "title": "Hello World"
+}
+```
+
+It can be useful when you use polymorphic relations or when your use
+non-standard endpoints returning multiple models' instances. In addition, you
+can [set up a models registry](/docs/digging-deeper/actions/models-registration)
+to map types and models, and support circular models relations.
+
+### Non-standard requests
+
+Just like with the HTTP adapter, you can run custom HTTP requests when your
+data source provides non-standard features.
+This provides many possibilities, such as retrieving models instances from
+a global search endpoint. In combination with 
+
+```typescript
+import { queryAs, all } from '@foscia/core';
+import { paginate, usingDocument } from '@foscia/jsonapi';
+
+const results = await action().run(
+  // Notice the `queryAs` instead of `query`, this will
+  // GET `/api/search` instead of `/api/posts/search`.
+  queryAs([Post, Comment, User]),
+  makeGet('search', { search: 'Hello' }),
+  all(),
+);
+
+// `results` is an array Post, Comment or User instances.
+console.log(results);
+```
+
 ## Configuration recipes
 
 Here are common configuration for `@foscia/rest` implementation. You can read
@@ -90,6 +134,34 @@ makeJsonRestSerializer({
 });
 ```
 
+When your server change the serialization key of results depending on the
+requested model (such as in [dummyJSON free API](https://dummyjson.com/)
+used by Foscia examples), you can also provide more customized behavior:
+
+```typescript
+import { guessContextModel, consumeModel, consumeRelation } from '@foscia/core';
+import { makeJsonRestDeserializer } from '@foscia/rest';
+
+makeJsonRestSerializer({
+  extractData: async (data: any, context) => {
+    // Detect targeted model with context.
+    const model = await guessContextModel({
+      model: consumeModel(context, null),
+      relation: consumeRelation(context, null),
+    });
+
+    return { records: (model ? data[model.$type] : undefined) ?? data };
+  },
+});
+```
+
+In the example above, Foscia will try to identify the model targeted by the
+current context. When a model is identified, it will search for the model's type
+in the response body. Otherwise, it will use the whole responses body.
+
+This behavior can also be easily implemented when
+[nesting serialized data](#nesting-serialized-data).
+
 ### Nesting serialized data
 
 If your REST API document expect record data to be nested (not at root, such as
@@ -100,7 +172,7 @@ records data using the given transformation function.
 import { makeJsonRestSerializer } from '@foscia/rest';
 
 makeJsonRestSerializer({
-  createData: (records) => ({ data: records }),
+  createData: (records, context) => ({ data: records }),
 });
 ```
 

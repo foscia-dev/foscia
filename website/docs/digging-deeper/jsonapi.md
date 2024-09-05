@@ -133,6 +133,29 @@ console.log(data.document);
 console.log(data.document.meta!.page.hasMore);
 ```
 
+### Non-standard requests
+
+Just like with the HTTP adapter, you can run custom HTTP requests when your
+data source provides non-standard features.
+This provides many possibilities, such as retrieving models instances from
+a global search endpoint:
+
+```typescript
+import { queryAs, all } from '@foscia/core';
+import { paginate, usingDocument } from '@foscia/jsonapi';
+
+const results = await action().run(
+  // Notice the `queryAs` instead of `query`, this will
+  // GET `/api/v1/search` instead of `/api/v1/posts/search`.
+  queryAs([Post, Comment, User]),
+  makeGet('search', { search: 'Hello' }),
+  all(),
+);
+
+// `results` is an array Post, Comment or User instances.
+console.log(results);
+```
+
 ## Configuration recipes
 
 Here are common configuration for `@foscia/jsonapi` implementation. You can read

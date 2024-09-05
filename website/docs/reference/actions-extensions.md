@@ -15,6 +15,7 @@ runners to integrate into your action to get
 
 - [`when`](/docs/reference/actions-enhancers#when)
 - [`query`](/docs/reference/actions-enhancers#query)
+- [`queryAs`](/docs/reference/actions-enhancers#queryas)
 - [`include`](/docs/reference/actions-enhancers#include)
 - [`context`](/docs/reference/actions-enhancers#context)
 

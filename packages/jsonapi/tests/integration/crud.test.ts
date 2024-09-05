@@ -17,6 +17,7 @@ import {
   one,
   oneOrFail,
   query,
+  queryAs,
   save,
   updateRelation,
   when,
@@ -616,7 +617,7 @@ describe('integration: JSON:API', () => {
     expect(post.comments).toBeUndefined();
   });
 
-  it('should run action: custom', async () => {
+  it('should run action: contextualized custom', async () => {
     const fetchMock = createFetchMock();
     fetchMock.mockImplementationOnce(createFetchResponse().json({
       data: [
@@ -649,6 +650,75 @@ describe('integration: JSON:API', () => {
     expect(post.$exists).toStrictEqual(true);
     expect(post.id).toStrictEqual('1');
     expect(post.title).toStrictEqual('Foo');
+  });
+
+  it('should run action: contextualized custom no paths', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json({
+      data: [
+        {
+          type: 'posts',
+          id: '1',
+          attributes: { title: 'Foo' },
+        },
+      ],
+    }));
+
+    const action = makeJsonApiActionMock();
+
+    const [post] = await action()
+      .use(
+        query(PostMock),
+        makeGet('most-viewed-post', {
+          modelPaths: false,
+        }),
+      )
+      .run(all());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/most-viewed-post');
+    expect(request.method).toStrictEqual('GET');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(request.body).toBeNull();
+
+    expect(post).toBeInstanceOf(PostMock);
+    expect(post.$exists).toStrictEqual(true);
+    expect(post.id).toStrictEqual('1');
+    expect(post.title).toStrictEqual('Foo');
+  });
+
+  it('should run action: custom query as models', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().json({
+      data: [
+        { type: 'posts', id: '1', attributes: { title: 'Foo' } },
+        { type: 'comments', id: '1', attributes: { body: 'Foo bar' } },
+      ],
+    }));
+
+    const action = makeJsonApiActionMock();
+
+    const [post, comment] = await action()
+      .use(
+        queryAs(PostMock, CommentMock),
+        makeGet('global-search', { params: { search: 'foo' } }),
+      )
+      .run(all());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/global-search?search=foo');
+    expect(request.method).toStrictEqual('GET');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(request.body).toBeNull();
+
+    expect(post).toBeInstanceOf(PostMock);
+    expect((post as PostMock).title).toStrictEqual('Foo');
+    expect(comment).toBeInstanceOf(CommentMock);
+    expect((comment as CommentMock).body).toStrictEqual('Foo bar');
   });
 
   it('should load relations with refresh', async () => {

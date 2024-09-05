@@ -92,6 +92,32 @@ the instance to query
 - [`ModelRelationKey | undefined`](/docs/reference/api/@foscia/core/type-aliases/ModelRelationKey)
 `relation` the optional instance's relation to query
 
+### `queryAs`
+
+<FunctionInfo version="0.12.2" provides="Model" />
+
+Define models targeted by the query. This will keep the context state when
+executing the query, but will take priority when deserializing models,
+allowing to deserialize models from any request (even non-standard ones).
+The query won't request the model like with `query`, but results will be
+deserialized as given models (e.g. `all` and `one`) and other functions will
+use the given models for contextual params (e.g. relations through `include`).
+
+#### Example
+
+```typescript
+import { queryAs } from '@foscia/core';
+
+action().use(queryAs(Post));
+action().use(queryAs(Post, Comment));
+action().use(queryAs([Post, Comment]));
+```
+
+#### Arguments
+
+- [`ArrayableVariadic<Model>`](/docs/reference/api/@foscia/core/type-aliases/Model) `...models`
+the model the query is targeting
+
 ### `create`
 
 <FunctionInfo requires="Serializer" provides="Model, Instance, ID" />

@@ -4,6 +4,7 @@ import { RegistryI } from '@foscia/core/types';
 import { isNil, Optional, wrap } from '@foscia/shared';
 
 type GuessContextModelContext = {
+  queryAs?: Optional<Model[]>;
   model?: Optional<Model>;
   relation?: Optional<ModelRelation>;
   registry?: Optional<RegistryI>;
@@ -35,6 +36,10 @@ export default (async (
   context: GuessContextModelContext,
   multiple: boolean = false,
 ): Promise<Model[] | Model | null> => {
+  if (context.queryAs) {
+    return guessModelIn(context.queryAs, context.ensureType, multiple);
+  }
+
   if (context.relation) {
     if (context.relation.model) {
       return guessModelIn(await context.relation.model(), context.ensureType, multiple);

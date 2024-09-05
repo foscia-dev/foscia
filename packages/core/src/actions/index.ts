@@ -1,6 +1,7 @@
 import ActionName from '@foscia/core/actions/actionName';
 import consumeAction from '@foscia/core/actions/context/consumers/consumeAction';
 import consumeAdapter from '@foscia/core/actions/context/consumers/consumeAdapter';
+import consumeQueryAs from '@foscia/core/actions/context/consumers/consumeQueryAs';
 import consumeCache from '@foscia/core/actions/context/consumers/consumeCache';
 import consumeContext from '@foscia/core/actions/context/consumers/consumeContext';
 import consumeData from '@foscia/core/actions/context/consumers/consumeData';
@@ -30,6 +31,7 @@ import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import include from '@foscia/core/actions/context/enhancers/include';
 import query from '@foscia/core/actions/context/enhancers/query';
+import queryAs from '@foscia/core/actions/context/enhancers/queryAs';
 import guessContextModel from '@foscia/core/actions/context/guessers/guessContextModel';
 import all, { AllData } from '@foscia/core/actions/context/runners/all';
 import cached from '@foscia/core/actions/context/runners/cached';
@@ -83,6 +85,7 @@ export {
   catchIf,
   context,
   query,
+  queryAs,
   include,
   instanceData,
   relationData,
@@ -100,6 +103,7 @@ export {
   consumeInclude,
   consumeInstance,
   consumeModel,
+  consumeQueryAs,
   consumeRegistry,
   consumeRelation,
   consumeSerializer,

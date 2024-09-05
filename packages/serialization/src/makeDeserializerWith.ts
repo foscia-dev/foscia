@@ -3,6 +3,7 @@ import {
   consumeCache,
   consumeInstance,
   consumeModel,
+  consumeQueryAs,
   consumeRegistry,
   consumeRelation,
   DeserializedData,
@@ -71,6 +72,7 @@ export default <
     // we'll try to resolve the model from the context.
     // This will also ensure guessed model type matches deserializing record.
     const guessedModel = await guessContextModel({
+      queryAs: consumeQueryAs(context, null),
       model: (record.parent?.instance.$model ?? consumeModel(context, null)) as Model,
       relation: record.parent?.def ?? consumeRelation(context, null),
       registry,
