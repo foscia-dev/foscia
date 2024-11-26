@@ -1,6 +1,14 @@
 import { consumeInclude, normalizeInclude } from '@foscia/core';
 import { isNil, optionalJoin } from '@foscia/shared';
 
+/**
+ * Make a query parameters object containing requested included relations.
+ *
+ * @param context
+ * @param includeParamKey
+ *
+ * @internal
+ */
 export default async (
   context: {},
   includeParamKey: string | null = 'include',

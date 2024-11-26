@@ -1,5 +1,5 @@
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
-import { Action, WithParsedExtension } from '@foscia/core/actions/types';
+import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import { Action } from '@foscia/core/actions/types';
 
 /**
  * Merge the given context into the action's current context.
@@ -8,21 +8,21 @@ import { Action, WithParsedExtension } from '@foscia/core/actions/types';
  * @param contextToMerge
  *
  * @category Enhancers
+ *
+ * @example
+ * ```typescript
+ * import { context } from '@foscia/core';
+ *
+ * action().use(context({ /* ...additional context... *\/ }));
+ * ```
+ *
+ * @remarks
+ * This is the most basic context enhancer.
+ * It is used by a lot of Foscia enhancers.
  */
-const context = <NC extends {}>(
-  contextToMerge: NC,
-) => async <C extends {}>(action: Action<C>) => action.updateContext({
+export default /* @__PURE__ */ makeEnhancer('context', <Context extends {}, NewContext extends {}>(
+  contextToMerge: NewContext,
+) => async (action: Action<Context>) => action.updateContext({
   ...await action.useContext(),
   ...contextToMerge,
-});
-
-export default /* @__PURE__ */ appendExtension(
-  'context',
-  context,
-  'use',
-) as WithParsedExtension<typeof context, {
-  context<C extends {}, E extends {}, NC extends {}>(
-    this: Action<C, E>,
-    context: NC,
-  ): Action<C & NC, E>;
-}>;
+}));

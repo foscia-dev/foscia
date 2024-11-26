@@ -6,11 +6,9 @@ import sortBy from '@foscia/jsonapi/actions/context/enhancers/sortBy';
 import sortByAsc from '@foscia/jsonapi/actions/context/enhancers/sortByAsc';
 import sortByDesc from '@foscia/jsonapi/actions/context/enhancers/sortByDesc';
 import usingDocument from '@foscia/jsonapi/actions/context/runners/usingDocument';
-import makeJsonApiAdapter from '@foscia/jsonapi/blueprints/makeJsonApiAdapter';
-import makeJsonApiDeserializer from '@foscia/jsonapi/blueprints/makeJsonApiDeserializer';
-import makeJsonApiSerializer from '@foscia/jsonapi/blueprints/makeJsonApiSerializer';
-import jsonApiExtensions from '@foscia/jsonapi/jsonApiExtensions';
-import jsonApiStarterExtensions from '@foscia/jsonapi/jsonApiStarterExtensions';
+import makeJsonApiAdapter from '@foscia/jsonapi/makeJsonApiAdapter';
+import makeJsonApiDeserializer from '@foscia/jsonapi/makeJsonApiDeserializer';
+import makeJsonApiSerializer from '@foscia/jsonapi/makeJsonApiSerializer';
 
 export * from '@foscia/jsonapi/types';
 
@@ -26,6 +24,4 @@ export {
   makeJsonApiAdapter,
   makeJsonApiDeserializer,
   makeJsonApiSerializer,
-  jsonApiExtensions,
-  jsonApiStarterExtensions,
 };

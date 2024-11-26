@@ -1,11 +1,25 @@
 import { Dictionary } from '@foscia/shared/types';
 
 const mapWithKeys: {
-  <T, U extends {}>(
+  /**
+   * Map array to an object.
+   *
+   * @param values
+   * @param callback
+   *
+   * @internal
+   */<T, U extends {}>(
     values: T[],
     callback: (value: T, key: number) => U,
   ): U;
-  <T extends {}, U extends {}>(
+  /**
+   * Map object to another object.
+   *
+   * @param values
+   * @param callback
+   *
+   * @internal
+   */<T extends {}, U extends {}>(
     values: T,
     callback: <K extends keyof T>(value: T[K], key: K) => U,
   ): U;

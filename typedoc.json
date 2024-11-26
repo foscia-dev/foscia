@@ -1,14 +1,49 @@
 {
+  "$schema": "https://typedoc.org/schema.json",
+  "readme": "none",
   "disableGit": true,
   "sourceLinkTemplate": "https://github.com/foscia-dev/foscia/tree/main/{path}#L{line}",
-  "groupOrder": [
-    "Classes",
-    "*",
-    "Namespaces"
+  "navigation": {
+    "includeGroups": true,
+    "includeCategories": true
+  },
+  "categorizeByGroup": true,
+  "sort": [
+    "kind",
+    "instance-first",
+    "required-first",
+    "alphabetical"
+  ],
+  "blockTags": [
+    "@typeParam",
+    "@param",
+    "@returns",
+    "@example",
+    "@remarks",
+    "@see",
+    "@group",
+    "@category",
+    "@deprecated",
+    "@since",
+    "@example",
+    "@provideContext",
+    "@requireContext"
   ],
   "categoryOrder": [
     "Enhancers",
     "Runners",
+    "Utilities",
+    "Factories",
+    "Hooks"
+  ],
+  "groupOrder": [
+    "Functions",
+    "Classes",
+    "Enumerations",
+    "Interfaces",
+    "Type Aliases",
+    "Variables",
+    "Errors",
     "*"
   ]
 }

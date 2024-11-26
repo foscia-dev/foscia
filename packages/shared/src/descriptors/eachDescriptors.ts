@@ -1,6 +1,14 @@
 import isNil from '@foscia/shared/checks/isNil';
 import isDescriptorHolder from '@foscia/shared/descriptors/isDescriptorHolder';
 
+/**
+ * Map every descriptor of object (while unwrapping description holder).
+ *
+ * @param obj
+ * @param callback
+ *
+ * @internal
+ */
 export default (
   obj: object,
   callback: (key: string, descriptor: PropertyDescriptor) => void,

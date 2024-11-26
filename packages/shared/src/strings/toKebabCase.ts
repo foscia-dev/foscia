@@ -1,3 +1,10 @@
+/**
+ * Convert a string to kebab case.
+ *
+ * @param value
+ *
+ * @internal
+ */
 export default (value: string): string => {
   const matches = value.match(
     /[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g,

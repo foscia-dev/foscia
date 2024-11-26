@@ -1,11 +1,31 @@
 import makeModelClass from '@foscia/core/model/makeModelClass';
 import {
-  ModelConfig, ModelFactory,
+  ModelConfig,
+  ModelFactory,
   ModelFlattenDefinition,
   ModelInstance,
   ModelParsedDefinition,
 } from '@foscia/core/model/types';
 
+/**
+ * Create a model factory.
+ *
+ * @param baseConfig
+ * @param baseRawDefinition
+ *
+ * @category Factories
+ *
+ * @example
+ * ```typescript
+ * import { makeModelFactory } from '@foscia/core';
+ *
+ * export default makeModelFactory({
+ *   // Common configuration...
+ * }, {
+ *   // Common definition...
+ * });
+ * ```
+ */
 export default <D extends {} = {}>(
   baseConfig?: ModelConfig,
   // eslint-disable-next-line max-len

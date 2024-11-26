@@ -8,6 +8,15 @@ import {
 } from '@foscia/serialization/types';
 import { Arrayable, Awaitable, mapArrayable } from '@foscia/shared';
 
+/**
+ * Make a {@link DeserializerRecordFactory | `DeserializerRecordFactory`} implementation.
+ *
+ * @param pullIdentifier
+ * @param pullAttribute
+ * @param pullRelation
+ *
+ * @category Factories
+ */
 export default <
   Record,
   Data = unknown,

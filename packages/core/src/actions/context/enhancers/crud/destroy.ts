@@ -3,17 +3,11 @@ import context from '@foscia/core/actions/context/enhancers/context';
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import query from '@foscia/core/actions/context/enhancers/query';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
-import {
-  Action,
-  ConsumeId,
-  ConsumeInstance,
-  ConsumeModel,
-  WithParsedExtension,
-} from '@foscia/core/actions/types';
+import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import { Action } from '@foscia/core/actions/types';
 import runHooks from '@foscia/core/hooks/runHooks';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
-import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/types';
+import { ModelInstance } from '@foscia/core/model/types';
 
 /**
  * Prepare context for an instance deletion.
@@ -21,14 +15,20 @@ import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/typ
  * @param instance
  *
  * @category Enhancers
+ * @provideContext model, instance, id
+ *
+ * @example
+ * ```typescript
+ * import { destroy, none } from '@foscia/core';
+ *
+ * await action().run(destroy(post), none());
+ * ```
  */
-const destroy = <
+export default /* @__PURE__ */ makeEnhancer('destroy', <
   C extends {},
-  E extends {},
-  D extends {},
-  I extends ModelInstance<D>,
->(instance: ModelClassInstance<D> & I) => (action: Action<C, E>) => action.use(
-  query<C, E, D, I>(instance),
+  I extends ModelInstance,
+>(instance: I) => (action: Action<C>) => action.use(
+  query(instance),
   context({
     action: ActionName.DESTROY,
     // Rewrite ID to ensure destroy targets the record termination point
@@ -42,15 +42,4 @@ const destroy = <
     markSynced(instance);
     await runHooks(instance.$model, 'destroyed', instance);
   }),
-);
-
-export default /* @__PURE__ */ appendExtension(
-  'destroy',
-  destroy,
-  'use',
-) as WithParsedExtension<typeof destroy, {
-  destroy<C extends {}, E extends {}, D extends {}, I extends ModelInstance<D>>(
-    this: Action<C, E>,
-    instance: ModelClassInstance<D> & I,
-  ): Action<C & ConsumeModel<Model<D, I>> & ConsumeInstance<I> & ConsumeId, E>;
-}>;
+));

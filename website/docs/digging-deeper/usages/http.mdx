@@ -1,0 +1,214 @@
+---
+sidebar_label: HTTP
+sidebar_position: 2000
+description: Using Foscia as a simple HTTP client.
+---
+
+
+import ShellCommand from '@site/src/components/ShellCommand';
+
+# HTTP
+
+:::tip What you'll learn
+
+- Configuring your action factory to only make HTTP request
+- Using Foscia as an HTTP client
+- Common configuration recipes
+
+:::
+
+## Setup
+
+You can use Foscia as a simple HTTP client (just like Axios). For this, you can
+configure an HTTP client action factory.
+
+:::info
+
+If you are using JSON REST or JSON:API implementations, you can already use your
+action factory as an HTTP client.
+
+:::
+
+### CLI (recommended)
+
+You can get started for Foscia as an HTTP client using the
+[`@foscia/cli`](/docs/digging-deeper/usages/cli).
+
+<ShellCommand command="foscia init --usage=http" />
+
+### Manually
+
+```typescript title="action.ts"
+import { makeActionFactory } from '@foscia/core';
+import { makeHttpAdapter } from '@foscia/http';
+
+export default makeActionFactory({
+  ...makeHttpAdapter({
+    baseURL: 'https://example.com',
+  }),
+});
+```
+
+## Usage
+
+### Basic usage
+
+Once your action factory is ready, sending HTTP request is pretty easy using
+provided enhancers ([`makeGet`](/docs/api/@foscia/http/functions/makeGet),
+[`makePost`](/docs/api/@foscia/http/functions/makePost), etc.). Running a
+request is done by [`raw`](/docs/api/@foscia/core/functions/raw) runner, which
+will retrieve a fetch
+[`Response`](https://developer.mozilla.org/docs/Web/API/Response)
+object. You can also pass a callback to
+[`raw`](/docs/api/@foscia/core/functions/raw)
+to retrieve a value from the
+[`Response`](https://developer.mozilla.org/docs/Web/API/Response) object.
+
+```typescript
+import { raw } from '@foscia/core';
+import { makeGet, makePost } from '@foscia/http';
+import action from './action';
+
+// GET https://example.com/ (and get Response object).
+const response = await action().run(makeGet('/'), raw());
+
+// POST https://example.com/api/posts (and get JSON payload).
+const data = await action().run(
+  makePost('/api/posts', {
+    data: { title: 'Hello World!' },
+  }),
+  raw((response) => response.json()),
+);
+```
+
+### Advanced usage
+
+You can pass a lot of options to each request enhancers, from
+[`headers`](/docs/api/@foscia/http/type-aliases/HttpRequestConfig#headers) and
+[`params`](/docs/api/@foscia/http/type-aliases/HttpRequestConfig#params) options
+to any other
+[`Request` options](https://developer.mozilla.org/docs/Web/API/Request/Request#options):
+
+```typescript
+import { raw } from '@foscia/core';
+import { makePost } from '@foscia/http';
+import action from './action';
+
+const abortController = new AbortController();
+
+const data = await action().run(
+  makePost('/api/posts', {
+    data: { title: 'Hello World!' },
+  }, {
+    headers: { 'Accept-Language': 'fr-FR' },
+    params: { include: 'comments' },
+    credentials: 'same-origin',
+    abortSignal: abortController.signal,
+    // cache, redirect, referrer, etc.
+    requestTransformers: [(request) => {
+      // Do something with `request`.
+
+      return request;
+    }],
+    responseTransformers: [(response) => {
+      // Do something with `response`.
+
+      return response;
+    }],
+    errorTransformers: [(error) => {
+      // Do something with `error`.
+
+      return error;
+    }],
+  }),
+  raw((response) => response.json()),
+);
+```
+
+### Custom `Request` object
+
+You can even pass a custom
+[`Request` instance](https://developer.mozilla.org/docs/Web/API/Request/Request):
+
+```typescript
+import { raw } from '@foscia/core';
+import { configureRequest } from '@foscia/http';
+import action from './action';
+
+const data = await action().run(
+  configureRequest({
+    request: new Request('https://example.com', {
+      headers: {},
+      /* Other init... */
+    }),
+  }),
+  raw((response) => response.json()),
+);
+```
+
+## Configuration recipes
+
+Here are common configuration for `@foscia/http` implementation. You can read
+[the implementation and configuration guide](/docs/digging-deeper/implementations/http)
+for more details.
+
+### Defining default headers
+
+To define a default request headers, use the
+[`headers`](/docs/api/@foscia/http/type-aliases/HttpAdapterConfig#headers)
+option or implement a request transformer (useful for unstable headers,
+such as `Accept-Language` in an internationalized application).
+
+```typescript
+import { makeHttpAdapter } from '@foscia/http';
+
+const { adapter } = makeHttpAdapter({
+  headers: { 'Accept-Language': 'fr-FR' },
+  requestTransformers: [(request) => {
+    request.headers.set('Accept-Language', 'en-US');
+    return request;
+  }],
+});
+```
+
+### Changing fetch implementation
+
+`@foscia/http` uses `globalThis.fetch` as its default fetch implementation.
+
+To define a custom fetch implementation, use the `fetch` option.
+
+```typescript
+import { makeHttpAdapter } from '@foscia/http';
+import { ofetch } from 'ofetch';
+
+const { adapter } = makeHttpAdapter({
+  fetch: ofetch.native,
+});
+```
+
+### Deeply serializing query params
+
+`@foscia/http` provides two params serializer:
+
+- [`paramsSerializer`](/docs/api/@foscia/http/functions/paramsSerializer)
+  (default for [`makeHttpAdapter`](/docs/api/@foscia/http/functions/makeHttpAdapter))
+  which serialize a params object using
+  [`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams).
+- [`deepParamsSerializer`](/docs/api/@foscia/http/functions/deepParamsSerializer)
+  which deeply serialize a params object (handle deep array or object, because
+  [`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams) won't).
+
+To define a custom parameters serializer, use the `serializeParams` option.
+
+```typescript
+import { makeHttpAdapter, deepParamsSerializer } from '@foscia/http';
+
+const { adapter } = makeHttpAdapter({
+  serializeParams: deepParamsSerializer,
+});
+```
+
+## Reference
+
+- [Dedicated enhancers API reference](/docs/api/@foscia/http/#enhancers)
+- [Implementation and configuration guide](/docs/digging-deeper/implementations/http)

@@ -1,8 +1,22 @@
 import { Awaitable, Transformer } from '@foscia/shared/types';
 
 const sequentialTransform: {
+  /**
+   * Call given async functions sequentially.
+   *
+   * @param transformers
+   *
+   * @internal
+   */
   (transformers: Transformer<void, Awaitable<void>>[]): Promise<void>;
-  <T>(transformers: Transformer<T, Awaitable<T>>[], value: T): Promise<T>;
+  /**
+   * Transform value with async functions sequentially.
+   *
+   * @param transformers
+   * @param value
+   *
+   * @internal
+   */<T>(transformers: Transformer<T, Awaitable<T>>[], value: T): Promise<T>;
 } = <T>(
   transformers: Transformer<T, Awaitable<T>>[],
   value?: T,

@@ -1,8 +1,8 @@
 import normalizeInclude from '@foscia/core/actions/context/utils/normalizeInclude';
-import makeCache from '@foscia/core/blueprints/makeCache';
-import makeRegistry from '@foscia/core/blueprints/makeRegistry';
-import makeRefsCacheWith from '@foscia/core/cache/makeRefsCacheWith';
-import weakRefManager from '@foscia/core/cache/weakRefManager';
+import makeCache from '@foscia/core/cache/makeCache';
+import makeRefsCache from '@foscia/core/cache/makeRefsCache';
+import makeTimeoutRefManager from '@foscia/core/cache/makeTimeoutRefManager';
+import makeWeakRefManager from '@foscia/core/cache/makeWeakRefManager';
 import AdapterError from '@foscia/core/errors/adapterError';
 import DeserializerError from '@foscia/core/errors/deserializerError';
 import ExpectedRunFailureError from '@foscia/core/errors/expectedRunFailureError';
@@ -20,12 +20,12 @@ import isInstance from '@foscia/core/model/checks/isInstance';
 import isInstanceUsing from '@foscia/core/model/checks/isInstanceUsing';
 import isModel from '@foscia/core/model/checks/isModel';
 import isModelUsing from '@foscia/core/model/checks/isModelUsing';
-import isPendingPropDef from '@foscia/core/model/checks/isPendingPropDef';
 import isPluralRelationDef from '@foscia/core/model/checks/isPluralRelationDef';
 import isPropDef from '@foscia/core/model/checks/isPropDef';
 import isRelationDef from '@foscia/core/model/checks/isRelationDef';
 import isSingularRelationDef from '@foscia/core/model/checks/isSingularRelationDef';
 import fill from '@foscia/core/model/fill';
+import filled from '@foscia/core/model/filled';
 import forceFill from '@foscia/core/model/forceFill';
 import onBoot from '@foscia/core/model/hooks/onBoot';
 import onCreated from '@foscia/core/model/hooks/onCreated';
@@ -42,7 +42,6 @@ import onPropertyRead from '@foscia/core/model/hooks/properties/onPropertyRead';
 import onPropertyReading from '@foscia/core/model/hooks/properties/onPropertyReading';
 import onPropertyWrite from '@foscia/core/model/hooks/properties/onPropertyWrite';
 import onPropertyWriting from '@foscia/core/model/hooks/properties/onPropertyWriting';
-import filled from '@foscia/core/model/filled';
 import isSame from '@foscia/core/model/isSame';
 import makeComposable from '@foscia/core/model/makeComposable';
 import makeModel from '@foscia/core/model/makeModel';
@@ -53,15 +52,20 @@ import hasOne from '@foscia/core/model/props/builders/hasOne';
 import id from '@foscia/core/model/props/builders/id';
 import mapAttributes from '@foscia/core/model/props/mappers/mapAttributes';
 import mapIds from '@foscia/core/model/props/mappers/mapIds';
-import mapProps from '@foscia/core/model/props/mappers/mapProps';
 import mapRelations from '@foscia/core/model/props/mappers/mapRelations';
 import shouldSync from '@foscia/core/model/props/shouldSync';
 import loaded from '@foscia/core/model/relations/loaded';
-import makeQueryModelLoader from '@foscia/core/model/relations/makeQueryModelLoader';
+import makeQueryModelLoader, {
+  QueryModelLoaderOptions,
+} from '@foscia/core/model/relations/makeQueryModelLoader';
 import makeQueryModelLoaderExtractor
   from '@foscia/core/model/relations/makeQueryModelLoaderExtractor';
-import makeQueryRelationLoader from '@foscia/core/model/relations/makeQueryRelationLoader';
-import makeRefreshIncludeLoader from '@foscia/core/model/relations/makeRefreshIncludeLoader';
+import makeQueryRelationLoader, {
+  QueryRelationLoaderOptions,
+} from '@foscia/core/model/relations/makeQueryRelationLoader';
+import makeRefreshIncludeLoader, {
+  RefreshIncludeLoaderOptions,
+} from '@foscia/core/model/relations/makeRefreshIncludeLoader';
 import guessRelationType from '@foscia/core/model/relations/utilities/guessRelationType';
 import makeModelsReducer from '@foscia/core/model/revivers/makeModelsReducer';
 import makeModelsReviver from '@foscia/core/model/revivers/makeModelsReviver';
@@ -73,14 +77,21 @@ import restoreSnapshot from '@foscia/core/model/snapshots/restoreSnapshot';
 import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
 import normalizeDotRelations from '@foscia/core/normalization/normalizeDotRelations';
 import normalizeKey from '@foscia/core/normalization/normalizeKey';
-import makeMapRegistryWith from '@foscia/core/registry/makeMapRegistryWith';
+import makeMapRegistry from '@foscia/core/registry/makeMapRegistry';
+import makeRegistry from '@foscia/core/registry/makeRegistry';
 import {
+  SYMBOL_ACTION_CONTEXT_ENHANCER,
+  SYMBOL_ACTION_CONTEXT_FUNCTION_FACTORY,
+  SYMBOL_ACTION_CONTEXT_RUNNER,
+  SYMBOL_ACTION_CONTEXT_WHEN,
   SYMBOL_MODEL_CLASS,
+  SYMBOL_MODEL_COMPOSABLE,
   SYMBOL_MODEL_INSTANCE,
-  SYMBOL_MODEL_PROP_ATTRIBUTE,
-  SYMBOL_MODEL_PROP_ID,
-  SYMBOL_MODEL_PROP_PENDING,
-  SYMBOL_MODEL_PROP_RELATION,
+  SYMBOL_MODEL_PROP,
+  SYMBOL_MODEL_PROP_FACTORY,
+  SYMBOL_MODEL_PROP_KIND_ATTRIBUTE,
+  SYMBOL_MODEL_PROP_KIND_ID,
+  SYMBOL_MODEL_PROP_KIND_RELATION,
   SYMBOL_MODEL_RELATION_HAS_MANY,
   SYMBOL_MODEL_RELATION_HAS_ONE,
 } from '@foscia/core/symbols';
@@ -113,10 +124,11 @@ export {
   ExpectedRunFailureError,
   isNotFoundError,
   makeRegistry,
-  makeMapRegistryWith,
+  makeMapRegistry,
   makeCache,
-  makeRefsCacheWith,
-  weakRefManager,
+  makeRefsCache,
+  makeWeakRefManager,
+  makeTimeoutRefManager,
   attr,
   hasMany,
   hasOne,
@@ -133,8 +145,11 @@ export {
   makeModel,
   makeModelFactory,
   makeQueryModelLoader,
+  QueryModelLoaderOptions,
   makeQueryModelLoaderExtractor,
+  QueryRelationLoaderOptions,
   makeQueryRelationLoader,
+  RefreshIncludeLoaderOptions,
   makeRefreshIncludeLoader,
   toArrayOf,
   toBoolean,
@@ -175,11 +190,9 @@ export {
   isInstance,
   isModelUsing,
   isInstanceUsing,
-  isPendingPropDef,
   mapIds,
   mapAttributes,
   mapRelations,
-  mapProps,
   shouldSync,
   guessRelationType,
   normalizeDotRelations,
@@ -188,12 +201,18 @@ export {
   makeModelsReducer,
   makeModelsReviver,
   logger,
-  SYMBOL_MODEL_PROP_PENDING,
-  SYMBOL_MODEL_PROP_ID,
-  SYMBOL_MODEL_PROP_ATTRIBUTE,
-  SYMBOL_MODEL_PROP_RELATION,
+  SYMBOL_MODEL_PROP_FACTORY,
+  SYMBOL_MODEL_PROP,
+  SYMBOL_MODEL_PROP_KIND_ID,
+  SYMBOL_MODEL_PROP_KIND_ATTRIBUTE,
+  SYMBOL_MODEL_PROP_KIND_RELATION,
   SYMBOL_MODEL_RELATION_HAS_ONE,
   SYMBOL_MODEL_RELATION_HAS_MANY,
   SYMBOL_MODEL_CLASS,
   SYMBOL_MODEL_INSTANCE,
+  SYMBOL_MODEL_COMPOSABLE,
+  SYMBOL_ACTION_CONTEXT_WHEN,
+  SYMBOL_ACTION_CONTEXT_ENHANCER,
+  SYMBOL_ACTION_CONTEXT_RUNNER,
+  SYMBOL_ACTION_CONTEXT_FUNCTION_FACTORY,
 };

@@ -4,18 +4,11 @@ import instanceData from '@foscia/core/actions/context/enhancers/crud/instanceDa
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import query from '@foscia/core/actions/context/enhancers/query';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
-import {
-  Action,
-  ConsumeId,
-  ConsumeInstance,
-  ConsumeModel,
-  ConsumeSerializer,
-  WithParsedExtension,
-} from '@foscia/core/actions/types';
+import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
 import runHooks from '@foscia/core/hooks/runHooks';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
-import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/types';
+import { ModelInstance } from '@foscia/core/model/types';
 
 /**
  * Prepare context for an instance update.
@@ -23,21 +16,28 @@ import { Model, ModelClassInstance, ModelInstance } from '@foscia/core/model/typ
  * @param instance
  *
  * @category Enhancers
+ * @provideContext model, instance, id
+ * @requireContext serializer
+ *
+ * @example
+ * ```typescript
+ * import { update, none } from '@foscia/core';
+ *
+ * await action().run(update(post), none());
+ * ```
  */
-const update = <
+export default /* @__PURE__ */ makeEnhancer('update', <
   C extends {},
-  E extends {},
-  D extends {},
-  I extends ModelInstance<D>,
+  I extends ModelInstance,
   Record,
   Related,
   Data,
 >(
-  instance: ModelClassInstance<D> & I,
+  instance: I,
 ) => (
-  action: Action<C & ConsumeSerializer<Record, Related, Data>, E>,
+  action: Action<C & ConsumeSerializer<Record, Related, Data>>,
 ) => action.use(
-  query<C & ConsumeSerializer<Record, Related, Data>, E, D, I>(instance),
+  query(instance),
   context({
     action: ActionName.UPDATE,
     // Rewrite ID to ensure update targets the record termination point
@@ -52,23 +52,4 @@ const update = <
     markSynced(instance);
     await runHooks(instance.$model, ['updated', 'saved'], instance);
   }),
-);
-
-export default /* @__PURE__ */ appendExtension(
-  'update',
-  update,
-  'use',
-) as WithParsedExtension<typeof update, {
-  update<
-    C extends {},
-    E extends {},
-    D extends {},
-    I extends ModelInstance<D>,
-    Record,
-    Related,
-    Data,
-  >(
-    this: Action<C & ConsumeSerializer<Record, Related, Data>, E>,
-    instance: ModelClassInstance<D> & I,
-  ): Action<C & ConsumeModel<Model<D, I>> & ConsumeInstance<I> & ConsumeId, E>;
-}>;
+));

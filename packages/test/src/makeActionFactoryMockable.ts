@@ -5,17 +5,20 @@ import type { ActionFactoryMock, ActionMockableFactory } from '@foscia/test/type
  * Creates a proxy of an action factory which can be mocked.
  *
  * @param factory
+ *
+ * @category Factories
+ * @experimental
  */
-export default <A extends any[], C extends {}, E extends {}>(
-  factory: ActionFactory<A, C, E>,
-): ActionMockableFactory<A, C, E> => {
+export default <A extends any[], C extends {}>(
+  factory: ActionFactory<A, C>,
+): ActionMockableFactory<A, C> => {
   const mockableFactory = (...args: A) => (
     mockableFactory.$mock
-      ? mockableFactory.$mock.makeAction(...args)
+      ? mockableFactory.$mock.make(...args)
       : mockableFactory.$real(...args)
   );
 
-  mockableFactory.$mock = null as ActionFactoryMock<A, C, E> | null;
+  mockableFactory.$mock = null as ActionFactoryMock<A, C> | null;
   mockableFactory.$real = factory;
 
   return mockableFactory;

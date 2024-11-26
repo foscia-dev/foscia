@@ -1,6 +1,14 @@
 import { ObjectTransformer } from '@foscia/core/transformers/types';
 import { Awaitable, isNil, Optional } from '@foscia/shared';
 
+/**
+ * Create a transformer.
+ *
+ * @param deserializeFn
+ * @param serializeFn
+ *
+ * @category Factories
+ */
 export default <T, DS, SR>(
   deserializeFn: (value: DS) => Awaitable<T>,
   serializeFn?: (value: T) => Awaitable<SR>,

@@ -1,8 +1,26 @@
 import compareModelValue from '@foscia/core/model/snapshots/compareModelValue';
-import { ModelClass, ModelKey, ModelSnapshot } from '@foscia/core/model/types';
+import { Model, ModelKey, ModelSnapshot } from '@foscia/core/model/types';
 import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
 
-export default <M extends ModelClass>(
+/**
+ * Compare two snapshots.
+ *
+ * @param nextSnapshot
+ * @param prevSnapshot
+ * @param only
+ *
+ * @category Utilities
+ *
+ * @example
+ * ```typescript
+ * import { compareSnapshot } from '@foscia/core';
+ *
+ * const titleChanged = compareSnapshot(newSnapshot, oldSnapshot, ['title']);
+ * if (titleChanged) {
+ * }
+ * ```
+ */
+export default <M extends Model>(
   nextSnapshot: ModelSnapshot<M>,
   prevSnapshot: ModelSnapshot<M>,
   ...only: ArrayableVariadic<ModelKey<M>>

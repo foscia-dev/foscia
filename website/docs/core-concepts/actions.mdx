@@ -12,7 +12,6 @@ import FunctionInfo from '@site/src/components/FunctionInfo';
 
 - Enhancing actions
 - Running actions
-- Extending actions for builder pattern calls
 - Conditionally enhancing and running actions
 - Registering hooks on actions
 
@@ -48,8 +47,10 @@ way of using actions.
 
 ### Retrieving records
 
-`query` can target a records index using a model. You can use it in
-combination with `all` to retrieve a list of the model instances.
+[`query`](/docs/api/@foscia/core/functions/query) can target a records index
+using a model. You can use it in combination with
+[`all`](/docs/api/@foscia/core/functions/all) to retrieve a list of
+the model instances.
 
 ```typescript
 import { query, all } from '@foscia/core';
@@ -64,9 +65,11 @@ posts.forEach((post) => {
 });
 ```
 
-In addition, `query` also provide a way to target a record using a model and
-an ID. You can use it in combination with `oneOrFail` or `oneOr` to retrieve
-a single record and handle not found errors.
+In addition, [`query`](/docs/api/@foscia/core/functions/query) also provide a
+way to target a record using a model and an ID. You can use it in combination
+with [`oneOrFail`](/docs/api/@foscia/core/functions/oneOrFail) or
+[`oneOr`](/docs/api/@foscia/core/functions/oneOr) to retrieve a single record
+and handle not found errors.
 
 ```typescript
 import { query, oneOrFail } from '@foscia/core';
@@ -82,10 +85,11 @@ const postOrNull = await action().run(
 );
 ```
 
-Finally, `query` can also be used to target a record using an instance.
-If the instance does not exist, this will target the records index, otherwise
-it will target the record. This can be used when writing a record (e.g.
-create/update) or when [lazy loading a relation](#lazy-loading-relations).
+Finally, [`query`](/docs/api/@foscia/core/functions/query) can also be used to
+target a record using an instance. If the instance does not exist, this will
+target the records index, otherwise it will target the record.
+This can be used when writing a record (e.g. create/update)
+or when [lazy loading a relation](#lazy-loading-relations).
 
 ```typescript
 import { query, oneOrFail } from '@foscia/core';
@@ -95,17 +99,23 @@ const post = await action().run(query(somePost), oneOrFail());
 
 ### Creating and updating records
 
-You can create or update records using `create` and `update` functions. As a
-convenience, Foscia provides a `save` function which will call `create` or
-`update` depending on the existence state of your record.
+You can create or update records using
+[`create`](/docs/api/@foscia/core/functions/create) and
+[`update`](/docs/api/@foscia/core/functions/update) functions. As a convenience,
+Foscia provides a [`save`](/docs/api/@foscia/core/functions/) function which
+will call [`create`](/docs/api/@foscia/core/functions/create) or
+[`update`](/docs/api/@foscia/core/functions/update) depending on the existence
+state of your record.
 
-`oneOrCurrent` is a runner which you can combine with those enhancers to always
-retrieve an instance, even if your data source does not return the record on
+[`oneOrCurrent`](/docs/api/@foscia/core/functions/oneOrCurrent) is a runner
+which you can combine with those enhancers to always retrieve an instance,
+even if your data source does not return the record on
 those actions (such as a `204 No Content` on update). It will return a record if
 there is one if your data source response, otherwise it will return the
 initially provided instance.
 
-You can also combine those functions with `none` runner to not handle the data
+You can also combine those functions with
+[`none`](/docs/api/@foscia/core/functions/none) runner to not handle the data
 source response.
 
 ```typescript
@@ -124,9 +134,10 @@ await action().run(save(post), none());
 
 ### Deleting records
 
-You can use `destroy` to trigger a record deletion. You can combine it with
-`none` to ignore the data source's response (errors are still thrown by the
-adapter).
+You can use [`destroy`](/docs/api/@foscia/core/functions/none) to trigger
+a record deletion. You can combine it with
+[`none`](/docs/api/@foscia/core/functions/none) to ignore the data
+source's response (errors are still thrown by the adapter).
 
 ```typescript
 import { destroy, none } from '@foscia/core';
@@ -148,7 +159,8 @@ Eager loading provides a way to retrieve records and eager
 load related models without further requests. It also alleviates the
 "N + 1" query problem.
 
-To eager load a relation, you can use the `include` function.
+To eager load a relation, you can use the
+[`include`](/docs/api/@foscia/core/functions/include) function.
 
 ```typescript
 import { query, all, include } from '@foscia/core';
@@ -185,7 +197,9 @@ Lazy loading a record's relation won't affect the given record instance
 
 ##### To one
 
-For `hasOne` relationship, you can use `associate` and `dissociate`
+For [`hasOne`](/docs/api/@foscia/core/functions/hasOne) relationship,
+you can use [`associate`](/docs/api/@foscia/core/functions/associate)
+and [`dissociate`](/docs/api/@foscia/core/functions/dissociate)
 to change the relation value.
 
 ```typescript
@@ -208,22 +222,26 @@ console.log(myPost.author); // null
 
 :::info
 
-Using `associate` and `dissociate` **will update** the model's property and mark
-it synced.
+Using [`associate`](/docs/api/@foscia/core/functions/associate) and
+[`dissociate`](/docs/api/@foscia/core/functions/dissociate) **will update**
+the model's property and mark it synced.
 
 :::
 
 ##### To many
 
-For `hasMany` relationship, you can use `attach`, `detach` and `updateRelation`
+For [`hasMany`](/docs/api/@foscia/core/functions/hasMany) relationship, you can
+use [`attach`](/docs/api/@foscia/core/functions/attach),
+[`detach`](/docs/api/@foscia/core/functions/detach) and
+[`updateRelation`](/docs/api/@foscia/core/functions/updateRelation)
 to change the relation value:
 
-- `attach` will attach one or many related records, without touching existing
-  related records;
-- `detach` will detach one or many related records, without touching attaching
-  other records;
-- `updateRelation` will sync related records to the given records (detach past
-  records, attach given records);
+- [`attach`](/docs/api/@foscia/core/functions/attach) will attach one or
+  many related records, without touching existing related records;
+- [`detach`](/docs/api/@foscia/core/functions/detach) will detach one or
+  many related records, without touching attaching other records;
+- [`updateRelation`](/docs/api/@foscia/core/functions/updateRelation) will
+  sync related records to the given records (detach past records, attach given records);
 
 ```typescript
 import { attach, detach, updateRelation, none } from '@foscia/core';
@@ -249,8 +267,10 @@ await action().run(
 
 :::warning
 
-Using `attach`, `detach` and `updateRelation` **will not update** the model's
-property.
+Using [`attach`](/docs/api/@foscia/core/functions/attach),
+[`detach`](/docs/api/@foscia/core/functions/detach) and
+[`updateRelation`](/docs/api/@foscia/core/functions/updateRelation)
+**will not update** the model's property.
 
 :::
 
@@ -262,7 +282,8 @@ In some data source implementation, you may want to create a record "through"
 a parent record's relation. As an example, creating a comment through a post
 in a REST API, and using a `POST /posts/1/comments` request.
 
-This can be achieved using the `create` enhancer.
+This can be achieved using the
+[`create`](/docs/api/@foscia/core/functions/create) enhancer.
 
 ```typescript
 import { create } from '@foscia/core';
@@ -279,7 +300,8 @@ await action().run(
 When having a cache enabled on your action, all fetched records are cached
 when deserializing. You can use the cache to retrieve
 an already fetched record without interacting with your data source again
-using `cached` and `cachedOrFail`.
+using [`cached`](/docs/api/@foscia/core/functions/cached) and
+[`cachedOrFail`](/docs/api/@foscia/core/functions/cachedOrFail).
 
 ```typescript
 import { query, cached, cachedOrFail } from '@foscia/core';
@@ -289,7 +311,8 @@ const postOrFail = await action().run(query(Post, 1), cachedOrFail());
 ```
 
 Sometimes, you may want to interact with the cache if your record does not
-have been cached already. For this particular case, you can use `cachedOr`.
+have been cached already. For this particular case, you can use
+[`cachedOr`](/docs/api/@foscia/core/functions/cachedOr).
 
 ```typescript
 import { query, cachedOr, oneOrFail } from '@foscia/core';
@@ -299,9 +322,10 @@ const cachedPostOrFetch = await action().run(query(Post, 1), cachedOr(oneOrFail(
 
 :::info
 
-`cached` runners will check for loaded relations if you are requesting
-relations `include`. If some relations (even deep ones) are not loaded,
-it will act as the record is not inside the cache.
+[`cached`](/docs/api/@foscia/core/functions/cached) runners will check for
+loaded relations if you are requesting relations
+[`include`](/docs/api/@foscia/core/functions/include). If some relations
+(even deep ones) are not loaded, it will act as the record is not inside the cache.
 
 :::
 
@@ -309,7 +333,8 @@ it will act as the record is not inside the cache.
 
 Sometimes, you may need to conditionally apply an enhancer or run an action. As
 an example, you may want to sort results differently based on the user's defined
-sort's direction. This can be done easily using the `when` helper:
+sort's direction. This can be done easily using the
+[`when`](/docs/api/@foscia/core/functions/when) helper:
 
 ```typescript
 import { query, when } from '@foscia/core';
@@ -317,17 +342,27 @@ import { sortByDesc } from '@foscia/jsonapi';
 
 action().run(
   query(Post),
-  when(displayLatestFirst, sortByDesc('createdAt'),
+  when(displayLatestFirst, sortByDesc('createdAt')),
 );
 ```
 
-`when` returns a new enhancer or runner based on the given value's _truthiness_.
+[`when`](/docs/api/@foscia/core/functions/when) returns a new enhancer or
+runner based on the given value's _truthiness_.
 It will execute the first enhancer/runner only if its value is _truthy_. You may
 pass the value as a factory function returning the value, and even a promise
 value. You may also pass a second enhancer/runner which will only execute if the
 value is _falsy_. Each callback arguments will receive the action as their first
 argument and the value as their second argument. Each callback may also be
 async, as any enhancers and runners.
+
+:::info
+
+[`when`](/docs/api/@foscia/core/functions/when) will create a new enhancer or
+runner which will be **evaluated on run**.
+This has benefits, as the condition can be an async value or
+callback, but it also means that the condition won't be evaluated immediately.
+
+:::
 
 Here are further examples:
 
@@ -383,7 +418,7 @@ have a setup action factory.
 
 ### Enhancers
 
-An action instance can receive multiple enhancements that will build an
+An action can receive multiple enhancements that will build an
 appropriate context to run requests to your data sources.
 
 Each enhancer can be applied using the `use` action method. Note that those
@@ -411,15 +446,13 @@ action().use(
 );
 ```
 
-#### Enhancers API guide
-
-<Link className="button border--gradient" to="/docs/reference/actions-enhancers">
-  Available enhancers API guide
+<Link className="button border--gradient" to="/docs/api/@foscia/core/#enhancers">
+  Enhancers API reference
 </Link>
 
 ### Runners
 
-An action instance can be run using the `run` method. The runner can execute
+An action can be run using the `run` method. The runner can execute
 multiple enhancers or runners internally.
 
 When an action run, it does 3 things:
@@ -454,21 +487,23 @@ const posts = await action().run(
 );
 ```
 
-#### Runners API guide
-
-<Link className="button border--gradient" to="/docs/reference/actions-runners">
-  Available runners API guide
+<Link className="button border--gradient" to="/docs/api/@foscia/core/#runners">
+  Runners API reference
 </Link>
 
 ### Hooks
 
-You may hook on multiple events which occurs on action instance using the hook
+You may hook on multiple events which occurs on action using the hook
 registration function:
 
-- `onRunning`: after context computation, before context runner execution.
-- `onSuccess`: after context runner successful execution (no error thrown).
-- `onError`: after context runner failed execution (error thrown).
-- `onFinally`: after context runner successful or failed execution.
+- [`onRunning`](/docs/api/@foscia/core/functions/onRunning):
+  after context computation, before context runner execution.
+- [`onSuccess`](/docs/api/@foscia/core/functions/onSuccess):
+  after context runner successful execution (no error thrown).
+- [`onError`](/docs/api/@foscia/core/functions/onError):
+  after context runner failed execution (error thrown).
+- [`onFinally`](/docs/api/@foscia/core/functions/onFinally):
+  after context runner successful or failed execution.
 
 To register a hook callback, you must use the registration enhancer on your
 building action.
@@ -495,8 +530,10 @@ parallelized).
 :::
 
 You can temporally disable hook execution for a given action by using the
-`withoutHooks` function. `withoutHooks` can receive a sync or async
-callback: if an async callback is passed, it will return a `Promise`.
+[`withoutHooks`](/docs/api/@foscia/core/functions/withoutHooks) function.
+[`withoutHooks`](/docs/api/@foscia/core/functions/withoutHooks) can receive
+a sync or async callback: if an async callback is passed (e.g. returning a
+`Promise`), it will also return a `Promise`.
 
 ```typescript
 import { query, all, withoutHooks } from '@foscia/core';
@@ -513,71 +550,5 @@ const users = await withoutHooks(action(), async (a) => {
 provide some library features
 ([**models hooks**](/docs/core-concepts/models#hooks), etc.). Be careful running
 actions without hooks, as those hooks will also be disable.
-
-:::
-
-## Extensions
-
-Sometimes, functional programming can be frustrating, because you must always
-rewrite the same words (e.g. `use`) to keep a builder pattern styled code.
-
-Extensions provide a set of properties or methods which will be added to your
-actions' instances. As an action, extensions can avoid you writing `use` or
-`run` by adding enhancers/runners methods on you action.
-
-The first step to use one or many extensions is to update your action factory in
-which you should provide a second parameter.
-
-```typescript title="action.ts"
-import {
-  makeActionFactory,
-  query,
-  include,
-  all,
-  hooksExtensions,
-} from '@foscia/core';
-
-export default makeActionFactory(
-  {
-    // makeJsonRestAdapter(), ...etc.
-  },
-  {
-    ...hooksExtensions(),
-    ...query.extension(),
-    ...include.extension(),
-    ...all.extension(),
-  },
-);
-```
-
-You can now use the extended enhancers and runners without calling `use` or
-`run`:
-
-```typescript
-import action from './action';
-
-await action().query(Post).include('tags').all();
-```
-
-Every enhancers and runners of Foscia provide a `.extension()` property which is
-extendable by an action instance.
-
-You may extend your action with any enhancers or runners extensions manually.
-Otherwise, you may also use **prebuild extensions packs**. Those provide
-multiple extensions in one exported object allowing you to extend multiple
-extensions at one time!
-
-<Link
-  className="button border--gradient margin-bottom--lg"
-  to="/docs/reference/actions-extensions"
->
-  Available extensions packs API guide
-</Link>
-
-:::warning
-
-Keep in mind that using extensions will avoid tree-shaking the extended
-enhancers or runners functions (even when those are unused in your codebase),
-because those are imported by their extensions.
 
 :::

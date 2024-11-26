@@ -1,7 +1,7 @@
 import ActionName from '@foscia/core/actions/actionName';
+import isWhenContextFunction from '@foscia/core/actions/checks/isWhenContextFunction';
 import consumeAction from '@foscia/core/actions/context/consumers/consumeAction';
 import consumeAdapter from '@foscia/core/actions/context/consumers/consumeAdapter';
-import consumeQueryAs from '@foscia/core/actions/context/consumers/consumeQueryAs';
 import consumeCache from '@foscia/core/actions/context/consumers/consumeCache';
 import consumeContext from '@foscia/core/actions/context/consumers/consumeContext';
 import consumeData from '@foscia/core/actions/context/consumers/consumeData';
@@ -10,6 +10,7 @@ import consumeId from '@foscia/core/actions/context/consumers/consumeId';
 import consumeInclude from '@foscia/core/actions/context/consumers/consumeInclude';
 import consumeInstance from '@foscia/core/actions/context/consumers/consumeInstance';
 import consumeModel from '@foscia/core/actions/context/consumers/consumeModel';
+import consumeQueryAs from '@foscia/core/actions/context/consumers/consumeQueryAs';
 import consumeRegistry from '@foscia/core/actions/context/consumers/consumeRegistry';
 import consumeRelation from '@foscia/core/actions/context/consumers/consumeRelation';
 import consumeSerializer from '@foscia/core/actions/context/consumers/consumeSerializer';
@@ -44,14 +45,10 @@ import oneOr, { OneData } from '@foscia/core/actions/context/runners/oneOr';
 import oneOrCurrent from '@foscia/core/actions/context/runners/oneOrCurrent';
 import oneOrFail from '@foscia/core/actions/context/runners/oneOrFail';
 import raw from '@foscia/core/actions/context/runners/raw';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
-import coreExtensions from '@foscia/core/actions/extensions/coreExtensions';
-import crudExtensions from '@foscia/core/actions/extensions/crudExtensions';
-import hooksExtensions from '@foscia/core/actions/extensions/hooksExtensions';
-import readExtensions from '@foscia/core/actions/extensions/readExtensions';
-import writeExtensions from '@foscia/core/actions/extensions/writeExtensions';
-import makeActionClass from '@foscia/core/actions/makeActionClass';
+import isContextFunction from '@foscia/core/actions/checks/isContextFunction';
 import makeActionFactory from '@foscia/core/actions/makeActionFactory';
+import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeRunner from '@foscia/core/actions/makeRunner';
 import when from '@foscia/core/actions/when';
 
 export type {
@@ -108,13 +105,10 @@ export {
   consumeRelation,
   consumeSerializer,
   guessContextModel,
-  appendExtension,
-  makeActionClass,
   makeActionFactory,
-  coreExtensions,
-  crudExtensions,
-  hooksExtensions,
-  readExtensions,
-  writeExtensions,
+  makeEnhancer,
+  makeRunner,
   ActionName,
+  isContextFunction,
+  isWhenContextFunction,
 };

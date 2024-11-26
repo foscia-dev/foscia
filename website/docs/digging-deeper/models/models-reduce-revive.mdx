@@ -28,14 +28,16 @@ Nuxt SSR features.
 
 ## Using CLI
 
-You can generate reducer and reviver using [`@foscia/cli`](/docs/digging-deeper/cli).
+You can generate reducer and reviver using [`@foscia/cli`](/docs/digging-deeper/usages/cli).
 
 <ShellCommand command={['foscia make reducer', 'foscia make reviver']} />
 
 ## Reducing and reviving
 
 Foscia provides built-in tools to reduce and revive models' instances with two
-functions: `makeModelsReducer` and `makeModelsReviver`.
+functions:
+[`makeModelsReducer`](/docs/api/@foscia/core/functions/makeModelsReducer) and
+[`makeModelsReviver`](/docs/api/@foscia/core/functions/makeModelsReviver).
 
 Those tools support instance's state, values and relations (circular or not)
 reducing and reviving out of the box.
@@ -58,7 +60,9 @@ const myRevivedPost = revive(JSON.parse(json));
 
 Notice that:
 
-- `makeModelsReviver` must receive an array of revivable models.
+- [`makeModelsReviver`](/docs/api/@foscia/core/functions/makeModelsReviver)
+  must receive an array of revivable models. Otherwise, it won't be able to
+  resolve models to revive records in.
 - Reducing models will not "serialize" object values, such as Date.
   You can use a tool like [**`devalue`**](https://github.com/Rich-Harris/devalue)
   to leverage this.
@@ -68,17 +72,22 @@ Notice that:
 ## Custom behaviors
 
 You can easily define custom reducing and reviving behaviors by defining
-`$reduce` and `$revive` instance methods. Those custom behaviors can
-support default state reducing/reviving or not, and can be strongly typed.
+[`$reduce`](/docs/api/@foscia/core/type-aliases/ModelCanReduceRevive#reduce) and
+[`$revive`](/docs/api/@foscia/core/type-aliases/ModelCanReduceRevive#revive)
+instance methods. Those custom behaviors can support default state
+reducing/reviving or not, and can be strongly typed.
 
 ### Keeping instance state
 
 To provide a custom reducing/reviving behavior while keeping instance state
 automatic reducing/reviving, you can use the provided `data` factory function
-passed to `$reduce`. It will reduce internal data used by Foscia to correctly
-revive instance state.
+passed to
+[`$reduce`](/docs/api/@foscia/core/type-aliases/ModelCanReduceRevive#reduce).
+It will reduce internal data used by Foscia to correctly revive instance state.
 
-During `$revive`, `data` will contain your reduced data provided by `$reduce`.
+During [`$revive`](/docs/api/@foscia/core/type-aliases/ModelCanReduceRevive#revive),
+`data` will contain your reduced data provided by
+[`$reduce`](/docs/api/@foscia/core/type-aliases/ModelCanReduceRevive#reduce).
 
 ```typescript
 import { attr, makeModel, ModelReduceTools } from '@foscia/core';
@@ -109,10 +118,13 @@ export default class Post extends makeModel('posts', {
 ### Destroying instance state
 
 You can omit instance state reducing by not calling `data` function
-inside your `$reduce` method. This can be useful when you need something
+inside your [`$reduce`](/docs/api/@foscia/core/type-aliases/ModelCanReduceRevive#reduce)
+method. This can be useful when you need something
 very specific, but be aware that no instance state will be restored
-automatically (values, relations, `$exists` state, `$original` snapshot
-or other instance properties).
+automatically (values, relations,
+[`$exists`](/docs/api/@foscia/core/type-aliases/ModelInstance#exists) state,
+[`$original`](/docs/api/@foscia/core/type-aliases/ModelInstance#original)
+snapshot or other instance properties).
 
 ```typescript
 import { attr, makeModel } from '@foscia/core';
@@ -139,8 +151,12 @@ export default class Post extends makeModel('posts', {
 ### Typechecking custom behaviors
 
 If you want to ensure you do not miss any implemented methods or typing, you can
-use Foscia provided interface `ModelCanReduceRevive` and types to strict
-type your implementations of custom `$reduce` and `$revive` methods.
+use Foscia provided interface
+[`ModelCanReduceRevive`](/docs/api/@foscia/core/type-aliases/ModelCanReduceRevive)
+and types to strict type your implementations of custom
+[`$reduce`](/docs/api/@foscia/core/type-aliases/ModelCanReduceRevive#reduce) and
+[`$revive`](/docs/api/@foscia/core/type-aliases/ModelCanReduceRevive#revive)
+methods.
 
 ```typescript
 import { makeModel, ModelCanReduceRevive, ModelReduceTools, ModelReviveTools, ReducedModelInstanceCustomData } from '@foscia/core';
@@ -172,7 +188,10 @@ export default class Post
 ### Defining common custom behaviors
 
 If you want to share a common behavior between some or all of your models,
-you can use [model composition](/docs/digging-deeper/models/models-composition) to define common `$reduce` and `$revive`
+you can use [model composition](/docs/digging-deeper/models/models-composition)
+to define common
+[`$reduce`](/docs/api/@foscia/core/type-aliases/ModelCanReduceRevive#reduce) and
+[`$revive`](/docs/api/@foscia/core/type-aliases/ModelCanReduceRevive#revive)
 methods.
 
 #### With a composable

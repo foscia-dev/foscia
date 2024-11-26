@@ -1,0 +1,8 @@
+{
+  "label": "Implementations",
+  "position": 10000,
+  "link": {
+    "type": "generated-index",
+    "description": "Details on available implementations and how Foscia works internally."
+  }
+}

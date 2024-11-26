@@ -16,6 +16,8 @@ import { Arrayable, Awaitable, Dictionary, IdentifiersMap } from '@foscia/shared
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-links)
+ *
+ * @internal
  */
 export type JsonApiLink = {
   href: string;
@@ -24,16 +26,22 @@ export type JsonApiLink = {
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-links)
+ *
+ * @internal
  */
 export type JsonApiLinks = Dictionary<JsonApiLink>;
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-meta)
+ *
+ * @internal
  */
 export type JsonApiMeta = Dictionary<any>;
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-resource-identifier-objects)
+ *
+ * @internal
  */
 export type JsonApiResourceIdentifier = {
   type: string;
@@ -43,11 +51,15 @@ export type JsonApiResourceIdentifier = {
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-resource-object-attributes)
+ *
+ * @internal
  */
 export type JsonApiAttributes = Dictionary;
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-resource-object-relationships)
+ *
+ * @internal
  */
 export type JsonApiRelationship = {
   data?: JsonApiResourceIdentifier[] | JsonApiResourceIdentifier | null;
@@ -57,11 +69,15 @@ export type JsonApiRelationship = {
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-resource-object-relationships)
+ *
+ * @internal
  */
 export type JsonApiRelationships = Dictionary<JsonApiRelationship>;
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-resource-objects)
+ *
+ * @internal
  */
 export type JsonApiAbstractResource = {
   type: string;
@@ -74,6 +90,8 @@ export type JsonApiAbstractResource = {
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-resource-objects)
+ *
+ * @internal
  */
 export type JsonApiResource = JsonApiAbstractResource & {
   id: string;
@@ -81,6 +99,8 @@ export type JsonApiResource = JsonApiAbstractResource & {
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-resource-objects)
+ *
+ * @internal
  */
 export type JsonApiNewResource = JsonApiAbstractResource & {
   id?: string;
@@ -88,6 +108,8 @@ export type JsonApiNewResource = JsonApiAbstractResource & {
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#error-objects)
+ *
+ * @internal
  */
 export type JsonApiError = {
   status?: string;
@@ -104,6 +126,8 @@ export type JsonApiError = {
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-top-level)
+ *
+ * @internal
  */
 export type JsonApiDocument = {
   data?: JsonApiResource[] | JsonApiResource | JsonApiNewResource | null;
@@ -119,6 +143,8 @@ export type JsonApiDocument = {
 
 /**
  * Extracted data from a JSON:API backend Response object.
+ *
+ * @internal
  */
 export type JsonApiExtractedData<Record extends JsonApiNewResource = JsonApiNewResource> =
   & {
@@ -134,6 +160,11 @@ export type JsonApiDeserializedData<I extends ModelInstance = ModelInstance> =
   & DeserializedData<I>
   & { document: JsonApiDocument; };
 
+/**
+ * Configuration for JSON:API deserializer.
+ *
+ * @internal
+ */
 export type JsonApiDeserializerConfig<
   Record extends JsonApiNewResource,
   Data extends JsonApiDocument | undefined,
@@ -141,12 +172,36 @@ export type JsonApiDeserializerConfig<
   Extract extends JsonApiExtractedData<Record>,
 > =
   & {
+    /**
+     * Extract identifier (type, ID and LID) from a JSON:API record.
+     * Defaults to the record `type`, `id` and `lid` root fields.
+     *
+     * @param record
+     * @param context
+     */
     pullIdentifier: (record: Record, context: {}) => Awaitable<DeserializerRecordIdentifier>;
+    /**
+     * Extract an attribute's value from a JSON:API record.
+     * Defaults to the record attribute's value from `attributes` fields.
+     *
+     * @param record
+     * @param deserializerContext
+     * @param extract
+     */
     pullAttribute: (
       record: Record,
       deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelAttribute>,
       extract: Extract,
     ) => Awaitable<unknown>;
+    /**
+     * Extract a relation's value from a JSON:API record.
+     * Defaults to the record relation's value(s) from `relationships` fields
+     * mapped with their record found in `included` document key.
+     *
+     * @param record
+     * @param deserializerContext
+     * @param extract
+     */
     pullRelation: (
       record: Record,
       deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelRelation>,
@@ -155,6 +210,11 @@ export type JsonApiDeserializerConfig<
   }
   & DeserializerConfig<Record, Data, Deserialized, Extract>;
 
+/**
+ * Configuration for JSON:API serializer.
+ *
+ * @internal
+ */
 export type JsonApiSerializerConfig<
   Record extends JsonApiNewResource,
   Related extends JsonApiResourceIdentifier,

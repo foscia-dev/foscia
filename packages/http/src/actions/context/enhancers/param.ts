@@ -1,4 +1,4 @@
-import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
+import { Action, makeEnhancer } from '@foscia/core';
 import consumeRequestObjectParams
   from '@foscia/http/actions/context/consumers/consumeRequestObjectParams';
 import configureRequest from '@foscia/http/actions/context/enhancers/configureRequest';
@@ -12,8 +12,25 @@ import { Dictionary } from '@foscia/shared';
  * @param value
  *
  * @category Enhancers
+ *
+ * @example
+ * ```typescript
+ * import { raw } from '@foscia/core';
+ * import { makeGet, params } from '@foscia/http';
+ *
+ * const response = await action().run(
+ *   makeGet('posts'),
+ *   params({ search: 'foo' }),
+ *   params('sort', 'title'),
+ *   raw(),
+ * );
+ * ```
+ *
+ * @remarks
+ * `params` provides an object params configuration and cannot be used in
+ * combination with a query string (such as `search=foo&sort=title`).
  */
-const param = (
+export default /* @__PURE__ */ makeEnhancer('param', (
   key: string | Dictionary,
   value?: unknown,
 ) => async <C extends {}>(action: Action<C>) => action.use(
@@ -23,16 +40,4 @@ const param = (
       ...(typeof key === 'string' ? { [key]: value } : key),
     },
   }),
-);
-
-export default /* @__PURE__ */ appendExtension(
-  'param',
-  param,
-  'use',
-) as WithParsedExtension<typeof param, {
-  param<C extends {}, E extends {}>(
-    this: Action<C, E>,
-    key: string | Dictionary,
-    value?: unknown,
-  ): Action<C, E>;
-}>;
+));

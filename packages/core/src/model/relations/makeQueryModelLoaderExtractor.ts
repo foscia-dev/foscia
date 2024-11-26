@@ -2,6 +2,15 @@ import logger from '@foscia/core/logger/logger';
 import { ModelIdType, ModelInstance, ModelRelationKey } from '@foscia/core/model/types';
 import { Arrayable } from '@foscia/shared';
 
+/**
+ * Create an extractor to retrieve related IDs and types.
+ *
+ * @param pullValue
+ * @param parseValue
+ *
+ * @category Factories
+ * @since 0.8.2
+ */
 export default <V>(
   pullValue: <I extends ModelInstance>(
     instance: I,

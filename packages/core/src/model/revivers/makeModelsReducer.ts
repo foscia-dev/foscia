@@ -7,9 +7,15 @@ import {
   ReducedModelInstanceData,
   ReducedModelSnapshot,
 } from '@foscia/core/model/revivers/types';
-import { ModelClass, ModelInstance, ModelSnapshot } from '@foscia/core/model/types';
+import { Model, ModelInstance, ModelSnapshot } from '@foscia/core/model/types';
 import { Dictionary, mapWithKeys, uniqueId, unsafeId } from '@foscia/shared';
 
+/**
+ * Create a models reducer.
+ *
+ * @category Factories
+ * @since 0.8.6
+ */
 export default () => {
   let reduceInstance: (
     instance: ModelInstance,
@@ -18,7 +24,7 @@ export default () => {
 
   const generateRef = (refs: string[]): string => uniqueId(unsafeId, refs);
 
-  const reduceModel = (model: ModelClass) => ({
+  const reduceModel = (model: Model) => ({
     $FOSCIA_TYPE: 'model',
     $type: model.$type,
   } as ReducedModel);

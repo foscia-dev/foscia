@@ -39,20 +39,24 @@ async function check() {
   await Promise.all(
     (await listFiles(path.resolve(rootDirname, 'packages'))).map(async (file) => {
       const [_, packageName, context] = file.match(/packages\/([a-z-]+)\/(src|tests)/) ?? [];
-      if (packageName) {
+      if (packageName && (packageName !== 'cli' || context !== 'tests')) {
         const errors = [];
         const fileContent = await readFile(file, { encoding: 'utf8' });
-        const matches = fileContent.match(/from '@foscia\/[a-z-]+(\/index|.)/g) ?? [];
-        matches.forEach((match) => {
-          const importPackageName = match.substring(14, match.length).replace(/(\/index|.)$/, '');
+        const matches = fileContent.matchAll(/[^\n]+(from '@foscia\/[a-z-]+(\/index|.))/g);
+        [...matches].forEach((match) => {
+          const importPackageName = match[1].substring(14, match[1].length).replace(/(\/index|.)$/, '');
+          if (match[0].match(/^\s+\*/)) {
+            return;
+          }
 
-          if (match.endsWith('/') && (context !== 'src' || packageName !== importPackageName)) {
+          if (match[1].endsWith('/') && (context !== 'src' || packageName !== importPackageName)) {
+            console.log(packageName, context)
             errors.push(
               `import of ${c.red(`@foscia/${importPackageName}`)} must use root package export (instead of inner package export)`,
             );
           }
 
-          if (context === 'src' && packageName === importPackageName && (!match.endsWith('/') || match.endsWith('/index'))) {
+          if (context === 'src' && packageName === importPackageName && (!match[1].endsWith('/') || match[1].endsWith('/index'))) {
             errors.push(
               `import of ${c.red(`@foscia/${packageName}`)} must use inner package export (instead of root package export)`,
             );

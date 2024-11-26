@@ -2,6 +2,7 @@
   "label": "Actions",
   "position": 200,
   "link": {
-    "type": "generated-index"
+    "type": "generated-index",
+    "description": "Advanced usages of actions with or without models."
   }
 }

@@ -8,6 +8,13 @@ const makeValuesMapper = <T, S>(
   value.map((v) => transform(v)),
 );
 
+/**
+ * Create an array transformer.
+ *
+ * @param transformer
+ *
+ * @category Factories
+ */
 export default <T, DS, SR>(transformer: ObjectTransformer<T, DS, SR>) => makeTransformer(
   makeValuesMapper(transformer.deserialize),
   makeValuesMapper(transformer.serialize),

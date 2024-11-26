@@ -17,15 +17,15 @@ using the CLI, such as:
 
 - Suggesting composables or transformers to use when making models or
   composables using
-  [`foscia make model`](/docs/digging-deeper/cli#make-model-name) or
-  [`foscia make composable`](/docs/digging-deeper/cli#make-composable-name).
+  [`foscia make model`](/docs/digging-deeper/usages/cli#make-model-name) or
+  [`foscia make composable`](/docs/digging-deeper/usages/cli#make-composable-name).
 - Importing available files (`models.ts`, `action.ts`, `makeModel.ts`, etc.)
   when generating other files (such as models, some frameworks integration files).
 
 ## Example project structure
 
 Your Foscia files are stored in one directory you choose when initiating
-your project using [`foscia init`](/docs/digging-deeper/cli#init-path).
+your project using [`foscia init`](/docs/digging-deeper/usages/cli#init-path).
 
 Here is an example of a Nuxt v4 project using Foscia and storing Foscia's
 related files into `app/data` directory.

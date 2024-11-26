@@ -1,6 +1,11 @@
 import logger from '@foscia/core/logger/logger';
 import makeTransformer from '@foscia/core/transformers/makeTransformer';
 
+/**
+ * Create a number transformer.
+ *
+ * @category Factories
+ */
 export default () => makeTransformer((value: unknown) => {
   const number = Number(value);
   if (Number.isNaN(number)) {

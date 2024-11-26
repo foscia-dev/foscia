@@ -1,3 +1,8 @@
 import makeInstanceHook from '@foscia/core/model/hooks/makeInstanceHook';
 
-export default makeInstanceHook('retrieved');
+/**
+ * Register a "retrieved" hook on model.
+ *
+ * @category Hooks
+ */
+export default /* @__PURE__ */ makeInstanceHook('retrieved');

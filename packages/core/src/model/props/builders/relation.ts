@@ -1,24 +1,16 @@
-import makePendingProp, { PROP_MODIFIERS } from '@foscia/core/model/props/builders/makePendingProp';
+import makeValuePropFactory from '@foscia/core/model/props/builders/makeValuePropFactory';
 import {
-  PendingModelRelation,
-  PendingModelRelationConfig,
+  ModelRelationFactory,
+  ModelRelationFactoryConfig,
 } from '@foscia/core/model/props/builders/types';
-import { ModelInstance, ModelRelationType } from '@foscia/core/model/types';
-import { SYMBOL_MODEL_PROP_RELATION } from '@foscia/core/symbols';
+import { ModelInstance, ModelRelation, ModelRelationType } from '@foscia/core/model/types';
+import { SYMBOL_MODEL_PROP_KIND_RELATION } from '@foscia/core/symbols';
 
-/**
- * Make a pending relation definition.
- *
- * @param relationType
- * @param config
- *
- * @internal
- */
 export default (
   relationType: ModelRelationType,
-  config?: PendingModelRelationConfig,
+  config?: ModelRelationFactoryConfig,
 ) => {
-  const resolveConfig = (configValue: PendingModelRelationConfig) => {
+  const resolveConfig = (configValue: ModelRelationFactoryConfig) => {
     if (typeof configValue === 'string' || Array.isArray(configValue)) {
       return { type: configValue };
     }
@@ -30,14 +22,11 @@ export default (
     return { ...configValue };
   };
 
-  const makePendingRelation = makePendingProp({
-    ...PROP_MODIFIERS,
-    config: resolveConfig,
-  });
-
-  return makePendingRelation({
-    $FOSCIA_TYPE: SYMBOL_MODEL_PROP_RELATION,
+  return makeValuePropFactory({
+    $VALUE_PROP_TYPE: SYMBOL_MODEL_PROP_KIND_RELATION,
     $RELATION_TYPE: relationType,
     ...resolveConfig(config ?? {}),
-  }) as unknown as PendingModelRelation<ModelInstance | ModelInstance[] | null, false>;
+  } as ModelRelation, {
+    config: resolveConfig,
+  }) as ModelRelationFactory<ModelInstance | ModelInstance[] | null, false>;
 };

@@ -23,22 +23,22 @@ import ShellCommand from '@site/src/components/ShellCommand';
 
 ### Using CLI
 
-You can generate a new model using [`@foscia/cli`](/docs/digging-deeper/cli).
+You can generate a new model using [`@foscia/cli`](/docs/digging-deeper/usages/cli).
 
 <ShellCommand command="foscia make model post" />
 
 ### Model factory
 
-`makeModel` is the default model factory function. It defines a new model using
-2 arguments and returns an ES6 class:
+To declare a model, you just need to use the
+[`makeModel`](/docs/api/@foscia/core/functions/makeModel) function.
+This function takes up to 2 arguments and returns a
+[`Model`](/docs/api/@foscia/core/type-aliases/Model) constructor:
 
-- The string `type` or a
+- The `type` string or a
 [configuration object](/docs/digging-deeper/models/models-configuration).
-- The [optional `definition` of the model](#definition): an object map
-containing IDs/attributes/relations definitions, custom properties, custom
+- The [optional `definition` of the model](#definition): an object
+containing property definition factories, custom properties, custom
 methods and composables.
-
-The attributes and relations definition represents the `schema` of the model.
 
 ```typescript
 import { makeModel, attr, hasMany, toDateTime } from '@foscia/core';
@@ -57,14 +57,18 @@ export default makeModel('posts', {
 
 ### Extending a model class
 
-`makeModel` will return a model class which can be extended by an ES6 class.
+[`makeModel`](/docs/api/@foscia/core/functions/makeModel) will return a
+[`Model`](/docs/api/@foscia/core/type-aliases/Model) constructor
+which can be extended by an ES6 class.
 
 ```typescript
 export default class Post extends makeModel('posts') {}
 ```
 
-The returned model class also provides static methods to extend the definition
-already provided to `makeModel`.
+The returned [`Model`](/docs/api/@foscia/core/type-aliases/Model) constructor
+also implements [`ExtendableModel`](/docs/api/@foscia/core/type-aliases/ExtendableModel)
+and provides static methods to extend the definition
+already provided to [`makeModel`](/docs/api/@foscia/core/functions/makeModel).
 
 ```typescript
 /* Initial model creation without definition */
@@ -101,8 +105,8 @@ original model class.
 #### Note on exported value
 
 In many Foscia guides and examples, you will see that the ES6 class returned by
-`makeModel` is extended before exporting: we use
-`export default class Post extends makeModel...` instead of
+[`makeModel`](/docs/api/@foscia/core/functions/makeModel) is extended before
+exporting: we use `export default class Post extends makeModel...` instead of
 `export default makeModel...`.
 
 This has two benefits:
@@ -141,10 +145,10 @@ those.
 
 ### Utilities
 
-Foscia proposes you multiple utilities functions to interact with models.
+Foscia provides multiple utilities functions to interact with models.
 
-<Link className="button border--gradient" to="/docs/reference/models-utilities">
-  Read the models' utilities API guide
+<Link className="button border--gradient" to="/docs/api/@foscia/core/#utilities">
+  Models' utilities API reference
 </Link>
 
 ## Definition
@@ -153,8 +157,9 @@ Foscia proposes you multiple utilities functions to interact with models.
 
 #### Description
 
-`id` is a pending ID definition factory function used to define your model's IDs
-properties. You can pass a transformer or a default value to this factory.
+[`id`](/docs/api/@foscia/core/functions/id) is an ID definition factory used
+to define your model's IDs properties.
+You can pass a transformer or a default value to this factory.
 
 - Foscia consider your IDs as `string`, `number` or `null` values by default.
   Each model have `id` and `lid` properties representing record identification.
@@ -162,7 +167,7 @@ properties. You can pass a transformer or a default value to this factory.
   can use the `id` function.
 - `id` properties can be transformed.
   [Read more on the transformers guide](/docs/digging-deeper/models/models-transformers).
-- `id` pending definition supports [chained modifiers](#ids-chained-modifiers).
+- `id` definition factory supports [chained modifiers](#ids-chained-modifiers).
 
 :::warning
 
@@ -193,27 +198,24 @@ id(toString())
   .readOnly();
 ```
 
-#### Chained modifiers {#ids-chained-modifiers}
+#### API {#ids-chained-modifiers}
 
-| Name        | Parameters                                  | Effect                                 |
-| ----------- | ------------------------------------------- | -------------------------------------- |
-| `transform` | `ObjectTransformer`                         | Use a transformer.                     |
-| `default`   | <code>unknown &vert; (() => unknown)</code> | Set a default value on `new` instance. |
-| `readOnly`  | `boolean`                                   | Set read-only state.                   |
-| `nullable`  | -                                           | Set current type as nullable.          |
+[`ModelIdFactory`](/docs/api/@foscia/core/type-aliases/ModelIdFactory)
+provides type definition of `id` chained modifiers.
 
 ### Attributes
 
 #### Description
 
-`attr` is an attribute definition factory function used to define your model's
+[`attr`](/docs/api/@foscia/core/functions/attr) is an attribute definition
+factory used to define your model's
 attributes. You can pass a transformer or a default value to this factory.
 
 - Foscia consider your attributes as non-nullable values by default.
 - Non-loaded attributes will have a value of `undefined`.
 - `attr` properties can be transformed.
   [Read more on the transformers guide](/docs/digging-deeper/models/models-transformers).
-- `attr` pending definition supports
+- `attr` definition factory supports
   [chained modifiers](#attributes-chained-modifiers).
 
 #### Example
@@ -237,29 +239,25 @@ attr(toDateTime())
   .sync('pull');
 ```
 
-#### Chained modifiers {#attributes-chained-modifiers}
+#### API {#attributes-chained-modifiers}
 
-| Name        | Parameters                                       | Effect                                                                                                                                                         |
-| ----------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `transform` | `ObjectTransformer`                              | Use a transformer.                                                                                                                                             |
-| `default`   | <code>unknown &vert; (() => unknown)</code>      | Set a default value on `new` instance.                                                                                                                         |
-| `readOnly`  | `boolean`                                        | Set read-only state.                                                                                                                                           |
-| `nullable`  | -                                                | Set current type as nullable.                                                                                                                                  |
-| `alias`     | `string`                                         | Set an alias for data source interactions.                                                                                                                     |
-| `sync`      | <code>boolean &vert; 'pull' &vert; 'push'</code> | Set sync state: `true` for always (default), `false` for never, `'pull'` to ignore property when serializing, `'push'` to ignore property when deserializing). |
+[`ModelAttritbueFactory`](/docs/api/@foscia/core/type-aliases/ModelAttritbueFactory)
+provides type definition of `attr` chained modifiers.
 
 ### Relations
 
 #### Description
 
-`hasMany` and `hasOne` are relation definition factory function used to define
-your model's relations. As suggested by their names, `hasMany` represents a
+[`hasMany`](/docs/api/@foscia/core/functions/hasMany) and
+[`hasOne`](/docs/api/@foscia/core/functions/hasOne) are relation
+definition factories used to define your model's relations.
+As suggested by their names, `hasMany` represents a
 relation to a list of models and `hasOne` represents a relation to a single
 model. You can pass the relation information to this factory.
 
 - Foscia consider your relations as non-nullable values by default.
 - Non-loaded relations will have a value of `undefined`.
-- `hasOne` and `hasMany` pending definition supports
+- `hasOne` and `hasMany` definition factories supports
   [chained modifiers](#relations-chained-modifiers).
 - Depending on your data structure, you should follow one of the recommandation
   over relations definition to avoid circular dependencies errors:
@@ -328,6 +326,17 @@ hasMany<Comment[]>('comments')
   </TabItem>
 </Tabs>
 
+#### Configuration {#relations-configuration}
+
+Using `config` chained modifier, you can customize the
+[`ModelRelationConfig`](/docs/api/@foscia/core/type-aliases/ModelRelationConfig),
+which can vary between implementations and used dependencies.
+
+#### API {#relations-chained-modifiers}
+
+[`ModelRelationFactory`](/docs/api/@foscia/core/type-aliases/ModelRelationFactory)
+provides type definition of `hasMany` and `hasOne` chained modifiers.
+
 #### Polymorphism
 
 Defining a polymorphic relation is pretty simple:
@@ -354,17 +363,6 @@ When implementing polymorphism with a REST data source, your record JSON object
 must contain a `type` property matching your Foscia models' types.
 
 :::
-
-#### Chained modifiers {#relations-chained-modifiers}
-
-| Name       | Parameters                                                                                     | Effect                                                                                                                                                         |
-| ---------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `config`   | <code>string &vert; string[] &vert; ModelRelationConfig</code>                                 | Specify the relation configuration: related types and custom implementations related options, see [relations configuration](#relations-configuration).         |
-| `default`  | <code>unknown &vert; (() => unknown)</code>                                                    | Set a default value on `new` instance.                                                                                                                         |
-| `readOnly` | `boolean`                                                                                      | Set read-only state.                                                                                                                                           |
-| `nullable` | -                                                                                              | Set current type as nullable.                                                                                                                                  |
-| `alias`    | `string`                                                                                       | Set an alias for data source interactions.                                                                                                                     |
-| `sync`     | <code>boolean &vert; 'pull' &vert; 'push'</code>                                               | Set sync state: `true` for always (default), `false` for never, `'pull'` to ignore property when serializing, `'push'` to ignore property when deserializing). |
 
 #### Recommandations
 
@@ -419,16 +417,6 @@ import type User from './user';
 hasOne<User>('users');
 ```
 
-#### Configuration {#relations-configuration}
-
-Using `config` chained modifier, you can customize the relation configuration,
-which can vary between implementations and used dependencies.
-
-| Name   | Parameters                          | Effect                                                                                         |
-|--------|-------------------------------------|------------------------------------------------------------------------------------------------|
-| `type` | <code>string &vert; string[]</code> | Specify related models' types.                                                                 |
-| `path` | <code>string</code>                 | <Chip color="primary">only: HTTP</Chip> Specify a path alias for dedicated relation endpoints. |
-
 ### Custom properties
 
 In addition to IDs, attributes and relations, you can implement additional
@@ -473,7 +461,7 @@ of an
 ### Using hooks
 
 You can hook multiple events on model's instances using hook registration
-functions, such as `onCreating`.
+functions, such as [`onCreating`](/docs/api/@foscia/core/functions/onCreating).
 
 To hook on an event, use the dedicated hook registration function. Each
 hook registration function will return a callback to unregister the hook.
@@ -490,7 +478,8 @@ const unregisterThisHook = onCreating(User, async (user) => {
 unregisterThisHook();
 ```
 
-You can also use `unregisterHook` to remove a registered hook from a model.
+You can also use [`unregisterHook`](/docs/api/@foscia/core/functions/unregisterHook)
+to remove a registered hook from a model.
 
 ```typescript
 import { onCreating, unregisterHook } from '@foscia/core';
@@ -506,9 +495,11 @@ onCreating(User, myCreatingHook);
 unregisterHook(User, 'creating', myCreatingHook);
 ```
 
-Finally, you can temporally disable hook execution for a given model by using
-the `withoutHooks` function. `withoutHooks` can receive a sync or async
-callback: if an async callback is passed, it will return a `Promise`.
+You can temporally disable hook execution for a given model by using the
+[`withoutHooks`](/docs/api/@foscia/core/functions/withoutHooks) function.
+[`withoutHooks`](/docs/api/@foscia/core/functions/withoutHooks) can receive
+a sync or async callback: if an async callback is passed (e.g. returning a
+`Promise`), it will also return a `Promise`.
 
 ```typescript
 import { withoutHooks } from '@foscia/core';
@@ -522,7 +513,7 @@ const asyncResultOfYourCallback = await withoutHooks(User, async () => {
 
 **Foscia may also register hooks internally** when using some features, such
 as relations inverse, etc. Be careful when running a callback
-without model's hooks, as those hooks will also be disable.
+without model's hooks, as those hooks will also be disabled.
 
 :::
 
@@ -538,18 +529,28 @@ hook callback.
 
 You can hook on multiple events on instances:
 
-- `onInit`: instance was constructed by calling `new` on model class.
-- `onRetrieved`: instance was deserialized from a backend response.
-- `onCreating`: action to create instance will run soon.
-- `onCreated`: action to create instance was ran successfully.
-- `onUpdating`: action to update instance will run soon.
-- `onUpdated`: action to update instance was ran successfully.
-- `onSaving`: action to save (create or update) instance will run soon (always
+- [`onInit`](/docs/api/@foscia/core/functions/onInit):
+  instance was constructed by calling `new` on model class.
+- [`onRetrieved`](/docs/api/@foscia/core/functions/onRetrieved):
+  instance was deserialized from a backend response.
+- [`onCreating`](/docs/api/@foscia/core/functions/onCreating):
+  action to create instance will run soon.
+- [`onCreated`](/docs/api/@foscia/core/functions/onCreated):
+  action to create instance was ran successfully.
+- [`onUpdating`](/docs/api/@foscia/core/functions/onUpdating):
+  action to update instance will run soon.
+- [`onUpdated`](/docs/api/@foscia/core/functions/onUpdated):
+  action to update instance was ran successfully.
+- [`onSaving`](/docs/api/@foscia/core/functions/onSaving):
+  action to save (create or update) instance will run soon (always
   ran after `onCreating` and `onUpdating`).
-- `onSaved`: action to save (create or update) instance was ran successfully
+- [`onSaved`](/docs/api/@foscia/core/functions/onSaved):
+  action to save (create or update) instance was ran successfully
   (always ran after `onCreated` and `onUpdated`).
-- `onDestroying`: action to destroy instance will run soon.
-- `onDestroyed`: action to destroy instance was ran successfully.
+- [`onDestroying`](/docs/api/@foscia/core/functions/onDestroying):
+  action to destroy instance will run soon.
+- [`onDestroyed`](/docs/api/@foscia/core/functions/onDestroyed):
+  action to destroy instance was ran successfully.
 
 Each of these hooks callback will receive an instance as parameter:
 
@@ -569,9 +570,10 @@ a sequential fashion (one by one, not parallelized).
 
 :::
 
-Only `boot` event can be hooked on a model class, using `onBoot`.
-It is like `onInit`, but will be called only once per model and will
-receive the model class.
+Only `boot` event can be hooked on a model class, using
+[`onBoot`](/docs/api/@foscia/core/functions/onBoot).
+It is like [`onInit`](/docs/api/@foscia/core/functions/onInit),
+but will be called only once per model and will receive the model class.
 
 ```typescript
 import { onBoot } from '@foscia/core';
@@ -591,10 +593,14 @@ a sequential fashion (one by one, not parallelized).
 
 You can hook on multiple events on instances' properties:
 
-- `onPropertyReading`: an instance property getter is called (ran before getting value).
-- `onPropertyRead`: an instance property getter is called (ran after getting value).
-- `onPropertyWriting`: an instance property setter is called (ran before setting value).
-- `onPropertyWrite`: an instance property setter is called (ran after setting value).
+- [`onPropertyReading`](/docs/api/@foscia/core/functions/onPropertyReading):
+  an instance property getter is called (ran before getting value).
+- [`onPropertyRead`](/docs/api/@foscia/core/functions/onPropertyRead):
+  an instance property getter is called (ran after getting value).
+- [`onPropertyWriting`](/docs/api/@foscia/core/functions/onPropertyWriting):
+  an instance property setter is called (ran before setting value).
+- [`onPropertyWrite`](/docs/api/@foscia/core/functions/onPropertyWrite):
+  an instance property setter is called (ran after setting value).
 
 Reading hooks will receive the instance and property key, current value and definition:
 
@@ -632,8 +638,9 @@ onPropertyWrite(User, ({ instance, key, prev, next, def }) => {
 });
 ```
 
-To unregister a property hook callback using `unregisterHook`, you should
-pass the event name with or without the property's key,
+To unregister a property hook callback using
+[`unregisterHook`](/docs/api/@foscia/core/functions/unregisterHook),
+you should pass the event name with or without the property's key,
 depending on if it is a specific property hook callback or not:
 
 ```typescript
@@ -660,27 +667,8 @@ and [models factories](/docs/digging-deeper/models/models-composition#factory-us
 
 ## Special properties
 
-### Instances
+Foscia models provide special properties on both the model class and its
+instances, which you can discover inside the API reference:
 
-Each model's instance have the following special properties:
-
-| Key         | Type                                                                                | Description                                                             |
-| ----------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `$exists`   | `boolean`                                                                           | Tells if the instance exists in the data source.                        |
-| `$loaded`   | `Dictionary<true>`                                                                  | Dictionary containing `true` for each loaded relation.                  |
-| `$values`   | [`Partial<ModelValues>`](/docs/reference/api/@foscia/core/type-aliases/ModelValues) | Current values of the instance.                                         |
-| `$original` | [`ModelSnapshot`](/docs/reference/api/@foscia/core/type-aliases/ModelSnapshot)      | Original snapshot since last sync.                                      |
-| `$raw`      | `any`                                                                               | Data source value which was deserialized to create inside the instance. |
-| `$model`    | [`ModelClass`](/docs/reference/api/@foscia/core/type-aliases/Model)                 | Base model class.                                                       |
-
-### Models
-
-Each model have the following special properties:
-
-| Key            | Type                                                                                 | Description                                            |
-| -------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------ |
-| `$type`        | `string`                                                                             | Unique model type.                                     |
-| `$config`      | [`ModelConfig`](/docs/reference/api/@foscia/core/type-aliases/ModelConfig)           | Configuration options.                                 |
-| `$schema`      | [`ModelSchema`](/docs/reference/api/@foscia/core/type-aliases/ModelSchema)           | Schema containing IDs/attributes/relations definition. |
-| `$composables` | [`ModelComposable[]`](/docs/reference/api/@foscia/core/type-aliases/ModelComposable) | Array of used composables.                             |
-| `$booted`      | `boolean`                                                                            | Tells if model is booted (constructed at least once).  |
+- [`Model`](/docs/api/@foscia/core/type-aliases/Model)
+- [`ModelInstance`](/docs/api/@foscia/core/type-aliases/ModelInstance)

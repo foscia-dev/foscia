@@ -13,6 +13,8 @@ type RunnerTemplateData = {
 export default function renderRunner(
   { config, imports, functionName }: RunnerTemplateData,
 ) {
+  imports.add('makeRunner', '@foscia/core');
+
   const functionGeneric = config.language === 'ts' ? '<C extends {}>' : '';
   const paramTyping = config.language === 'ts' ? ': Action<C>' : '';
   if (config.language === 'ts') {
@@ -20,11 +22,11 @@ export default function renderRunner(
   }
 
   const runner = `
-function ${functionName}${functionGeneric}() {
-${toIndent(config, `return (action${paramTyping}) => {`)}
-${toIndent(config, '// TODO Write runner logic.', 2)}
-${toIndent(config, '};')}
-}
+makeRunner('${functionName}', ${functionGeneric}(
+${toIndent(config, '// TODO Add runner parameters here.', 1)}
+) => async (action${paramTyping}) => action.run(
+${toIndent(config, '// TODO Use other enhancers and one runner here, such as `one`.', 1)}
+))
 `.trim();
 
   return `

@@ -1,7 +1,12 @@
 import makeDateTransformer from '@foscia/core/transformers/makeDateTransformer';
 import { removeTimezoneOffset } from '@foscia/shared';
 
-export default makeDateTransformer(
+/**
+ * Create a date transformer.
+ *
+ * @category Factories
+ */
+export default /* @__PURE__ */ makeDateTransformer(
   'toDate',
   (value: unknown) => {
     const [y, m, d] = typeof value === 'string' ? value.split('-') : [];

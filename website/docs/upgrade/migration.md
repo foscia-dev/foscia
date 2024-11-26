@@ -4,7 +4,122 @@ toc_max_heading_level: 2
 sidebar_position: 5
 ---
 
-# Migration
+# Migration guides
+
+## 0.13.x from 0.12.x
+
+### High impacts changes
+
+- [Builder pattern calls and actions extensions are removed](#builder-pattern-calls-and-actions-extensions-are-removed)
+- [Dependencies factories functions signature changed](#dependencies-factories-functions-signature-changed)
+
+### Medium impacts changes
+
+- [Properties definition are now defined using factories](#properties-definition-are-now-defined-using-factories)
+- [Internal APIs are now tagged and may have changed](#internal-apis-are-now-tagged-and-may-have-changed)
+
+### Builder pattern calls and actions extensions are removed
+
+**Likelihood Of Impact: High**
+
+Since its first release, Foscia provided the "builder pattern calls" through
+actions' extensions. This feature allowed users to call enhancers and runners
+directly on the action, without using `use` or `run`.
+
+In this release, we are removing the extensions and this way of running
+enhancers and runners. This change has two main reasons:
+
+- TypeScript does not support higher kinded types (HKT), and extensions
+  typing must be maintained aside from the function definition. This
+  make maintaining enhancers and runners functions hard and error-prone.
+- Extensions will increase the build size without that much benefit and are
+  against Foscia functional programming approach.
+
+You can replace those builder pattern calls by the functional programming
+approach. Here is an example:
+
+```typescript
+// highlight.addition
+import { query, all } from '@foscia/core';
+
+const posts = await action()
+  // highlight.deletion
+  .query(Post).all();
+// highlight.addition
+.
+run(query(Post), all());
+```
+
+If you are using some special types, such as `Action`, `ContextEnhancer` or
+`ContextRunner`, you should remove the extension generic type.
+
+```typescript
+import { Action, ContextEnhancer, ConsumeModel } from '@foscia/core';
+// highlight.deletion
+type CustomAction = Action<ConsumeModel, {}>;
+// highlight.addition
+type CustomAction = Action<ConsumeModel>;
+// highlight.deletion
+type CustomEnhancer = ContextEnhancer<{}, any, ConsumeModel>;
+// highlight.addition
+type CustomEnhancer = ContextEnhancer<{}, ConsumeModel>;
+```
+
+> When TypeScript will provide higher kinded types, this feature will
+> probably be restored.
+
+### Dependencies factories functions signature changed
+
+**Likelihood Of Impact: High**
+
+`makeCache` and `makeRegistry` are now returning agnostic objects (`CacheI`
+and `RegistryI`) instead of real implementations.
+
+`weakRefManager` is now a factory function named `makeWeakRefManager`.
+
+`makeMapRegistryWith` have been renamed to `makeMapRegistry` and some
+functions signatures have been simplified with fewer features (no more
+async model resolving and register method).
+
+`makeHttpAdapter` now use a default query params serializer (the simple one).
+As a consequence, `paramsSerializer` export have been removed.
+
+In addition, multiple factories functions have been renamed:
+
+- `makeRefsCacheWith` to `makeRefsCache`
+- `makeHttpAdapterWith` and `makeHttpAdapter` merged to `makeHttpAdapter`
+- `makeSerializerWith` to `makeSerializer`
+- `makeDeserializerWith` to `makeDeserializer`
+- `makeJsonRestAdapter` and `makeRestAdapterWith` merged to `makeRestAdapter`
+- `makeJsonRestSerializer` to `makeRestSerializer`
+- `makeJsonRestDeserializer` to `makeRestDeserializer`
+
+### Properties definition are now defined using factories
+
+**Likelihood Of Impact: Medium**
+
+Previous properties definition objects (such as `attr()`, etc.) have been
+replaced by properties definition factories.
+Instead of returning a direct object, those functions now return a factory
+to create the final property definition. This will provide more polyvalent
+model's properties in the future (such as memoized properties, etc.). As a
+consequence, many internal types of Foscia changed.
+
+In most usages of Foscia this will not have any impact, but if you are using
+an internal API on properties definition, you may have to change your code.
+
+### Internal APIs are now tagged and may have changed
+
+**Likelihood Of Impact: Medium**
+
+Since its release, lots of Foscia APIs were missing their documentation, even
+important notes like `@internal` or `@experimental` features.
+All packages have been revised and all types, functions or objects
+are now correctly documented. Some internal or experimental types or functions
+may have been renamed or removed.
+
+If you are using an internal APIs, you should avoid using them or
+[open an issue to request the API to be publicly maintained](https://github.com/foscia-dev/foscia/issues/new/choose).
 
 ## 0.12.x from 0.11.x
 
@@ -70,7 +185,7 @@ import { makeActionFactory, query, all } from '@foscia/core';
 import { jsonApiStarterExtensions } from '@foscia/jsonapi';
 
 export default makeActionFactory({
-  // makeJsonRestAdapter(), ...etc.
+  // makeRestAdapter(), ...etc.
 }, {
 // highlight.deletion
   ...jsonApiStarterExtensions,
@@ -100,7 +215,8 @@ export default makeActionFactory({
 
 `v0.7.0` deprecated types and functions have been removed:
 
-- [`forModel`, `forInstance`, `forRelation`, `forId` and `find` are removed](#formodel-forinstance-forrelation-forid-and-find-are-deprecated)
+- [`forModel`, `forInstance`, `forRelation`, `forId` and
+  `find` are removed](#formodel-forinstance-forrelation-forid-and-find-are-deprecated)
 - [`makeForRelationLoader` is removed](#makeforrelationloader-is-deprecated)
 - [`runHook` is removed](#runhook-is-deprecated)
 - [`ModelHookCallback` type is removed](#modelhookcallback-type-is-deprecated)
@@ -128,7 +244,8 @@ You must ensure you are using Node 18+.
 ### High impacts changes
 
 - [`makeComposable` return value change](#makecomposable-return-value-change)
-- [`forModel`, `forInstance`, `forRelation`, `forId` and `find` are deprecated](#formodel-forinstance-forrelation-forid-and-find-are-deprecated)
+- [`forModel`, `forInstance`, `forRelation`, `forId` and
+  `find` are deprecated](#formodel-forinstance-forrelation-forid-and-find-are-deprecated)
 
 ### Medium impacts changes
 
@@ -160,7 +277,8 @@ export default class Post extends makeModel('posts', {
   ...publishable,
 // highlight.addition
   publishable,
-}) {}
+}) {
+}
 ```
 
 ### `forModel`, `forInstance`, `forRelation`, `forId` and `find` are deprecated
@@ -169,7 +287,7 @@ export default class Post extends makeModel('posts', {
 
 `forModel`, `forInstance`, `forRelation`, `forId` and `find` enhancers
 have been deprecated and will be removed in a next major release, you should
-use [`query` enhancer](/docs/reference/actions-enhancers#query) instead:
+use [`query` enhancer](/docs/api/@foscia/core/functions/query) instead:
 
 ```typescript
 // `forModel` replacement.

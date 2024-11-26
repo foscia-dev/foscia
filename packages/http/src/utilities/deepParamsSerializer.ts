@@ -1,5 +1,23 @@
 import { Dictionary } from '@foscia/shared';
 
+/**
+ * Deeply serialize given query params (including objects)
+ * using {@link URLSearchParams | `URLSearchParams`}.
+ *
+ * @param params
+ *
+ * @category Utilities
+ *
+ * @example
+ * ```typescript
+ * import { deepParamsSerializer } from '@foscia/http';
+ *
+ * console.log(deepParamsSerializer({
+ *   search: 'foo', sort: 'title', filter: { category: 'news' },
+ * });
+ * // search=foo&sort=title&filter[category]=news
+ * ```
+ */
 export default (params: Dictionary<any>) => {
   const urlSearchParams = new URLSearchParams();
 

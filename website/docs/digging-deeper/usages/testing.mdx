@@ -1,0 +1,229 @@
+---
+sidebar_position: 20000
+description: Writing tests when using Foscia.
+---
+
+import ShellCommand from '@site/src/components/ShellCommand';
+
+# Testing
+
+:::tip What you'll learn
+
+- Mocking action factory for unit tests
+- Writing expectations about actions
+- Conditionally running actions
+
+:::
+
+## Integration tests
+
+Integration tests goal is to ensure separate parts of your software works
+together.
+
+When using Foscia, this probably means you want to check that your UI correctly
+interact with a backend or database using Foscia.
+**Therefore, Foscia does not provide any integration tests utilities, because
+those tests should not mock or fake any Foscia behaviors.**
+
+## Unit tests
+
+:::warning
+
+**Unit testing Foscia is currently experimental and may change.**
+This gives us the flexibility to improve the API.
+
+:::
+
+Unit tests are focused on checking small and independent parts of your software.
+
+This probably means you want to check functions which are interacting with a
+backend or database using Foscia API.
+
+The simplest way to write unit tests of parts of code using Foscia is to mock
+your action factory and define expected results and contexts expectation.
+
+Foscia provide a simple set of functions and objects to help you to write unit
+tests with any testing framework (Jest, Vitest, etc.).
+Because it is framework-agnostic, Foscia does not provide any
+expectation functions.
+
+### Preparation
+
+Start by installing Foscia test helpers if not already.
+
+<ShellCommand command="add dev @foscia/test" />
+
+Once test helpers are installed, you should make your action factory "mockable"
+using `makeActionFactoryMockable`. This will transform the action factory
+function so it can be mocked or unmocked using `mockAction` and `unmockAction`.
+
+```typescript title="action.ts"
+import { makeActionFactory } from '@foscia/core';
+import { makeActionFactoryMockable } from '@foscia/test';
+
+export default makeActionFactoryMockable(
+  makeActionFactory({
+    // ...
+  }),
+);
+```
+
+### Mocking action factory
+
+You can mock your action factory using `mockAction` function. It is important to
+just pass your action factory `action` and not the call to the factory
+`action()`, because the mock will install on the function itself.
+
+When mocking your action, Foscia is replacing the base factory function with a
+proxy function which will built a proxy action. Each enhancer will
+apply normally and make the context evolve, but will be tracked.
+Running the action won't execute any real runner, but will intercept the
+context, check conditionals and expectations, and finally returns the mocked
+result.
+
+```typescript title="test/actionMock.ts"
+import { ActionFactoryMock, mockAction, unmockAction } from '@foscia/test';
+import action from './action';
+
+let actionMock: ActionFactoryMock;
+
+beforeEach(() => {
+  actionMock = mockAction(action);
+});
+
+afterEach(() => {
+  unmockAction(action);
+});
+
+export default actionMock;
+```
+
+### Concret example
+
+Consider the following `registerUser` function we would like to unit test.
+
+```typescript
+import { create, fill, oneOrCurrent } from '@foscia/core';
+import action from './action';
+import User from './models/user';
+
+export default function registerUser(
+  email: string,
+  acceptedTerms: boolean,
+): Promise<User> {
+  if (!acceptedTerms) {
+    throw new Error('User did not accept terms and conditions.');
+  }
+
+  const user = fill(new User(), {
+    email,
+    acceptedTermsAt: new Date(),
+  });
+
+  return action().run(create(user), oneOrCurrent());
+}
+```
+
+We can write two tests for this function:
+
+1. One asserting an action run and return a user if he accepted the terms.
+2. Another asserting no action run occurred and an error is throw if he refused the terms.
+
+```typescript
+describe('registration', () => {
+  it('should create user', async () => {
+    // Expect one run and return value passed as `create` first argument.
+    actionMock.mock(({ calls }) => calls.args('create')[0]).once();
+
+    const user = await registerUser('john.doe@example.com', true);
+
+    expect(user).toBeInstanceOf(User);
+    expect(user.email).toStrictEqual('john.doe@example.com');
+    expect(user.acceptedTermsAt).toBeInstanceOf(Date);
+  });
+
+  it('should fail creating user with non accepted terms', async () => {
+    expect(() => registerUser('john.doe@example.com', true))
+      .rejects.toThrow('User did not accept terms and conditions');
+  });
+});
+```
+
+### Advanced mock usage
+
+When calling `mock`, you create an action execution mock with
+a custom return value, which you can customize using various options.
+All options are chainable.
+
+#### Mock return value
+
+When using `mock`, you can specify a value to return on action run. If you
+want to compute a value using a callback, just pass a function to it.
+For this, your callback will receive an
+[`ActionTestContext`](/docs/api/@foscia/test/type-aliases/ActionTestContext) object.
+
+```typescript
+// Direct.
+actionMock.mock(user);
+// Factory.
+actionMock.mock(() => new User());
+// Factory using test context.
+actionMock.mock(({ calls }) => calls.args('create')[0]);
+```
+
+#### Mock duration
+
+You can setup a custom limit for your action mocking. This will avoid
+mocking the return value of any action indefinitely (which is the default
+behavior). It can also be used to prepare mock for consecutive action.
+
+```typescript
+// Only mock for a specified number of execution.
+actionMock.mock(value).once();
+actionMock.mock(value).twice();
+actionMock.mock(value).times(3);
+
+// Use it to mock consecutive actions.
+actionMock.mock(valueForFirstAction).once();
+actionMock.mock(valueForSecondAction).once();
+```
+
+#### Conditional mock
+
+You can also use `when` to only mock the action if it matches a given predicate.
+For this, your callback will receive an
+[`ActionTestContext`](/docs/api/@foscia/test/type-aliases/ActionTestContext) object.
+
+```typescript
+// Only mock when having a `create` enhancer with a user instance.
+actionMock.mock(value).when(({ calls }) => (
+  calls.args('create')[0] instanceof User
+));
+```
+
+#### Expectations
+
+You can also use `expect` to run expectations using your favorite framework.
+Expectations won't run if a predicate is not matching for your mock.
+For this, your callback will receive an
+[`ActionTestContext`](/docs/api/@foscia/test/type-aliases/ActionTestContext) object.
+
+```typescript
+actionMock.mock(value).expect(({ calls }) => {
+  expect(calls.args('create')[0]).toBeInstanceOf(User);
+  expect(calls.args('create')[0].email).toStrictEqual('john.doe@example.com');
+  expect(calls.has('oneOrCurrent')).toStrictEqual(true);
+});
+```
+
+#### Combining all options
+
+All mock options can be chained to create more specific mocks.
+
+```typescript
+actionMock.mock(value)
+  .once()
+  .when(() => true)
+  .expect(() => {
+  });
+```

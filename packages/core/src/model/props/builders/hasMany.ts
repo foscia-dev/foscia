@@ -1,22 +1,34 @@
 import relation from '@foscia/core/model/props/builders/relation';
 import {
-  PendingModelRelation,
-  PendingModelRelationConfig,
-  PendingModelRelationInstance,
+  InferModelRelationFactoryInstance,
+  ModelRelationFactory,
+  ModelRelationFactoryConfig,
 } from '@foscia/core/model/props/builders/types';
 import { ModelInstance, ModelRelationConfig } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_RELATION_HAS_MANY } from '@foscia/core/symbols';
 import { Awaitable } from '@foscia/shared';
 
 const hasMany: {
-  <I extends object[] | null = ModelInstance[]>(
+  /**
+   * Create a has many relation property factory.
+   *
+   * @param config
+   *
+   * @category Factories
+   */<I extends object[] | null = ModelInstance[]>(
     config?: string | string[] | ModelRelationConfig,
-  ): PendingModelRelation<I, false>;
-  <M extends object | object[]>(
+  ): ModelRelationFactory<I, false>;
+  /**
+   * Create a has many relation property factory.
+   *
+   * @param resolver
+   *
+   * @category Factories
+   */<M extends object | object[]>(
     resolver: () => Awaitable<M>,
-  ): PendingModelRelation<PendingModelRelationInstance<M>[], false>;
+  ): ModelRelationFactory<InferModelRelationFactoryInstance<M>[], false>;
 } = (
-  config?: PendingModelRelationConfig,
+  config?: ModelRelationFactoryConfig,
 ) => relation(SYMBOL_MODEL_RELATION_HAS_MANY, config) as any;
 
 export default hasMany;

@@ -1,0 +1,160 @@
+---
+sidebar_position: 10
+description:
+  Specificities of the core implementations and available configuration.
+---
+
+# Core
+
+## Introduction
+
+Core implementations are implementations of actions' dependencies which can be
+used when using Foscia for any purpose.
+
+Since [`RegistryI`](/docs/api/@foscia/core/type-aliases/RegistryI) and
+[`CacheI`](/docs/api/@foscia/core/type-aliases/CacheI) can be agnostic of
+data source you are interacting with,
+Foscia proposes core implementations of those dependencies.
+
+## Implementations
+
+### `makeCache`
+
+[`makeCache`](/docs/api/@foscia/core/functions/makeCache) provides a
+[`CacheI`](/docs/api/@foscia/core/type-aliases/CacheI) implementation.
+
+Currently, it uses [`makeRefsCache`](#makerefscache) with
+[`makeWeakRefManager`](/docs/api/@foscia/core/functions/makeWeakRefManager).
+This factory is agnostic of this implementation, so it may change in the future
+if a better implementation exists. If you want to lock the used implementation,
+prefer using [`makeRefsCache`](#makerefscache) directly.
+
+#### Example
+
+```typescript
+import { makeCache } from '@foscia/core';
+
+const { cache } = makeCache();
+
+cache.put('posts', '1', post);
+const cachedPost = cache.find('posts', '1');
+```
+
+#### Configuration
+
+Since this factory is agnostic of implementation, no configuration is available.
+
+#### Defined in
+
+- [`packages/core/src/cache/makeCache.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/core/src/cache/makeCache.ts)
+
+### `makeRefsCache`
+
+[`makeRefsCache`](/docs/api/@foscia/core/functions/makeRefsCache) provides a
+[`CacheI`](/docs/api/@foscia/core/type-aliases/CacheI) implementation
+which stores reference to instances created by a
+[`RefManager`](/docs/api/@foscia/core/type-aliases/RefManager).
+
+The [`RefManager`](/docs/api/@foscia/core/type-aliases/RefManager) is responsible to:
+
+- Create a ref object for a cached instance.
+- Retrieve value for this ref object (may return undefined if the ref is
+  considered expired).
+
+Foscia proposes a two implementations of a
+[`RefManager`](/docs/api/@foscia/core/type-aliases/RefManager):
+
+- [`makeWeakRefManager`](/docs/api/@foscia/core/functions/makeWeakRefManager),
+  which will store every instance as a
+  [`WeakRef`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/WeakRef).
+  With this implementation, only instance that are still stored in your
+  application memory (not garbage collected) remains in cache.
+- [`makeTimeoutRefManager`](/docs/api/@foscia/core/functions/makeTimeoutRefManager),
+  which will store every instance in a special object which expires after a
+  configured timeout.
+
+Type and ID normalization functions can be configured
+when caching or retrieving instances. This can be useful when your models types
+are different from the record types returned inside a JSON:API response.
+
+#### Example
+
+```typescript
+import { makeRefsCache, makeWeakRefManager } from '@foscia/core';
+
+const { cache } = makeRefsCacheWith({
+  manager: makeWeakRefManager(),
+  // or...
+  // manager: makeTimeoutRefManager({ timeout: 5 * 60 * 1000 }),
+});
+
+cache.put('posts', '1', post);
+const cachedPost = cache.find('posts', '1');
+```
+
+#### Configuration
+
+- [`RefsCacheConfig`](/docs/api/@foscia/core/type-aliases/RefsCacheConfig)
+
+#### Defined in
+
+- [`packages/core/src/cache/makeRefsCache.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/core/src/cache/makeRefsCache.ts)
+
+### `makeRegistry`
+
+[`makeRegistry`](/docs/api/@foscia/core/functions/makeRegistry) provides a
+[`RegistryI`](/docs/api/@foscia/core/type-aliases/RegistryI) implementation.
+
+Currently, it uses [`makeMapRegistry`](#makemapregistry). This factory is
+agnostic of this implementation, so it may change in the future if a better
+implementation exists. If you want to lock the used implementation, prefer
+using [`makeMapRegistry`](#makemapregistry) directly.
+
+#### Example
+
+```typescript
+import { makeRegistry } from '@foscia/core';
+
+const { registry } = makeRegistry([User, Post, Comment]);
+
+const PostModel = registry.modelFor('posts');
+```
+
+#### Configuration
+
+Since this factory is agnostic of implementation, no configuration is available.
+
+#### Defined in
+
+- [`packages/core/src/registry/makeRegistry.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/core/src/registry/makeRegistry.ts)
+
+### `makeMapRegistry`
+
+[`makeRegistry`](/docs/api/@foscia/core/functions/makeRegistry) provides a
+[`RegistryI`](/docs/api/@foscia/core/type-aliases/RegistryI) implementation
+which stores a map of models keyed by their type.
+
+Type normalization function can be configured
+when registering and resolving models. This can be useful when your models types
+are different from the record types returned inside a JSON:API response.
+
+#### Usage
+
+```typescript
+import { makeMapRegistry } from '@foscia/core';
+import Post from './models/post';
+
+const { registry } = makeRegistry({
+  models: [User, Post, Comment],
+});
+
+const PostModel = registry.modelFor('posts');
+```
+
+#### Configuration
+
+- [`MapRegistryConfig`](/docs/api/@foscia/core/type-aliases/MapRegistryConfig)
+
+#### Defined in
+
+- [`packages/core/src/registry/makeMapRegistry.ts`](https://github.com/foscia-dev/foscia/blob/main/packages/core/src/registry/makeMapRegistry.ts)

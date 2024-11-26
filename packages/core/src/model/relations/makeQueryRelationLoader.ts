@@ -7,22 +7,78 @@ import loadUsingCallback from '@foscia/core/model/relations/utilities/loadUsingC
 import loadUsingValue from '@foscia/core/model/relations/utilities/loadUsingValue';
 import shouldExcludeInstanceAndRelation
   from '@foscia/core/model/relations/utilities/shouldExcludeInstanceAndRelation';
-import { ModelInstance, ModelRelationDotKey, ModelRelationKey } from '@foscia/core/model/types';
+import {
+  ModelInstance,
+  ModelRelation,
+  ModelRelationDotKey,
+  ModelRelationKey,
+} from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
 import { Arrayable, ArrayableVariadic } from '@foscia/shared';
 
-type QueryRelationLoaderOptions = {
+/**
+ * Configuration for the {@link makeQueryRelationLoader | `makeQueryRelationLoader`} factory.
+ *
+ * @internal
+ */
+export type QueryRelationLoaderOptions = {
+  /**
+   * Determine if the given instance relation should be ignored from
+   * refresh.
+   * As an example, this can be used to load only missing relations.
+   *
+   * @param instance
+   * @param relation
+   *
+   * @example
+   * ```typescript
+   * import { makeQueryRelationLoader, loaded } from '@foscia/core';
+   *
+   * export default makeQueryRelationLoader(action, {
+   *   exclude: loaded,
+   * });
+   * ```
+   */
   exclude?: <I extends ModelInstance>(instance: I, relation: ModelRelationDotKey<I>) => boolean;
+  /**
+   * Disable the performance warning log when more than one action
+   * will run.
+   *
+   * @example
+   * ```typescript
+   * import { makeQueryRelationLoader, loaded } from '@foscia/core';
+   *
+   * export default makeQueryRelationLoader(action, {
+   *   disablePerformanceWarning: true,
+   * });
+   * ```
+   */
   disablePerformanceWarning?: boolean;
 };
 
+/**
+ * Create a relations loader querying related model through the current
+ * instance relation.
+ *
+ * @param action
+ * @param options
+ *
+ * @category Factories
+ *
+ * @example
+ * ```typescript
+ * import { makeQueryRelationLoader } from '@foscia/core';
+ *
+ * export default makeQueryRelationLoader(action);
+ * ```
+ */
 export default <
   RawData,
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
 >(
-  action: ActionFactory<[], C, {}>,
+  action: ActionFactory<[], C>,
   options: QueryRelationLoaderOptions = {},
 ) => async <I extends ModelInstance>(
   instances: Arrayable<I>,
@@ -45,7 +101,7 @@ export default <
         return;
       }
 
-      const def = instance.$model.$schema[relation];
+      const def = instance.$model.$schema[relation] as ModelRelation;
       const isPlural = isPluralRelationDef(def);
 
       const value = await action()

@@ -1,19 +1,34 @@
 /* eslint-disable no-param-reassign */
+import isValuePropDef from '@foscia/core/model/checks/isValuePropDef';
 import forceFill from '@foscia/core/model/forceFill';
 import mapProps from '@foscia/core/model/props/mappers/mapProps';
 import cloneModelValue from '@foscia/core/model/snapshots/cloneModelValue';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
 import {
-  ModelAttribute,
-  ModelId,
   ModelInstance,
   ModelKey,
-  ModelRelation,
   ModelSnapshot,
+  ModelValueProp,
   ModelValues,
 } from '@foscia/core/model/types';
 import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
 
+/**
+ * Restore a specific snapshot on instance.
+ *
+ * @param instance
+ * @param snapshot
+ * @param only
+ *
+ * @category Utilities
+ *
+ * @example
+ * ```typescript
+ * import { restoreSnapshot } from '@foscia/core';
+ *
+ * restoreSnapshot(post, veryOldSnapshot, ['title']);
+ * ```
+ */
 export default <I extends ModelInstance>(
   instance: I,
   snapshot: ModelSnapshot<I>,
@@ -27,9 +42,7 @@ export default <I extends ModelInstance>(
     instance.$loaded = snapshot.$loaded;
   }
 
-  const restoreForDef = <K extends ModelKey<I>>(
-    def: ModelId<K> | ModelAttribute<K> | ModelRelation<K>,
-  ) => {
+  const restoreForDef = (def: ModelValueProp<ModelKey<I>>) => {
     if (keys.length && keys.indexOf(def.key) === -1) {
       return;
     }
@@ -43,7 +56,7 @@ export default <I extends ModelInstance>(
     }
   };
 
-  mapProps(instance, restoreForDef);
+  mapProps(instance, restoreForDef, isValuePropDef);
   markSynced(instance, ...only);
 
   return instance;

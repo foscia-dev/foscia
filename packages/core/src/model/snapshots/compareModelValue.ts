@@ -1,7 +1,7 @@
-import { ModelClass } from '@foscia/core/model/types';
+import { Model } from '@foscia/core/model/types';
 
 export default (
-  model: ModelClass,
+  model: Model,
   nextValue: unknown,
   prevValue: unknown,
 ) => (

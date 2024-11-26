@@ -27,14 +27,14 @@ test('Models compositions are type safe', () => {
 
   onBoot(foo, () => undefined);
   onInit(foo, (instance) => {
-    expectTypeOf(instance.foo).toMatchTypeOf<string>();
+    expectTypeOf(instance.foo).toEqualTypeOf<string>();
     // @ts-expect-error property does not exist
-    expectTypeOf(instance.bar).toMatchTypeOf<any>();
+    expectTypeOf(instance.bar).toEqualTypeOf<any>();
   });
   onPropertyWrite(foo, 'foo', ({ instance }) => {
-    expectTypeOf(instance.foo).toMatchTypeOf<string>();
+    expectTypeOf(instance.foo).toEqualTypeOf<string>();
     // @ts-expect-error property does not exist
-    expectTypeOf(instance.bar).toMatchTypeOf<any>();
+    expectTypeOf(instance.bar).toEqualTypeOf<any>();
   });
   // @ts-expect-error property does not exist
   onPropertyWrite(foo, 'bar', () => undefined);
@@ -43,16 +43,16 @@ test('Models compositions are type safe', () => {
 
   onBoot(Model, () => undefined);
   onInit(Model, (instance) => {
-    expectTypeOf(instance.foo).toMatchTypeOf<string>();
-    expectTypeOf(instance.baz).toMatchTypeOf<boolean>();
+    expectTypeOf(instance.foo).toEqualTypeOf<string>();
+    expectTypeOf(instance.baz).toEqualTypeOf<boolean>();
     // @ts-expect-error property does not exist
-    expectTypeOf(instance.unknown).toMatchTypeOf<any>();
+    expectTypeOf(instance.unknown).toEqualTypeOf<any>();
   });
   onPropertyWrite(Model, 'foo', ({ instance }) => {
-    expectTypeOf(instance.foo).toMatchTypeOf<string>();
-    expectTypeOf(instance.baz).toMatchTypeOf<boolean>();
+    expectTypeOf(instance.foo).toEqualTypeOf<string>();
+    expectTypeOf(instance.baz).toEqualTypeOf<boolean>();
     // @ts-expect-error property does not exist
-    expectTypeOf(instance.unknown).toMatchTypeOf<any>();
+    expectTypeOf(instance.unknown).toEqualTypeOf<any>();
   });
   onPropertyWrite(Model, 'baz', () => undefined);
   // @ts-expect-error property does not exist
@@ -67,38 +67,38 @@ test('Models compositions are type safe', () => {
   expectTypeOf(model).toMatchTypeOf<ModelInstanceUsing<typeof foo>>();
   expectTypeOf(model).toMatchTypeOf<ModelInstanceUsing<typeof bar>>();
   expectTypeOf(model).toMatchTypeOf<ModelInstanceUsing<typeof baz>>();
-  expectTypeOf(model.foo).toMatchTypeOf<string>();
-  expectTypeOf(model.bar).toMatchTypeOf<number>();
-  expectTypeOf(model.baz).toMatchTypeOf<boolean>();
+  expectTypeOf(model.foo).toEqualTypeOf<string>();
+  expectTypeOf(model.bar).toEqualTypeOf<number>();
+  expectTypeOf(model.baz).toEqualTypeOf<boolean>();
   // @ts-expect-error property cannot be null
-  expectTypeOf(model.foo).toMatchTypeOf<null>();
+  expectTypeOf(model.foo).toEqualTypeOf<null>();
   // @ts-expect-error property cannot be null
-  expectTypeOf(model.bar).toMatchTypeOf<null>();
+  expectTypeOf(model.bar).toEqualTypeOf<null>();
   // @ts-expect-error property cannot be null
-  expectTypeOf(model.baz).toMatchTypeOf<null>();
+  expectTypeOf(model.baz).toEqualTypeOf<null>();
 
   const ModelUsingType = null as unknown as ModelUsing<typeof baz>;
   const modelUsingType = new ModelUsingType();
-  expectTypeOf(modelUsingType.foo).toMatchTypeOf<string>();
-  expectTypeOf(modelUsingType.bar).toMatchTypeOf<number>();
-  expectTypeOf(modelUsingType.baz).toMatchTypeOf<boolean>();
+  expectTypeOf(modelUsingType.foo).toEqualTypeOf<string>();
+  expectTypeOf(modelUsingType.bar).toEqualTypeOf<number>();
+  expectTypeOf(modelUsingType.baz).toEqualTypeOf<boolean>();
   // @ts-expect-error property cannot be null
-  expectTypeOf(modelUsingType.foo).toMatchTypeOf<null>();
+  expectTypeOf(modelUsingType.foo).toEqualTypeOf<null>();
   // @ts-expect-error property cannot be null
-  expectTypeOf(modelUsingType.bar).toMatchTypeOf<null>();
+  expectTypeOf(modelUsingType.bar).toEqualTypeOf<null>();
   // @ts-expect-error property cannot be null
-  expectTypeOf(modelUsingType.baz).toMatchTypeOf<null>();
+  expectTypeOf(modelUsingType.baz).toEqualTypeOf<null>();
 
   const instanceUsingType = null as unknown as ModelInstanceUsing<typeof baz>;
-  expectTypeOf(instanceUsingType.foo).toMatchTypeOf<string>();
-  expectTypeOf(instanceUsingType.bar).toMatchTypeOf<number>();
-  expectTypeOf(instanceUsingType.baz).toMatchTypeOf<boolean>();
+  expectTypeOf(instanceUsingType.foo).toEqualTypeOf<string>();
+  expectTypeOf(instanceUsingType.bar).toEqualTypeOf<number>();
+  expectTypeOf(instanceUsingType.baz).toEqualTypeOf<boolean>();
   // @ts-expect-error property cannot be null
-  expectTypeOf(instanceUsingType.foo).toMatchTypeOf<null>();
+  expectTypeOf(instanceUsingType.foo).toEqualTypeOf<null>();
   // @ts-expect-error property cannot be null
-  expectTypeOf(instanceUsingType.bar).toMatchTypeOf<null>();
+  expectTypeOf(instanceUsingType.bar).toEqualTypeOf<null>();
   // @ts-expect-error property cannot be null
-  expectTypeOf(instanceUsingType.baz).toMatchTypeOf<null>();
+  expectTypeOf(instanceUsingType.baz).toEqualTypeOf<null>();
 
   const timestamps = makeComposable({
     timestamps: true,

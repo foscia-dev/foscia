@@ -3,13 +3,12 @@ import deserializeInstances, {
 } from '@foscia/core/actions/context/utils/deserializeInstances';
 import executeContextThroughAdapter
   from '@foscia/core/actions/context/utils/executeContextThroughAdapter';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
+import makeRunner from '@foscia/core/actions/makeRunner';
 import {
   Action,
   ConsumeAdapter,
   ConsumeDeserializer,
-  InferConsumedInstance,
-  WithParsedExtension,
+  InferQueryInstance,
 } from '@foscia/core/actions/types';
 import { ModelInstance } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
@@ -31,10 +30,18 @@ export type AllData<
  * @param transform
  *
  * @category Runners
+ * @requireContext adapter, deserializer, model
+ *
+ * @example
+ * ```typescript
+ * import { all, query } from '@foscia/core';
+ *
+ * const posts = await action().run(query(Post), all());
+ * ```
  */
-const all = <
+export default /* @__PURE__ */ makeRunner('all', <
   C extends {},
-  I extends InferConsumedInstance<C>,
+  I extends InferQueryInstance<C>,
   RawData,
   Data,
   Deserialized extends DeserializedData,
@@ -59,25 +66,4 @@ const all = <
       ? transform({ data, deserialized, instances: deserialized.instances })
       : deserialized.instances
   ) as Awaitable<Next>;
-};
-
-export default /* @__PURE__ */ appendExtension(
-  'all',
-  all,
-  'run',
-) as WithParsedExtension<typeof all, {
-  all<
-    C extends {},
-    I extends InferConsumedInstance<C>,
-    RawData,
-    Data,
-    Deserialized extends DeserializedData,
-    NextData = I[],
-  >(
-    // eslint-disable-next-line max-len
-    this: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>>,
-    transform?: (
-      data: AllData<Data, DeserializedDataOf<I, Deserialized>, I>,
-    ) => Awaitable<NextData>,
-  ): Promise<Awaited<NextData>>;
-}>;
+});

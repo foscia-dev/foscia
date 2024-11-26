@@ -1,7 +1,7 @@
 import consumeCache from '@foscia/core/actions/context/consumers/consumeCache';
 import consumeId from '@foscia/core/actions/context/consumers/consumeId';
 import consumeModel from '@foscia/core/actions/context/consumers/consumeModel';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
+import makeRunner from '@foscia/core/actions/makeRunner';
 import {
   Action,
   ConsumeCache,
@@ -9,12 +9,12 @@ import {
   ConsumeInclude,
   ConsumeModel,
   ContextRunner,
-  WithParsedExtension,
+  InferQueryInstance,
 } from '@foscia/core/actions/types';
 import logger from '@foscia/core/logger/logger';
 import filled from '@foscia/core/model/filled';
 import loaded from '@foscia/core/model/relations/loaded';
-import { Model, ModelInstance } from '@foscia/core/model/types';
+import { ModelInstance } from '@foscia/core/model/types';
 import { Awaitable, isNil } from '@foscia/shared';
 
 export type CachedData<I extends ModelInstance> = {
@@ -24,25 +24,31 @@ export type CachedData<I extends ModelInstance> = {
 /**
  * Retrieve an instance from the cache.
  * If the instance is not in cache or if the included relations are not loaded,
- * run the given runner.
+ * run the given anonymous runner.
  *
  * @param nilRunner
  * @param transform
  *
  * @category Runners
+ * @requireContext cache, model, id
+ *
+ * @example
+ * ```typescript
+ * import { cachedOr, query } from '@foscia/core';
+ *
+ * const post = await action().run(query(Post, '123'), cachedOr(() => null));
+ * ```
  */
-const cachedOr = <
+export default /* @__PURE__ */ makeRunner('cachedOr', <
   C extends {},
-  E extends {},
-  M extends Model,
-  I extends InstanceType<M>,
+  I extends InferQueryInstance<C>,
   RD,
   ND = I,
 >(
-  nilRunner: ContextRunner<C & ConsumeCache & ConsumeModel<M>, E, Awaitable<RD>>,
+  nilRunner: ContextRunner<C & ConsumeCache & ConsumeModel, Awaitable<RD>>,
   transform?: (data: CachedData<I>) => Awaitable<ND>,
 ) => async (
-  action: Action<C & ConsumeCache & ConsumeModel<M> & ConsumeInclude & ConsumeId, E>,
+  action: Action<C & ConsumeCache & ConsumeModel & ConsumeInclude & ConsumeId>,
 ) => {
   const context = await action.useContext();
   const model = consumeModel(context);
@@ -66,23 +72,4 @@ const cachedOr = <
   }
 
   return action.run(nilRunner);
-};
-
-export default /* @__PURE__ */ appendExtension(
-  'cachedOr',
-  cachedOr,
-  'run',
-) as WithParsedExtension<typeof cachedOr, {
-  cachedOr<
-    C extends {},
-    E extends {},
-    M extends Model,
-    I extends InstanceType<M>,
-    RD,
-    ND = I,
-  >(
-    this: Action<C & ConsumeCache & ConsumeModel<M> & ConsumeInclude & ConsumeId, E>,
-    nilRunner: ContextRunner<C & ConsumeCache & ConsumeModel<M>, E, Awaitable<RD>>,
-    transform?: (data: CachedData<I>) => Awaitable<ND>,
-  ): Promise<Awaited<ND> | Awaited<RD>>;
-}>;
+});

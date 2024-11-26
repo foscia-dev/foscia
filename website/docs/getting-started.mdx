@@ -21,14 +21,14 @@ import ShellCommand from '@site/src/components/ShellCommand';
 :::info
 
 Only here for a simple HTTP client? Check out
-[**the simple HTTP client guide**](/docs/digging-deeper/http).
+[**the simple HTTP client guide**](/docs/digging-deeper/usages/http).
 
 :::
 
 ## Before getting started
 
 Before getting started, you must have installed Foscia packages you will need.
-[`@foscia/cli`](/docs/digging-deeper/cli) is the recommended way to install and
+[`@foscia/cli`](/docs/digging-deeper/usages/cli) is the recommended way to install and
 get started using Foscia.
 
 <ShellCommand
@@ -61,9 +61,9 @@ JSON:API and REST. If you would like to interact with another data source, you
 should therefore either:
 
 - **Implement your own action's dependencies**, you should inspire from existing
-  implementations to build your own.
-- [**Open an issue or a pull request**](https://github.com/foscia-dev/foscia/issues)
-  to suggest a new implementation.
+implementations to build your own.
+- [**Open an issue or a pull request**](https://github.com/foscia-dev/foscia/issues/new/choose)
+to suggest a new implementation.
 
 ### Supported frameworks
 
@@ -74,7 +74,7 @@ You can find more information about frameworks integrations inside
 [the integrations guides](/docs/category/integrations).
 
 If you need specific features to integrate with an unsupported framework,
-feel free to [open an issue or a pull request](https://github.com/foscia-dev/foscia/issues).
+feel free to [open an issue or a pull request](https://github.com/foscia-dev/foscia/issues/new/choose).
 
 ## First model
 
@@ -85,13 +85,15 @@ type safe interactions with your data source.
 
 <ShellCommand command="foscia make model post" />
 
-To declare a model, you just need to use the `makeModel` function. This function
-takes up to 2 arguments and returns an ES6 class:
+To declare a model, you just need to use the
+[`makeModel`](/docs/api/@foscia/core/functions/makeModel) function.
+This function takes up to 2 arguments and returns a
+[`Model`](/docs/api/@foscia/core/type-aliases/Model) constructor:
 
 - The model `type`, which is used by other services to identify your model or
-  interact with a data source.
+interact with a data source.
 - The model `definition`, which contains your attributes/relations definitions
-  and custom properties and methods.
+and custom properties and methods.
 
 ```typescript title="models/post.ts"
 import { makeModel, attr, hasMany, toDateTime } from '@foscia/core';
@@ -110,7 +112,7 @@ export default class Post extends makeModel('posts', {
 
 ### Using models classes
 
-Model classes can be used like any ES6 class. It can be instantiated,
+Model classes can be used like any JavaScript class. It can be instantiated,
 manipulated, etc. Properties will be defined on each instance from the model
 definition.
 
@@ -125,13 +127,14 @@ console.log(post.published); // true
 console.log(post.$exists); // false
 ```
 
-<Link className="button border--gradient" to="/docs/core-concepts/models">
+<Link
+  className="button border--gradient"
+  to="/docs/core-concepts/models"
+>
   Read the full guide on models
 </Link>
 
 ## First actions
-
-### Action factory
 
 #### Creating the action factory
 
@@ -148,20 +151,22 @@ using this action factory will be seen in the
 [next part of this guide](#running-simple-actions).
 
 Action factory will set up all the required context for interacting with data
-source (adapter, (de)serializer, etc.).
+source (adapter, (de)serializer, etc.). You can use
+[`makeActionFactory`](/docs/api/@foscia/core/functions/makeActionFactory) to
+create your action factory. It takes one argument: an initial `context`
+as an object or an object factory.
 
 To quickly get started, multiple Foscia packages provide blueprint factories
 which provide a quick initialization of this action factory with sensible
 defaults.
-
-Depending on the usage you are targetting, here is what your action factory may
-looks like:
+Depending on the usage you are targeting, here is what your action factory may
+look like:
 
 <Tabs groupId="usage">
-<TabItem
-  value="jsonapi"
-  label="JSON:API"
-  default
+  <TabItem
+    value="jsonapi"
+    label="JSON:API"
+    default
 >
 
 ```typescript
@@ -182,60 +187,6 @@ export default makeActionFactory({
 });
 ```
 
-</TabItem>
-<TabItem
-  value="jsonrest"
-  label="JSON REST"
->
-
-```typescript
-import { makeActionFactory, makeCache } from '@foscia/core';
-import {
-  makeJsonRestAdapter,
-  makeJsonRestDeserializer,
-  makeJsonRestSerializer,
-} from '@foscia/rest';
-
-export default makeActionFactory({
-  ...makeCache(),
-  ...makeJsonRestDeserializer(),
-  ...makeJsonRestSerializer(),
-  ...makeJsonRestAdapter({
-    baseURL: '/api',
-  }),
-});
-```
-
-</TabItem>
-</Tabs>
-
-#### Builder pattern syntax
-
-If you want to use the builder pattern syntax (e.g. `action().query(Post).all()`
-instead of `action().run(query(Post), all())`), you must provide the extensions
-you want to use during your action factory creation.
-
-Extensions are the second argument passed to `makeActionFactory`.
-
-<Tabs groupId="usage">
-  <TabItem
-    value="jsonapi"
-    label="JSON:API"
-    default
-  >
-
-```typescript
-import { makeActionFactory } from '@foscia/core';
-import { jsonApiStarterExtensions } from '@foscia/jsonapi';
-
-export default makeActionFactory(
-  {
-    // makeJsonApiAdapter(), ...etc.
-  },
-  jsonApiStarterExtensions,
-);
-```
-
   </TabItem>
   <TabItem
     value="jsonrest"
@@ -243,36 +194,35 @@ export default makeActionFactory(
   >
 
 ```typescript
-import { makeActionFactory } from '@foscia/core';
-import { jsonRestStarterExtensions } from '@foscia/rest';
+import { makeActionFactory, makeCache } from '@foscia/core';
+import {
+  makeRestAdapter,
+  makeRestDeserializer,
+  makeRestSerializer,
+} from '@foscia/rest';
 
-export default makeActionFactory(
-  {
-    // makeJsonRestAdapter(), ...etc.
-  },
-  jsonRestStarterExtensions,
-);
+export default makeActionFactory({
+  ...makeCache(),
+  ...makeRestDeserializer(),
+  ...makeRestSerializer(),
+  ...makeRestAdapter({
+    baseURL: '/api',
+  }),
+});
 ```
 
   </TabItem>
 </Tabs>
 
-:::warning
-
-Be aware that using extensions and builder pattern syntax might increase
-your bundle size, because functions are imported even if you are not
-using it.
-
-:::
-
 ### Running simple actions
 
-To run an action, you can initialize a new action instance by calling your
-factory. With this instance, you can provide **context enhancers** to
-modify the action context, and a **context runner** to run the action.
+To run an action, you can initialize a new
+[`Action`](/docs/api/@foscia/core/type-aliases/Action) object by calling your
+factory. With this instance, you can provide *context enhancers* to
+modify the action context, and a *context runner* to run the action.
 
-Simplest way of running an action is to call `run`, providing enhancers
-as argument and providing a runner as last argument. This is called
+Simplest way of running an action is to call `run`, providing *enhancers*
+as argument and providing a *runner* as last argument. This is called
 the variadic `run` calls. Documentation is generally using this call format.
 
 You can also decompose those calls through `use` and `run` individual calls,
@@ -299,9 +249,10 @@ action you will run. Context runners only exists to tell how you wish to run the
 action and retrieve the result (raw result, model instance, etc.).
 
 A great example of this is when finding a model using its ID. You'll not use a
-"find" context runner. Instead, you will need to use a `query` context enhancer
-and a `oneOrFail` context runner. This way, you are able to do a find query and
-retrieve a raw result when needed.
+"find" context runner. Instead, you will need to use a
+[`query`](/docs/api/@foscia/core/functions/query) context enhancer
+and a [`oneOrFail`](/docs/api/@foscia/core/functions/oneOrFail) context runner.
+This way, you are able to do a find query and retrieve a raw result when needed.
 
 ```typescript
 import { query, oneOrFail } from '@foscia/core';
@@ -314,8 +265,13 @@ const post = await action().run(
 );
 ```
 
-This works the same to send write operations through actions. In the following
-example, we are retrieving a raw adapter response instead of model instances.
+This works the same to send write operations through actions, such as with
+[`create`](/docs/api/@foscia/core/functions/create). In the following
+example, we are retrieving the created instance:
+[`oneOrCurrent`](/docs/api/@foscia/core/functions/oneOrCurrent) is used to
+retrieve a result from the response if it is available but will also support
+empty responses by returning the context's instance (as an example,
+for *HTTP 204* responses).
 
 ```typescript
 import { create, fill, oneOrCurrent } from '@foscia/core';
@@ -333,7 +289,29 @@ const createdPost = await action().run(
 );
 ```
 
-<Link className="button border--gradient" to="/docs/core-concepts/actions">
+But, pay attention, this behavior also means that you **must** provide an
+action runner, even if you do not expect a return result from the action
+execution. This is a common task when deleting a record, because you
+won't use the deletion result. For this, Foscia provides a
+[`none`](/docs/api/@foscia/core/functions/none) runner which ignores
+the data source response.
+
+```typescript
+import { destroy, none } from '@foscia/core';
+import action from './action';
+
+// This has no effect an may failed because `destroy` is not a runner!
+// highlight.deletion
+await action().run(destroy(post));
+// Do this instead:
+// highlight.addition
+await action().run(destroy(post), none());
+```
+
+<Link
+  className="button border--gradient"
+  to="/docs/core-concepts/actions"
+>
   Read the full guide on actions
 </Link>
 
@@ -346,6 +324,11 @@ Using JSON:API or REST blueprints, you can also use Foscia to make non-standard
 
 This way, you can standardize all API calls across your application, even when
 those are non JSON:API/REST related.
+
+In the following example, we use
+[`makePost`](/docs/api/@foscia/http/functions/makePost) to make a *POST* request
+and [`raw`](/docs/api/@foscia/core/functions/raw) to retrieve the original
+[`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) object.
 
 ```typescript
 import { query, raw, oneOrFail } from '@foscia/core';

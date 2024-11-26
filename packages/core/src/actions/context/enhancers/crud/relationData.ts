@@ -1,7 +1,7 @@
 import context from '@foscia/core/actions/context/enhancers/context';
 import serializeRelation from '@foscia/core/actions/context/utils/serializeRelation';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
-import { Action, ConsumeSerializer, WithParsedExtension } from '@foscia/core/actions/types';
+import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
 import { ModelInstance, ModelRelationKey } from '@foscia/core/model/types';
 
 /**
@@ -11,24 +11,24 @@ import { ModelInstance, ModelRelationKey } from '@foscia/core/model/types';
  * @param key
  *
  * @category Enhancers
+ * @requireContext serializer
  */
-const relationData = <C extends {}, I extends ModelInstance, Record, Related, Data>(
+export default /* @__PURE__ */ makeEnhancer('relationData', <
+  C extends {},
+  I extends ModelInstance,
+  Record,
+  Related,
+  Data,
+>(
   instance: I,
   key: ModelRelationKey<I>,
 ) => async (
   action: Action<C & ConsumeSerializer<Record, Related, Data>>,
 ) => action.use(context({
-  data: await serializeRelation(action, instance, key, instance[key]),
-}));
-
-export default /* @__PURE__ */ appendExtension(
-  'relationData',
-  relationData,
-  'use',
-) as WithParsedExtension<typeof relationData, {
-  relationData<C extends {}, E extends {}, I extends ModelInstance, Record, Related, Data>(
-    this: Action<C & ConsumeSerializer<Record, Related, Data>, E>,
-    instance: I,
-    key: ModelRelationKey<I>,
-  ): Action<C, E>;
-}>;
+  data: await serializeRelation(
+    action,
+    instance,
+    key,
+    instance[key],
+  ),
+})));

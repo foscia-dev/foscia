@@ -3,6 +3,8 @@ import { SerializerCircularRelationBehavior } from '@foscia/serialization/types'
 
 /**
  * Error which occurs on circular relation detection during serialization.
+ *
+ * @group Errors
  */
 export default class SerializerCircularRelationError extends SerializerError {
   public readonly behavior: SerializerCircularRelationBehavior;

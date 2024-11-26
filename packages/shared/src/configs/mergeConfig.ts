@@ -4,6 +4,8 @@
  * @param config
  * @param newConfig
  * @param override
+ *
+ * @internal
  */
 export default <C extends {}>(
   config: C,

@@ -1,11 +1,7 @@
+import consumeInclude from '@foscia/core/actions/context/consumers/consumeInclude';
 import context from '@foscia/core/actions/context/enhancers/context';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
-import {
-  Action,
-  ConsumeInclude,
-  InferConsumedModelOrInstance,
-  WithParsedExtension,
-} from '@foscia/core/actions/types';
+import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import { Action, InferQueryModelOrInstance } from '@foscia/core/actions/types';
 import { ModelRelationDotKey } from '@foscia/core/model/types';
 import { ArrayableVariadic, uniqueValues, wrapVariadic } from '@foscia/shared';
 
@@ -17,25 +13,23 @@ import { ArrayableVariadic, uniqueValues, wrapVariadic } from '@foscia/shared';
  * @param relations
  *
  * @category Enhancers
+ * @requireContext model
+ *
+ * @example
+ * ```typescript
+ * import { query, include } from '@foscia/core';
+ *
+ * action().use(query(Post), include('comments'));
+ * action().use(query(Post), include('author', 'comments.author'));
+ * ```
  */
-const include = <C extends {}>(
-  ...relations: ArrayableVariadic<ModelRelationDotKey<InferConsumedModelOrInstance<C>>>
+export default /* @__PURE__ */ makeEnhancer('include', <C extends {}>(
+  ...relations: ArrayableVariadic<ModelRelationDotKey<InferQueryModelOrInstance<C>>>
 ) => async (
-  action: Action<C & ConsumeInclude>,
+  action: Action<C>,
 ) => action.use(context({
   include: uniqueValues([
-    ...((await action.useContext()).include ?? []),
+    ...(consumeInclude(await action.useContext(), null) ?? []),
     ...wrapVariadic(...relations),
   ]),
-}));
-
-export default /* @__PURE__ */ appendExtension(
-  'include',
-  include,
-  'use',
-) as WithParsedExtension<typeof include, {
-  include<C extends {}, E extends {}>(
-    this: Action<C, E>,
-    ...relations: ArrayableVariadic<ModelRelationDotKey<InferConsumedModelOrInstance<C>>>
-  ): Action<C, E>;
-}>;
+})));
