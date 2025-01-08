@@ -1,7 +1,8 @@
 ---
 sidebar_position: 50
-description: Defining your own action enhancers and their associated extension.
+description: Defining your own action enhancers.
 ---
+
 
 import ShellCommand from '@site/src/components/ShellCommand';
 
@@ -10,7 +11,6 @@ import ShellCommand from '@site/src/components/ShellCommand';
 :::tip What you'll learn
 
 - Defining a custom action enhancer
-- Providing an extension property to your enhancer
 
 :::
 
@@ -22,135 +22,58 @@ from any existing Foscia enhancers.
 
 ## Goal
 
-Since Foscia is pagination agnostic, providing a `first` enhancer is not
-possible. Here is what we want our new `first` enhancer to do:
-
-- Select the model just like the `query` enhancer, but not a record ID
-- Limit the pagination to the first page and one record only
+We aim to create a `searchBy` enhancer which will add 2
+query parameters using JSON:API enhancers: a search filter and
+a sort by search score.
 
 In this example, we will admit a JSON:API is used with the following query
 parameters working:
 
-- `page[number]` describes the number of the page to fetch
-- `page[size]` describes the count of records to fetch (aka. limit)
+- `filterBy[search]` filters records by a search string
+- `sort=searchScore` sorts searched records by their match score
 
-:::tip
+:::warning
 
-If you want to create an enhancer which does not use or expand the action's
-context typing (such as defining a query parameter, etc.), you can
-ignore generic typing.
-
-:::
-
-:::info
-
-This guide is an enhancer version of the `first` runner described in the
-[**custom runners guide**](/docs/digging-deeper/actions/custom-action-runners).
+Generics inside enhancers and runners provide context typing propagation
+and are required when using TypeScript, otherwise, you may experiment
+type inference issues (for returned result) and type error when using
+other enhancers and runners.
 
 :::
 
 ## Using CLI
 
-<ShellCommand command="foscia make enhancer first" />
+<ShellCommand command="foscia make enhancer searchBy" />
 
 ## Defining the function
 
-Our implementation of `first` will target the model and paginate the context.
+Our implementation of `searchBy` will search and sort.
 
-```typescript title="action/enhancers/first.ts"
-import { Action, Model, query } from '@foscia/core';
-import { paginate } from '@foscia/jsonapi';
+```typescript title="action/enhancers/searchBy.ts"
+import { Action, makeEnhancer } from '@foscia/core';
+import { filterBy, sortByDesc } from '@foscia/jsonapi';
 
-export default function first<C extends {}, M extends Model>(model: M) {
-  return (action: Action<C>) => action.use(
-    query(model),
-    paginate({ number: 1, size: 1 }),
-  );
-}
+export default makeEnhancer('searchBy', <C extends {}>(
+  search: string,
+) => async (action: Action<C>) => action.use(
+  filterBy({ search }),
+  sortByDesc('searchScore'),
+));
 ```
-
-:::warning
-
-Please note that when defining custom enhancers or runners, you should always
-correctly define generic types. This is very important as it will allow the
-context propagation through other enhancers and runners.
-
-:::
 
 ## Using the function
 
 Once your enhancer is ready, you may use it like any other Foscia enhancer.
 
 ```typescript
-import { one } from '@foscia/core';
+import { query, all } from '@foscia/core';
 import action from './action';
-import first from './action/enhancers/first';
+import searchBy from './enhancers/searchBy';
 import Post from './models/post';
 
-const post = await action().run(first(Post), one());
+const posts = await action().run(
+  query(Post),
+  searchBy('hello'),
+  all(),
+);
 ```
-
-## Defining the extension
-
-Our current enhancer can only be used through an import and the `use` method of
-our action. To make it available for the
-[builder pattern style calls](/docs/core-concepts/actions#extensions), we must
-define an extension for it.
-
-There is currently a limitation of the TypeScript language (Higher Order types
-are not available for now) which forces us to declare each extension manually.
-The goal of an extension definition is to get a type safe feature directly
-available on our action (and so provide autocomplete, context propagation,
-etc.).
-
-Once your enhancer extension is ready, you will be able to use it
-[as any other enhancers of Foscia](/docs/core-concepts/actions#extensions).
-
-```typescript title="action/enhancers/first.ts"
-import {
-  Action,
-  ConsumeModel,
-  Model,
-  WithParsedExtension,
-  query,
-  appendExtension,
-} from '@foscia/core';
-import { paginate } from '@foscia/jsonapi';
-
-// Our previous enhancer code.
-function first<C extends {}, M extends Model>(model: M) {
-  return (action: Action<C>) => action.use(
-    query(model),
-    paginate({ number: 1, size: 1 }),
-  );
-}
-
-// New default export with typed `extension()`.
-export default /* @__PURE__ */ appendExtension(
-  'first',
-  first,
-  'use',
-) as WithParsedExtension<typeof first, {
-  // The extension typing.
-  first<C extends {}, E extends {}, M extends Model>(
-    this: Action<C, E>,
-    model: M,
-  ): Action<C & ConsumeModel<M>, E>;
-}>;
-```
-
-:::warning
-
-Here again, correctly typing our enhancer extension is really important to get
-context and action's extension propagation.
-
-:::
-
-## Transforming it to a runner
-
-Wish `first` was not selecting a model but directly running the action and
-fetching a result?
-
-Check out
-[the custom runner guide](/docs/digging-deeper/actions/custom-action-runners)
-which describe how to code a `first` action runner.

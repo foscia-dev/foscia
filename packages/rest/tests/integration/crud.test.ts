@@ -19,7 +19,7 @@ import { makeGet, param } from '@foscia/http';
 import { describe, expect, it, vi } from 'vitest';
 import createFetchMock from '../../../../tests/mocks/createFetchMock.mock';
 import createFetchResponse from '../../../../tests/mocks/createFetchResponse.mock';
-import makeJsonRestActionMock from '../mocks/makeJsonRestAction.mock';
+import makeRestActionMock from '../mocks/makeRestAction.mock';
 import CommentMock from '../mocks/models/comment.mock';
 import GalleryMock from '../mocks/models/gallery.mock';
 import PostMock from '../mocks/models/post.mock';
@@ -53,7 +53,7 @@ describe('integration: JSON REST', () => {
       },
     ]));
 
-    const action = makeJsonRestActionMock();
+    const action = makeRestActionMock();
 
     const posts = await action()
       .use(query(PostMock))
@@ -108,7 +108,7 @@ describe('integration: JSON REST', () => {
       },
     ]));
 
-    const action = makeJsonRestActionMock();
+    const action = makeRestActionMock();
 
     const post = fill(new PostMock(), { id: '1' });
     post.$exists = true;
@@ -145,7 +145,7 @@ describe('integration: JSON REST', () => {
       body: 'Foo Body',
     }));
 
-    const action = makeJsonRestActionMock();
+    const action = makeRestActionMock();
 
     const comment = fill(new CommentMock(), { id: '1' });
     const post = fill(new PostMock(), { title: 'Foo', body: 'Foo Body', comments: [comment] });
@@ -182,7 +182,7 @@ describe('integration: JSON REST', () => {
       body: 'Bar',
     }));
 
-    const action = makeJsonRestActionMock();
+    const action = makeRestActionMock();
 
     const comment = fill(new CommentMock(), { body: 'Bar' });
     const post = fill(new PostMock(), { id: '1', title: 'Foo' });
@@ -219,7 +219,7 @@ describe('integration: JSON REST', () => {
 
     const notChangedMock = vi.fn(() => null);
 
-    const action = makeJsonRestActionMock();
+    const action = makeRestActionMock();
 
     const post = fill(new PostMock(), { title: 'Foo', body: 'Foo Body' });
     post.id = '1';
@@ -262,7 +262,7 @@ describe('integration: JSON REST', () => {
     const fetchMock = createFetchMock();
     fetchMock.mockImplementationOnce(createFetchResponse().noContent());
 
-    const action = makeJsonRestActionMock();
+    const action = makeRestActionMock();
 
     const post = fill(new PostMock(), { title: 'Foo', body: 'Foo Body' });
     post.id = '1';
@@ -296,7 +296,7 @@ describe('integration: JSON REST', () => {
       { id: '1', title: 'Foo' },
     ]));
 
-    const action = makeJsonRestActionMock();
+    const action = makeRestActionMock();
 
     const [post] = await action()
       .use(
@@ -324,7 +324,7 @@ describe('integration: JSON REST', () => {
       { type: 'comments', id: '1', body: 'Foo bar' },
     ]));
 
-    const action = makeJsonRestActionMock();
+    const action = makeRestActionMock();
 
     const [post, comment] = await action()
       .use(
@@ -355,7 +355,7 @@ describe('integration: JSON REST', () => {
       { id: '3' },
     ]));
 
-    const action = makeJsonRestActionMock();
+    const action = makeRestActionMock();
 
     const loadWithQuery = makeQueryModelLoader(action, {
       prepare: (a, { ids }) => a.use(param('ids', ids)),
@@ -421,7 +421,7 @@ describe('integration: JSON REST', () => {
       { id: '1' },
     ]));
 
-    const action = makeJsonRestActionMock();
+    const action = makeRestActionMock();
 
     const loadWithQuery = makeQueryModelLoader(action, {
       prepare: (a, { ids }) => a.use(param('ids', ids)),

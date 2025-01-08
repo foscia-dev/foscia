@@ -1,5 +1,7 @@
 /**
  * Extendable error class used inside Foscia.
+ *
+ * @group Errors
  */
 export default class FosciaError extends Error {
   /**

@@ -1,64 +1,49 @@
 import ActionName from '@foscia/core/actions/actionName';
-import updateRelation from '@foscia/core/actions/context/enhancers/crud/updateRelation';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
+import updateRelation, {
+  UpdateRelationValue,
+} from '@foscia/core/actions/context/enhancers/crud/updateRelation';
+import makeEnhancer from '@foscia/core/actions/makeEnhancer';
 import {
-  Action,
-  ConsumeId,
-  ConsumeModel,
-  ConsumeRelation,
-  ConsumeSerializer,
-  WithParsedExtension,
-} from '@foscia/core/actions/types';
-import {
-  Model,
-  ModelClassInstance,
-  ModelInferPropValue,
+  InferModelSchemaProp,
   ModelInstance,
+  ModelRelation,
   ModelRelationKey,
-  ModelSchema,
-  ModelSchemaRelations,
 } from '@foscia/core/model/types';
 
-const detach = <
+/**
+ * Prepare context for a plural relation's update operation.
+ * This will remove instances from the previous relation's value.
+ *
+ * @param instance
+ * @param relation
+ * @param value
+ *
+ * @category Enhancers
+ * @provideContext model, instance, id, relation
+ * @requireContext serializer
+ *
+ * @example
+ * ```typescript
+ * import { detach, none } from '@foscia/core';
+ *
+ * await action().run(detach(post, 'tags', [tag1, tag2]), none());
+ * ```
+ */
+export default /* @__PURE__ */ makeEnhancer('detach', <
   C extends {},
-  E extends {},
-  D extends {},
-  RD extends ModelSchemaRelations<D>,
-  I extends ModelInstance<D>,
-  K extends keyof ModelSchema<D> & keyof RD & string,
+  I extends ModelInstance,
+  K extends string,
+  R extends InferModelSchemaProp<I, K, ModelRelation>,
   Record,
   Related,
   Data,
 >(
-  instance: ModelClassInstance<D> & I,
-  relation: ModelRelationKey<D> & K,
-  value: ModelInferPropValue<RD[K]> | NonNullable<ModelInferPropValue<RD[K]>>[number],
-) => updateRelation<C, E, D, RD, I, K, Record, Related, Data>(
+  instance: I,
+  relation: K & ModelRelationKey<I>,
+  value: UpdateRelationValue<R>,
+) => updateRelation<C, I, K, R, Record, Related, Data>(
   instance,
   relation,
   value,
   ActionName.DETACH_RELATION,
-);
-
-export default /* @__PURE__ */ appendExtension(
-  'detach',
-  detach,
-  'use',
-) as WithParsedExtension<typeof detach, {
-  detach<
-    C extends {},
-    E extends {},
-    D extends {},
-    RD extends ModelSchemaRelations<D>,
-    I extends ModelInstance<D>,
-    K extends keyof ModelSchema<D> & keyof RD & string,
-    Record,
-    Related,
-    Data,
-  >(
-    this: Action<C & ConsumeSerializer<Record, Related, Data>, E>,
-    instance: ModelClassInstance<D> & I,
-    relation: ModelRelationKey<D> & K,
-    value: ModelInferPropValue<RD[K]> | NonNullable<ModelInferPropValue<RD[K]>>[number],
-  ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId, E>;
-}>;
+));

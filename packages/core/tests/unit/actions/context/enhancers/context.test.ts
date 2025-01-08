@@ -1,10 +1,9 @@
-import { context } from '@foscia/core';
+import { context, makeActionFactory } from '@foscia/core';
 import { describe, expect, it } from 'vitest';
-import makeFakeAction from '../../../../mocks/makeFakeAction.mock';
 
 describe.concurrent('unit: context', () => {
   it('should use merged contexts', async () => {
-    const action = makeFakeAction();
+    const action = makeActionFactory()();
 
     action.updateContext({ foo: 'foo', bar: 'bar' });
     action.use(context({ bar: 'foo', baz: 'baz' }));

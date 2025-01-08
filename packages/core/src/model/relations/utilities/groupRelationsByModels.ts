@@ -1,6 +1,6 @@
 import { consumeRegistry, guessContextModel } from '@foscia/core/actions';
 import FosciaError from '@foscia/core/errors/fosciaError';
-import { Model, ModelRelationKey } from '@foscia/core/model/types';
+import { Model, ModelRelation, ModelRelationKey } from '@foscia/core/model/types';
 
 export default async <M extends Model>(
   model: M,
@@ -9,7 +9,7 @@ export default async <M extends Model>(
 ) => {
   const modelsPerRelations = await Promise.all(
     [...relations.entries()].map(async ([relation, nested]) => {
-      const def = model.$schema[relation];
+      const def = model.$schema[relation] as ModelRelation;
       const related = await guessContextModel({
         model,
         relation: def,

@@ -1,5 +1,5 @@
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
-import { Action, WithParsedExtension } from '@foscia/core/actions/types';
+import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import { Action } from '@foscia/core/actions/types';
 import registerHook from '@foscia/core/hooks/registerHook';
 import { Awaitable } from '@foscia/shared';
 
@@ -10,20 +10,18 @@ import { Awaitable } from '@foscia/shared';
  * @param callback
  *
  * @category Enhancers
+ *
+ * @example
+ * ```typescript
+ * import { onRunning } from '@foscia/core';
+ *
+ * action().use(onRunning((event) => {
+ *   console.log(event.context, event.runner);
+ * }));
+ * ```
  */
-const onRunning = <C extends {}>(
+export default /* @__PURE__ */ makeEnhancer('onRunning', <C extends {}>(
   callback: (event: { context: C; runner: Function; }) => Awaitable<unknown>,
 ) => (action: Action<C>) => {
   registerHook(action, 'running', callback as any);
-};
-
-export default /* @__PURE__ */ appendExtension(
-  'onRunning',
-  onRunning,
-  'use',
-) as WithParsedExtension<typeof onRunning, {
-  onRunning<C extends {}, E extends {}>(
-    this: Action<C, E>,
-    callback: (event: { context: C; runner: Function; }) => Awaitable<unknown>,
-  ): Action<C, E>;
-}>;
+});

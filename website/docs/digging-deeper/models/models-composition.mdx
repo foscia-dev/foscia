@@ -28,18 +28,14 @@ composition.
 
 ### Using CLI
 
-You can generate a new composable using [`@foscia/cli`](/docs/digging-deeper/cli).
+You can generate a new composable using [`@foscia/cli`](/docs/digging-deeper/usages/cli).
 
 <ShellCommand command="foscia make composable publishable" />
 
 ### Defining a composable
 
 The first step is to create a composable with the features you want to share.
-This is done through `makeComposable` and uses the same syntax as `makeModel`.
-
-The created composable will get its custom properties (e.g. `published` below)
-rewritten to protect their descriptor. This allows using spread syntax when
-using composable in other models' definition.
+This is done through [`makeComposable`](/docs/api/@foscia/core/functions/makeComposable).
 
 ```typescript title="composables/publishable.ts"
 import { attr, makeComposable, toDateTime } from '@foscia/core';
@@ -102,8 +98,9 @@ export default uuidID;
 
 Be aware that you cant unregister hooks from a composable, because hooks are
 shallow cloned when extending the composable.
-Hook registration function (such as `onCreating`) returned callback will
-only unregister hooks on composable, not on extending models.
+Hook registration function (such as
+[`onCreating`](/docs/api/@foscia/core/functions/onCreating)) returned callback
+will only unregister hooks on composable, not on extending models.
 
 :::
 
@@ -134,8 +131,14 @@ export default timestamps;
 ### Typechecking composables
 
 You can easily typecheck for models or instances using some of your composables
-by defining type aliases. You can also use `isModelUsing` or `isInstanceUsing`
-functions to check for composition existing on a model or instance:
+by defining type aliases. You can also use
+[`isModelUsing`](/docs/api/@foscia/core/functions/isModelUsing) or
+[`isInstanceUsing`](/docs/api/@foscia/core/functions/isInstanceUsing)
+functions to check for composition existing on a model or instance.
+
+You can also use [`ModelInstanceUsing`](/docs/api/@foscia/core/type-aliases/ModelInstanceUsing)
+and [`ModelUsing`](/docs/api/@foscia/core/type-aliases/ModelUsing) to get type
+aliases.
 
 ```typescript title="composables/publishable.ts"
 import { attr, makeComposable, toDateTime, isInstanceUsing, isModelUsing, ModelInstanceUsing, ModelUsing } from '@foscia/core';
@@ -162,9 +165,10 @@ isModelUsing(SomeModel, publishable); // `SomeModel` extends `publishable`.
 
 :::warning
 
-`isInstanceUsing` and `isModelUsing` will only check that the model definition
-contain *at some time* the composable, but won't guaranty that the composable
-properties are not overwritten afterward.
+[`isInstanceUsing`](/docs/api/@foscia/core/functions/isInstanceUsing)
+and [`isModelUsing`](/docs/api/@foscia/core/functions/isModelUsing) will
+only check that the model definition contain *at some time* the composable,
+but won't guaranty that the composable properties are not overwritten afterward.
 
 :::
 
@@ -172,14 +176,17 @@ properties are not overwritten afterward.
 
 ### Using CLI
 
-You can generate a new factory using [`@foscia/cli`](/docs/digging-deeper/cli).
+You can generate a new factory using [`@foscia/cli`](/docs/digging-deeper/usages/cli).
 
 <ShellCommand command="foscia make model-factory" />
 
 ### Defining a factory
 
 When you need to share features across **all** of your models, you should use a
-custom model factory. It will replace the Foscia's `makeModel` function.
+custom model factory using
+[`makeModelFactory`](/docs/api/@foscia/core/functions/makeModelFactory).
+It will replace the Foscia's
+[`makeModel`](/docs/api/@foscia/core/functions/makeModel) function.
 
 ```typescript title="makeModel.ts"
 import { attr, makeModelFactory, toDateTime } from '@foscia/core';
@@ -196,14 +203,15 @@ export default makeModelFactory({
 ```
 
 Once your factory is ready, you can use it in replacement of the default
-`makeModel` provided by Foscia.
+[`makeModel`](/docs/api/@foscia/core/functions/makeModel) provided by Foscia.
 
 ```typescript
 import makeModel from './makeModel';
 
 export default class Post extends makeModel('posts', {
   /* definition */
-}) {}
+}) {
+}
 ```
 
 ### Using hooks {#factory-using-hooks}
@@ -232,7 +240,8 @@ export default makeModel;
 
 Be aware that you cant unregister hooks from a factory, because hooks are
 shallow cloned when creating a model.
-Hook registration function (such as `onCreating`) returned callback will
-only unregister hooks on factory, not on created models.
+Hook registration function (such as
+[`onCreating`](/docs/api/@foscia/core/functions/onCreating)) returned callback
+will only unregister hooks on factory, not on created models.
 
 :::

@@ -4,7 +4,6 @@
 
 # build files
 /build/
-/docs/reference/api/
 .docusaurus
 .cache-loader
 
@@ -28,4 +27,3 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
-

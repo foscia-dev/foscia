@@ -9,6 +9,14 @@ import {
 import { Model, ModelInstance, ModelSnapshot } from '@foscia/core/model/types';
 import { Dictionary, mapWithKeys } from '@foscia/shared';
 
+/**
+ * Create a models reviver.
+ *
+ * @param options
+ *
+ * @category Factories
+ * @since 0.8.6
+ */
 export default (options: { models: Model[]; }) => {
   let reviveInstance: (
     instance: ReducedModelInstance | ReducedModelCircularRef,

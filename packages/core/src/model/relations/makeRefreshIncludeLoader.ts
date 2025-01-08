@@ -22,18 +22,81 @@ import {
 import { DeserializedData } from '@foscia/core/types';
 import { Arrayable, ArrayableVariadic, Awaitable, mapWithKeys, uniqueValues } from '@foscia/shared';
 
-type RefreshIncludeLoaderOptions<
+/**
+ * Configuration for the {@link makeRefreshIncludeLoader | `makeRefreshIncludeLoader`} factory.
+ *
+ * @internal
+ */
+export type RefreshIncludeLoaderOptions<
   RawData,
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
-  E extends {},
 > = {
+  /**
+   * Prepare the action using the given context.
+   * As an example, this can be used to filter the query on instances IDs.
+   *
+   * @param action
+   * @param context
+   *
+   * @example
+   * ```typescript
+   * import { makeRefreshIncludeLoader } from '@foscia/core';
+   * import { filterBy } from '@foscia/jsonapi';
+   *
+   * export default makeRefreshIncludeLoader(action, {
+   *   prepare: (a, { instances }) => a.use(filterBy({ ids: instances.map((i) => i.id) })),
+   * });
+   * ```
+   */
   prepare?: (
-    action: Action<C & ConsumeModel, E>,
+    action: Action<C & ConsumeModel>,
     context: { instances: ModelInstance[]; relations: string[] },
   ) => Awaitable<unknown>;
+  /**
+   * Chunk the instances array into multiple arrays to make multiple queries
+   * instead of a unique one.
+   * As an example, this can be used to avoid hitting pagination limit of an API.
+   *
+   * @param instances
+   *
+   * @example
+   * ```typescript
+   * import { makeRefreshIncludeLoader } from '@foscia/core';
+   *
+   * const chunk = <T>(items: T[], size: number) => {
+   *   const chunks = [] as T[][];
+   *   for (let i = 0; i < array.length; i += size) {
+   *     chunks.push(array.slice(i, i + chunkSize));
+   *   }
+   *
+   *   return chunks;
+   * };
+   *
+   * export default makeRefreshIncludeLoader(action, {
+   *   chunk: (instances) => chunk(instances, 20),
+   * });
+   * ```
+   */
   chunk?: (instances: ModelInstance[]) => ModelInstance[][];
+  /**
+   * Determine if the given instance relation should be ignored from
+   * refresh.
+   * As an example, this can be used to load only missing relations.
+   *
+   * @param instance
+   * @param relation
+   *
+   * @example
+   * ```typescript
+   * import { makeRefreshIncludeLoader, loaded } from '@foscia/core';
+   *
+   * export default makeRefreshIncludeLoader(action, {
+   *   exclude: loaded,
+   * });
+   * ```
+   */
   exclude?: <I extends ModelInstance>(instance: I, relation: ModelRelationDotKey<I>) => boolean;
 };
 
@@ -42,11 +105,10 @@ const refreshLoad = async <
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
-  E extends {},
   I extends ModelInstance,
 >(
-  action: ActionFactory<[], C, {}>,
-  options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C, E>,
+  action: ActionFactory<[], C>,
+  options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C>,
   instances: I[],
   relations: ModelRelationDotKey<I>[],
 ) => {
@@ -55,7 +117,7 @@ const refreshLoad = async <
     .use(query(model as Model))
     .use(include(relations as any))
     .use(when(() => options.prepare, async (a, p) => {
-      await p(a as Action<C & ConsumeModel, E>, { instances, relations });
+      await p(a as Action<C & ConsumeModel>, { instances, relations });
     }))
     .run(all());
 
@@ -82,15 +144,33 @@ const refreshLoad = async <
   });
 };
 
+/**
+ * Create a relations loader refreshing the instances while including
+ * missing relations.
+ *
+ * @param action
+ * @param options
+ *
+ * @category Factories
+ *
+ * @example
+ * ```typescript
+ * import { makeRefreshIncludeLoader } from '@foscia/core';
+ * import { filterBy } from '@foscia/jsonapi';
+ *
+ * export default makeRefreshIncludeLoader(action, {
+ *   prepare: (a, { instances }) => a.use(filterBy({ ids: instances.map((i) => i.id) })),
+ * });
+ * ```
+ */
 export default <
   RawData,
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
-  E extends {},
 >(
-  action: ActionFactory<[], C, {}>,
-  options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C, E> = {},
+  action: ActionFactory<[], C>,
+  options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C> = {},
 ) => async <I extends ModelInstance>(
   instances: Arrayable<I>,
   ...relations: ArrayableVariadic<ModelRelationDotKey<I>>

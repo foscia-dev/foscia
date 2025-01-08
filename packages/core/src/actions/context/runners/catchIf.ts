@@ -1,14 +1,14 @@
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
-import { Action, ContextRunner, WithParsedExtension } from '@foscia/core/actions/types';
+import makeRunner from '@foscia/core/actions/makeRunner';
+import { Action, ContextRunner } from '@foscia/core/actions/types';
 import { Awaitable } from '@foscia/shared';
 
-export type CatchCallback<C extends {}, E extends {}, CD> = (
+export type CatchCallback<C extends {}, CD> = (
   error: unknown,
-) => Awaitable<ContextRunner<C, E, Awaitable<CD>> | boolean>;
+) => Awaitable<ContextRunner<C, Awaitable<CD>> | boolean>;
 
 /**
  * Run given runner and catch errors using catchCallback.
- * If catchCallback is omitted, will return null on error.
+ * If catchCallback is omitted, it will return null on any error.
  * If catchCallback returns a function, will run it as an action's runner.
  * Else, will ignore error and return null only if callback for error is truthy.
  *
@@ -16,11 +16,21 @@ export type CatchCallback<C extends {}, E extends {}, CD> = (
  * @param catchCallback
  *
  * @category Runners
+ *
+ * @example
+ * ```typescript
+ * import { catchIf, one, query } from '@foscia/core';
+ *
+ * const postOrNull = await action().run(
+ *   query(Post, '123'),
+ *   catchIf(one(), (error) => error instanceof ErrorToCatch),
+ * );
+ * ```
  */
-const catchIf = <C extends {}, E extends {}, RD, CD = null>(
-  runner: ContextRunner<C, E, Awaitable<RD>>,
-  catchCallback?: CatchCallback<C, E, CD>,
-) => async (action: Action<C, E>): Promise<RD | CD> => {
+export default makeRunner('catchIf', <C extends {}, RD, CD = null>(
+  runner: ContextRunner<C, Awaitable<RD>>,
+  catchCallback?: CatchCallback<C, CD>,
+) => async (action: Action<C>): Promise<RD | CD> => {
   try {
     return await action.run(runner);
   } catch (error) {
@@ -35,16 +45,4 @@ const catchIf = <C extends {}, E extends {}, RD, CD = null>(
 
     return null as any;
   }
-};
-
-export default /* @__PURE__ */ appendExtension(
-  'catchIf',
-  catchIf,
-  'run',
-) as WithParsedExtension<typeof catchIf, {
-  catchIf<C extends {}, E extends {}, RD, CD = null>(
-    this: Action<C, E>,
-    runner: ContextRunner<C, E, Awaitable<RD>>,
-    catchCallback?: CatchCallback<C, E, CD>,
-  ): Promise<Awaited<RD> | Awaited<CD>>;
-}>;
+});

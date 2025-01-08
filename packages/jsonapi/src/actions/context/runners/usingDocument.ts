@@ -2,10 +2,26 @@ import { AllData, ModelInstance, OneData } from '@foscia/core';
 import { JsonApiDeserializedData } from '@foscia/jsonapi/types';
 
 /**
- * Append the JSON:API document object to data object.
+ * Append the {@link JsonApiDocument | JSON:API document object} to data object.
  * Use it as the parameter of `allUsing` and `oneUsing` runners.
  *
  * @param data
+ *
+ * @category Runners
+ *
+ * @example
+ * ```typescript
+ * import { query, all } from '@foscia/core';
+ * import { usingDocument } from '@foscia/jsonapi';
+ *
+ * const data = await action().run(
+ *   query(Post),
+ *   all(usingDocument),
+ * );
+ *
+ * console.log(data.instances); // Post array.
+ * console.log(data.document);  // JSON:API document, with meta, etc.
+ * ```
  */
 export default <
   I extends ModelInstance,

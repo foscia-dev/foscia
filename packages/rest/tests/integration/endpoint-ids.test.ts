@@ -8,11 +8,7 @@ import {
   oneOrFail,
   query,
 } from '@foscia/core';
-import {
-  makeJsonRestAdapter,
-  makeJsonRestDeserializer,
-  makeJsonRestSerializer,
-} from '@foscia/rest';
+import { makeRestAdapter, makeRestDeserializer, makeRestSerializer } from '@foscia/rest';
 import { describe, expect, it } from 'vitest';
 import createFetchMock from '../../../../tests/mocks/createFetchMock.mock';
 import createFetchResponse from '../../../../tests/mocks/createFetchResponse.mock';
@@ -33,15 +29,15 @@ describe('integration: endpoint IDs', () => {
 
   const action = makeActionFactory({
     ...makeRegistry([PostMock, CommentMock]),
-    ...makeJsonRestDeserializer({
+    ...makeRestDeserializer({
       pullIdentifier: (record) => {
         const [id, type] = String(record.id).split('/').reverse();
 
         return { id, type };
       },
     }),
-    ...makeJsonRestSerializer(),
-    ...makeJsonRestAdapter({
+    ...makeRestSerializer(),
+    ...makeRestAdapter({
       baseURL: 'https://example.com/api',
     }),
   });

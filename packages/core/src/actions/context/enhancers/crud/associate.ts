@@ -1,66 +1,54 @@
-import updateRelation from '@foscia/core/actions/context/enhancers/crud/updateRelation';
-import syncRelationValue from '@foscia/core/actions/context/enhancers/crud/utils/syncRelationValue';
+import updateRelation, {
+  UpdateRelationValue,
+} from '@foscia/core/actions/context/enhancers/crud/updateRelation';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
+import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
+import fill from '@foscia/core/model/fill';
+import markSynced from '@foscia/core/model/snapshots/markSynced';
 import {
-  Action,
-  ConsumeId,
-  ConsumeModel,
-  ConsumeRelation,
-  ConsumeSerializer,
-  WithParsedExtension,
-} from '@foscia/core/actions/types';
-import {
-  Model,
-  ModelClassInstance,
-  ModelInferPropValue,
+  InferModelSchemaProp,
   ModelInstance,
   ModelRelation,
   ModelRelationKey,
-  ModelSchema,
-  ModelSchemaRelations,
+  ModelWritableValues,
 } from '@foscia/core/model/types';
 
-const associate = <
+/**
+ * Prepare context for a singular relation's update operation.
+ * This will replace the previous relation's value.
+ *
+ * @param instance
+ * @param relation
+ * @param value
+ *
+ * @category Enhancers
+ * @provideContext model, instance, id, relation
+ * @requireContext serializer
+ *
+ * @example
+ * ```typescript
+ * import { associate, none } from '@foscia/core';
+ *
+ * await action().run(associate(post, 'author', user), none());
+ * ```
+ */
+export default /* @__PURE__ */ makeEnhancer('associate', <
   C extends {},
-  E extends {},
-  D extends {},
-  RD extends ModelSchemaRelations<D>,
-  I extends ModelInstance<D>,
-  K extends keyof ModelSchema<D> & keyof RD & string,
+  I extends ModelInstance,
+  K extends string,
+  R extends InferModelSchemaProp<I, K, ModelRelation>,
   Record,
   Related,
   Data,
 >(
-  instance: ModelClassInstance<D> & I,
-  relation: ModelRelationKey<D> & K,
-  value: ModelInferPropValue<RD[K]>,
-) => (action: Action<C & ConsumeSerializer<Record, Related, Data>, E>) => action.use(
+  instance: I,
+  relation: K & ModelRelationKey<I>,
+  value: UpdateRelationValue<R>,
+) => (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => action.use(
   updateRelation(instance, relation, value),
-  onSuccess(
-    () => syncRelationValue(instance, instance.$model.$schema[relation] as ModelRelation, value),
-  ),
-);
-
-export default /* @__PURE__ */ appendExtension(
-  'associate',
-  associate,
-  'use',
-) as WithParsedExtension<typeof associate, {
-  associate<
-    C extends {},
-    E extends {},
-    D extends {},
-    RD extends ModelSchemaRelations<D>,
-    I extends ModelInstance<D>,
-    K extends keyof ModelSchema<D> & keyof RD & string,
-    Record,
-    Related,
-    Data,
-  >(
-    this: Action<C & ConsumeSerializer<Record, Related, Data>, E>,
-    instance: ModelClassInstance<D> & I,
-    relation: ModelRelationKey<D> & K,
-    value: ModelInferPropValue<RD[K]>,
-  ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId, E>;
-}>;
+  onSuccess(() => {
+    fill(instance, { [relation]: value } as Partial<ModelWritableValues<I>>);
+    markSynced(instance, relation);
+  }),
+));

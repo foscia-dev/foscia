@@ -1,4 +1,4 @@
-import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
+import { makeEnhancer } from '@foscia/core';
 import { param } from '@foscia/http';
 
 /**
@@ -10,16 +10,17 @@ import { param } from '@foscia/http';
  * @param page
  *
  * @category Enhancers
+ *
+ * @example
+ * ```typescript
+ * import { query, all } from '@foscia/core';
+ * import { paginate } from '@foscia/jsonapi';
+ *
+ * const posts = await action().run(
+ *   query(Post),
+ *   paginate({ number: 1, size: 15 }),
+ *   all(),
+ * );
+ * ```
  */
-const paginate = (page: unknown) => param('page', page);
-
-export default /* @__PURE__ */ appendExtension(
-  'paginate',
-  paginate,
-  'use',
-) as WithParsedExtension<typeof paginate, {
-  paginate<C extends {}, E extends {}>(
-    this: Action<C, E>,
-    page: unknown,
-  ): Action<C, E>;
-}>;
+export default /* @__PURE__ */ makeEnhancer('paginate', (page: unknown) => param('page', page));

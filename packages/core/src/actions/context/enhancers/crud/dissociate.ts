@@ -1,55 +1,43 @@
 import associate from '@foscia/core/actions/context/enhancers/crud/associate';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
+import makeEnhancer from '@foscia/core/actions/makeEnhancer';
 import {
-  Action,
-  ConsumeId,
-  ConsumeModel,
-  ConsumeRelation,
-  ConsumeSerializer,
-  WithParsedExtension,
-} from '@foscia/core/actions/types';
-import {
-  Model,
-  ModelClassInstance,
+  InferModelSchemaProp,
   ModelInstance,
+  ModelRelation,
   ModelRelationKey,
-  ModelSchema,
-  ModelSchemaRelations,
 } from '@foscia/core/model/types';
 
-const dissociate = <
+/**
+ * Prepare context for a singular relation's update operation.
+ * This will remove the previous relation's value.
+ *
+ * @param instance
+ * @param relation
+ *
+ * @category Enhancers
+ * @provideContext model, instance, id, relation
+ * @requireContext serializer
+ *
+ * @example
+ * ```typescript
+ * import { dissociate, none } from '@foscia/core';
+ *
+ * await action().run(dissociate(post, 'author'), none());
+ * ```
+ */
+export default /* @__PURE__ */ makeEnhancer('dissociate', <
   C extends {},
-  E extends {},
-  D extends {},
-  RD extends ModelSchemaRelations<D>,
-  I extends ModelInstance<D>,
-  K extends keyof ModelSchema<D> & keyof RD & string,
+  I extends ModelInstance,
+  K extends string,
+  R extends InferModelSchemaProp<I, K, ModelRelation>,
   Record,
   Related,
   Data,
 >(
-  instance: ModelClassInstance<D> & I,
-  relation: ModelRelationKey<D> & K,
-) => associate<C, E, D, RD, I, K, Record, Related, Data>(instance, relation, null as any);
-
-export default /* @__PURE__ */ appendExtension(
-  'dissociate',
-  dissociate,
-  'use',
-) as WithParsedExtension<typeof dissociate, {
-  dissociate<
-    C extends {},
-    E extends {},
-    D extends {},
-    RD extends ModelSchemaRelations<D>,
-    I extends ModelInstance<D>,
-    K extends keyof ModelSchema<D> & keyof RD & string,
-    Record,
-    Related,
-    Data,
-  >(
-    this: Action<C & ConsumeSerializer<Record, Related, Data>, E>,
-    instance: ModelClassInstance<D> & I,
-    relation: ModelRelationKey<D> & K,
-  ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId, E>;
-}>;
+  instance: I,
+  relation: K & ModelRelationKey<I>,
+) => associate<C, I, K, R, Record, Related, Data>(
+  instance,
+  relation,
+  null as any,
+));

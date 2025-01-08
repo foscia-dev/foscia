@@ -1,11 +1,4 @@
-import {
-  Action,
-  appendExtension,
-  Model,
-  ModelKey,
-  normalizeKey,
-  WithParsedExtension,
-} from '@foscia/core';
+import { Action, makeEnhancer, Model, ModelKey, normalizeKey } from '@foscia/core';
 import { consumeRequestObjectParams, param } from '@foscia/http';
 import { ArrayableVariadic, optionalJoin, uniqueValues, wrapVariadic } from '@foscia/shared';
 
@@ -17,8 +10,21 @@ import { ArrayableVariadic, optionalJoin, uniqueValues, wrapVariadic } from '@fo
  * @param fieldset
  *
  * @category Enhancers
+ *
+ * @example
+ * ```typescript
+ * import { query, include, all } from '@foscia/core';
+ * import { fieldsFor } from '@foscia/jsonapi';
+ *
+ * const posts = await action().run(
+ *   query(Post),
+ *   include('comments'),
+ *   fields(Comment, ['body', 'author']),
+ *   all(),
+ * );
+ * ```
  */
-const fieldsFor = <C extends {}, M extends Model>(
+export default /* @__PURE__ */ makeEnhancer('fieldsFor', <C extends {}, M extends Model>(
   model: M,
   ...fieldset: ArrayableVariadic<ModelKey<M>>
 ) => async (action: Action<C>) => {
@@ -33,16 +39,4 @@ const fieldsFor = <C extends {}, M extends Model>(
       ...nextFields,
     ]), ','),
   }));
-};
-
-export default /* @__PURE__ */ appendExtension(
-  'fieldsFor',
-  fieldsFor,
-  'use',
-) as WithParsedExtension<typeof fieldsFor, {
-  fieldsFor<C extends {}, E extends {}, M extends Model>(
-    this: Action<C, E>,
-    model: M,
-    ...fieldset: ArrayableVariadic<ModelKey<M>>
-  ): Action<C, E>;
-}>;
+});

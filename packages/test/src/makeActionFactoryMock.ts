@@ -1,167 +1,130 @@
-import { Action, ActionFactory } from '@foscia/core';
-import { sequentialTransform } from '@foscia/shared';
-import makeActionMockedHistoryItem from '@foscia/test/makeActionMockedHistoryItem';
-import makeActionMockedRun from '@foscia/test/makeActionMockedRun';
 import {
-  ActionFactoryMock,
-  ActionMockedHistoryItem,
-  ActionMockedPredicate,
-  ActionMockedResult,
-  ActionMockedRun,
-  ActionMockedRunOptions,
-} from '@foscia/test/types';
-import UnexpectedMockedRunError from '@foscia/test/unexpectedMockedRunError';
+  Action,
+  ActionFactory,
+  ContextEnhancer,
+  ContextRunner,
+  FosciaError,
+  isWhenContextFunction,
+  runHooks,
+} from '@foscia/core';
+import { sequentialTransform, value } from '@foscia/shared';
+import makeActionMock from '@foscia/test/makeActionMock';
+import makeActionTestContext from '@foscia/test/makeActionTestContext';
+import { ActionFactoryMock, ActionFactoryMockHistoryItem, ActionMock } from '@foscia/test/types';
+import UnexpectedActionError from '@foscia/test/unexpectedActionError';
 
-export default <A extends any[], C extends {}, E extends {}>(
-  factory: ActionFactory<A, C, E>,
-): ActionFactoryMock<A, C, E> => {
-  const mocks = [] as ActionMockedRun[];
-  const history = [] as ActionMockedHistoryItem[];
+/**
+ * Create an action factory mock.
+ *
+ * @experimental
+ */
+export default <A extends any[], C extends {}>(
+  factory: ActionFactory<A, C>,
+) => {
+  const mocks = [] as ActionMock[];
+  const history = [] as ActionFactoryMockHistoryItem[];
 
-  const makeMockedRun = <RC extends {}>(
-    result?: ActionMockedResult<RC> | ActionMockedRunOptions<RC>,
-    predicate?: ActionMockedPredicate<RC>,
-  ) => {
-    const options = result !== null && typeof result === 'object' ? result : { result, predicate };
+  const unnestRunners = async (
+    action: Action<any>,
+    runners: ContextRunner<any, any>[],
+  ): Promise<ContextRunner<any, any>[]> => {
+    const runner = runners[runners.length - 1];
+    if (isWhenContextFunction(runner)) {
+      const callback = await value(runner.meta.args[0] as Function)
+        ? runner.meta.args[1]
+        : runner.meta.args[2];
+      if (!callback) {
+        return [...runners, () => undefined];
+      }
 
-    return makeActionMockedRun(options);
+      if (isWhenContextFunction(callback)) {
+        return unnestRunners(action, [...runners, callback]);
+      }
+
+      return [...runners, callback];
+    }
+
+    return runners;
   };
 
-  const findMockedRun = <RC extends {}>(context: RC) => sequentialTransform(
-    mocks.map((mockedRun) => async (prev: ActionMockedRun<RC> | null) => {
+  const run = async (
+    action: Action<any>,
+    enhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[],
+  ) => {
+    if (enhancers.length === 0) {
+      throw new FosciaError('`run` must be called with at least one runner function.');
+    }
+
+    const rootRunner = enhancers.pop() as ContextRunner<any, any>;
+
+    (action as any).use(...enhancers);
+
+    const context = await action.useContext();
+    const runners = await unnestRunners(action, [rootRunner]);
+    const calls = action.calls();
+    const testContext = makeActionTestContext(context, calls, runners);
+
+    const mock = await sequentialTransform(mocks.map((next) => async (prev: ActionMock | null) => {
       if (prev) {
         return prev;
       }
 
-      return await mockedRun.shouldRun(context) ? mockedRun : null;
-    }),
-    null,
-  );
-
-  const forgetMockedRun = async <RC extends {}>(mockedRun: ActionMockedRun<RC>) => {
-    if (await mockedRun.shouldForget()) {
-      const index = mocks.indexOf(mockedRun);
-      if (index !== -1) {
-        mocks.splice(index, 1);
-      }
+      return await next.shouldRun(testContext) ? next : null;
+    }), null);
+    if (!mock) {
+      throw new UnexpectedActionError(context);
     }
-  };
 
-  const runMockedRun = async <RC extends {}, RE extends {}>(
-    action: Action<RC, RE>,
-    enhancers: any[],
-  ) => {
-    // Drop runner.
-    enhancers.pop();
-
-    (action.use as any)(...enhancers);
-
-    const context = await action.useContext();
-
-    history.push(makeActionMockedHistoryItem(context));
-
-    const mockedRun = await findMockedRun(context);
-    if (!mockedRun) {
-      throw new UnexpectedMockedRunError(context);
-    }
+    await runHooks(action, 'running', { context, runner: rootRunner });
 
     try {
-      const result = await mockedRun.run(context);
+      const result = await mock.run(testContext);
 
-      await forgetMockedRun(mockedRun);
+      await runHooks(action, 'success', { context, result });
+
+      history.push({ context: testContext, mock, result, error: undefined });
 
       return result;
     } catch (error) {
-      await forgetMockedRun(mockedRun);
+      await runHooks(action, 'error', { context, error });
+
+      history.push({ context: testContext, mock, result: undefined, error });
 
       throw error;
+    } finally {
+      if (await mock.shouldRemove(testContext)) {
+        const mockIndex = mocks.indexOf(mock);
+        if (mockIndex !== -1) {
+          mocks.splice(mockIndex, 1);
+        }
+      }
+
+      await runHooks(action, 'finally', { context });
     }
   };
 
-  const makeAction = (...args: A) => new Proxy(factory(...args), {
+  const make = (...args: A) => new Proxy(factory(...args), {
     get: (target, property) => (
       property === 'run'
-        ? (...enhancers: any[]) => runMockedRun(target, enhancers)
-        : target[property as keyof Action<C, E>]
+        ? (
+          ...enhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[]
+        ) => run(target, enhancers)
+        : target[property as keyof Action<C>]
     ),
   });
 
-  const mockResult = <RC extends {} = any>(
-    result?: ActionMockedResult<RC> | ActionMockedRunOptions<RC>,
-    predicate?: ActionMockedPredicate<RC>,
-  ) => {
-    const mockedRun = makeMockedRun(result, predicate);
+  const mock = (result?: unknown) => {
+    const newMock = makeActionMock().return(result);
 
-    mocks.push(mockedRun);
+    mocks.push(newMock);
+
+    return newMock;
   };
 
-  const mockResultOnce = <RC extends {} = any>(
-    result?: ActionMockedResult<RC>,
-    predicate?: ActionMockedPredicate<RC>,
-    options?: ActionMockedRunOptions<RC>,
-  ) => mockResult({ ...options, result, predicate, times: 1 });
-
-  /**
-   * Mock result to given value for only 2 times.
-   *
-   * @param result
-   * @param predicate
-   * @param options
-   */
-  const mockResultTwice = <RC extends {} = any>(
-    result?: ActionMockedResult<RC>,
-    predicate?: ActionMockedPredicate<RC>,
-    options?: ActionMockedRunOptions<RC>,
-  ) => mockResult({ ...options, result, predicate, times: 2 });
-
-  /**
-   * Mock result to given value for only "n" times.
-   *
-   * @param times
-   * @param result
-   * @param predicate
-   * @param options
-   */
-  const mockResultTimes = <RC extends {} = any>(
-    times: number,
-    result?: ActionMockedResult<RC>,
-    predicate?: ActionMockedPredicate<RC>,
-    options?: ActionMockedRunOptions<RC>,
-  ) => mockResult({ ...options, result, predicate, times });
-
-  /**
-   * Reset the given mocks.
-   */
-  const resetMocks = () => {
+  const reset = () => {
     mocks.length = 0;
-  };
-
-  /**
-   * Reset the ran contexts history.
-   */
-  const resetHistory = () => {
     history.length = 0;
   };
 
-  /**
-   * Reset both mocked runs and ran contexts history.
-   */
-  const reset = () => {
-    resetMocks();
-    resetHistory();
-  };
-
-  return {
-    get history(): readonly ActionMockedHistoryItem[] {
-      return history;
-    },
-    makeAction,
-    mockResult,
-    mockResultOnce,
-    mockResultTwice,
-    mockResultTimes,
-    resetMocks,
-    resetHistory,
-    reset,
-  };
+  return { history, make, mock, reset } as ActionFactoryMock<A, C>;
 };

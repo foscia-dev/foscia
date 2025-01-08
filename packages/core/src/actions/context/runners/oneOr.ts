@@ -1,13 +1,12 @@
 import all, { AllData } from '@foscia/core/actions/context/runners/all';
 import { DeserializedDataOf } from '@foscia/core/actions/context/utils/deserializeInstances';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
+import makeRunner from '@foscia/core/actions/makeRunner';
 import {
   Action,
   ConsumeAdapter,
   ConsumeDeserializer,
   ContextRunner,
-  InferConsumedInstance,
-  WithParsedExtension,
+  InferQueryInstance,
 } from '@foscia/core/actions/types';
 import isNotFoundError from '@foscia/core/errors/flags/isNotFoundError';
 import { ModelInstance } from '@foscia/core/model/types';
@@ -29,11 +28,18 @@ export type OneData<
  * @param transform
  *
  * @category Runners
+ * @requireContext adapter, deserializer, model
+ *
+ * @example
+ * ```typescript
+ * import { query, oneOr } from '@foscia/core';
+ *
+ * const post = await action().run(query(post, '123'), oneOr(() => null));
+ * ```
  */
-const oneOr = <
+export default makeRunner('oneOr', <
   C extends {},
-  E extends {},
-  I extends InferConsumedInstance<C>,
+  I extends InferQueryInstance<C>,
   RawData,
   Data,
   Deserialized extends DeserializedData,
@@ -41,11 +47,11 @@ const oneOr = <
   Next = I,
 >(
   // eslint-disable-next-line max-len
-  nilRunner: ContextRunner<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, E, Awaitable<NilData>>,
+  nilRunner: ContextRunner<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, Awaitable<NilData>>,
   transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
 ) => async (
   // eslint-disable-next-line max-len
-  action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, E>,
+  action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>>,
 ) => {
   try {
     const result = await action.run(all((data) => {
@@ -66,27 +72,4 @@ const oneOr = <
   }
 
   return action.run(nilRunner);
-};
-
-export default /* @__PURE__ */ appendExtension(
-  'oneOr',
-  oneOr,
-  'run',
-) as WithParsedExtension<typeof oneOr, {
-  oneOr<
-    C extends {},
-    E extends {},
-    I extends InferConsumedInstance<C>,
-    RawData,
-    Data,
-    Deserialized extends DeserializedData,
-    NilData,
-    Next = I,
-  >(
-    // eslint-disable-next-line max-len
-    this: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, E>,
-    // eslint-disable-next-line max-len
-    nilRunner: ContextRunner<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, E, NilData>,
-    transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
-  ): Promise<Awaited<Next> | Awaited<NilData>>;
-}>;
+});

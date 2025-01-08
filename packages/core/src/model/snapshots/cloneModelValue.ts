@@ -1,6 +1,6 @@
-import { ModelClass } from '@foscia/core/model/types';
+import { Model } from '@foscia/core/model/types';
 
-export default <T>(model: ModelClass, value: T) => (
+export default <T>(model: Model, value: T) => (
   model.$config.cloneValue
     ? model.$config.cloneValue(value)
     : value

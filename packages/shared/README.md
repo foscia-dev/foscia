@@ -18,7 +18,8 @@
 
 Shared utilities types and functions for [Foscia](https://foscia.dev).
 
-> :warning: You should not use this package as its API may not be stable.
+> :warning: This package is internal to Foscia and should not be used by
+> external code. It may contain breaking change on each new version.
 
 ## License
 

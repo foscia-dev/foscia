@@ -80,10 +80,10 @@ But, since we are not building the action factory for you, you must initialize
 this factory yourself with the things you need: an adapter, a serializer, etc.
 Don't worry, the process is still pretty simple thanks to blueprints.
 
-In addition, you will need a supplementary step to be able to use
-`action().query(Post).all()`, because those functions must be imported to be
-used. This is possible through actions' extensions, which will plug functions to
-your action instance and allow you to use a builder pattern call style.
+In addition, you can use method chaining (e.g. `action().query(Post).all()`),
+because those functions must be imported to be used.
+This can make the API less readable as it cannot be inspected just from the IDE.
+That's Foscia provides a clear and organized documentation.
 
 ## Why is my IDE slow when using Foscia?
 

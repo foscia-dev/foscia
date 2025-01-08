@@ -1,24 +1,22 @@
-import { context, makeActionClass, AdapterI, raw } from '@foscia/core';
+import { Adapter, context, makeActionFactory, makeModel, query, raw, when } from '@foscia/core';
 import { makeActionFactoryMockable, mockAction, unmockAction } from '@foscia/test';
 import { describe, expect, it, vi } from 'vitest';
 
 describe.concurrent('unit: mocking', () => {
   const makeAction = () => {
-    const ActionClass = makeActionClass();
-
     const fetch = vi.fn();
 
     return {
       fetch,
-      action: makeActionFactoryMockable((() => new ActionClass().use(context({
+      action: makeActionFactoryMockable(makeActionFactory({
         adapter: {
           execute: async () => {
             const rawData = fetch();
 
             return { raw: rawData, read: () => rawData.json() };
           },
-        } as AdapterI<any>,
-      })))),
+        } as Adapter<any>,
+      })),
     };
   };
 
@@ -26,7 +24,7 @@ describe.concurrent('unit: mocking', () => {
     const { action, fetch } = makeAction();
 
     const mock = mockAction(action);
-    mock.mockResult('foo');
+    mock.mock('foo');
 
     expect(await action().run(raw())).toStrictEqual('foo');
     expect(await action().run(raw())).toStrictEqual('foo');
@@ -38,9 +36,9 @@ describe.concurrent('unit: mocking', () => {
     const { action, fetch } = makeAction();
 
     const mock = mockAction(action);
-    mock.mockResultOnce('foo');
-    mock.mockResultTwice('bar');
-    mock.mockResultTimes(1, 'baz');
+    mock.mock('foo').once();
+    mock.mock('bar').twice();
+    mock.mock('baz').times(1);
 
     expect(await action().run(raw())).toStrictEqual('foo');
     expect(await action().run(raw())).toStrictEqual('bar');
@@ -56,8 +54,8 @@ describe.concurrent('unit: mocking', () => {
     const { action, fetch } = makeAction();
 
     const mock = mockAction(action);
-    mock.mockResult('foo', ({ value }) => value === 'foo');
-    mock.mockResult('bar', ({ value }) => value === 'bar');
+    mock.mock('foo').when((ctx) => ctx.context.value === 'foo');
+    mock.mock('bar').when((ctx) => ctx.context.value === 'bar');
 
     expect(await action().use(context({ value: 'foo' })).run(raw())).toStrictEqual('foo');
     expect(await action().use(context({ value: 'bar' })).run(raw())).toStrictEqual('bar');
@@ -71,8 +69,8 @@ describe.concurrent('unit: mocking', () => {
     const { action, fetch } = makeAction();
 
     const mock = mockAction(action);
-    mock.mockResult('foo', ({ value }) => value === 'foo');
-    mock.mockResult('bar', ({ value }) => value === 'bar');
+    mock.mock('foo').when((ctx) => ctx.context.value === 'foo');
+    mock.mock('bar').when((ctx) => ctx.context.value === 'bar');
 
     expect(await action().run(context({ value: 'foo' }), raw())).toStrictEqual('foo');
     expect(await action().run(context({ value: 'bar' }), raw())).toStrictEqual('bar');
@@ -89,12 +87,9 @@ describe.concurrent('unit: mocking', () => {
     let expectContext: any;
 
     const mock = mockAction(action);
-    mock.mockResult({
-      result: 'foo',
-      expectation: (c: any) => {
-        expectationFn(c);
-        expectContext = c;
-      },
+    mock.mock('foo').expect((ctx) => {
+      expectationFn(ctx.context);
+      expectContext = ctx.context;
     });
 
     expect(await action().use(context({ value: 'foo' })).run(raw())).toStrictEqual('foo');
@@ -108,7 +103,7 @@ describe.concurrent('unit: mocking', () => {
     const { action, fetch } = makeAction();
 
     const mock = mockAction(action);
-    mock.mockResult(() => 'foo');
+    mock.mock(() => 'foo');
 
     expect(await action().run(raw())).toStrictEqual('foo');
 
@@ -119,7 +114,7 @@ describe.concurrent('unit: mocking', () => {
     const { action, fetch } = makeAction();
 
     const mock = mockAction(action);
-    mock.mockResult(() => {
+    mock.mock(() => {
       throw new Error('dummy error');
     });
 
@@ -135,7 +130,7 @@ describe.concurrent('unit: mocking', () => {
     fetch.mockImplementation(() => responseMock);
 
     const mock = mockAction(action);
-    mock.mockResult('foo');
+    mock.mock('foo');
 
     expect(mock.history.length).toStrictEqual(0);
 
@@ -143,8 +138,8 @@ describe.concurrent('unit: mocking', () => {
     await action().use(context({ foo: 'baz' })).run(raw());
 
     expect(mock.history.length).toStrictEqual(2);
-    expect(mock.history[0].context.foo).toStrictEqual('bar');
-    expect(mock.history[1].context.foo).toStrictEqual('baz');
+    expect(mock.history[0].context.context.foo).toStrictEqual('bar');
+    expect(mock.history[1].context.context.foo).toStrictEqual('baz');
 
     mock.reset();
 
@@ -158,5 +153,65 @@ describe.concurrent('unit: mocking', () => {
 
     expect(fetchValue).toStrictEqual(responseMock);
     expect(fetch).toHaveBeenCalledOnce();
+  });
+
+  it('should support enhancers and runners inspection', async () => {
+    const Post = makeModel('posts');
+    let expectContext: any;
+
+    const { action, fetch } = makeAction();
+
+    const mock = mockAction(action);
+    mock.mock(() => 'foo').expect((ctx) => {
+      expect(ctx.calls.size()).toStrictEqual(4);
+
+      expect(ctx.calls.has('create')).toStrictEqual(false);
+      expect(ctx.calls.find('create')).toStrictEqual(null);
+      expect(ctx.calls.args('create')).toStrictEqual([]);
+
+      expect(ctx.calls.has('query')).toStrictEqual(true);
+      expect(ctx.calls.find('query')!.depth).toStrictEqual(0);
+      expect(ctx.calls.find('query')!.args).toStrictEqual([Post, 1]);
+      expect(ctx.calls.find((c) => c.name === 'query'))
+        .toStrictEqual(ctx.calls.find('query'));
+
+      expect(ctx.calls.has('context')).toStrictEqual(true);
+      expect(ctx.calls.findAll('context').length).toStrictEqual(1);
+      expect(ctx.calls.find('context')!.depth).toStrictEqual(3);
+      expect(ctx.calls.args('context')).toStrictEqual([{ bar: 'bar' }]);
+
+      expect(ctx.calls.findAll('when').length).toStrictEqual(5);
+      expect(ctx.calls.findAll('when')[0].depth).toStrictEqual(0);
+      expect(ctx.calls.findAll('when')[1].depth).toStrictEqual(0);
+      expect(ctx.calls.findAll('when')[2].depth).toStrictEqual(1);
+      expect(ctx.calls.findAll('when')[3].depth).toStrictEqual(0);
+      expect(ctx.calls.findAll('when')[4].depth).toStrictEqual(1);
+
+      expect(ctx.calls.find('raw')!.args).toStrictEqual([]);
+      expect(ctx.calls.find('raw')!.depth).toStrictEqual(2);
+
+      expect(ctx.calls.tree().length).toStrictEqual(4);
+      expect(ctx.calls.all().length).toStrictEqual(9);
+      expect(ctx.calls.originals().length).toStrictEqual(4);
+
+      expectContext = ctx.context;
+    });
+
+    expect(
+      await action().run(
+        query(Post, 1),
+        when(async () => false, context({ foo: 'foo' })),
+        when(true, when(() => true, (a) => a.use(context({ bar: 'bar' })))),
+        when(async () => false, () => null, when(() => true, raw())),
+      ),
+    ).toStrictEqual('foo');
+
+    expect(fetch).not.toHaveBeenCalled();
+    expect(expectContext).toStrictEqual({
+      adapter: expectContext.adapter,
+      bar: 'bar',
+      model: Post,
+      id: 1,
+    });
   });
 });

@@ -1,22 +1,12 @@
-import {
-  ModelAttribute,
-  ModelId,
-  ModelInstance,
-  ModelKey,
-  ModelRelation,
-} from '@foscia/core/model/types';
+import { ModelInstance, ModelProp } from '@foscia/core/model/types';
 
-export default <I extends ModelInstance, R>(
+export default <I extends ModelInstance, R, P extends ModelProp = ModelProp>(
   instance: I,
-  callback: (
-    def: ModelId<ModelKey<I>> | ModelAttribute<ModelKey<I>> | ModelRelation<ModelKey<I>>,
-  ) => R,
-  predicate?: (
-    def: ModelId<ModelKey<I>> | ModelAttribute<ModelKey<I>> | ModelRelation<ModelKey<I>>,
-  ) => boolean,
+  callback: (def: P) => R,
+  predicate?: (def: ModelProp) => def is P,
 ) => Object.values(instance.$model.$schema).reduce((stack, def) => {
   if (!predicate || predicate(def)) {
-    stack.push(callback(def));
+    stack.push(callback(def as P));
   }
 
   return stack;

@@ -36,22 +36,121 @@ import {
 
 type ExtractedId = { id: ModelIdType; type?: string; };
 
-type QueryModelLoaderOptions<
+/**
+ * Configuration for the {@link makeQueryModelLoader | `makeQueryModelLoader`} factory.
+ *
+ * @internal
+ */
+export type QueryModelLoaderOptions<
   RawData,
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
-  E extends {},
 > = {
+  /**
+   * Extract the related ID(s) from an instance's relation.
+   * You should use {@link makeQueryModelLoaderExtractor | `makeQueryModelLoaderExtractor`}
+   * to create an extractor function. Defaults to using the `$raw` record object.
+   *
+   * @param instance
+   * @param relation
+   *
+   * @example
+   * The default implementation extract related IDs from `$raw` record object.
+   * It supports record with IDs as relation values (`"comments": ["1", "2"]`)
+   * and even polymorphic relations values with objects containing both `type` and `ID`
+   * (`"comments": [{ "type": "comments", "id": "1" }, { "type": "comments", "id": "2" }]`).
+   *
+   * ```typescript
+   * import { makeQueryModelLoader, makeQueryModelLoaderExtractor } from '@foscia/core';
+   * import { filterBy } from '@foscia/jsonapi';
+   *
+   * export default makeQueryModelLoader(action, {
+   *   extract: makeQueryModelLoaderExtractor(
+   *     (instance, relation) => instance.$raw[normalizeKey(instance.$model, relation)],
+   *     (value) => (
+   *       typeof value === 'object' ? { id: value.id, type: value.type } : { id: value }
+   *     ),
+   *   ),
+   * });
+   * ```
+   *
+   * @remarks
+   * Notice that Foscia will try to deserialize each relation were record is an object or array
+   * of objects value. This will mark the relation as loaded even if the related value
+   * attributes are not loaded. To avoid this, you can disable the relation's syncing on
+   * pull (e.g. hasOne().sync('push')), as it will disable relation deserialization.
+   * If you want a more global solution, you can update the `pullRelation` option on
+   * your deserializer configuration.
+   */
   extract?: <I extends ModelInstance>(
     instance: I,
     relation: ModelRelationKey<I>,
   ) => Arrayable<ExtractedId> | null | undefined;
+  /**
+   * Prepare the action using the given context.
+   * As an example, this can be used to filter the query on instances IDs.
+   *
+   * @param action
+   * @param context
+   *
+   * @example
+   * ```typescript
+   * import { makeQueryModelLoader } from '@foscia/core';
+   * import { filterBy } from '@foscia/jsonapi';
+   *
+   * export default makeQueryModelLoader(action, {
+   *   prepare: (a, { ids }) => a.use(filterBy({ ids })),
+   * });
+   * ```
+   */
   prepare?: (
-    action: Action<C & ConsumeModel, E>,
+    action: Action<C & ConsumeModel>,
     context: { ids: ModelIdType[]; relations: string[] },
   ) => Awaitable<unknown>;
-  chunk?: (instances: ModelIdType[]) => ModelIdType[][];
+  /**
+   * Chunk the IDs array into multiple arrays to make multiple queries
+   * instead of a unique one.
+   * As an example, this can be used to avoid hitting pagination limit of an API.
+   *
+   * @param ids
+   *
+   * @example
+   * ```typescript
+   * import { makeQueryModelLoader } from '@foscia/core';
+   *
+   * const chunk = <T>(items: T[], size: number) => {
+   *   const chunks = [] as T[][];
+   *   for (let i = 0; i < array.length; i += size) {
+   *     chunks.push(array.slice(i, i + chunkSize));
+   *   }
+   *
+   *   return chunks;
+   * };
+   *
+   * export default makeQueryModelLoader(action, {
+   *   chunk: (ids) => chunk(ids, 20),
+   * });
+   * ```
+   */
+  chunk?: (ids: ModelIdType[]) => ModelIdType[][];
+  /**
+   * Determine if the given instance relation should be ignored from
+   * refresh.
+   * As an example, this can be used to load only missing relations.
+   *
+   * @param instance
+   * @param relation
+   *
+   * @example
+   * ```typescript
+   * import { makeQueryModelLoader, loaded } from '@foscia/core';
+   *
+   * export default makeQueryModelLoader(action, {
+   *   exclude: loaded,
+   * });
+   * ```
+   */
   exclude?: <I extends ModelInstance>(instance: I, relation: ModelRelationDotKey<I>) => boolean;
 };
 
@@ -60,10 +159,9 @@ const extractIdsMap = <
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
-  E extends {},
   I extends ModelInstance,
 >(
-  options: QueryModelLoaderOptions<RawData, Data, Deserialized, C, E>,
+  options: QueryModelLoaderOptions<RawData, Data, Deserialized, C>,
   instances: I[],
   relations: Map<ModelRelationKey<I>, string[]>,
 ) => {
@@ -105,11 +203,10 @@ const fetchRelatedMap = async <
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
-  E extends {},
   I extends ModelInstance,
 >(
-  action: ActionFactory<[], C, E>,
-  options: QueryModelLoaderOptions<RawData, Data, Deserialized, C, E>,
+  action: ActionFactory<[], C>,
+  options: QueryModelLoaderOptions<RawData, Data, Deserialized, C>,
   relations: Map<Model, { relations: ModelRelationKey<I>[]; nested: string[] }>,
   ids: Map<I, Map<ModelRelationKey<I>, Arrayable<ExtractedId> | null>>,
 ) => {
@@ -136,7 +233,7 @@ const fetchRelatedMap = async <
         const chunkRelated = await action()
           .use(query(model), include(relationsData.nested as any))
           .use(when(() => options.prepare, async (a, p) => {
-            await p(a as Action<C & ConsumeModel, E>, {
+            await p(a as Action<C & ConsumeModel>, {
               ids: chunkIds.map(({ id }) => id),
               relations: relationsData.nested,
             });
@@ -193,15 +290,34 @@ const remapRelated = <I extends ModelInstance>(
   });
 });
 
+/**
+ * Create a relations loader using related model and IDs included in raw
+ * data source's records.
+ *
+ * @param action
+ * @param options
+ *
+ * @category Factories
+ * @since 0.8.2
+ *
+ * @example
+ * ```typescript
+ * import { makeQueryModelLoader } from '@foscia/core';
+ * import { param } from '@foscia/http';
+ *
+ * export default makeQueryModelLoader(action, {
+ *   prepare: (a, { ids }) => a.use(param({ ids })),
+ * });
+ * ```
+ */
 export default <
   RawData,
   Data,
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
-  E extends {},
 >(
-  action: ActionFactory<[], C, E>,
-  options: QueryModelLoaderOptions<RawData, Data, Deserialized, C, E> = {},
+  action: ActionFactory<[], C>,
+  options: QueryModelLoaderOptions<RawData, Data, Deserialized, C> = {},
 ) => async <I extends ModelInstance>(
   instances: Arrayable<I>,
   ...relations: ArrayableVariadic<ModelRelationDotKey<I>>

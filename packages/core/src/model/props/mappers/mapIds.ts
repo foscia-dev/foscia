@@ -8,5 +8,5 @@ export default <I extends ModelInstance, R>(
 ) => mapProps(
   instance,
   callback as any,
-  (def) => isIdDef(def),
+  isIdDef,
 ) as R[];

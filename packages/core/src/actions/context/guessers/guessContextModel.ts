@@ -1,13 +1,13 @@
 import guessRelationType from '@foscia/core/model/relations/utilities/guessRelationType';
 import { Model, ModelRelation } from '@foscia/core/model/types';
-import { RegistryI } from '@foscia/core/types';
+import { ModelsRegistry } from '@foscia/core/types';
 import { isNil, Optional, wrap } from '@foscia/shared';
 
 type GuessContextModelContext = {
   queryAs?: Optional<Model[]>;
   model?: Optional<Model>;
   relation?: Optional<ModelRelation>;
-  registry?: Optional<RegistryI>;
+  registry?: Optional<ModelsRegistry>;
   ensureType?: Optional<string>;
 };
 

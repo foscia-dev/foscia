@@ -19,11 +19,11 @@ import ShellCommand from '@site/src/components/ShellCommand';
 ## Checking loading state
 
 If you want to check if an instance's relations (or deep relations) are loaded,
-you can use the `loaded` function.
+you can use the [`loaded`](/docs/api/@foscia/core/functions/loaded) function.
 
-`loaded` recursively inspect relations. This means it will only return `true` if
-**all** relations of the instance (and sub-instances for deep relations) are
-loaded.
+[`loaded`](/docs/api/@foscia/core/functions/loaded) recursively inspect
+relations. This means it will only return `true` if **all** relations of
+the instance (and sub-instances for deep relations) are loaded.
 
 ```typescript
 import { loaded } from '@foscia/core';
@@ -44,18 +44,34 @@ behaviors and options.
 
 ### Using CLI
 
-You can generate a new loader using [`@foscia/cli`](/docs/digging-deeper/cli).
+You can generate a new loader using [`@foscia/cli`](/docs/digging-deeper/usages/cli).
 
 <ShellCommand command="foscia make loader" />
 
 ### 1. Instance refreshing
 
+#### Description
+
 This is the simplest way of loading relations if your data source implementation
 provides an inclusion of relations and a way to filter models based on IDs (e.g.
-JSON:API).
+JSON:API). It uses
+[`makeRefreshIncludeLoader`](/docs/api/@foscia/core/functions/makeRefreshIncludeLoader).
 
 This loader will target the model index and include the requested relations. It
 supports nested relations keys if your data source supports them.
+
+:::info
+
+This loader is recommended as it will only run one action for many models and
+relations. But, be aware that you should implement an adapted `prepare` to
+filter the fetched models (this will avoid overloading your data source with
+useless records fetching).
+
+It should support polymorphism if your data provider does.
+
+:::
+
+#### Example
 
 Here is an example when using a JSON:API backend with an `ids` filter available.
 
@@ -78,68 +94,35 @@ await loadWithRefresh(myPost, 'comments');
 await loadWithRefresh(myPostsArray, ['comments', 'comments.author']);
 ```
 
-:::info
+#### Configuration
 
-This loader is recommended as it will only run one action for many models and
-relations. But, be aware that you should implement an adapted `prepare` to
-filter the fetched models (this will avoid overloading your data source with
-useless records fetching).
-
-It should support polymorphism if your data provider does.
-
-:::
-
-#### Options
-
-##### `prepare: (action: Action, context: { instances: ModelInstance[]; relations: string[] }): Awaitable<void>`
-
-A function to execute before running action allowing you to prepare the refresh
-action (e.g. to avoid fetching a full list of models by filtering on instances'
-IDs).
-
-##### `chunk: (instances: ModelInstance[]): ModelInstance[][]`
-
-A function to split the instances array to multiple arrays (e.g. to avoid
-hitting pagination limit).
-
-<details>
-
-<summary>
-
-Array chunk function example
-
-</summary>
-
-```typescript
-function chunk<T>(items: T[], size: number) {
-  const chunks = [] as T[][];
-  for (let i = 0; i < array.length; i += size) {
-    chunks.push(array.slice(i, i + chunkSize));
-  }
-
-  return chunks;
-}
-```
-
-</details>
-
-##### `exclude: (instance: ModelInstance, relations: ModelRelationDotKey): bool`
-
-A function to exclude some relation fetching (e.g. to avoid fetching already
-loaded relations). Notice the following:
-
-- If an instance is excluded for all relations, it will not be refreshed
-- If a relation is excluded for all instances, it will not be included during
-  refresh
+All available configuration options are described in the
+[`RefreshIncludeLoaderOptions` API reference](/docs/api/@foscia/core/type-aliases/RefreshIncludeLoaderOptions).
 
 ### 2. Related model action
 
 <FunctionInfo version="0.8.2" />
 
+#### Description
+
 This method is best suited for multiple instance relation loading with
 implementations providing IDs instead of included relations, such as some REST
-implementations. If nested relations are passed (such as `comments.author`),
-it will `include` the nested relations during the root model action.
+implementations. It uses
+[`makeQueryModelLoader`](/docs/api/@foscia/core/functions/makeQueryModelLoader).
+If nested relations are passed (such as `comments.author`),
+it will [`include`](/docs/api/@foscia/core/functions/include) the nested
+relations during the root model action.
+
+:::info
+
+This loader is recommended as it will only run one action per direct relation.
+It supports polymorphic relations when
+[**related models are correctly defined on relations**](/docs/core-concepts/models#recommandations)
+and `extract` option correctly retrieve IDs.
+
+:::
+
+#### Example
 
 ```typescript title="loaders/loadWithModelQuery.ts"
 import { makeQueryModelLoader } from '@foscia/core';
@@ -159,17 +142,7 @@ await loadWithModelQuery(myPost, 'comments');
 await loadWithModelQuery(myPostsArray, ['comments', 'comments.author']);
 ```
 
-:::info
-
-This loader is recommended as it will only run one action per direct relation.
-
-It supports polymorphic relations when
-[**related models are correctly defined on relations**](/docs/core-concepts/models#recommandations)
-and `extract` option correctly retrieve IDs.
-
-:::
-
-#### Options
+#### Configuration
 
 ##### `extract: (instance: ModelInstance, relation: ModelRelationKey): Arrayable<ModelIdType> | null | undefined`
 
@@ -278,10 +251,26 @@ loaded relations).
 
 ### 3. Relation action
 
+#### Description
+
 This method is best suited for one instance relation loading with
 implementations providing relation reading through a dedicated endpoint/query,
-such as JSON:API. If nested relations are passed (such as `comments.author`),
-it will `include` the nested relations during the root relation action.
+such as JSON:API. It uses
+[`makeQueryRelationLoader`](/docs/api/@foscia/core/functions/makeQueryRelationLoader).
+If nested relations are passed (such as `comments.author`),
+it will [`include`](/docs/api/@foscia/core/functions/include) the nested
+relations during the root model action.
+
+:::warning
+
+Because this loader will run one action per instance and relation, it is only
+recommended for one instance's relation loading, not many.
+
+It should support polymorphism if your data provider does.
+
+:::
+
+#### Example
 
 ```typescript title="loaders/loadWithRelationQuery.ts"
 import { makeQueryRelationLoader } from '@foscia/core';
@@ -298,16 +287,7 @@ import loadWithRelationQuery from './loaders/loadWithRelationQuery';
 await loadWithRelationQuery(myPost, 'comments');
 ```
 
-:::warning
-
-Because this loader will run one action per instance and relation, it is only
-recommended for one instance's relation loading, not many.
-
-It should support polymorphism if your data provider does.
-
-:::
-
-#### Options
+#### Configuration
 
 ##### `exclude: (instance: ModelInstance, relations: ModelRelationDotKey): bool`
 
@@ -328,7 +308,7 @@ Every loader factory provides an `exclude` option which can remove some
 instances or relations before running actions.
 
 This is useful to avoid loading already loaded relations, and can be done
-easily using the `loaded` function.
+easily using the [`loaded`](/docs/api/@foscia/core/functions/loaded) function.
 
 ```typescript title="loaders/loadMissingWithRefresh.ts"
 import { makeRefreshIncludeLoader, loaded } from '@foscia/core';

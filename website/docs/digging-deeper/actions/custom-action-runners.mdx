@@ -10,7 +10,6 @@ import ShellCommand from '@site/src/components/ShellCommand';
 :::tip What you'll learn
 
 - Defining a custom action runner
-- Providing an extension property to your runner
 
 :::
 
@@ -34,18 +33,12 @@ parameters working:
 - `page[number]` describes the number of the page to fetch
 - `page[size]` describes the count of records to fetch (aka. limit)
 
-:::tip
+:::warning
 
-If you want to create a runner which does not use the action's
-context typing (such as defining a query parameter, etc.), you can
-ignore generic typing.
-
-:::
-
-:::info
-
-This guide is a runner version of the `first` enhancer described in the
-[**custom enhancers guide**](/docs/digging-deeper/actions/custom-action-enhancers).
+Generics inside enhancers and runners provide context typing propagation
+and are required when using TypeScript, otherwise, you may experiment
+type inference issues (for returned result) and type error when using
+other enhancers and runners.
 
 :::
 
@@ -56,30 +49,17 @@ This guide is a runner version of the `first` enhancer described in the
 ## Defining the function
 
 Our implementation of `first` will paginate the context and fetch one instance.
+Typing is complex here because we are using `one` runner, which requires to provide
+a context containing an adapter and a deserializer.
 
 ```typescript title="action/runners/first.ts"
-import {
-  Action,
-  ConsumeAdapter,
-  ConsumeDeserializer,
-  one,
-} from '@foscia/core';
+import { Action, ConsumeAdapter, ConsumeDeserializer, makeRunner, one } from '@foscia/core';
 import { paginate } from '@foscia/jsonapi';
 
-export default function first<C extends {}, RawData, Data, Deserialized>() {
-  return (
-    action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>>,
-  ) => action.run(paginate({ number: 1, size: 1 }), one());
-}
+export default makeRunner('first', <C extends {}, RawData, Data, Deserialized>() => async (
+  action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>>,
+) => action.run(paginate({ number: 1, size: 1 }), one()));
 ```
-
-:::warning
-
-Please note that when defining custom enhancers or runners, you should always
-correctly define generic types. This is very important as it will allow the
-context propagation through other enhancers and runners.
-
-:::
 
 ## Using the function
 
@@ -88,63 +68,8 @@ Once your runner is ready, you may use it like any other Foscia runner.
 ```typescript
 import { query } from '@foscia/core';
 import action from './action';
-import first from './action/runners/first';
+import first from './runners/first';
 import Post from './models/post';
 
 const post = await action().run(query(Post), first());
 ```
-
-## Defining the extension
-
-Our current runner can only be used through an import and the `use` method of
-our action. To make it available for the
-[builder pattern style calls](/docs/core-concepts/actions#extensions), we must
-define an extension for it.
-
-There is currently a limitation of the TypeScript language (Higher Order types
-are not available for now) which forces us to declare each extension manually.
-The goal of an extension definition is to get a type safe feature directly
-available on our action (and so provide autocomplete, context propagation,
-etc.).
-
-Once your runner extension is ready, you will be able to use it
-[as any other runners of Foscia](/docs/core-concepts/actions#extensions).
-
-```typescript title="action/runners/first.ts"
-import {
-  Action,
-  ConsumeAdapter,
-  ConsumeDeserializer,
-  InferConsumedInstance,
-  WithParsedExtension,
-  appendExtension,
-  one,
-} from '@foscia/core';
-import { paginate } from '@foscia/jsonapi';
-
-// Our previous enhancer code.
-function first<C extends {}, RawData, Data, Deserialized>() {
-  return (
-    action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>>,
-  ) => action.run(paginate({ number: 1, size: 1 }), one());
-}
-
-// New default export with typed `extension()`.
-export default /* @__PURE__ */ appendExtension(
-  'first',
-  first,
-  'run',
-) as WithParsedExtension<typeof first, {
-  // The extension typing.
-  first<C extends {}, I extends InferConsumedInstance<C>, RawData, Data, Deserialized>(
-    this: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>>,
-  ): Promise<I | null>;
-}>;
-```
-
-:::warning
-
-Here again, correctly typing our runner extension is really important to get
-context and action's extension propagation.
-
-:::

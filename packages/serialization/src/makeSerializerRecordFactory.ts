@@ -2,6 +2,14 @@ import { ModelInstance } from '@foscia/core';
 import { SerializerContext, SerializerRecordFactory } from '@foscia/serialization/types';
 import { Awaitable } from '@foscia/shared';
 
+/**
+ * Make a {@link SerializerRecordFactory | `SerializerRecordFactory`} implementation.
+ *
+ * @param initialize
+ * @param put
+ *
+ * @category Factories
+ */
 export default <
   Record,
   Related,

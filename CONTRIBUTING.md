@@ -62,7 +62,7 @@ To add a new package, you must add a new corresponding repository
 inside the `packages` folder.
 
 You must also define multiple files
-(like inside [`packages/core`](packages/core)):
+(like inside [`packages/core`](https://github.com/foscia-dev/foscia/tree/main/packages/core)):
 
 - `src/index.ts`: contains all exported modules
 - `.release-it.json` manage release and dependencies update.

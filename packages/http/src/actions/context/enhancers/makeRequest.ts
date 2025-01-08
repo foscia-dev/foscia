@@ -1,4 +1,4 @@
-import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
+import { makeEnhancer } from '@foscia/core';
 import configureRequest from '@foscia/http/actions/context/enhancers/configureRequest';
 import { HttpRequestConfig } from '@foscia/http/types';
 
@@ -10,27 +10,28 @@ const decomposeURL = (pathOrBaseURL: string) => (
 
 /**
  * Prepare a generic HTTP request.
- * If given path starts with scheme (HTTPS, etc.), it will be used as the base
- * URL of action, otherwise it will only be used as path.
+ *
+ * If given path starts with scheme (`https:`, etc.) or a slash `/`,
+ * it will be used as the base URL of action, otherwise it will only be used
+ * as path after the configured base URL.
  *
  * @param pathOrBaseURL
  * @param config
  *
  * @category Enhancers
+ *
+ * @example
+ * ```typescript
+ * import { raw } from '@foscia/core';
+ * import { makeRequest } from '@foscia/http';
+ *
+ * const response = await action().run(
+ *   makeRequest('posts', { params: { search: 'foo' } }),
+ *   raw(),
+ * );
+ * ```
  */
-const makeRequest = (
+export default /* @__PURE__ */ makeEnhancer('makeRequest', (
   pathOrBaseURL: string,
   config?: HttpRequestConfig,
-) => configureRequest({ ...decomposeURL(pathOrBaseURL), ...config });
-
-export default /* @__PURE__ */ appendExtension(
-  'makeRequest',
-  makeRequest,
-  'use',
-) as WithParsedExtension<typeof makeRequest, {
-  makeRequest<C extends {}, E extends {}>(
-    this: Action<C, E>,
-    pathOrBaseURL: string,
-    config?: HttpRequestConfig,
-  ): Action<C, E>;
-}>;
+) => configureRequest({ ...decomposeURL(pathOrBaseURL), ...config }));

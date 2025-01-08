@@ -1,4 +1,4 @@
-import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
+import { Action, makeEnhancer } from '@foscia/core';
 import { consumeRequestObjectParams, param } from '@foscia/http';
 import { Dictionary } from '@foscia/shared';
 
@@ -12,23 +12,24 @@ import { Dictionary } from '@foscia/shared';
  * @param value
  *
  * @category Enhancers
+ *
+ * @example
+ * ```typescript
+ * import { query, all } from '@foscia/core';
+ * import { filterBy } from '@foscia/jsonapi';
+ *
+ * const posts = await action().run(
+ *   query(Post),
+ *   filterBy('tag', 'news'),
+ *   filterBy({ published: 1 }),
+ *   all(),
+ * );
+ * ```
  */
-const filterBy = (
+export default /* @__PURE__ */ makeEnhancer('filterBy', <C extends {}>(
   key: string | Dictionary,
   value?: unknown,
-) => async <C extends {}>(action: Action<C>) => action.use(param('filter', {
+) => async (action: Action<C>) => action.use(param('filter', {
   ...consumeRequestObjectParams(await action.useContext())?.filter,
   ...(typeof key === 'string' ? { [key]: value } : key),
-}));
-
-export default /* @__PURE__ */ appendExtension(
-  'filterBy',
-  filterBy,
-  'use',
-) as WithParsedExtension<typeof filterBy, {
-  filterBy<C extends {}, E extends {}>(
-    this: Action<C, E>,
-    key: string | Dictionary,
-    value?: unknown,
-  ): Action<C, E>;
-}>;
+})));

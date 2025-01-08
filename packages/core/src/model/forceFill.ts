@@ -2,17 +2,33 @@
 import fill from '@foscia/core/model/fill';
 import { ModelInstance, ModelValues } from '@foscia/core/model/types';
 
+/**
+ * Fill the instance with given values even if values are read-only.
+ *
+ * @param instance
+ * @param values
+ *
+ * @category Utilities
+ * @since 0.6.1
+ *
+ * @example
+ * ```typescript
+ * import { forceFill } from '@foscia/core';
+ *
+ * const post = forceFill(new Post(), { author: user });
+ * ```
+ */
 export default <I extends ModelInstance>(
   instance: I,
   values: Partial<ModelValues<I>>,
 ) => {
-  const { strictReadonly } = instance.$model.$config;
+  const { strictReadOnly } = instance.$model.$config;
 
   try {
-    instance.$model.$config.strictReadonly = false;
+    instance.$model.$config.strictReadOnly = false;
 
     return fill(instance, values);
   } finally {
-    instance.$model.$config.strictReadonly = strictReadonly;
+    instance.$model.$config.strictReadOnly = strictReadOnly;
   }
 };

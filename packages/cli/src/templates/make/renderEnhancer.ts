@@ -13,7 +13,7 @@ type EnhancerTemplateData = {
 export default function renderEnhancer(
   { config, imports, functionName }: EnhancerTemplateData,
 ) {
-  imports.add('context', '@foscia/core');
+  imports.add('makeEnhancer', '@foscia/core');
 
   const functionGeneric = config.language === 'ts' ? '<C extends {}>' : '';
   const paramTyping = config.language === 'ts' ? ': Action<C>' : '';
@@ -22,12 +22,11 @@ export default function renderEnhancer(
   }
 
   const enhancer = `
-function ${functionName}${functionGeneric}() {
-${toIndent(config, `return (action${paramTyping}) => {`)}
-${toIndent(config, '// TODO Write enhancer logic.', 2)}
-${toIndent(config, 'return action.use(context({}))', 2)}
-${toIndent(config, '};')}
-}
+makeEnhancer('${functionName}', ${functionGeneric}(
+${toIndent(config, '// TODO Add enhancer parameters here.', 1)}
+) => async (action${paramTyping}) => action.use(
+${toIndent(config, '// TODO Use other enhancers here, such as `context`.', 1)}
+))
 `.trim();
 
   return `

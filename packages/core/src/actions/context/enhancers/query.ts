@@ -1,58 +1,25 @@
 import context from '@foscia/core/actions/context/enhancers/context';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
+import makeEnhancer from '@foscia/core/actions/makeEnhancer';
 import {
-  Action,
   ConsumeId,
   ConsumeInstance,
   ConsumeModel,
   ConsumeRelation,
   ContextEnhancer,
-  WithParsedExtension,
 } from '@foscia/core/actions/types';
 import isModel from '@foscia/core/model/checks/isModel';
 import {
+  InferModelSchemaProp,
   Model,
-  ModelClassInstance,
   ModelIdType,
   ModelInstance,
+  ModelRelation,
   ModelRelationKey,
-  ModelSchema,
-  ModelSchemaRelations,
 } from '@foscia/core/model/types';
 
-/**
- * Query the given model, instance or relation.
- *
- * @param modelOrInstance
- * @param idOrRelation
- *
- * @category Enhancers
- */
-const query: {
-  <C extends {}, E extends {}, M extends Model>(
-    model: M,
-  ): ContextEnhancer<C, E, C & ConsumeModel<M>>;
-  <C extends {}, E extends {}, M extends Model>(
-    model: M,
-    id: ModelIdType,
-  ): ContextEnhancer<C, E, C & ConsumeModel<M> & ConsumeId>;
-  <C extends {}, E extends {}, D extends {}, I extends ModelInstance<D>>(
-    instance: ModelClassInstance<D> & I,
-  ): ContextEnhancer<C, E, C & ConsumeModel<Model<D, I>> & ConsumeInstance<I> & ConsumeId>;
-  <
-    C extends {},
-    E extends {},
-    D extends {},
-    RD extends ModelSchemaRelations<D>,
-    I extends ModelInstance<D>,
-    K extends keyof ModelSchema<D> & keyof RD & string,
-  >(
-    instance: ModelClassInstance<D> & I,
-    relation: ModelRelationKey<D> & K,
-  ): ContextEnhancer<C, E, C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeId>;
-} = (
+export default /* @__PURE__ */ makeEnhancer('query', ((
   modelOrInstance: Model | ModelInstance,
-  idOrRelation?: ModelIdType | ModelRelationKey<any>,
+  idOrRelation?: ModelIdType | string,
 ) => (
   isModel(modelOrInstance)
     ? context({ model: modelOrInstance, id: idOrRelation })
@@ -62,37 +29,86 @@ const query: {
       id: modelOrInstance.$exists ? modelOrInstance.id : undefined,
       relation: idOrRelation && modelOrInstance.$model.$schema[idOrRelation],
     })
-);
-
-export default /* @__PURE__ */ appendExtension(
-  'query',
-  query,
-  'use',
-) as WithParsedExtension<typeof query, {
-  query<C extends {}, E extends {}, M extends Model>(
-    this: Action<C, E>,
+)) as {
+  /**
+   * Query a model.
+   *
+   * @param model
+   *
+   * @category Enhancers
+   * @since 0.6.3
+   * @provideContext model
+   *
+   * @example
+   * ```typescript
+   * import { query, all } from '@foscia/core';
+   *
+   * const posts = await action().run(query(Post), all());
+   * ```
+   */<C extends {}, M extends Model>(
     model: M,
-  ): Action<C & ConsumeModel<M>, E>;
-  query<C extends {}, E extends {}, M extends Model>(
-    this: Action<C, E>,
+  ): ContextEnhancer<C, C & ConsumeModel<M>>;
+  /**
+   * Query a model record by ID.
+   *
+   * @param model
+   * @param id
+   *
+   * @category Enhancers
+   * @since 0.6.3
+   * @provideContext model, id
+   *
+   * @example
+   * ```typescript
+   * import { query, oneOrFail } from '@foscia/core';
+   *
+   * const post = await action().run(query(Post, '123'), oneOrFail());
+   * ```
+   */<C extends {}, M extends Model>(
     model: M,
     id: ModelIdType,
-  ): Action<C & ConsumeModel<M> & ConsumeId, E>;
-  query<C extends {}, E extends {}, D extends {}, I extends ModelInstance<D>>(
-    this: Action<C, E>,
-    instance: ModelClassInstance<D> & I,
-  ): Action<C & ConsumeModel<Model<D, I>> & ConsumeInstance<I> & ConsumeId, E>;
-  query<
+  ): ContextEnhancer<C, C & ConsumeModel<M> & ConsumeId>;
+  /**
+   * Query a model instance.
+   *
+   * @param instance
+   *
+   * @category Enhancers
+   * @since 0.6.3
+   * @provideContext model, instance, id
+   *
+   * @example
+   * ```typescript
+   * import { query, oneOrFail } from '@foscia/core';
+   *
+   * const refreshedPost = await action().run(query(post), oneOrFail());
+   * ```
+   */<C extends {}, I extends ModelInstance>(
+    instance: I,
+  ): ContextEnhancer<C, C & ConsumeModel<I['$model']> & ConsumeInstance<I> & ConsumeId>;
+  /**
+   * Query a model instance relation.
+   *
+   * @param instance
+   * @param relation
+   *
+   * @category Enhancers
+   * @since 0.6.3
+   * @provideContext model, instance, id, relation
+   *
+   * @example
+   * ```typescript
+   * import { query, all } from '@foscia/core';
+   *
+   * const comments = await action().run(query(myPost, 'comments'), all());
+   * ```
+   */<
     C extends {},
-    E extends {},
-    D extends {},
-    RD extends ModelSchemaRelations<D>,
-    I extends ModelInstance<D>,
-    K extends keyof ModelSchema<D> & keyof RD & string,
+    I extends ModelInstance,
+    K extends string,
+    R extends InferModelSchemaProp<I, K, ModelRelation>,
   >(
-    this: Action<C, E>,
-    instance: ModelClassInstance<D> & I,
-    relation: ModelRelationKey<D> & K,
-    // eslint-disable-next-line max-len
-  ): Action<C & ConsumeModel<Model<D, I>> & ConsumeRelation<RD[K]> & ConsumeInstance<I> & ConsumeId, E>;
-}>;
+    instance: I,
+    relation: K & ModelRelationKey<I>,
+  ): ContextEnhancer<C, C & ConsumeModel<I['$model']> & ConsumeRelation<R> & ConsumeId>;
+});

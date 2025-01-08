@@ -1,56 +1,166 @@
 import {
   Model,
+  ModelAttribute,
+  ModelId,
   ModelIdType,
+  ModelProp,
+  ModelPropFactory,
   ModelPropSync,
+  ModelRelation,
   ModelRelationConfig,
-  PendingModelProp,
-  RawModelAttribute,
-  RawModelId,
-  RawModelRelation,
 } from '@foscia/core/model/types';
 import { ObjectTransformer } from '@foscia/core/transformers/types';
-import { Awaitable, Constructor, Dictionary } from '@foscia/shared';
+import { Awaitable, Constructor } from '@foscia/shared';
 
-export type PendingDefinitionModifiers = Dictionary<(...args: any[]) => PendingDefinition>;
+/**
+ * Default prop factory definition object type.
+ *
+ * @internal
+ */
+export type ModelPropFactoryDefinition<P extends ModelProp> =
+  Partial<P> & ThisType<P & { key: any; }>;
 
-export type PendingDefinition = PendingModelProp<Dictionary> & PendingDefinitionModifiers;
-
-export type PendingModelId<T extends ModelIdType | null, R extends boolean> = {
+/**
+ * Model ID factory object.
+ *
+ * @internal
+ */
+export type ModelIdFactory<T extends ModelIdType | null, R extends boolean> = {
+  /**
+   * Define a transformer.
+   *
+   * @param transformer
+   */
   transform: <NT extends T>(
     transformer: ObjectTransformer<NT | null, any, any>,
-  ) => PendingModelId<NT, R>;
-  default: <NT extends T>(value: T | (() => T)) => PendingModelId<NT, R>;
-  readOnly: <NR extends boolean = true>(readOnly?: NR) => PendingModelId<T, NR>;
-  nullable: unknown extends T ? never : (() => PendingModelId<T | null, R>);
-} & PendingModelProp<RawModelId<T, R>>;
+  ) => ModelIdFactory<NT, R>;
+  /**
+   * Define default value.
+   * Object values should be provided with a factory function to avoid
+   * defining the same reference on multiple instance.
+   *
+   * @param value
+   */
+  default: <NT extends T>(value: T | (() => T)) => ModelIdFactory<NT, R>;
+  /**
+   * Mark read-only.
+   *
+   * @param readOnly
+   */
+  readOnly: <NR extends boolean = true>(readOnly?: NR) => ModelIdFactory<T, NR>;
+  /**
+   * Mark nullable.
+   */
+  nullable: () => ModelIdFactory<T | null, R>;
+} & ModelPropFactory<ModelId<string, T, R>>;
 
-export type PendingModelAttribute<T, R extends boolean> = {
+/**
+ * Model attribute factory object.
+ *
+ * @internal
+ */
+export type ModelAttributeFactory<T, R extends boolean> = {
+  /**
+   * Define a transformer.
+   *
+   * @param transformer
+   */
   transform: <NT extends T>(
     transformer: ObjectTransformer<NT | null, any, any>,
-  ) => PendingModelAttribute<NT, R>;
-  default: <NT extends T>(value: T | (() => T)) => PendingModelAttribute<NT, R>;
-  readOnly: <NR extends boolean = true>(readOnly?: NR) => PendingModelAttribute<T, NR>;
-  nullable: unknown extends T ? never : (() => PendingModelAttribute<T | null, R>);
-  alias: (alias: string) => PendingModelAttribute<T, R>;
-  sync: (alias: boolean | ModelPropSync) => PendingModelAttribute<T, R>;
-} & PendingModelProp<RawModelAttribute<T, R>>;
+  ) => ModelAttributeFactory<NT, R>;
+  /**
+   * Define default value.
+   * Object values should be provided with a factory function to avoid
+   * defining the same reference on multiple instance.
+   *
+   * @param value
+   */
+  default: <NT extends T>(value: T | (() => T)) => ModelAttributeFactory<NT, R>;
+  /**
+   * Mark read-only.
+   *
+   * @param readOnly
+   */
+  readOnly: <NR extends boolean = true>(readOnly?: NR) => ModelAttributeFactory<T, NR>;
+  /**
+   * Mark nullable.
+   */
+  nullable: () => ModelAttributeFactory<T | null, R>;
+  /**
+   * Define the alias to use for data source interactions.
+   *
+   * @param alias
+   */
+  alias: (alias: string) => ModelAttributeFactory<T, R>;
+  /**
+   * Define when the property should be synced with data source.
+   *
+   * @param sync
+   */
+  sync: (sync: boolean | ModelPropSync) => ModelAttributeFactory<T, R>;
+} & ModelPropFactory<ModelAttribute<string, T, R>>;
 
-export type PendingModelRelationInstance<M> =
+/**
+ * Infer related instance types from relationship models.
+ *
+ * @internal
+ */
+export type InferModelRelationFactoryInstance<M> =
   M extends Constructor<infer I>[] ? I
     : M extends Constructor<infer I> ? I
       : never;
 
-export type PendingModelRelationConfig =
+/**
+ * Model relationship factory configuration object.
+ *
+ * @internal
+ */
+export type ModelRelationFactoryConfig =
   | string
   | string[]
   | ModelRelationConfig
   | (() => Awaitable<Model | Model[]>);
 
-export type PendingModelRelation<T, R extends boolean> = {
-  config: (config: string | string[] | ModelRelationConfig) => PendingModelRelation<T, R>;
-  default: <NT extends T>(value: T | (() => T)) => PendingModelRelation<NT, R>;
-  readOnly: <NR extends boolean = true>(readOnly?: NR) => PendingModelRelation<T, NR>;
-  nullable: unknown extends T ? never : (() => PendingModelRelation<T | null, R>);
-  alias: (alias: string) => PendingModelRelation<T, R>;
-  sync: (alias: boolean | ModelPropSync) => PendingModelRelation<T, R>;
-} & PendingModelProp<RawModelRelation<T, R>>;
+/**
+ * Model relationship factory object.
+ *
+ * @internal
+ */
+export type ModelRelationFactory<T, R extends boolean> = {
+  /**
+   * Define the related types or the configuration object.
+   *
+   * @param config
+   */
+  config: (config: string | string[] | ModelRelationConfig) => ModelRelationFactory<T, R>;
+  /**
+   * Define default value.
+   * Object values should be provided with a factory function to avoid
+   * defining the same reference on multiple instance.
+   *
+   * @param value
+   */
+  default: <NT extends T>(value: T | (() => T)) => ModelRelationFactory<NT, R>;
+  /**
+   * Mark read-only.
+   *
+   * @param readOnly
+   */
+  readOnly: <NR extends boolean = true>(readOnly?: NR) => ModelRelationFactory<T, NR>;
+  /**
+   * Mark nullable.
+   */
+  nullable: () => ModelRelationFactory<T | null, R>;
+  /**
+   * Define the alias to use for data source interactions.
+   *
+   * @param alias
+   */
+  alias: (alias: string) => ModelRelationFactory<T, R>;
+  /**
+   * Define when the property should be synced with data source.
+   *
+   * @param sync
+   */
+  sync: (sync: boolean | ModelPropSync) => ModelRelationFactory<T, R>;
+} & ModelPropFactory<ModelRelation<string, T, R>>;

@@ -42,7 +42,7 @@ const config = {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/foscia-dev/foscia/tree/main/website/',
           showLastUpdateTime: true,
-          exclude: ['reference/api/index.md'],
+          exclude: ['api/index.md', 'api/packages.md'],
         },
         blog: false,
         theme: {
@@ -52,16 +52,31 @@ const config = {
     ],
   ],
   plugins: [
-    ['docusaurus-plugin-typedoc', {
-      id: 'api',
-      name: 'API reference',
-      out: 'docs/reference/api',
-      entryPointStrategy: 'packages',
-      entryPoints: packages
-        .filter((pkg) => pkg.name !== 'cli')
-        .map((pkg) => `../packages/${pkg.name}`),
-      tsconfig: path.resolve(__dirname, '../tsconfig.json'),
-    }],
+    [
+      'docusaurus-plugin-typedoc',
+      /** @type {import('typedoc').TypeDocOptions & import('typedoc-plugin-markdown').PluginOptions} */
+      ({
+        id: 'api',
+        name: 'API reference',
+        out: 'docs/api',
+        entryPointStrategy: 'packages',
+        entryPoints: packages
+          .filter((pkg) => pkg.name !== 'cli')
+          .map((pkg) => `../packages/${pkg.name}`),
+        tsconfig: path.resolve(__dirname, '../tsconfig.json'),
+        plugin: [
+          'typedoc-plugin-mdn-links',
+          path.resolve(__dirname, 'typedoc-plugin.mjs'),
+        ],
+        blockTagsPreserveOrder: [
+          '@deprecated',
+          '@since',
+          '@provideContext',
+          '@requireContext',
+          '@example',
+        ],
+      }),
+    ],
   ],
   themeConfig:
   /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
@@ -79,7 +94,7 @@ const config = {
           autoCollapseCategories: true,
         },
       },
-      announcementBar: process.env.VERSION ? {
+      announcementBar: !process.env.VERSION ? {
         // Dev/next version announcement.
         id: `${process.env.VERSION}-announcement`,
         content: '<strong>Warning</strong>: you are browsing an upcoming version of Foscia. <a target="_blank" rel="noopener noreferrer" href="https://foscia.dev">Get back to stable docs</a>',
@@ -88,8 +103,8 @@ const config = {
         isCloseable: false,
       } : {
         // Production announcement.
-        id: '0.9.0-announcement',
-        content: '<code>v0.9.0</code> released with new <code>@foscia/cli</code> features! <a target="_blank" rel="noopener noreferrer" href="https://github.com/foscia-dev/foscia/issues">Give your feedback</a>',
+        id: '0.13.0-announcement',
+        content: '<code>v0.13.0</code> relations inverses and more! <a target="_blank" rel="noopener noreferrer" href="https://github.com/foscia-dev/foscia/issues">Give your feedback</a>',
         backgroundColor: 'var(--ifm-background-surface-color)',
         textColor: 'inherit',
         isCloseable: false,
@@ -124,7 +139,7 @@ const config = {
           {
             position: 'left',
             label: 'API',
-            to: '/docs/category/reference',
+            to: '/docs/category/api',
           },
           {
             position: 'right',
@@ -163,6 +178,14 @@ const config = {
                 label: 'Digging deeper',
                 to: '/docs/category/digging-deeper',
               },
+              {
+                label: 'Integrations',
+                to: '/docs/category/integrations',
+              },
+              {
+                label: 'API',
+                to: '/docs/category/api',
+              },
             ],
           },
           {
@@ -174,7 +197,7 @@ const config = {
               },
               {
                 label: 'Examples',
-                href: 'https://github.com/foscia-dev/foscia-examples',
+                href: '/docs/category/examples',
               },
               {
                 label: 'GitHub issues',

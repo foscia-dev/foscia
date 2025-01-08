@@ -6,6 +6,13 @@ const rules: [RegExp, string][] = [
   [/(.)$/i, '$1s'],
 ];
 
+/**
+ * Pluralize a word.
+ *
+ * @param word
+ *
+ * @internal
+ */
 export default (word: string) => {
   let pluralizedWord: string | undefined;
   rules.some(([regexp, replacement]) => {

@@ -20,5 +20,16 @@ const detectEnv = () => {
 
 const detectedEnv = detectEnv();
 
+/**
+ * `true` if node detected env is `development`.
+ *
+ * @internal
+ */
 export const IS_DEV = detectedEnv === 'development';
+
+/**
+ * `true` if node detected env is `test`.
+ *
+ * @internal
+ */
 export const IS_TEST = detectedEnv === 'test';

@@ -5,6 +5,6 @@ import { ModelAttribute, ModelId, ModelRelation } from '@foscia/core/model/types
 
 export default (
   def: unknown,
-): def is ModelId<any> | ModelAttribute<any> | ModelRelation<any> => isIdDef(def)
+): def is ModelId | ModelAttribute | ModelRelation => isIdDef(def)
   || isAttributeDef(def)
   || isRelationDef(def);

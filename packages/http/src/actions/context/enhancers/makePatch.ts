@@ -1,17 +1,28 @@
-import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
+import { makeEnhancer } from '@foscia/core';
 import makeRequest from '@foscia/http/actions/context/enhancers/makeRequest';
 import { HttpRequestConfig } from '@foscia/http/types';
 
 /**
- * HTTP PATCH method shortcut for the {@link makeRequest} function.
+ * HTTP PATCH method shortcut for the {@link makeRequest | `makeRequest`} function.
  *
  * @param pathOrBaseURL
  * @param body
  * @param config
  *
  * @category Enhancers
+ *
+ * @example
+ * ```typescript
+ * import { raw } from '@foscia/core';
+ * import { makePatch } from '@foscia/http';
+ *
+ * const response = await action().run(
+ *   makePatch('posts/1', { title: 'Hello World V2' }),
+ *   raw(),
+ * );
+ * ```
  */
-const makePatch = (
+export default /* @__PURE__ */ makeEnhancer('makePatch', (
   pathOrBaseURL: string,
   body?: HttpRequestConfig['body'],
   config?: Omit<HttpRequestConfig, 'method' | 'body'>,
@@ -19,17 +30,4 @@ const makePatch = (
   method: 'PATCH',
   body,
   ...config,
-});
-
-export default /* @__PURE__ */ appendExtension(
-  'makePatch',
-  makePatch,
-  'use',
-) as WithParsedExtension<typeof makePatch, {
-  makePatch<C extends {}, E extends {}>(
-    this: Action<C, E>,
-    pathOrBaseURL: string,
-    body?: HttpRequestConfig['body'],
-    config?: Omit<HttpRequestConfig, 'method' | 'body'>,
-  ): Action<C, E>;
-}>;
+}));

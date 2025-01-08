@@ -9,13 +9,13 @@ import UserMock from '../mocks/models/user.mock';
 test('Models are type safe', () => {
   const post = new PostMock();
 
-  expectTypeOf(post.id).toMatchTypeOf<string | number | null>();
-  expectTypeOf(post.lid).toMatchTypeOf<string | number | null>();
-  expectTypeOf(post.title).toMatchTypeOf<string>();
-  expectTypeOf(post.body).toMatchTypeOf<string | null>();
-  expectTypeOf(post.publishedAt).toMatchTypeOf<Date | null>();
-  expectTypeOf(post.comments).toMatchTypeOf<CommentMock[]>();
-  expectTypeOf(post.published).toMatchTypeOf<boolean>();
+  expectTypeOf(post.id).toEqualTypeOf<string | number | null>();
+  expectTypeOf(post.lid).toEqualTypeOf<string | number | null>();
+  expectTypeOf(post.title).toEqualTypeOf<string>();
+  expectTypeOf(post.body).toEqualTypeOf<string | null>();
+  expectTypeOf(post.publishedAt).toEqualTypeOf<Date | null>();
+  expectTypeOf(post.comments).toEqualTypeOf<CommentMock[]>();
+  expectTypeOf(post.published).toEqualTypeOf<boolean>();
 
   post.title = 'Hello World';
   // @ts-expect-error publishedAt is readonly
@@ -31,11 +31,11 @@ test('Models are type safe', () => {
 
   const comment = new CommentMock();
 
-  expectTypeOf(comment.id).toMatchTypeOf<number | null>();
-  expectTypeOf(comment.lid).toMatchTypeOf<string>();
-  expectTypeOf(comment.body).toMatchTypeOf<string>();
-  expectTypeOf(comment.postedAt).toMatchTypeOf<Date>();
-  expectTypeOf(comment.postedBy).toMatchTypeOf<UserMock>();
+  expectTypeOf(comment.id).toEqualTypeOf<number | null>();
+  expectTypeOf(comment.lid).toEqualTypeOf<string>();
+  expectTypeOf(comment.body).toEqualTypeOf<string>();
+  expectTypeOf(comment.postedAt).toEqualTypeOf<Date>();
+  expectTypeOf(comment.postedBy).toEqualTypeOf<UserMock>();
 
   fill(comment, { body: 'Hello World', postedAt: new Date() });
   // @ts-expect-error id is a number
@@ -55,11 +55,11 @@ test('Models are type safe', () => {
   normalizeDotRelations(PostMock, ['comments.unknown']);
 
   const tag = new TagMock();
-  expectTypeOf(tag.taggables).toMatchTypeOf<(PostMock | UserMock)[]>();
+  expectTypeOf(tag.taggables).toEqualTypeOf<(PostMock | UserMock)[]>();
 
   const file = new FileMock();
-  expectTypeOf(file.parent).toMatchTypeOf<FileMock>();
-  expectTypeOf(file.children).toMatchTypeOf<FileMock[]>();
+  expectTypeOf(file.parent).toEqualTypeOf<FileMock>();
+  expectTypeOf(file.children).toEqualTypeOf<FileMock[]>();
 
   class ChainedModel extends makeModel('chained', { name: attr<string | null>() })
     .configure({ strict: true })
@@ -69,7 +69,7 @@ test('Models are type safe', () => {
   }
 
   const chained = new ChainedModel();
-  expectTypeOf(chained.name).toMatchTypeOf<string | null>();
-  expectTypeOf(chained.email).toMatchTypeOf<string>();
-  expectTypeOf(chained.age).toMatchTypeOf<number>();
+  expectTypeOf(chained.name).toEqualTypeOf<string | null>();
+  expectTypeOf(chained.email).toEqualTypeOf<string>();
+  expectTypeOf(chained.age).toEqualTypeOf<number>();
 });

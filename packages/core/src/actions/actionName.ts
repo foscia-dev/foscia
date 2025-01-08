@@ -1,3 +1,8 @@
+/**
+ * Common and standardized actions that can be run using Foscia.
+ *
+ * @internal
+ */
 enum ActionName {
   READ = 'read',
   CREATE = 'create',

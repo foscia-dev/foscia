@@ -17,8 +17,9 @@ import ShellCommand from '@site/src/components/ShellCommand';
 
 ## When should you use a registry?
 
-A `Registry` is a simple object which will store your models classes and let
-Foscia resolves models from their `type` string.
+A [`ModelsRegistry`](/docs/api/@foscia/core/type-aliases/ModelsRegistry) is a simple
+object which will store your models classes and let Foscia resolves models
+from their `type` string.
 
 As stated in the
 [models guide](/docs/core-concepts/models#explicit-type-when-having-circular-references),
@@ -41,7 +42,7 @@ If you choose the "Manually" option, you can rerun this command to update
 your models list file.
 
 You can also pass the `--models` option when calling
-[`foscia make model <name>`](/docs/digging-deeper/cli#make-model-name) to
+[`foscia make model <name>`](/docs/digging-deeper/usages/cli#make-model-name) to
 automatically update the file after creating the model file.
 
 #### Manually
@@ -59,8 +60,7 @@ export default [
 ### Adding registry to action factory
 
 Foscia provides a simple implementation for the registry through
-[`makeRegistry`](/docs/reference/implementations/core#makemapregistrywith)
-(providing using `makeRegistry` factory function).
+[`makeRegistry`](/docs/api/@foscia/core/functions/makeRegistry).
 
 ```typescript title="action.ts"
 import { makeActionFactory, makeRegistry } from '@foscia/core';
@@ -70,15 +70,6 @@ export default makeActionFactory({
   // Add the registry to your action factory.
   ...makeRegistry(models),
   // ...
-});
-```
-
-When adding the registry, you can also provide a type normalization function to
-normalize local/data source models' types.
-
-```typescript
-makeRegistry(models, {
-  normalizeType: (type: string) => pluralize(toCamelCase(type)),
 });
 ```
 

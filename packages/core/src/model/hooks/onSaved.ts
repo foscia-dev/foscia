@@ -1,3 +1,8 @@
 import makeInstanceHook from '@foscia/core/model/hooks/makeInstanceHook';
 
-export default makeInstanceHook('saved');
+/**
+ * Register a "saved" hook on model.
+ *
+ * @category Hooks
+ */
+export default /* @__PURE__ */ makeInstanceHook('saved');

@@ -1,23 +1,27 @@
-import { Action, appendExtension, WithParsedExtension } from '@foscia/core';
+import { makeEnhancer } from '@foscia/core';
 import sortBy from '@foscia/jsonapi/actions/context/enhancers/sortBy';
 import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
 
 /**
- * Shortcut for the {@link sortBy} function with an asc direction.
+ * Shortcut for the {@link sortBy | `sortBy`} function with an ascending direction.
  *
  * @param keys
  *
  * @category Enhancers
+ *
+ * @example
+ * ```typescript
+ * import { query, all } from '@foscia/core';
+ * import { sortByAsc } from '@foscia/jsonapi';
+ *
+ * const posts = await action().run(
+ *   query(Post),
+ *   sortByAsc('title'),
+ *   sortByAsc(['publishedAt', 'title']),
+ *   all(),
+ * );
+ * ```
  */
-const sortByAsc = (...keys: ArrayableVariadic<string>) => sortBy(wrapVariadic(...keys), 'asc');
-
-export default /* @__PURE__ */ appendExtension(
-  'sortByAsc',
-  sortByAsc,
-  'use',
-) as WithParsedExtension<typeof sortByAsc, {
-  sortByAsc<C extends {}, E extends {}>(
-    this: Action<C, E>,
-    ...keys: ArrayableVariadic<string>
-  ): Action<C, E>;
-}>;
+export default /* @__PURE__ */ makeEnhancer('sortByAsc', (
+  ...keys: ArrayableVariadic<string>
+) => sortBy(wrapVariadic(...keys), 'asc'));

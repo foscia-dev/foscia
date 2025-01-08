@@ -1,11 +1,10 @@
-import { context, ContextEnhancer } from '@foscia/core';
-import makeFakeAction from '../mocks/makeFakeAction.mock';
+import { context, ContextEnhancer, makeActionFactory } from '@foscia/core';
 
 export default function evaluateContext(
-  callback: ContextEnhancer<any, {}, any>,
+  callback: ContextEnhancer<any, any>,
   initial?: any,
 ): Promise<any> {
-  return makeFakeAction()
+  return makeActionFactory()()
     .use(context(initial ?? {}))
     .use(callback as any)
     .useContext();

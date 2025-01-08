@@ -3,6 +3,8 @@ import { FosciaObject } from '@foscia/shared/types';
 
 /**
  * Type and descriptor holder for custom properties.
+ *
+ * @internal
  */
 export type DescriptorHolder<T = unknown> = {
   descriptor: PropertyDescriptor;

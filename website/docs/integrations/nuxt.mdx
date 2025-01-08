@@ -45,18 +45,19 @@ project.
 <ShellCommand command="add ofetch" />
 
 Once `ofetch` is installed, you can configure it on your action factory
-adapter. Here is an exemple with `makeJsonRestAdapter`, but the configuration
-is the same with other HTTP based adapters.
+adapter. Here is an exemple with
+[`makeRestAdapter`](/docs/api/@foscia/rest/functions/makeRestAdapter),
+but the configuration is the same with other HTTP based adapters.
 
 ```typescript
 import { makeActionFactory } from '@foscia/core';
-import { makeJsonRestAdapter } from '@foscia/rest';
+import { makeRestAdapter } from '@foscia/rest';
 // highlight.addition
 import { ofetch } from 'ofetch';
 
 export default makeActionFactory({
   // ...
-  ...makeJsonRestAdapter({
+  ...makeRestAdapter({
 // highlight.addition
     fetch: ofetch.native,
   }),

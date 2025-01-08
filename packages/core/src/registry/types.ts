@@ -1,28 +1,20 @@
 import { Model } from '@foscia/core/model/types';
-import { RegistryI } from '@foscia/core/types';
-import { Awaitable, Dictionary, Optional, Transformer } from '@foscia/shared';
+import { ModelsRegistry } from '@foscia/core/types';
+import { Optional, Transformer } from '@foscia/shared';
 
-export type ModelFunctionResolver = () => Awaitable<Model>;
-
-export type ModelObjectResolver = {
-  type?: string;
-  resolve: ModelFunctionResolver;
-};
-
-export type MapRegistryModelRegistration =
-  | Model
-  | ModelFunctionResolver
-  | ModelObjectResolver;
-
-export type MapRegistryModelsRegistration =
-  | MapRegistryModelRegistration[]
-  | Dictionary<ModelFunctionResolver>;
-
+/**
+ * Config for registry map implementation.
+ *
+ * @internal
+ */
 export type MapRegistryConfig = {
+  models?: Model[];
   normalizeType?: Optional<Transformer<string>>;
 };
 
-export interface MapRegistry extends RegistryI {
-  register: (models: MapRegistryModelsRegistration) => void;
-  registerModel: (model: MapRegistryModelRegistration) => void;
-}
+/**
+ * Registry implementation using mapped models by types.
+ *
+ * @internal
+ */
+export type MapRegistry = ModelsRegistry;

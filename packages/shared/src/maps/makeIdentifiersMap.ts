@@ -1,3 +1,8 @@
+/**
+ * Create an identifiers map object.
+ *
+ * @internal
+ */
 export default <Type, Id, T>() => {
   const values: Map<Type, Map<Id, T>> = new Map();
 

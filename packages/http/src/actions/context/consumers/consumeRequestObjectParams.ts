@@ -1,6 +1,11 @@
 import { FosciaError } from '@foscia/core';
 import consumeRequestConfig from '@foscia/http/actions/context/consumers/consumeRequestConfig';
 
+/**
+ * Consume object params. Will throw an exception if string params are configured.
+ *
+ * @param context
+ */
 export default (context: {}) => {
   const config = consumeRequestConfig(context, null);
   if (typeof config?.params === 'string') {

@@ -193,7 +193,7 @@ function HomeGetStarted() {
   </>;
 
   const description = <>
-    <Link to="/docs/digging-deeper/cli">
+    <Link to="/docs/digging-deeper/usages/cli">
       <code>
         @foscia/cli
       </code>

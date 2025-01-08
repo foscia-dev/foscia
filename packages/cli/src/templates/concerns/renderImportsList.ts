@@ -60,7 +60,7 @@ function renderEsmImports(from: string, imports: ImportItem[], isTypeOnly: boole
 }
 
 function renderCommonJSImports(from: string, imports: ImportItem[]) {
-  return `const ${renderImportsNames(imports)} = require('${from})';`;
+  return `const ${renderImportsNames(imports)} = require('${from}');`;
 }
 
 function renderGroupedImports(

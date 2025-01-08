@@ -1,14 +1,6 @@
 import cachedOr, { CachedData } from '@foscia/core/actions/context/runners/cachedOr';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
-import {
-  Action,
-  ConsumeCache,
-  ConsumeId,
-  ConsumeInclude,
-  ConsumeModel,
-  WithParsedExtension,
-} from '@foscia/core/actions/types';
-import { Model } from '@foscia/core/model/types';
+import makeRunner from '@foscia/core/actions/makeRunner';
+import { InferQueryInstance } from '@foscia/core/actions/types';
 import { Awaitable } from '@foscia/shared';
 
 /**
@@ -17,28 +9,19 @@ import { Awaitable } from '@foscia/shared';
  * returns null.
  *
  * @category Runners
+ * @requireContext cache, model, id
+ *
+ * @example
+ * ```typescript
+ * import { cached, query } from '@foscia/core';
+ *
+ * const post = await action().run(query(Post, '123'), cached());
+ * ```
  */
-const cached = <
+export default /* @__PURE__ */ makeRunner('cached', <
   C extends {},
-  M extends Model,
-  I extends InstanceType<M>,
+  I extends InferQueryInstance<C>,
   ND = I,
 >(
   transform?: (data: CachedData<I>) => Awaitable<ND>,
-) => cachedOr<C, any, M, I, null, ND>(() => null, transform);
-
-export default /* @__PURE__ */ appendExtension(
-  'cached',
-  cached,
-  'run',
-) as WithParsedExtension<typeof cached, {
-  cached<
-    C extends {},
-    M extends Model,
-    I extends InstanceType<M>,
-    ND = I,
-  >(
-    this: Action<C & ConsumeCache & ConsumeModel<M> & ConsumeInclude & ConsumeId>,
-    transform?: (data: CachedData<I>) => Awaitable<ND>,
-  ): Promise<ND | null>;
-}>;
+) => cachedOr<C, I, null, ND>(() => null, transform));

@@ -1,3 +1,8 @@
 import makePropertyReadHook from '@foscia/core/model/hooks/properties/makePropertyReadHook';
 
-export default makePropertyReadHook('reading');
+/**
+ * Register a "property reading" hook on model.
+ *
+ * @category Hooks
+ */
+export default /* @__PURE__ */ makePropertyReadHook('reading');

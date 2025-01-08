@@ -1,15 +1,23 @@
 import executeContextThroughAdapter
   from '@foscia/core/actions/context/utils/executeContextThroughAdapter';
-import appendExtension from '@foscia/core/actions/extensions/appendExtension';
-import { Action, ConsumeAdapter, WithParsedExtension } from '@foscia/core/actions/types';
+import makeRunner from '@foscia/core/actions/makeRunner';
+import { Action, ConsumeAdapter } from '@foscia/core/actions/types';
 import { Awaitable } from '@foscia/shared';
 
 /**
  * Run the action and retrieve the raw adapter's data.
  *
  * @category Runners
+ * @requireContext adapter
+ *
+ * @example
+ * ```typescript
+ * import { query, raw } from '@foscia/core';
+ *
+ * const response = await action().run(query(post, '123'), raw());
+ * ```
  */
-const raw = <C extends {}, RawData, NextData = RawData>(
+export default makeRunner('raw', <C extends {}, RawData, NextData = RawData>(
   transform?: (data: RawData) => Awaitable<NextData>,
 ) => async (action: Action<C & ConsumeAdapter<RawData>>) => {
   const response = await executeContextThroughAdapter(
@@ -17,15 +25,4 @@ const raw = <C extends {}, RawData, NextData = RawData>(
   );
 
   return (transform ? transform(response.raw) : response.raw) as Awaitable<NextData>;
-};
-
-export default /* @__PURE__ */ appendExtension(
-  'raw',
-  raw,
-  'run',
-) as WithParsedExtension<typeof raw, {
-  raw<C extends {}, RawData, NextData = RawData>(
-    this: Action<C & ConsumeAdapter<RawData>>,
-    transform?: (data: RawData) => Awaitable<NextData>,
-  ): Promise<NextData>;
-}>;
+});
