@@ -1,6 +1,7 @@
 import mapArrayable from '@foscia/shared/arrays/mapArrayable';
 import mapWithKeys from '@foscia/shared/arrays/mapWithKeys';
 import sequentialTransform from '@foscia/shared/arrays/sequentialTransform';
+import throughMiddlewares from '@foscia/shared/arrays/throughMiddlewares';
 import uniqueValues from '@foscia/shared/arrays/uniqueValues';
 import wrap from '@foscia/shared/arrays/wrap';
 import wrapVariadic from '@foscia/shared/arrays/wrapVariadic';
@@ -40,6 +41,7 @@ export {
   optionalJoin,
   pluralize,
   sequentialTransform,
+  throughMiddlewares,
   removeTimezoneOffset,
   toKebabCase,
   unsafeId,

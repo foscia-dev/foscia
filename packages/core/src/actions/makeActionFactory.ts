@@ -4,7 +4,13 @@ import registerHook from '@foscia/core/hooks/registerHook';
 import runHooks from '@foscia/core/hooks/runHooks';
 import withoutHooks from '@foscia/core/hooks/withoutHooks';
 import logger from '@foscia/core/logger/logger';
-import { Dictionary, sequentialTransform, value } from '@foscia/shared';
+import {
+  Dictionary,
+  Middleware,
+  sequentialTransform,
+  throughMiddlewares,
+  value,
+} from '@foscia/shared';
 
 /**
  * Create an action factory.
@@ -58,28 +64,32 @@ export default <Context extends {} = {}>(
 
       this.use(...enhancers);
 
-      const context = await this.useContext();
+      const { middlewares, ...context } = await this.useContext() as Dictionary;
+      this.updateContext(context);
 
-      await runHooks(this, 'running', { context, runner });
+      await runHooks(this, 'running', { action: this, runner });
 
       try {
         // Context runner might use other context enhancers and runners,
         // so we must disable hooks at this point to avoid duplicated hooks runs.
-        const result = await withoutHooks(this, async () => this.track(runner));
+        const result = await throughMiddlewares(
+          (middlewares ?? []) as Middleware<Action, unknown>[],
+          async (a) => withoutHooks(a, async () => a.track(runner)),
+        )(this);
 
         if (result === this) {
           logger.warn('Action run result is the action itself, did you forget to pass a runner when calling `run`?');
         }
 
-        await runHooks(this, 'success', { context, result });
+        await runHooks(this, 'success', { action: this, result });
 
         return result;
       } catch (error) {
-        await runHooks(this, 'error', { context, error });
+        await runHooks(this, 'error', { action: this, error });
 
         throw error;
       } finally {
-        await runHooks(this, 'finally', { context });
+        await runHooks(this, 'finally', { action: this });
       }
     },
     async track(

@@ -6,8 +6,15 @@ import {
   FosciaError,
   isWhenContextFunction,
   runHooks,
+  withoutHooks,
 } from '@foscia/core';
-import { sequentialTransform, value } from '@foscia/shared';
+import {
+  Dictionary,
+  Middleware,
+  sequentialTransform,
+  throughMiddlewares,
+  value,
+} from '@foscia/shared';
 import makeActionMock from '@foscia/test/makeActionMock';
 import makeActionTestContext from '@foscia/test/makeActionTestContext';
 import { ActionFactoryMock, ActionFactoryMockHistoryItem, ActionMock } from '@foscia/test/types';
@@ -59,7 +66,9 @@ export default <A extends any[], C extends {}>(
 
     (action as any).use(...enhancers);
 
-    const context = await action.useContext();
+    const { middlewares, ...context } = await action.useContext() as Dictionary;
+    action.updateContext(context);
+
     const runners = await unnestRunners(action, [rootRunner]);
     const calls = action.calls();
     const testContext = makeActionTestContext(context, calls, runners);
@@ -72,21 +81,24 @@ export default <A extends any[], C extends {}>(
       return await next.shouldRun(testContext) ? next : null;
     }), null);
     if (!mock) {
-      throw new UnexpectedActionError(context);
+      throw new UnexpectedActionError(testContext);
     }
 
-    await runHooks(action, 'running', { context, runner: rootRunner });
+    await runHooks(action, 'running', { action, runner: rootRunner });
 
     try {
-      const result = await mock.run(testContext);
+      const result = await throughMiddlewares(
+        (middlewares ?? []) as Middleware<Action, unknown>[],
+        async (a) => withoutHooks(a, async () => mock.run(testContext)),
+      )(action);
 
-      await runHooks(action, 'success', { context, result });
+      await runHooks(action, 'success', { action, result });
 
       history.push({ context: testContext, mock, result, error: undefined });
 
       return result;
     } catch (error) {
-      await runHooks(action, 'error', { context, error });
+      await runHooks(action, 'error', { action, error });
 
       history.push({ context: testContext, mock, result: undefined, error });
 
@@ -99,7 +111,7 @@ export default <A extends any[], C extends {}>(
         }
       }
 
-      await runHooks(action, 'finally', { context });
+      await runHooks(action, 'finally', { action });
     }
   };
 

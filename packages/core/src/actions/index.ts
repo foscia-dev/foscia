@@ -1,4 +1,5 @@
 import ActionName from '@foscia/core/actions/actionName';
+import isContextFunction from '@foscia/core/actions/checks/isContextFunction';
 import isWhenContextFunction from '@foscia/core/actions/checks/isWhenContextFunction';
 import consumeAction from '@foscia/core/actions/context/consumers/consumeAction';
 import consumeAdapter from '@foscia/core/actions/context/consumers/consumeAdapter';
@@ -31,6 +32,12 @@ import onFinally from '@foscia/core/actions/context/enhancers/hooks/onFinally';
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import include from '@foscia/core/actions/context/enhancers/include';
+import appendMiddlewares
+  from '@foscia/core/actions/context/enhancers/middlewares/appendMiddlewares';
+import prependMiddlewares
+  from '@foscia/core/actions/context/enhancers/middlewares/prependMiddlewares';
+import replaceMiddlewares
+  from '@foscia/core/actions/context/enhancers/middlewares/replaceMiddlewares';
 import query from '@foscia/core/actions/context/enhancers/query';
 import queryAs from '@foscia/core/actions/context/enhancers/queryAs';
 import guessContextModel from '@foscia/core/actions/context/guessers/guessContextModel';
@@ -45,7 +52,6 @@ import oneOr, { OneData } from '@foscia/core/actions/context/runners/oneOr';
 import oneOrCurrent from '@foscia/core/actions/context/runners/oneOrCurrent';
 import oneOrFail from '@foscia/core/actions/context/runners/oneOrFail';
 import raw from '@foscia/core/actions/context/runners/raw';
-import isContextFunction from '@foscia/core/actions/checks/isContextFunction';
 import makeActionFactory from '@foscia/core/actions/makeActionFactory';
 import makeEnhancer from '@foscia/core/actions/makeEnhancer';
 import makeRunner from '@foscia/core/actions/makeRunner';
@@ -90,6 +96,9 @@ export {
   onSuccess,
   onError,
   onFinally,
+  appendMiddlewares,
+  prependMiddlewares,
+  replaceMiddlewares,
   consumeAction,
   consumeAdapter,
   consumeCache,

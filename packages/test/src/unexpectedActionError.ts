@@ -10,13 +10,13 @@ import { ActionTestContext } from '@foscia/test/types';
  * @internal
  */
 export default class UnexpectedActionError extends FosciaTestError {
-  public readonly testContext: ActionTestContext;
+  public readonly context: ActionTestContext;
 
-  public constructor(testContext: ActionTestContext) {
+  public constructor(context: ActionTestContext) {
     super(
       'Unexpected mocked action run. Either you didn\'t called `mock` on your factory mock or your predicate does not match test context.',
     );
 
-    this.testContext = testContext;
+    this.context = context;
   }
 }

@@ -16,6 +16,7 @@ sidebar_position: 5
 
 ### Medium impacts changes
 
+- [Action hooks events now provide action instead of context](#action-hooks-events-now-provide-action-instead-of-context)
 - [Properties definition are now defined using factories](#properties-definition-are-now-defined-using-factories)
 - [Internal APIs are now tagged and may have changed](#internal-apis-are-now-tagged-and-may-have-changed)
 
@@ -61,8 +62,7 @@ const posts = await action()
   // highlight.deletion
   .query(Post).all();
 // highlight.addition
-.
-run(query(Post), all());
+  .run(query(Post), all());
 ```
 
 If you are using some special types, such as `Action`, `ContextEnhancer` or
@@ -108,6 +108,27 @@ In addition, multiple factories functions have been renamed:
 - `makeJsonRestAdapter` and `makeRestAdapterWith` merged to `makeRestAdapter`
 - `makeJsonRestSerializer` to `makeRestSerializer`
 - `makeJsonRestDeserializer` to `makeRestDeserializer`
+
+### Action hooks events now provide action instead of context
+
+**Likelihood Of Impact: Medium**
+
+Action hooks events now provide an action property instead of a context
+property, because this might lead to outdated context values.
+
+If your action hooks are using the context, you can still access it using
+`useContext` on the action provided in the event:
+
+```typescript
+import { onRunning } from '@foscia/core';
+
+action.use(onRunning(async (event) => {
+// highlight.deletion
+  console.log(event.context);
+// highlight.addition
+  console.log(await event.action.useContext());
+}));
+```
 
 ### Properties definition are now defined using factories
 

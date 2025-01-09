@@ -100,6 +100,20 @@ export type UnionToIntersection<U> =
   (U extends any ? (x: U) => void : never) extends ((x: infer I) => void) ? I : never;
 
 /**
+ * Middleware next callback.
+ *
+ * @internal
+ */
+export type MiddlewareNext<V, R> = (value: V) => R;
+
+/**
+ * Middleware callback.
+ *
+ * @internal
+ */
+export type Middleware<V, R> = (value: V, next: MiddlewareNext<V, R>) => R;
+
+/**
  * Map identifier with type.
  *
  * @internal

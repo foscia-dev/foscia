@@ -16,12 +16,12 @@ import { Awaitable } from '@foscia/shared';
  * import { onRunning } from '@foscia/core';
  *
  * action().use(onRunning((event) => {
- *   console.log(event.context, event.runner);
+ *   console.log(event.action, event.runner);
  * }));
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('onRunning', <C extends {}>(
-  callback: (event: { context: C; runner: Function; }) => Awaitable<unknown>,
+  callback: (event: { action: Action<C>; runner: Function; }) => Awaitable<unknown>,
 ) => (action: Action<C>) => {
   registerHook(action, 'running', callback as any);
 });

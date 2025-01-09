@@ -1,6 +1,7 @@
 import {
   Action,
   ActionCall,
+  appendMiddlewares,
   cachedOr,
   context,
   ContextFunctionType,
@@ -13,6 +14,7 @@ import {
   onFinally,
   onRunning,
   onSuccess,
+  prependMiddlewares,
   query,
   SYMBOL_ACTION_CONTEXT_ENHANCER,
   SYMBOL_ACTION_CONTEXT_RUNNER,
@@ -31,8 +33,10 @@ describe('unit: makeActionFactory', () => {
 
     const runner = () => 'dummy';
 
+    let action = makeActionFactory()();
+
     await expect(
-      makeActionFactory()()
+      action
         .use(onRunning(runningMock))
         .use(onSuccess(successMock))
         .use(onError(errorMock))
@@ -41,13 +45,13 @@ describe('unit: makeActionFactory', () => {
     ).resolves.toStrictEqual('dummy');
 
     expect(loggerDebugMock.mock.calls).toStrictEqual([
-      ['Action running.', [{ context: {}, runner }]],
-      ['Action success.', [{ context: {}, result: 'dummy' }]],
+      ['Action running.', [{ action, runner }]],
+      ['Action success.', [{ action, result: 'dummy' }]],
     ]);
-    expect(runningMock.mock.calls).toStrictEqual([[{ context: {}, runner }]]);
-    expect(successMock.mock.calls).toStrictEqual([[{ context: {}, result: 'dummy' }]]);
+    expect(runningMock.mock.calls).toStrictEqual([[{ action, runner }]]);
+    expect(successMock.mock.calls).toStrictEqual([[{ action, result: 'dummy' }]]);
     expect(errorMock.mock.calls).toStrictEqual([]);
-    expect(finallyMock.mock.calls).toStrictEqual([[{ context: {} }]]);
+    expect(finallyMock.mock.calls).toStrictEqual([[{ action }]]);
 
     loggerDebugMock.mockReset();
     runningMock.mockReset();
@@ -60,8 +64,10 @@ describe('unit: makeActionFactory', () => {
       throw error;
     };
 
+    action = makeActionFactory()();
+
     await expect(
-      makeActionFactory()()
+      action
         .use(onRunning(runningMock))
         .use(onSuccess(successMock))
         .use(onError(errorMock))
@@ -70,15 +76,42 @@ describe('unit: makeActionFactory', () => {
     ).rejects.toThrowError(error);
 
     expect(loggerDebugMock.mock.calls).toStrictEqual([
-      ['Action running.', [{ context: {}, runner: failingRunner }]],
-      ['Action error.', [{ context: {}, error }]],
+      ['Action running.', [{ action, runner: failingRunner }]],
+      ['Action error.', [{ action, error }]],
     ]);
-    expect(runningMock.mock.calls).toStrictEqual([[{ context: {}, runner: failingRunner }]]);
+    expect(runningMock.mock.calls).toStrictEqual([[{ action, runner: failingRunner }]]);
     expect(successMock.mock.calls).toStrictEqual([]);
-    expect(errorMock.mock.calls).toStrictEqual([[{ context: {}, error }]]);
-    expect(finallyMock.mock.calls).toStrictEqual([[{ context: {} }]]);
+    expect(errorMock.mock.calls).toStrictEqual([[{ action, error }]]);
+    expect(finallyMock.mock.calls).toStrictEqual([[{ action }]]);
 
     loggerDebugMock.mockRestore();
+  });
+
+  it('should trigger middlewares', async () => {
+    const action = makeActionFactory()();
+    const result = await action
+      .use(context({ value: 'foo' }))
+      .use(appendMiddlewares([
+        async (a, next) => {
+          a.use(context({ value: `${(await a.useContext()).value}1` }));
+
+          const r = await next(a);
+
+          return `${r}2`;
+        },
+        async (a, next) => {
+          a.use(context({ value: `${(await a.useContext()).value}2` }));
+
+          const r = await next(a);
+
+          return `${r}1`;
+        },
+      ]))
+      .use(prependMiddlewares(async (a, next) => `${await next(a)}3`))
+      .run(() => 'bar');
+
+    expect(result).toEqual('bar123');
+    expect(await action.useContext()).toEqual({ value: 'foo12' });
   });
 
   it.concurrent('should dequeue enhancers sequentially', async () => {

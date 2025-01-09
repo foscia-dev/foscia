@@ -16,12 +16,12 @@ import { Awaitable } from '@foscia/shared';
  * import { onError } from '@foscia/core';
  *
  * action().use(onError((event) => {
- *   console.log(event.context, event.error);
+ *   console.log(event.action, event.error);
  * }));
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('onError', <C extends {}>(
-  callback: (event: { context: C; error: unknown; }) => Awaitable<unknown>,
+  callback: (event: { action: Action<C>; error: unknown; }) => Awaitable<unknown>,
 ) => (action: Action<C>) => {
   registerHook(action, 'error', callback as any);
 });

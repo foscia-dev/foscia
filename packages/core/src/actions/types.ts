@@ -11,9 +11,9 @@ import {
 } from '@foscia/core/symbols';
 import {
   Adapter,
-  InstancesCache,
   DeserializedData,
   Deserializer,
+  InstancesCache,
   ModelsRegistry,
   Serializer,
 } from '@foscia/core/types';
@@ -28,11 +28,10 @@ export * from '@foscia/core/actions/actionVariadicRun';
  * @internal
  */
 export type ActionHooksDefinition = {
-  enhancing: HookCallback<{ enhancer: ContextEnhancer<any, any>; depth: number; }>;
-  running: HookCallback<{ context: {}; runner: ContextRunner<any, any>; }>;
-  success: HookCallback<{ context: {}; result: unknown; }>;
-  error: HookCallback<{ context: {}; error: unknown; }>;
-  finally: HookCallback<{ context: {}; }>;
+  running: HookCallback<{ action: Action; runner: ContextRunner<any, any>; }>;
+  success: HookCallback<{ action: Action; result: unknown; }>;
+  error: HookCallback<{ action: Action; error: unknown; }>;
+  finally: HookCallback<{ action: Action; }>;
 };
 
 /**
@@ -95,6 +94,16 @@ export type Action<Context extends {} = {}> =
   & ActionVariadicUse<Context>
   & ActionVariadicRun<Context>
   & Hookable<ActionHooksDefinition>;
+
+/**
+ * Middleware to impact an action result or behavior.
+ *
+ * @internal
+ */
+export type ActionMiddleware<Context extends {}, Result> = (
+  value: Action<Context>,
+  next: (value: Action) => Promise<Result>,
+) => Awaitable<Result>;
 
 /**
  * Action factory.
@@ -286,6 +295,15 @@ export type ConsumeId = {
  */
 export type ConsumeInclude = {
   include?: string[];
+};
+
+/**
+ * Define the middlewares to run.
+ *
+ * @internal
+ */
+export type ConsumeMiddlewares<C extends {}, R> = {
+  middlewares?: ActionMiddleware<C, R>[];
 };
 
 /**

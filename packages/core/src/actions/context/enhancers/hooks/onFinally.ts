@@ -16,12 +16,12 @@ import { Awaitable } from '@foscia/shared';
  * import { onFinally } from '@foscia/core';
  *
  * action().use(onFinally((event) => {
- *   console.log(event.context);
+ *   console.log(event.action);
  * }));
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('onFinally', <C extends {}>(
-  callback: (event: { context: C; }) => Awaitable<unknown>,
+  callback: (event: { action: Action<C>; }) => Awaitable<unknown>,
 ) => (action: Action<C>) => {
   registerHook(action, 'finally', callback as any);
 });

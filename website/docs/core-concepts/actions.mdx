@@ -552,3 +552,54 @@ provide some library features
 actions without hooks, as those hooks will also be disable.
 
 :::
+
+### Middlewares
+
+<FunctionInfo version="0.13.0" />
+
+You can use middlewares on your actions. Those are working the same as in most
+web frameworks, and offer an additional way of interacting with actions and
+their results.
+
+To register middlewares, you can use:
+
+- [`appendMiddlewares`](/docs/api/@foscia/core/functions/appendMiddlewares)
+  to add new middlewares after already registered ones
+- [`prependMiddlewares`](/docs/api/@foscia/core/functions/prependMiddlewares)
+  to add new middlewares before already registered ones
+
+Each middleware callback will receive two arguments:
+the `action` instance and a `next` callback which continues the action's
+execution stack.
+
+Thanks to the access to `next` callback, you can create a middleware which would
+execute **before** the action is ran, but also **after**.
+
+```typescript
+import { appendMiddlewares } from '@foscia/core';
+
+action().use(appendMiddlewares([
+  (a, next) => {
+    // Do something before execution.
+    return next(a);
+  },
+  async (a, next) => {
+    const result = await next(a);
+    // Do something after execution.
+    return result;
+  },
+]));
+```
+
+Finally, when using [`replaceMiddlewares`](/docs/api/@foscia/core/functions/replaceMiddlewares),
+you can replace the already configured middlewares by passing a factory function.
+This allows to replace or merge middlewares manually.
+
+```typescript
+import { replaceMiddlewares } from '@foscia/core';
+
+action().use(replaceMiddlewares((previousMiddlewares) => [
+  (a, next) => next(a),
+  ...previousMiddlewares,
+]));
+```

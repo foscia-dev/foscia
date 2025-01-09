@@ -1,20 +1,22 @@
 import {
   Adapter,
-  all,
+  all, appendMiddlewares,
   associate,
   attach,
   cached,
   cachedOr,
-  InstancesCache,
+  context,
   create,
   Deserializer,
   destroy,
   dissociate,
   include,
+  InstancesCache,
   makeActionFactory,
   one,
   oneOrCurrent,
   oneOrFail,
+  onRunning,
   query,
   queryAs,
   raw,
@@ -207,31 +209,6 @@ test('Actions are type safe', async () => {
   // @ts-expect-error PostMock not assignable to CommentMock
   await action().use(attach(new PostMock(), 'comments', [new PostMock()]));
 
-  // @ts-expect-error title is not a post relation
-  await action().query(PostMock).include('title');
-  // @ts-expect-error unknown is not a post relation
-  await action().query(PostMock).include('unknown');
-  // @ts-expect-error postedBy is not a post relation
-  await action().query(PostMock).include('postedBy');
-  // @ts-expect-error unknown is not a comment relation
-  await action().query(PostMock).include('comments.unknown');
-  // @ts-expect-error title is not a post relation
-  await action().query(new PostMock()).include('title');
-  // @ts-expect-error unknown is not a post relation
-  await action().query(new PostMock()).include('unknown');
-  // @ts-expect-error postedBy is not a post relation
-  await action().query(new PostMock()).include('postedBy');
-  // @ts-expect-error unknown is not a comment relation
-  await action().query(new PostMock()).include('comments.unknown');
-  // @ts-expect-error body is not a comment relation
-  await action().query(new PostMock(), 'comments').include('body');
-  // @ts-expect-error unknown is not a comment relation
-  await action().query(new PostMock(), 'comments').include('unknown');
-  // @ts-expect-error comments is not a comment relation
-  await action().query(new PostMock(), 'comments').include('comments');
-  // @ts-expect-error postedBy.unknown is not a comment relation
-  await action().query(new PostMock(), 'comments').include('postedBy.unknown');
-
   const commentsUsingFunc = await action()
     .use(query(new PostMock(), 'comments'))
     .run(all());
@@ -243,4 +220,18 @@ test('Actions are type safe', async () => {
   expectTypeOf(response).toEqualTypeOf<Response>();
   // This will ensure `response` is not `any`.
   expectTypeOf(response).not.toEqualTypeOf<number>();
+
+  action().use(context({ foo: 'bar' }), onRunning(async (event) => {
+    expectTypeOf((await event.action.useContext()).foo).toEqualTypeOf<string>();
+    expectTypeOf((await event.action.useContext()).foo).not.toEqualTypeOf<number>();
+  }));
+
+  action().use(context({ foo: 'bar' }), appendMiddlewares([async (a, next) => {
+    const ctx = await a.useContext();
+
+    expectTypeOf(ctx.foo).toEqualTypeOf<string>();
+    expectTypeOf(ctx.foo).not.toEqualTypeOf<number>();
+
+    return next(a);
+  }]));
 });
