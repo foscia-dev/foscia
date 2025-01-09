@@ -1,5 +1,5 @@
 import { runMakeModelsCommand } from '@foscia/cli/commands/make/makeModelsCommand';
-import { AppUsage, CLIConfig, CONFIG_USAGES } from '@foscia/cli/utils/config/config';
+import { AppFramework, AppUsage, CLIConfig, CONFIG_USAGES } from '@foscia/cli/utils/config/config';
 import hasModelsList from '@foscia/cli/utils/context/hasModelsList';
 import installDependencies from '@foscia/cli/utils/dependencies/installDependencies';
 import usePkg from '@foscia/cli/utils/dependencies/usePkg';
@@ -9,6 +9,7 @@ import promptText from '@foscia/cli/utils/prompts/promptText';
 
 export type ActionFactoryPromptOptions = {
   usage: AppUsage;
+  framework?: AppFramework;
   show: boolean;
   force: boolean;
 };
@@ -27,7 +28,11 @@ export type ActionFactoryOptions = {
   adapter?: ActionFactoryDependency;
 };
 
-async function promptForHttpAdapterConfig(usage: AppUsage) {
+async function promptForHttpAdapterConfig(
+  imports: ImportsList,
+  usage: AppUsage,
+  framework?: AppFramework,
+) {
   const defaultBaseURL = {
     jsonapi: '/api/v1',
     jsonrest: '/api',
@@ -41,7 +46,14 @@ async function promptForHttpAdapterConfig(usage: AppUsage) {
     default: defaultBaseURL,
   });
 
-  return { baseURL };
+  if (framework === 'nuxt') {
+    imports.add('ofetch', 'ofetch', { isDefault: true });
+  }
+
+  return {
+    fetch: framework === 'nuxt' ? '!raw!ofetch.native' : undefined,
+    baseURL,
+  };
 }
 
 async function promptForRegistry(
@@ -94,7 +106,7 @@ export default async function promptForActionFactoryOptions(
       test,
       adapter: {
         name: 'makeHttpAdapter',
-        options: await promptForHttpAdapterConfig(options.usage),
+        options: await promptForHttpAdapterConfig(imports, options.usage, options.framework),
       },
     };
   }
@@ -113,7 +125,7 @@ export default async function promptForActionFactoryOptions(
       serializer: { name: 'makeJsonApiSerializer' },
       adapter: {
         name: 'makeJsonApiAdapter',
-        options: await promptForHttpAdapterConfig(options.usage),
+        options: await promptForHttpAdapterConfig(imports, options.usage, options.framework),
       },
     };
   }
@@ -132,7 +144,7 @@ export default async function promptForActionFactoryOptions(
       serializer: { name: 'makeJsonRestSerializer' },
       adapter: {
         name: 'makeJsonRestAdapter',
-        options: await promptForHttpAdapterConfig(options.usage),
+        options: await promptForHttpAdapterConfig(imports, options.usage, options.framework),
       },
     };
   }

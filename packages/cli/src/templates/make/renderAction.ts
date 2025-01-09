@@ -11,7 +11,6 @@ import toIndent from '@foscia/cli/utils/output/toIndent';
 type ActionFactoryTemplateData = {
   config: CLIConfig;
   imports: ImportsList;
-  usage: CLIConfig['usage'];
   options: ActionFactoryOptions;
 };
 
@@ -22,6 +21,7 @@ function renderFactoryOptions(config: CLIConfig, options?: { [K: string]: unknow
   }
 
   return JSON.stringify(options, null, (config.tabSize ?? 2))
+    .replace(/: "!raw!([^"]+)"/g, ': $1')
     .replace(/"([^"]+)":/g, '$1:')
     .replace(/\\"/g, '\\\'')
     .replace(/"/g, '\'');

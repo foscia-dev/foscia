@@ -12,7 +12,7 @@ export default async function warnMissingDependencies(config: CLIConfig, otherUs
   if (!lifecycleWarned) {
     warnedMissingDependencies();
     const usage = otherUsage ?? config.usage;
-    const missingPackages = await checkMissingDependencies(usage);
+    const missingPackages = await checkMissingDependencies(usage, config.framework);
     if (missingPackages.length) {
       output.warn(`missing dependencies for "${usage}", install them with:`);
       output.instruct(`${config.packageManager} add ${missingPackages.join(' ')}`);

@@ -1,12 +1,14 @@
 export type AppPackageManager = typeof CONFIG_PACKAGE_MANAGERS[number]['value'];
 export type AppLanguage = typeof CONFIG_LANGUAGES[number]['value'];
 export type AppModules = typeof CONFIG_MODULES[number]['value'];
+export type AppFramework = typeof CONFIG_FRAMEWORKS[number]['value'];
 export type AppUsage = typeof CONFIG_USAGES[number]['value'];
 
 export type CLIConfig = {
   path: string;
   alias?: string;
   tabSize?: number;
+  framework?: AppFramework;
   packageManager: AppPackageManager;
   language: AppLanguage;
   modules: AppModules;
@@ -53,6 +55,14 @@ export const CONFIG_MODULES = [
     name: 'CommonJS',
     hint: 'require/module.exports',
     value: 'commonjs',
+  },
+] as const;
+
+export const CONFIG_FRAMEWORKS = [
+  {
+    name: 'Nuxt',
+    value: 'nuxt',
+    packages: ['ofetch'],
   },
 ] as const;
 

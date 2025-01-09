@@ -13,6 +13,7 @@ import makeCommander from '@foscia/cli/utils/cli/makeCommander';
 import makeUsageExamples from '@foscia/cli/utils/cli/makeUsageExamples';
 import output from '@foscia/cli/utils/cli/output';
 import {
+  AppFramework,
   AppLanguage,
   AppModules,
   AppPackageManager,
@@ -141,7 +142,7 @@ async function resolveEnvironment(options: InitCommandOptions) {
   return { packageManager, language, modules };
 }
 
-async function guessPathAndFramework(): Promise<[string] | [string, 'nuxt']> {
+async function guessPathAndFramework(): Promise<[string, undefined] | [string, 'nuxt']> {
   if (
     await pathExists(resolve('nuxt.config.ts'))
     || await pathExists(resolve('nuxt.config.js'))
@@ -159,6 +160,7 @@ async function guessPathAndFramework(): Promise<[string] | [string, 'nuxt']> {
       await pathExists(resolve('resources/ts'))
         ? 'resources/ts/data'
         : 'resources/js/data',
+      undefined,
     ];
   }
 
@@ -167,10 +169,11 @@ async function guessPathAndFramework(): Promise<[string] | [string, 'nuxt']> {
       await pathExists(resolve('assets/ts'))
         ? 'assets/ts/data'
         : 'assets/js/data',
+      undefined,
     ];
   }
 
-  return ['src/data'];
+  return ['src/data', undefined];
 }
 
 function guessAlias(path: string) {
@@ -240,9 +243,23 @@ export async function runInitCommand(
     ],
   }));
 
-  const [defaultPath, framework] = await guessPathAndFramework();
-  if (framework) {
-    output.success(`${c.bold('detected framework:')} ${c.cyan(framework)}`);
+  let framework: AppFramework | undefined;
+
+  const [defaultPath, detectedFramework] = await guessPathAndFramework();
+  if (detectedFramework) {
+    output.success(`${c.bold('detected framework:')} ${c.cyan(detectedFramework)}`);
+
+    const frameworkIntegrate = await promptConfirm({
+      name: 'integrate',
+      message: 'would you like to integrate it?',
+      initial: true,
+    });
+    if (frameworkIntegrate) {
+      framework = detectedFramework;
+    } else {
+      output.info('ok, you integrate it later using the following command, but it might requires additional configuration:');
+      output.instruct(`foscia integrate ${detectedFramework}\n`);
+    }
   }
 
   const filesPath = normalize(path?.length ? path : await promptText({
@@ -259,6 +276,7 @@ export async function runInitCommand(
     packageManager,
     language,
     modules,
+    framework,
     path: filesPath,
     alias: alias || undefined,
     tabSize: 2,
@@ -266,7 +284,7 @@ export async function runInitCommand(
 
   setLifecycleConfig(config);
 
-  const missingDependencies = await checkMissingDependencies(config.usage);
+  const missingDependencies = await checkMissingDependencies(config.usage, config.framework);
   await installDependencies(config, missingDependencies, { show });
 
   const configContent = `${JSON.stringify(config, null, 2)}\n`;
@@ -305,20 +323,10 @@ export async function runInitCommand(
     output.instruct('foscia make action\n');
   }
 
-  if (framework) {
-    output.step(`${framework} integration`);
+  if (config.framework) {
+    output.step(`${config.framework} integration`);
 
-    const frameworkIntegrate = await promptConfirm({
-      name: 'integrate',
-      message: `we detected you use ${framework}, would you like to integrate it?`,
-      initial: true,
-    });
-    if (frameworkIntegrate) {
-      await runNuxtCommand({ payloadPlugin: 'fosciaPayloadPlugin', show, force });
-    } else {
-      output.info('ok, integrate it later using:');
-      output.instruct(`foscia integrate ${framework}\n`);
-    }
+    await runNuxtCommand({ payloadPlugin: 'fosciaPayloadPlugin', show, force });
   }
 }
 

@@ -30,6 +30,7 @@ export async function runMakeActionCommand(
   const show = useShow(options);
   const force = useForce(options);
   const usage = await useUsage(options, () => config.usage);
+  const { framework } = config;
 
   await warnMissingDependencies(config);
 
@@ -41,8 +42,11 @@ export async function runMakeActionCommand(
     return renderAction({
       config,
       imports,
-      usage,
-      options: await promptForActionFactoryOptions(config, imports, { usage, show, force }),
+      options: await promptForActionFactoryOptions(
+        config,
+        imports,
+        { usage, framework, show, force },
+      ),
     });
   }, { show, force });
 }

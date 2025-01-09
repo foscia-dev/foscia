@@ -31,7 +31,18 @@ configuration to support server-side rendering (SSR) for two reasons:
   Foscia instances are not serializable without a
   [payload plugin](https://nuxt.com/docs/api/composables/use-nuxt-app#payload).
 
-### Setup
+## Setup
+
+### CLI (recommended)
+
+If you got Foscia started using
+[`foscia init`](/docs/digging-deeper/usages/cli#init-path), your framework
+integration with Nuxt is probably already setup. If you need to get started,
+you can use the following command and read the instruction bellow:
+
+<ShellCommand command="foscia integrate nuxt" />
+
+### Manually
 
 #### `fetch` implementation in action factory
 
@@ -90,7 +101,7 @@ tasks. If you need to priorise it, check out the
 
 :::
 
-### Usage
+## Usage
 
 You can now use Foscia in any server/client context using `useAsyncData`.
 

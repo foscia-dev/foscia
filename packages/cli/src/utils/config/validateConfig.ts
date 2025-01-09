@@ -1,5 +1,5 @@
 import {
-  CLIConfig,
+  CLIConfig, CONFIG_FRAMEWORKS,
   CONFIG_LANGUAGES,
   CONFIG_MODULES,
   CONFIG_PACKAGE_MANAGERS,
@@ -20,17 +20,39 @@ export default function validateConfig(config: object) {
     validateRequired(value) !== true || (typeof value === 'number' && value >= 0) || 'value must be a string'
   );
   const validateIn = <T extends unknown[]>(values: T) => (value: unknown) => (
-    values.some((v) => value === v) || `value must match one of: ${values.join(', ')}.`
+    validateRequired(value) !== true || values.some((v) => value === v) || `value must match one of: ${values.join(', ')}.`
   );
 
   const errors = Object.entries({
-    usage: [validateIn(CONFIG_USAGES.map(({ value }) => value))],
-    packageManager: [validateIn(CONFIG_PACKAGE_MANAGERS.map(({ value }) => value))],
-    language: [validateIn(CONFIG_LANGUAGES.map(({ value }) => value))],
-    modules: [validateIn(CONFIG_MODULES.map(({ value }) => value))],
-    path: [validateRequired, validateString],
-    alias: [validateString],
-    tabSize: [validateUnsignedInt],
+    usage: [
+      validateRequired,
+      validateIn(CONFIG_USAGES.map(({ value }) => value)),
+    ],
+    packageManager: [
+      validateRequired,
+      validateIn(CONFIG_PACKAGE_MANAGERS.map(({ value }) => value)),
+    ],
+    language: [
+      validateRequired,
+      validateIn(CONFIG_LANGUAGES.map(({ value }) => value)),
+    ],
+    modules: [
+      validateRequired,
+      validateIn(CONFIG_MODULES.map(({ value }) => value)),
+    ],
+    framework: [
+      validateIn(CONFIG_FRAMEWORKS.map(({ value }) => value)),
+    ],
+    path: [
+      validateRequired,
+      validateString,
+    ],
+    alias: [
+      validateString,
+    ],
+    tabSize: [
+      validateUnsignedInt,
+    ],
   }).reduce((messages, [key, rules]) => {
     const value = config[key as keyof typeof config];
     let message = true as true | string;
