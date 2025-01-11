@@ -1,9 +1,9 @@
 import ActionName from '@foscia/core/actions/actionName';
 import context from '@foscia/core/actions/context/enhancers/context';
 import instanceData from '@foscia/core/actions/context/enhancers/crud/instanceData';
-import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
-import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import query from '@foscia/core/actions/context/enhancers/query';
+import registerWriteActionHooks
+  from '@foscia/core/actions/context/utilities/registerWriteActionHooks';
 import makeEnhancer from '@foscia/core/actions/makeEnhancer';
 import {
   Action,
@@ -15,8 +15,6 @@ import {
   ContextEnhancer,
   InferQueryInstance,
 } from '@foscia/core/actions/types';
-import runHooks from '@foscia/core/hooks/runHooks';
-import markSynced from '@foscia/core/model/snapshots/markSynced';
 import {
   InferModelSchemaProp,
   ModelInstance,
@@ -37,7 +35,9 @@ export default /* @__PURE__ */ makeEnhancer('create', (<
   instance: I | RI,
   throughInstance?: I,
   throughRelation?: K & ModelRelationKey<I>,
-) => (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => action.use(
+) => (
+  action: Action<C & ConsumeSerializer<Record, Related, Data>>,
+) => registerWriteActionHooks(action.use(
   query(throughInstance ?? instance, throughRelation as any),
   context({
     action: ActionName.CREATE,
@@ -46,14 +46,7 @@ export default /* @__PURE__ */ makeEnhancer('create', (<
     id: throughInstance ? throughInstance.id : undefined,
   }),
   instanceData(instance),
-  onRunning(() => runHooks(instance.$model, ['creating', 'saving'], instance)),
-  onSuccess(async () => {
-    // eslint-disable-next-line no-param-reassign
-    instance.$exists = true;
-    markSynced(instance);
-    await runHooks(instance.$model, ['created', 'saved'], instance);
-  }),
-)) as {
+), instance, ['creating', 'saving'], ['created', 'saved'], true)) as {
   /**
    * Prepare context for an instance creation.
    *

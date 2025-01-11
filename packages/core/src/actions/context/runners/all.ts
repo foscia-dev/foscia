@@ -1,8 +1,8 @@
 import deserializeInstances, {
   DeserializedDataOf,
-} from '@foscia/core/actions/context/utils/deserializeInstances';
+} from '@foscia/core/actions/context/utilities/deserializeInstances';
 import executeContextThroughAdapter
-  from '@foscia/core/actions/context/utils/executeContextThroughAdapter';
+  from '@foscia/core/actions/context/utilities/executeContextThroughAdapter';
 import makeRunner from '@foscia/core/actions/makeRunner';
 import {
   Action,

@@ -405,23 +405,39 @@ export type ModelInstancePropertyWriteHookCallback = SyncHookCallback<{
 }>;
 
 /**
- * Model's hooks definition.
+ * Model's hooks definition dedicated to a model.
  *
  * @internal
  */
-export type ModelHooksDefinition =
+export type ModelHooksDefinitionForModel = {
+  boot: SyncHookCallback<Model>;
+};
+
+/**
+ * Model's hooks definition dedicated to an instance.
+ *
+ * @internal
+ */
+export type ModelHooksDefinitionForInstance = {
+  init: SyncHookCallback<ModelInstance>;
+  retrieved: HookCallback<ModelInstance>;
+  creating: HookCallback<ModelInstance>;
+  created: HookCallback<ModelInstance>;
+  updating: HookCallback<ModelInstance>;
+  updated: HookCallback<ModelInstance>;
+  saving: HookCallback<ModelInstance>;
+  saved: HookCallback<ModelInstance>;
+  destroying: HookCallback<ModelInstance>;
+  destroyed: HookCallback<ModelInstance>;
+};
+
+/**
+ * Model's hooks definition dedicated to an instance property.
+ *
+ * @internal
+ */
+export type ModelHooksDefinitionForInstanceProperty =
   & {
-    boot: SyncHookCallback<Model>;
-    init: SyncHookCallback<ModelInstance>;
-    retrieved: HookCallback<ModelInstance>;
-    creating: HookCallback<ModelInstance>;
-    created: HookCallback<ModelInstance>;
-    updating: HookCallback<ModelInstance>;
-    updated: HookCallback<ModelInstance>;
-    saving: HookCallback<ModelInstance>;
-    saved: HookCallback<ModelInstance>;
-    destroying: HookCallback<ModelInstance>;
-    destroyed: HookCallback<ModelInstance>;
     'property:reading': ModelInstancePropertyReadHookCallback;
     'property:read': ModelInstancePropertyReadHookCallback;
     'property:writing': ModelInstancePropertyWriteHookCallback;
@@ -431,6 +447,16 @@ export type ModelHooksDefinition =
   & Record<`property:read:${string}`, ModelInstancePropertyReadHookCallback>
   & Record<`property:writing:${string}`, ModelInstancePropertyWriteHookCallback>
   & Record<`property:write:${string}`, ModelInstancePropertyWriteHookCallback>;
+
+/**
+ * Model's hooks definition.
+ *
+ * @internal
+ */
+export type ModelHooksDefinition =
+  & ModelHooksDefinitionForModel
+  & ModelHooksDefinitionForInstance
+  & ModelHooksDefinitionForInstanceProperty;
 
 /**
  * Model class.

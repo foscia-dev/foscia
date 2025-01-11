@@ -1,5 +1,5 @@
 import executeContextThroughAdapter
-  from '@foscia/core/actions/context/utils/executeContextThroughAdapter';
+  from '@foscia/core/actions/context/utilities/executeContextThroughAdapter';
 import makeRunner from '@foscia/core/actions/makeRunner';
 import { Action, ConsumeAdapter } from '@foscia/core/actions/types';
 import { Awaitable, using } from '@foscia/shared';

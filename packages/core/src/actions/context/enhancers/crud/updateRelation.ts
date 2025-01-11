@@ -1,7 +1,7 @@
 import ActionName from '@foscia/core/actions/actionName';
 import context from '@foscia/core/actions/context/enhancers/context';
 import query from '@foscia/core/actions/context/enhancers/query';
-import serializeRelation from '@foscia/core/actions/context/utils/serializeRelation';
+import serializeRelation from '@foscia/core/actions/context/utilities/serializeRelation';
 import makeEnhancer from '@foscia/core/actions/makeEnhancer';
 import {
   Action,

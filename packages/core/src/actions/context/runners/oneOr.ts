@@ -1,5 +1,5 @@
 import all, { AllData } from '@foscia/core/actions/context/runners/all';
-import { DeserializedDataOf } from '@foscia/core/actions/context/utils/deserializeInstances';
+import { DeserializedDataOf } from '@foscia/core/actions/context/utilities/deserializeInstances';
 import makeRunner from '@foscia/core/actions/makeRunner';
 import {
   Action,

@@ -1,4 +1,4 @@
-import normalizeInclude from '@foscia/core/actions/context/utils/normalizeInclude';
+import normalizeInclude from '@foscia/core/actions/context/utilities/normalizeInclude';
 import makeCache from '@foscia/core/cache/makeCache';
 import makeRefsCache from '@foscia/core/cache/makeRefsCache';
 import makeTimeoutRefManager from '@foscia/core/cache/makeTimeoutRefManager';
