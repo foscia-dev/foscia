@@ -1,7 +1,5 @@
 import mapArrayable from '@foscia/shared/arrays/mapArrayable';
 import mapWithKeys from '@foscia/shared/arrays/mapWithKeys';
-import sequentialTransform from '@foscia/shared/arrays/sequentialTransform';
-import throughMiddlewares from '@foscia/shared/arrays/throughMiddlewares';
 import uniqueValues from '@foscia/shared/arrays/uniqueValues';
 import wrap from '@foscia/shared/arrays/wrap';
 import wrapVariadic from '@foscia/shared/arrays/wrapVariadic';
@@ -14,13 +12,19 @@ import eachDescriptors from '@foscia/shared/descriptors/eachDescriptors';
 import isDescriptorHolder from '@foscia/shared/descriptors/isDescriptorHolder';
 import makeDescriptorHolder from '@foscia/shared/descriptors/makeDescriptorHolder';
 import { IS_DEV, IS_TEST } from '@foscia/shared/env';
+import tap from '@foscia/shared/functions/tap';
+import using from '@foscia/shared/functions/using';
 import value from '@foscia/shared/functions/value';
 import uniqueId from '@foscia/shared/identifiers/uniqueId';
 import unsafeId from '@foscia/shared/identifiers/unsafeId';
 import makeIdentifiersMap from '@foscia/shared/maps/makeIdentifiersMap';
+import sequentialTransform from '@foscia/shared/miscellaneous/sequentialTransform';
+import throughMiddlewares from '@foscia/shared/miscellaneous/throughMiddlewares';
+import camelCase from '@foscia/shared/strings/camelCase';
+import kebabCase from '@foscia/shared/strings/kebabCase';
 import optionalJoin from '@foscia/shared/strings/optionalJoin';
 import pluralize from '@foscia/shared/strings/pluralize';
-import toKebabCase from '@foscia/shared/strings/toKebabCase';
+import singularize from '@foscia/shared/strings/singularize';
 
 export * from '@foscia/shared/descriptors/types';
 export * from '@foscia/shared/types';
@@ -40,13 +44,17 @@ export {
   isNone,
   optionalJoin,
   pluralize,
+  singularize,
   sequentialTransform,
   throughMiddlewares,
   removeTimezoneOffset,
-  toKebabCase,
+  kebabCase,
+  camelCase,
   unsafeId,
   uniqueId,
   uniqueValues,
+  tap,
+  using,
   value,
   wrap,
   wrapVariadic,

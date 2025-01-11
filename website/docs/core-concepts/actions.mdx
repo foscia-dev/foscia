@@ -134,7 +134,9 @@ await action().run(save(post), none());
 
 ### Deleting records
 
-You can use [`destroy`](/docs/api/@foscia/core/functions/none) to trigger
+#### Deleting by instance
+
+You can use [`destroy`](/docs/api/@foscia/core/functions/destroy) to trigger
 a record deletion. You can combine it with
 [`none`](/docs/api/@foscia/core/functions/none) to ignore the data
 source's response (errors are still thrown by the adapter).
@@ -143,6 +145,19 @@ source's response (errors are still thrown by the adapter).
 import { destroy, none } from '@foscia/core';
 
 await action().run(destroy(post), none());
+```
+
+#### Deleting by ID
+
+<FunctionInfo version="0.13.0" />
+
+In addition, you can delete a record using only its model and ID, instead of
+passing an already retrieved instance.
+
+```typescript
+import { destroy, none } from '@foscia/core';
+
+await action().run(destroy(Post, '1'), none());
 ```
 
 ### Relationships

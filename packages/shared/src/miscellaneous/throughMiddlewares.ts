@@ -5,6 +5,8 @@ import { Middleware, MiddlewareNext } from '@foscia/shared/types';
  *
  * @param middlewares
  * @param callback
+ *
+ * @internal
  */
 export default <V, R>(
   middlewares: Middleware<V, R>[],

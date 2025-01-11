@@ -17,9 +17,5 @@ export default async <T, U>(
     return Promise.all(value.map((v) => callback(v)));
   }
 
-  if (!isNil(value)) {
-    return callback(value);
-  }
-
-  return value;
+  return isNil(value) ? value : callback(value);
 };

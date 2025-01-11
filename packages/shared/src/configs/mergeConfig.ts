@@ -1,3 +1,5 @@
+import tap from '@foscia/shared/functions/tap';
+
 /**
  * Merge two config objects.
  *
@@ -13,12 +15,13 @@ export default <C extends {}>(
   override = true,
 ): C => ({
   ...config,
-  ...(Object.entries(newConfig) as [keyof C, C[keyof C]][]).reduce((keptConfig, [key, value]) => {
-    if (value !== undefined && (override || config[key] === undefined)) {
-      // eslint-disable-next-line no-param-reassign
-      keptConfig[key] = value;
-    }
-
-    return keptConfig;
-  }, {} as Partial<C>),
+  ...(Object.entries(newConfig) as [keyof C, C[keyof C]][]).reduce(
+    (keptConfig, [key, value]) => tap(keptConfig, () => {
+      if (value !== undefined && (override || config[key] === undefined)) {
+        // eslint-disable-next-line no-param-reassign
+        keptConfig[key] = value;
+      }
+    }),
+    {} as Partial<C>,
+  ),
 });
