@@ -25,7 +25,7 @@ export default <M extends Model>(
   prevSnapshot: ModelSnapshot<M>,
   ...only: ArrayableVariadic<ModelKey<M>>
 ) => {
-  if (nextSnapshot.$model !== prevSnapshot.$model) {
+  if (nextSnapshot.$instance.$model !== prevSnapshot.$instance.$model) {
     return false;
   }
 
@@ -39,7 +39,7 @@ export default <M extends Model>(
     || Object.keys(nextSnapshot.$values).length === Object.keys(prevSnapshot.$values).length
   ) && (keys.length ? keys : Object.keys(nextSnapshot.$values) as ModelKey<M>[]).every(
     (key) => compareModelValue(
-      nextSnapshot.$model,
+      nextSnapshot.$instance.$model,
       nextSnapshot.$values[key],
       prevSnapshot.$values[key],
     ),

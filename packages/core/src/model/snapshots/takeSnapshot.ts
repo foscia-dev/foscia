@@ -19,7 +19,7 @@ import { mapWithKeys, using } from '@foscia/shared';
 export default <I extends ModelInstance>(
   instance: I,
 ): ModelSnapshot<I> => ({
-  $model: instance.$model,
+  $instance: instance,
   $exists: instance.$exists,
   $raw: instance.$raw,
   $loaded: { ...instance.$loaded },

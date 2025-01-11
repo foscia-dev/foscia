@@ -676,7 +676,7 @@ export type ModelInstanceUsing<C extends ModelComposable> =
  * Model class or instance snapshot.
  */
 export type ModelSnapshot<M = any> = {
-  readonly $model: Model;
+  readonly $instance: ModelInstance;
   readonly $exists: boolean;
   readonly $raw: any;
   readonly $loaded: Dictionary<true>;

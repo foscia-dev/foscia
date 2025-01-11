@@ -65,8 +65,12 @@ export default (options: { models: Model[]; }) => {
     (value, key) => ({ [key]: reviveValue(value, parents) }),
   );
 
-  const reviveSnapshot = (snapshot: ReducedModelSnapshot, parents: Map<string, ModelInstance>) => ({
-    $model: reviveModel(snapshot.$model),
+  const reviveSnapshot = (
+    instance: ModelInstance,
+    snapshot: ReducedModelSnapshot,
+    parents: Map<string, ModelInstance>,
+  ) => ({
+    $instance: instance,
     $exists: snapshot.$exists,
     $raw: snapshot.$raw,
     $loaded: snapshot.$loaded,
@@ -83,7 +87,7 @@ export default (options: { models: Model[]; }) => {
     instance.$raw = data.$raw;
     instance.$loaded = data.$loaded;
     instance.$values = reviveValues(data.$values, parents);
-    instance.$original = reviveSnapshot(data.$original, parents);
+    instance.$original = reviveSnapshot(instance, data.$original, parents);
     /* eslint-enable */
   };
 

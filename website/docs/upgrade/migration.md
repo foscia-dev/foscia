@@ -20,6 +20,10 @@ sidebar_position: 5
 - [Properties definition are now defined using factories](#properties-definition-are-now-defined-using-factories)
 - [Internal APIs are now tagged and may have changed](#internal-apis-are-now-tagged-and-may-have-changed)
 
+### Low impacts changes
+
+- [`$model` property of snapshots is replaced by `$instance`](#model-property-of-snapshots-is-replaced-by-instance)
+
 ### Main dependencies types have been renamed
 
 **Likelihood Of Impact: High**
@@ -156,6 +160,25 @@ may have been renamed or removed.
 
 If you are using an internal APIs, you should avoid using them or
 [open an issue to request the API to be publicly maintained](https://github.com/foscia-dev/foscia/issues/new/choose).
+
+### `$model` property of snapshots is replaced by `$instance`
+
+**Likelihood Of Impact: Low**
+
+To better represent where a snapshot is coming from, the `$model` property
+have been replaced by an `$instance` property. If you are using this property
+on a snapshot, you can just access the `$model` of the `$instance`.
+
+```typescript
+import { takeSnapshot } from '@foscia/core';
+
+const snapshot = takeSnapshot(post);
+
+// highlight.deletion
+console.log(snapshot.$model);
+// highlight.addition
+console.log(snapshot.$instance.$model);
+```
 
 ## 0.12.x from 0.11.x
 

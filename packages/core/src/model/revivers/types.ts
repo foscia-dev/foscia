@@ -18,7 +18,6 @@ export type ReducedModel = {
  */
 export type ReducedModelSnapshot = {
   $FOSCIA_TYPE: 'snapshot';
-  $model: ReducedModel;
   $exists: boolean;
   $raw: any;
   $loaded: Dictionary<true>;

@@ -49,7 +49,6 @@ export default () => {
 
   const reduceSnapshot = (snapshot: ModelSnapshot, parents: Map<ModelInstance, string>) => ({
     $FOSCIA_TYPE: 'snapshot',
-    $model: reduceModel(snapshot.$model),
     $exists: snapshot.$exists,
     $raw: snapshot.$raw,
     $loaded: snapshot.$loaded,
