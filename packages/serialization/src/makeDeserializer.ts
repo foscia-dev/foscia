@@ -1,6 +1,7 @@
 import {
   consumeAction,
   consumeCache,
+  consumeId,
   consumeInstance,
   consumeModel,
   consumeQueryAs,
@@ -10,6 +11,7 @@ import {
   DeserializerError,
   forceFill,
   guessContextModel,
+  isSame,
   mapAttributes,
   mapRelations,
   markSynced,
@@ -241,7 +243,12 @@ You should either:
     ]);
 
     const action = consumeAction(context, null);
-    instance.$exists = action !== 'destroy';
+
+    instance.$exists = !(action === 'destroy' && (
+      isSame(instance, consumeInstance(context, null)) || (
+        instance.$model === consumeModel(context, null) && instance.id === consumeId(context, null)
+      )
+    ));
     instance.$raw = record.raw;
 
     markSynced(instance);
