@@ -9,6 +9,13 @@ import {
   ModelUsing,
 } from '@foscia/core/model/types';
 
+/**
+ * Create a model hook registration function.
+ *
+ * @param hook
+ *
+ * @internal
+ */
 export default (hook: keyof ModelHooksDefinition): {
   <M extends Model>(
     model: M,

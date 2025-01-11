@@ -62,9 +62,9 @@ makeModel('users', {
 if a value gets converted to an invalid date.
 
 [`toDate`](/docs/api/@foscia/core/functions/toDate) will also
-apply an "epoch shift" because serializing to a UTC date.
+apply an "epoch shift" when serializing to a UTC date.
 This will avoid local date to be serialized to incorrect date due to UTC
-serialization.
+conversion.
 
 :::
 

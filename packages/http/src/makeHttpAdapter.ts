@@ -70,12 +70,14 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
   );
 
   const makeResponseError = (request: Request, response: Response) => {
-    if (response.status >= 500) return new HttpServerError(request, response);
-    if (response.status === 401) return new HttpUnauthorizedError(request, response);
-    if (response.status === 403) return new HttpForbiddenError(request, response);
-    if (response.status === 404) return new HttpNotFoundError(request, response);
-    if (response.status === 409) return new HttpConflictError(request, response);
-    if (response.status === 429) return new HttpTooManyRequestsError(request, response);
+    const { status } = response;
+
+    if (status >= 500) return new HttpServerError(request, response);
+    if (status === 401) return new HttpUnauthorizedError(request, response);
+    if (status === 403) return new HttpForbiddenError(request, response);
+    if (status === 404) return new HttpNotFoundError(request, response);
+    if (status === 409) return new HttpConflictError(request, response);
+    if (status === 429) return new HttpTooManyRequestsError(request, response);
 
     return new HttpInvalidRequestError(request, response);
   };
@@ -101,15 +103,15 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
       baseURL: contextConfig.baseURL ?? model?.$config.baseURL ?? config.baseURL ?? '/',
       additionalPath: contextConfig.path,
       ...(contextConfig.modelPaths !== false ? {
-        modelPath: isNil(model) ? undefined : modelPathTransformer(
+        modelPath: model ? modelPathTransformer(
           model.$config.path ?? (model.$config.guessPath ?? ((t) => t))(model.$type),
-        ),
+        ) : undefined,
         idPath: isNil(id) ? undefined : idPathTransformer(
           String((model?.$config.guessIdPath ?? ((t) => t))(id)),
         ),
-        relationPath: isNil(relation) ? undefined : relationPathTransformer(
+        relationPath: relation ? relationPathTransformer(
           relation.path ?? (model?.$config.guessRelationPath ?? ((r) => r.key))(relation),
-        ),
+        ) : undefined,
       } : {}),
     }, context);
   };
@@ -126,11 +128,10 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
         [ActionName.UPDATE_RELATION]: 'PATCH',
         [ActionName.DETACH_RELATION]: 'DELETE',
       };
-      if (action && actionsMethodsMap[action]) {
-        return actionsMethodsMap[action] as HttpMethod;
-      }
 
-      return 'GET';
+      return action && actionsMethodsMap[action]
+        ? actionsMethodsMap[action] as HttpMethod
+        : 'GET';
     })()
   ).toUpperCase();
 
@@ -200,6 +201,8 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
   );
 
   const runRequest = (request: Request) => {
+    // We must extract fetch from config like this before using to avoid errors.
+    // Do not modify this function body.
     const { fetch } = config;
 
     return (fetch ?? globalThis.fetch)(request);

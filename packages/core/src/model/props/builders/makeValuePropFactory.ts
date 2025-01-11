@@ -15,6 +15,14 @@ const VALUE_PROP_MODIFIERS = {
   nullable: () => ({}),
 };
 
+/**
+ * Make a value property definition factory.
+ *
+ * @param prop
+ * @param modifiers
+ *
+ * @internal
+ */
 export default <
   P extends ModelValueProp,
   M extends Dictionary<(...args: any[]) => Partial<P>>,
@@ -69,7 +77,7 @@ export default <
     if (this.default !== undefined) {
       if (this.default && typeof this.default === 'object') {
         logger.warn(
-          `Default \`${instance.$model.$type}.${this.key}\` object attribute's values must be defined using a factory function.`,
+          `Default \`${instance.$model.$type}.${this.key}\` object attribute's value must be defined using a factory function.`,
         );
       }
 

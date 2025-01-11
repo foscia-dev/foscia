@@ -1,6 +1,7 @@
 import { Action, context, makeEnhancer } from '@foscia/core';
 import consumeRequestConfig from '@foscia/http/actions/context/consumers/consumeRequestConfig';
 import { HttpRequestConfig } from '@foscia/http/types';
+import { using } from '@foscia/shared';
 
 /**
  * Configure an HTTP request used by the HTTP adapter.
@@ -62,30 +63,29 @@ import { HttpRequestConfig } from '@foscia/http/types';
  */
 export default /* @__PURE__ */ makeEnhancer('configureRequest', (
   nextConfig: HttpRequestConfig,
-) => async <C extends {}>(action: Action<C>) => {
-  const prevRequestConfig = consumeRequestConfig(await action.useContext(), null);
-
-  return action.use(context({
+) => async <C extends {}>(action: Action<C>) => using(
+  consumeRequestConfig(await action.useContext(), {} as HttpRequestConfig),
+  (prevRequestConfig) => action.use(context({
     httpRequestConfig: {
       ...prevRequestConfig,
       ...nextConfig,
-      headers: { ...prevRequestConfig?.headers, ...nextConfig?.headers },
+      headers: { ...prevRequestConfig.headers, ...nextConfig?.headers },
       params: typeof nextConfig.params === 'string' ? nextConfig.params : {
-        ...(typeof prevRequestConfig?.params === 'string' ? {} : prevRequestConfig?.params),
+        ...(typeof prevRequestConfig.params === 'string' ? {} : prevRequestConfig.params),
         ...nextConfig.params,
       },
       requestTransformers: [
-        ...(prevRequestConfig?.requestTransformers ?? []),
+        ...(prevRequestConfig.requestTransformers ?? []),
         ...(nextConfig?.requestTransformers ?? []),
       ],
       responseTransformers: [
-        ...(prevRequestConfig?.responseTransformers ?? []),
+        ...(prevRequestConfig.responseTransformers ?? []),
         ...(nextConfig?.responseTransformers ?? []),
       ],
       errorTransformers: [
-        ...(prevRequestConfig?.errorTransformers ?? []),
+        ...(prevRequestConfig.errorTransformers ?? []),
         ...(nextConfig?.errorTransformers ?? []),
       ],
     } as HttpRequestConfig,
-  }));
-});
+  })),
+));

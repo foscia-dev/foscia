@@ -20,8 +20,4 @@ import { ArrayableVariadic } from '@foscia/shared';
 export default <I extends ModelInstance>(
   instance: I,
   ...only: ArrayableVariadic<ModelKey<I>>
-) => {
-  restoreSnapshot(instance, instance.$original, ...only);
-
-  return instance;
-};
+) => restoreSnapshot(instance, instance.$original, ...only);

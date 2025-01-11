@@ -6,7 +6,6 @@ import isComposable from '@foscia/core/model/checks/isComposable';
 import isIdDef from '@foscia/core/model/checks/isIdDef';
 import isPropFactory from '@foscia/core/model/checks/isPropFactory';
 import makeDefinition from '@foscia/core/model/makeDefinition';
-import id from '@foscia/core/model/props/builders/id';
 import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
 import {
   ExtendableModel,
@@ -21,18 +20,29 @@ import { eachDescriptors, mapWithKeys, mergeConfig } from '@foscia/shared';
 
 const { defineProperty } = Object;
 
-const createModelClass = (
+/**
+ * Create a model class.
+ *
+ * @param type
+ * @param config
+ * @param hooks
+ * @param definition
+ * @param parentModel
+ *
+ * @internal
+ */
+const makeModelClass = (
   type: string,
   config: ModelConfig,
   hooks: HooksRegistrar<ModelHooksDefinition>,
   definition: object,
-  PrevModelClass?: ExtendableModel,
+  parentModel?: ExtendableModel,
 ) => {
   if (type.length === 0) {
     throw new FosciaError('Model type cannot be an empty string.');
   }
 
-  const ModelClass = PrevModelClass ? class extends PrevModelClass {
+  const model = parentModel ? class extends parentModel {
   } : function ModelConstructor(this: ModelInstance) {
     defineProperty(this, '$FOSCIA_TYPE', { value: SYMBOL_MODEL_INSTANCE });
     defineProperty(this, '$model', { value: this.constructor });
@@ -54,14 +64,14 @@ const createModelClass = (
 
   const propFactories = new Map<string, ModelPropFactory>();
 
-  defineProperty(ModelClass, '$FOSCIA_TYPE', { value: SYMBOL_MODEL_CLASS });
-  defineProperty(ModelClass, '$type', { value: type });
-  defineProperty(ModelClass, '$config', { value: { ...config } });
-  defineProperty(ModelClass, '$composables', { value: [] });
-  defineProperty(ModelClass, '$hooks', { writable: true, value: {} });
-  defineProperty(ModelClass, '$booted', { writable: true, value: false });
+  defineProperty(model, '$FOSCIA_TYPE', { value: SYMBOL_MODEL_CLASS });
+  defineProperty(model, '$type', { value: type });
+  defineProperty(model, '$config', { value: { ...config } });
+  defineProperty(model, '$composables', { value: [] });
+  defineProperty(model, '$hooks', { writable: true, value: {} });
+  defineProperty(model, '$booted', { writable: true, value: false });
 
-  defineProperty(ModelClass, '$schema', {
+  defineProperty(model, '$schema', {
     configurable: true,
     get() {
       const $schema = mapWithKeys([...propFactories.entries()], ([key, factory]) => {
@@ -90,8 +100,8 @@ const createModelClass = (
     },
   });
 
-  ModelClass.configure = function configureModel(newConfig?: ModelConfig, override = true) {
-    return createModelClass(
+  model.configure = function configureModel(newConfig?: ModelConfig, override = true) {
+    return makeModelClass(
       this.$type,
       mergeConfig(this.$config, newConfig ?? {}, override),
       mergeHooks(this.$hooks!),
@@ -100,8 +110,8 @@ const createModelClass = (
     );
   };
 
-  ModelClass.extend = function extendModel(rawDefinition?: object) {
-    return createModelClass(
+  model.extend = function extendModel(rawDefinition?: object) {
+    return makeModelClass(
       this.$type,
       this.$config,
       mergeHooks(this.$hooks!),
@@ -114,28 +124,23 @@ const createModelClass = (
     currentDefinition: object,
   ) => eachDescriptors(currentDefinition, (key, descriptor) => {
     if (isComposable(descriptor.value)) {
-      ModelClass.$composables.push(descriptor.value);
+      model.$composables.push(descriptor.value);
 
       applyDefinition(descriptor.value.def);
 
-      ModelClass.$hooks = mergeHooks(ModelClass.$hooks!, descriptor.value.$hooks!);
+      model.$hooks = mergeHooks(model.$hooks!, descriptor.value.$hooks!);
     } else if (isPropFactory(descriptor.value)) {
       propFactories.set(key, descriptor.value);
     } else {
-      defineProperty(ModelClass.prototype, key, descriptor);
+      defineProperty(model.prototype, key, descriptor);
     }
   });
 
   applyDefinition(makeDefinition(definition));
 
-  ModelClass.$hooks = mergeHooks(ModelClass.$hooks!, hooks);
+  model.$hooks = mergeHooks(model.$hooks!, hooks);
 
-  return ModelClass;
+  return model;
 };
 
-export default (
-  type: string,
-  config: ModelConfig,
-  hooks: HooksRegistrar<ModelHooksDefinition>,
-  definition: object,
-) => createModelClass(type, config, hooks, { id: id(), lid: id(), ...definition });
+export default makeModelClass;

@@ -56,7 +56,7 @@ export default /* @__PURE__ */ makeRunner('cachedOr', <
   const cache = await consumeCache(context);
   if (!isNil(id)) {
     const instance = await cache.find(model.$type, id);
-    if (!isNil(instance)) {
+    if (instance) {
       if (filled(instance) && loaded(instance, context.include ?? [])) {
         return (transform ? transform({ instance: instance as I }) : instance) as ND;
       }

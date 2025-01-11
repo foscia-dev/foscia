@@ -5,6 +5,12 @@ sidebar_position: 20
 
 # Support policy
 
+:::info
+
+Currently, only the latest major version of Foscia is actively maintained.
+
+:::
+
 **All major release of Foscia may contain breaking changes!**
 
 In addition, some APIs may be documented with the following tags:
@@ -22,7 +28,5 @@ of your code according to those guides.
 Until Foscia `v1.0.0` is released, each minor release (e.g. `v0.1.x` to
 `v0.2.x`) will contain breaking changes, and is considered a major release
 regarding our support policy.
-
-Currently, only the latest major version of Foscia is actively maintained.
 
 :::

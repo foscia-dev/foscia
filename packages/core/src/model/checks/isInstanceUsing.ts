@@ -14,8 +14,8 @@ import { ModelComposable, ModelInstanceUsing } from '@foscia/core/model/types';
  * ```typescript
  * import { isInstanceUsing } from '@foscia/core';
  *
- * if (isInstanceUsing(myRecord, publishable)) {
- *   myRecord.publishedAt = new Date();
+ * if (isInstanceUsing(myPost, publishable)) {
+ *   // `myPost` is strictly typed with `publishable` definition.
  * }
  * ```
  */

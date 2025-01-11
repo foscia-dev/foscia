@@ -8,6 +8,13 @@ import {
   ModelValues,
 } from '@foscia/core/model/types';
 
+/**
+ * Create a property write/writing hook registration function.
+ *
+ * @param hook
+ *
+ * @internal
+ */
 export default (hook: 'write' | 'writing'): {
   <D extends {}, I extends ModelInstance<D>, V extends ModelValues<D>, K extends keyof D & keyof V>(
     model: Model<D, I>,

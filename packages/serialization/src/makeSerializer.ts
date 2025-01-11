@@ -16,7 +16,7 @@ import {
   SerializerContext,
   SerializerParents,
 } from '@foscia/serialization/types';
-import { Arrayable, Awaitable, mapArrayable } from '@foscia/shared';
+import { Arrayable, Awaitable, mapArrayable, using } from '@foscia/shared';
 
 /**
  * Make a {@link RecordSerializer | `RecordSerializer`} using the given config.
@@ -142,15 +142,14 @@ export default <Record, Related, Data>(
       def: ModelRelation,
       value: Arrayable<ModelInstance> | null,
       context: {},
-    ) => {
-      const serializerContext = makeSerializerContext(instance, def, context);
-
-      return serializeRelationWith(
+    ) => using(
+      makeSerializerContext(instance, def, context),
+      (serializerContext) => serializeRelationWith(
         { ...serializerContext, value },
         serializeRelated,
         [{ instance, def }],
-      );
-    },
+      ),
+    ),
     serializeInstance,
     serialize,
   };

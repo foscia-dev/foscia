@@ -1,11 +1,16 @@
 import { ModelInstance, ModelRelationDotKey, ModelRelationKey } from '@foscia/core/model/types';
-import { uniqueValues } from '@foscia/shared';
+import { tap, uniqueValues } from '@foscia/shared';
 
+/**
+ * Group relations by common roots.
+ *
+ * @param relations
+ *
+ * @internal
+ */
 export default <I extends ModelInstance>(
   relations: ModelRelationDotKey<I>[],
-) => {
-  const groups = new Map<ModelRelationKey<I>, string[]>();
-
+) => tap(new Map<ModelRelationKey<I>, string[]>(), (groups) => {
   relations.forEach((relation) => {
     const [rootRelation, ...subRelations] = relation.split('.');
 
@@ -14,6 +19,4 @@ export default <I extends ModelInstance>(
       ...subRelations,
     ]));
   });
-
-  return groups;
-};
+});

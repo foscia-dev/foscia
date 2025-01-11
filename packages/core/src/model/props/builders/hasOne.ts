@@ -10,7 +10,7 @@ import { Awaitable } from '@foscia/shared';
 
 const hasOne: {
   /**
-   * Create a has one relation property factory.
+   * Create a has one relation property factory with types or configuration.
    *
    * @param config
    *
@@ -19,7 +19,7 @@ const hasOne: {
     config?: string | string[] | ModelRelationConfig,
   ): ModelRelationFactory<I, false>;
   /**
-   * Create a has one relation property factory.
+   * Create a has one relation property factory with a model resolver.
    *
    * @param resolver
    *

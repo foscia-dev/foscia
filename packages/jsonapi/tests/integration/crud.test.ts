@@ -617,6 +617,27 @@ describe('integration: JSON:API', () => {
     expect(post.comments).toBeUndefined();
   });
 
+  it('should run action: destroy record', async () => {
+    const fetchMock = createFetchMock();
+    fetchMock.mockImplementationOnce(createFetchResponse().noContent());
+
+    const action = makeJsonApiActionMock();
+
+    const data = await action()
+      .use(destroy(PostMock, '1'))
+      .run(one());
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0][0] as Request;
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts/1');
+    expect(request.method).toStrictEqual('DELETE');
+    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
+    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
+    expect(request.body).toBeNull();
+
+    expect(data).toBeNull();
+  });
+
   it('should run action: contextualized custom', async () => {
     const fetchMock = createFetchMock();
     fetchMock.mockImplementationOnce(createFetchResponse().json({

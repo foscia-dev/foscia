@@ -1,4 +1,5 @@
 import { ModelInstance, ModelKey, ModelWritableValues } from '@foscia/core/model/types';
+import { tap } from '@foscia/shared';
 
 /**
  * Fill the instance with given values.
@@ -18,11 +19,9 @@ import { ModelInstance, ModelKey, ModelWritableValues } from '@foscia/core/model
 export default <I extends ModelInstance>(
   instance: I,
   values: Partial<ModelWritableValues<I>>,
-) => {
+) => tap(instance, () => {
   Object.entries(values).forEach(([key, value]) => {
     // eslint-disable-next-line no-param-reassign
     instance[key as ModelKey<I>] = value as any;
   });
-
-  return instance;
-};
+});

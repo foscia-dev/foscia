@@ -8,6 +8,15 @@ import { ModelComposable, ModelUsing } from '@foscia/core/model/types';
  * @param composable
  *
  * @category Utilities
+ *
+ * @example
+ * ```typescript
+ * import { isModelUsing } from '@foscia/core';
+ *
+ * if (isModelUsing(Post, publishable)) {
+ *   // `Post` is strictly typed with `publishable` definition.
+ * }
+ * ```
  */
 export default <C extends ModelComposable>(
   value: unknown,

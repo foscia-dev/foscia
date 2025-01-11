@@ -34,9 +34,7 @@ export default <V>(
     return null;
   }
 
-  if (Array.isArray(related)) {
-    return related.map((value) => parseValue(value));
-  }
-
-  return parseValue(related);
+  return Array.isArray(related)
+    ? related.map((value) => parseValue(value))
+    : parseValue(related);
 };

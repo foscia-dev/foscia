@@ -13,7 +13,7 @@ import ShellCommand from '@site/src/components/ShellCommand';
 :::tip What you'll learn
 
 - Creating your first model and using it through model instances
-- Creating your action factory using blueprints
+- Creating your action factory
 - Running basic actions on your models with your action factory
 
 :::
@@ -156,7 +156,7 @@ source (adapter, (de)serializer, etc.). You can use
 create your action factory. It takes one argument: an initial `context`
 as an object or an object factory.
 
-To quickly get started, multiple Foscia packages provide blueprint factories
+To quickly get started, multiple Foscia packages provide factories
 which provide a quick initialization of this action factory with sensible
 defaults.
 Depending on the usage you are targeting, here is what your action factory may
@@ -319,7 +319,7 @@ await action().run(destroy(post), none());
 
 #### HTTP custom actions
 
-Using JSON:API or REST blueprints, you can also use Foscia to make non-standard
+Using JSON:API or REST, you can also use Foscia to make non-standard
 (non-CRUD) API calls.
 
 This way, you can standardize all API calls across your application, even when

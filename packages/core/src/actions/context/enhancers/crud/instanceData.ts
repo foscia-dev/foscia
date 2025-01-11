@@ -17,5 +17,5 @@ export default /* @__PURE__ */ makeEnhancer('instanceData', <C extends {}, Recor
 ) => async (
   action: Action<C & ConsumeSerializer<Record, Related, Data>>,
 ) => action.use(context({
-  data: await serializeInstance(action, instance),
+  data: await serializeInstance(await action.useContext(), instance),
 })));

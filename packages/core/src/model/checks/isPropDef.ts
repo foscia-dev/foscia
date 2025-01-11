@@ -3,8 +3,15 @@ import isIdDef from '@foscia/core/model/checks/isIdDef';
 import isRelationDef from '@foscia/core/model/checks/isRelationDef';
 import { ModelAttribute, ModelId, ModelRelation } from '@foscia/core/model/types';
 
+/**
+ * Check if value is a property definition.
+ *
+ * @param value
+ *
+ * @internal
+ */
 export default (
-  def: unknown,
-): def is ModelId | ModelAttribute | ModelRelation => isIdDef(def)
-  || isAttributeDef(def)
-  || isRelationDef(def);
+  value: unknown,
+): value is ModelId | ModelAttribute | ModelRelation => isIdDef(value)
+  || isAttributeDef(value)
+  || isRelationDef(value);

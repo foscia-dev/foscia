@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import { Hookable } from '@foscia/core/hooks/types';
 
 /**
@@ -12,10 +11,15 @@ import { Hookable } from '@foscia/core/hooks/types';
 export default <T extends Hookable<any>, R>(
   hookable: T,
   callback: (hookable: T) => R,
-): R extends Promise<infer A> ? Promise<A> : R => {
+): R => {
   const hooksBackup = hookable.$hooks;
-  let restoreHooksImmediately = true;
+  const restoreHooks = () => {
+    // eslint-disable-next-line no-param-reassign
+    hookable.$hooks = hooksBackup;
+  };
 
+  let restoreHooksImmediately = true;
+  // eslint-disable-next-line no-param-reassign
   hookable.$hooks = null;
 
   try {
@@ -26,11 +30,11 @@ export default <T extends Hookable<any>, R>(
       return new Promise((resolve, reject) => {
         value
           .then((v) => {
-            hookable.$hooks = hooksBackup;
+            restoreHooks();
             resolve(v);
           })
           .catch((e) => {
-            hookable.$hooks = hooksBackup;
+            restoreHooks();
             reject(e);
           });
       }) as any;
@@ -39,7 +43,7 @@ export default <T extends Hookable<any>, R>(
     return value as any;
   } finally {
     if (restoreHooksImmediately) {
-      hookable.$hooks = hooksBackup;
+      restoreHooks();
     }
   }
 };

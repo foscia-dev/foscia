@@ -78,7 +78,8 @@ body.
 
 But, since we are not building the action factory for you, you must initialize
 this factory yourself with the things you need: an adapter, a serializer, etc.
-Don't worry, the process is still pretty simple thanks to blueprints.
+Don't worry, the process is still pretty simple thanks to preconfigured
+dependencies.
 
 In addition, you can use method chaining (e.g. `action().query(Post).all()`),
 because those functions must be imported to be used.

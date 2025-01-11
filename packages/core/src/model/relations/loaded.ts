@@ -40,11 +40,7 @@ const loaded = <I extends ModelInstance>(
     return related.every((r) => loaded<ModelInstance>(r, subDotKey));
   }
 
-  if (isInstance(related)) {
-    return loaded<ModelInstance>(related, subDotKey);
-  }
-
-  return true;
+  return isInstance(related) ? loaded<ModelInstance>(related, subDotKey) : true;
 });
 
 export default loaded;

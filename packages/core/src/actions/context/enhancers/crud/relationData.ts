@@ -26,7 +26,7 @@ export default /* @__PURE__ */ makeEnhancer('relationData', <
   action: Action<C & ConsumeSerializer<Record, Related, Data>>,
 ) => action.use(context({
   data: await serializeRelation(
-    action,
+    await action.useContext(),
     instance,
     key,
     instance[key],

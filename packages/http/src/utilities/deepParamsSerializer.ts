@@ -1,4 +1,4 @@
-import { Dictionary } from '@foscia/shared';
+import { Dictionary, tap } from '@foscia/shared';
 
 /**
  * Deeply serialize given query params (including objects)
@@ -18,9 +18,7 @@ import { Dictionary } from '@foscia/shared';
  * // search=foo&sort=title&filter[category]=news
  * ```
  */
-export default (params: Dictionary<any>) => {
-  const urlSearchParams = new URLSearchParams();
-
+export default (params: Dictionary<any>) => tap(new URLSearchParams(), (urlParams) => {
   const appendParam = (key: string, value: unknown) => {
     if (Array.isArray(value)) {
       value.forEach((subValue) => appendParam(`${key}[]`, subValue));
@@ -31,7 +29,7 @@ export default (params: Dictionary<any>) => {
     } else {
       const finalValue = value;
       if (finalValue !== undefined) {
-        urlSearchParams.append(key, String(finalValue));
+        urlParams.append(key, String(finalValue));
       }
     }
   };
@@ -39,6 +37,4 @@ export default (params: Dictionary<any>) => {
   Object.entries(params ?? {}).forEach(([key, value]) => {
     appendParam(key, value);
   });
-
-  return urlSearchParams.toString() || undefined;
-};
+}).toString() || undefined;

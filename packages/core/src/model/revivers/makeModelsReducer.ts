@@ -39,11 +39,7 @@ export default () => {
       return value.map((item) => reduceValue(item, parents));
     }
 
-    if (isInstance(value)) {
-      return reduceInstance(value, parents);
-    }
-
-    return value;
+    return isInstance(value) ? reduceInstance(value, parents) : value;
   };
 
   const reduceValues = (values: Dictionary, parents: Map<ModelInstance, string>) => mapWithKeys(

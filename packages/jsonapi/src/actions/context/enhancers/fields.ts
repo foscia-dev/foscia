@@ -7,7 +7,7 @@ import {
   ModelKey,
 } from '@foscia/core';
 import fieldsFor from '@foscia/jsonapi/actions/context/enhancers/fieldsFor';
-import { ArrayableVariadic, isNil } from '@foscia/shared';
+import { ArrayableVariadic } from '@foscia/shared';
 
 /**
  * [Select the given JSON:API fieldsets](https://jsonapi.org/format/#fetching-sparse-fieldsets)
@@ -34,14 +34,12 @@ import { ArrayableVariadic, isNil } from '@foscia/shared';
 export default /* @__PURE__ */ makeEnhancer('fields', <C extends {}>(
   ...fieldset: ArrayableVariadic<ModelKey<InferQueryModelOrInstance<C>>>
 ) => async (action: Action<C>) => {
-  const context = await action.useContext();
-  const model = await guessContextModel(context);
-
-  if (isNil(model)) {
-    throw new FosciaError(
-      'Could not detect context\'s model when applying fieldsets.',
-    );
+  const model = await guessContextModel(await action.useContext());
+  if (model) {
+    return action.use(fieldsFor(model as any, ...fieldset));
   }
 
-  return action.use(fieldsFor(model as any, ...fieldset));
+  throw new FosciaError(
+    'Could not detect context\'s model when applying fieldsets.',
+  );
 });

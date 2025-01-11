@@ -133,6 +133,11 @@ test('Actions are type safe', async () => {
       .run(one()),
   ).toEqualTypeOf<PostMock | null>();
   expectTypeOf(
+    await action()
+      .use(destroy(PostMock, '123'))
+      .run(one()),
+  ).toEqualTypeOf<PostMock | null>();
+  expectTypeOf(
     await action().run(
       associate(new CommentMock(), 'postedBy', new UserMock()),
       one(),

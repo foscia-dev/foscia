@@ -1,4 +1,5 @@
 import makeModelClass from '@foscia/core/model/makeModelClass';
+import id from '@foscia/core/model/props/builders/id';
 import {
   ModelConfig,
   ModelFactory,
@@ -6,6 +7,7 @@ import {
   ModelInstance,
   ModelParsedDefinition,
 } from '@foscia/core/model/types';
+import { using } from '@foscia/shared';
 
 /**
  * Create a model factory.
@@ -34,19 +36,18 @@ export default <D extends {} = {}>(
   const factory = (
     rawConfig: string | (ModelConfig & { type: string; }),
     rawDefinition?: object,
-  ) => {
-    const { type, ...config } = typeof rawConfig === 'string'
-      ? { type: rawConfig }
-      : rawConfig;
-
-    return makeModelClass(type, {
+  ) => using(
+    typeof rawConfig === 'string' ? { type: rawConfig } : rawConfig,
+    ({ type, ...config }) => makeModelClass(type, {
       ...baseConfig,
       ...config,
     }, factory.$hooks, {
+      id: id(),
+      lid: id(),
       ...baseRawDefinition,
       ...rawDefinition,
-    });
-  };
+    }),
+  );
 
   factory.$hooks = {};
 

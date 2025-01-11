@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import isValuePropDef from '@foscia/core/model/checks/isValuePropDef';
+import isPropDef from '@foscia/core/model/checks/isPropDef';
 import forceFill from '@foscia/core/model/forceFill';
 import mapProps from '@foscia/core/model/props/mappers/mapProps';
 import cloneModelValue from '@foscia/core/model/snapshots/cloneModelValue';
@@ -11,7 +11,7 @@ import {
   ModelValueProp,
   ModelValues,
 } from '@foscia/core/model/types';
-import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
+import { ArrayableVariadic, tap, wrapVariadic } from '@foscia/shared';
 
 /**
  * Restore a specific snapshot on instance.
@@ -33,7 +33,7 @@ export default <I extends ModelInstance>(
   instance: I,
   snapshot: ModelSnapshot<I>,
   ...only: ArrayableVariadic<ModelKey<I>>
-) => {
+) => tap(instance, () => {
   const keys = wrapVariadic(...only);
 
   if (!keys.length) {
@@ -56,8 +56,6 @@ export default <I extends ModelInstance>(
     }
   };
 
-  mapProps(instance, restoreForDef, isValuePropDef);
+  mapProps(instance, restoreForDef, isPropDef as any);
   markSynced(instance, ...only);
-
-  return instance;
-};
+});

@@ -1,6 +1,6 @@
 import cloneModelValue from '@foscia/core/model/snapshots/cloneModelValue';
 import { ModelInstance, ModelSnapshot, ModelValues } from '@foscia/core/model/types';
-import { mapWithKeys } from '@foscia/shared';
+import { mapWithKeys, using } from '@foscia/shared';
 
 /**
  * Capture a snapshot of the instance.
@@ -23,9 +23,8 @@ export default <I extends ModelInstance>(
   $exists: instance.$exists,
   $raw: instance.$raw,
   $loaded: { ...instance.$loaded },
-  $values: mapWithKeys(instance.$values, (value, key) => {
-    const clonedValue = cloneModelValue(instance.$model, value);
-
-    return clonedValue !== undefined ? { [key]: clonedValue } : {};
-  }) as Partial<ModelValues<I>>,
+  $values: mapWithKeys(instance.$values, (value, key) => using(
+    cloneModelValue(instance.$model, value),
+    (clonedValue) => (clonedValue !== undefined ? { [key]: clonedValue } : {}),
+  )) as Partial<ModelValues<I>>,
 });

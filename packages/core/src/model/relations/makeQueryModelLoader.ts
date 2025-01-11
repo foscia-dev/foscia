@@ -31,6 +31,7 @@ import {
   IdentifiersMap,
   isNil,
   makeIdentifiersMap,
+  tap,
   wrap,
 } from '@foscia/shared';
 
@@ -164,39 +165,39 @@ const extractIdsMap = <
   options: QueryModelLoaderOptions<RawData, Data, Deserialized, C>,
   instances: I[],
   relations: Map<ModelRelationKey<I>, string[]>,
-) => {
-  const { exclude } = options;
-  const extract = options.extract ?? makeQueryModelLoaderExtractor(
-    (instance, relation) => instance.$raw[normalizeKey(instance.$model, relation)],
-    (value) => (typeof value === 'object' ? { id: value.id, type: value.type } : { id: value }),
-  );
+) => tap(
+  new Map<I, Map<ModelRelationKey<I>, Arrayable<ExtractedId> | null>>(),
+  (extractedIdsMap) => {
+    const { exclude } = options;
+    const extract = options.extract ?? makeQueryModelLoaderExtractor(
+      (instance, relation) => instance.$raw[normalizeKey(instance.$model, relation)],
+      (value) => (typeof value === 'object' ? { id: value.id, type: value.type } : { id: value }),
+    );
 
-  const extractedIdsMap = new Map<I, Map<ModelRelationKey<I>, Arrayable<ExtractedId> | null>>();
-  instances.forEach((instance) => {
-    if (exclude && [...relations.entries()].every(
-      ([rootRelation, subRelations]) => shouldExcludeInstanceAndRelation(
-        instance,
-        rootRelation,
-        subRelations,
-        exclude,
-      ),
-    )) {
-      return;
-    }
-
-    [...relations.keys()].forEach((rootRelation) => {
-      const ids = extract(instance, rootRelation);
-      if (ids !== undefined) {
-        const extractedIdsForInstanceMap = extractedIdsMap.get(instance) ?? new Map();
-
-        extractedIdsForInstanceMap.set(rootRelation, ids);
-        extractedIdsMap.set(instance, extractedIdsForInstanceMap);
+    instances.forEach((instance) => {
+      if (exclude && [...relations.entries()].every(
+        ([rootRelation, subRelations]) => shouldExcludeInstanceAndRelation(
+          instance,
+          rootRelation,
+          subRelations,
+          exclude,
+        ),
+      )) {
+        return;
       }
-    });
-  });
 
-  return extractedIdsMap;
-};
+      [...relations.keys()].forEach((rootRelation) => {
+        const ids = extract(instance, rootRelation);
+        if (ids !== undefined) {
+          const extractedIdsForInstanceMap = extractedIdsMap.get(instance) ?? new Map();
+
+          extractedIdsForInstanceMap.set(rootRelation, ids);
+          extractedIdsMap.set(instance, extractedIdsForInstanceMap);
+        }
+      });
+    });
+  },
+);
 
 const fetchRelatedMap = async <
   RawData,
@@ -213,18 +214,17 @@ const fetchRelatedMap = async <
   const related = makeIdentifiersMap<string, ModelIdType, ModelInstance>();
 
   await Promise.all([...relations.entries()].map(async ([model, relationsData]) => {
-    const targetedIds = [...ids.values()].reduce((allIds, idsForInstance) => {
-      idsForInstance.forEach((extractedIds, relation) => {
+    const targetedIds = [...ids.values()].reduce((allIds, idsForInstance) => tap(
+      allIds,
+      () => idsForInstance.forEach((extractedIds, relation) => {
         if (relationsData.relations.indexOf(relation) !== -1) {
           allIds.push(
             ...wrap(extractedIds)
               .filter(({ type }) => isNil(type) || type === model.$type),
           );
         }
-      });
-
-      return allIds;
-    }, [] as ExtractedId[]);
+      }),
+    ), [] as ExtractedId[]);
 
     if (targetedIds.length) {
       const chunk = (options.chunk ?? ((i) => [i])) as (ids: ExtractedId[]) => ExtractedId[][];
@@ -269,11 +269,7 @@ const extractRelated = (
       .filter((value) => value !== undefined);
   }
 
-  if (!isNil(ids)) {
-    return related.find(ids.type ?? '', ids.id);
-  }
-
-  return null;
+  return isNil(ids) ? null : related.find(ids.type ?? '', ids.id);
 };
 
 const remapRelated = <I extends ModelInstance>(
@@ -282,11 +278,9 @@ const remapRelated = <I extends ModelInstance>(
 ) => ids.forEach((idsForInstance, instance) => {
   idsForInstance.forEach((extractIds, relation) => {
     const value = extractRelated(extractIds, related);
-    if (value === undefined) {
-      return;
+    if (value !== undefined) {
+      loadUsingValue(instance, relation, value as any);
     }
-
-    loadUsingValue(instance, relation, value as any);
   });
 });
 

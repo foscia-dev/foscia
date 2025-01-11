@@ -8,6 +8,13 @@ import {
   ModelValues,
 } from '@foscia/core/model/types';
 
+/**
+ * Create a property read/reading hook registration function.
+ *
+ * @param hook
+ *
+ * @internal
+ */
 export default (hook: 'read' | 'reading'): {
   <D extends {}, I extends ModelInstance<D>, V extends ModelValues<D>, K extends keyof D & keyof V>(
     model: Model<D, I>,

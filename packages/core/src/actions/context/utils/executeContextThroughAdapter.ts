@@ -3,6 +3,13 @@ import consumeAdapter from '@foscia/core/actions/context/consumers/consumeAdapte
 import { ConsumeAdapter } from '@foscia/core/actions/types';
 import { AdapterResponse } from '@foscia/core/types';
 
+/**
+ * Execute the given context through the adapter.
+ *
+ * @param context
+ *
+ * @internal
+ */
 export default async <RawData, Data>(
   context: ConsumeAdapter<RawData, Data>,
 ): Promise<AdapterResponse<RawData, Data>> => {

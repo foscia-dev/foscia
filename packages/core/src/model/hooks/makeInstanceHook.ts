@@ -9,6 +9,13 @@ import {
   ModelInstanceUsing,
 } from '@foscia/core/model/types';
 
+/**
+ * Create an instance hook registration function.
+ *
+ * @param hook
+ *
+ * @internal
+ */
 export default (hook: keyof ModelHooksDefinition): {
   <I extends ModelInstance>(
     model: Model<any, I>,

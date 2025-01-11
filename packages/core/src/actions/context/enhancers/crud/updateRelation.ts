@@ -18,7 +18,7 @@ import {
   ModelRelation,
   ModelRelationKey,
 } from '@foscia/core/model/types';
-import { wrap } from '@foscia/shared';
+import { using, wrap } from '@foscia/shared';
 
 export type UpdateRelationActionName =
   | ActionName.UPDATE_RELATION
@@ -61,20 +61,18 @@ export default /* @__PURE__ */ makeEnhancer('updateRelation', <
   relation: K & ModelRelationKey<I>,
   value: UpdateRelationValue<R>,
   actionName: UpdateRelationActionName = ActionName.UPDATE_RELATION,
-) => async (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => {
-  const wrappedValue = isSingularRelationDef(instance.$model.$schema[relation] as R)
-    ? value : wrap(value);
-
-  return action.use(
+) => async (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => using(
+  isSingularRelationDef(instance.$model.$schema[relation] as R) ? value : wrap(value),
+  async (wrappedValue) => action.use(
     query(instance, relation),
     context({
       action: actionName,
       data: await serializeRelation(
-        action,
+        await action.useContext(),
         instance,
         relation,
         wrappedValue as InferModelValuePropType<R>,
       ),
     }),
-  ) as unknown as Action<C & ConsumeModel<I['$model']> & ConsumeRelation<R> & ConsumeId>;
-});
+  ) as unknown as Action<C & ConsumeModel<I['$model']> & ConsumeRelation<R> & ConsumeId>,
+));

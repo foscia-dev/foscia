@@ -1,5 +1,5 @@
-import serializeWith from '@foscia/core/actions/context/utils/serializeWith';
-import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
+import consumeSerializer from '@foscia/core/actions/context/consumers/consumeSerializer';
+import { ConsumeSerializer } from '@foscia/core/actions/types';
 import {
   InferModelSchemaProp,
   InferModelValuePropType,
@@ -7,10 +7,19 @@ import {
   ModelRelation,
   ModelRelationKey,
 } from '@foscia/core/model/types';
-import { Arrayable } from '@foscia/shared';
+import { Arrayable, using } from '@foscia/shared';
 
-export default <
-  C extends {},
+/**
+ * Serialize the given relation's value to a serialized dataset.
+ *
+ * @param context
+ * @param instance
+ * @param relation
+ * @param value
+ *
+ * @internal
+ */
+export default async <
   I extends ModelInstance,
   K extends string,
   R extends InferModelSchemaProp<I, K, ModelRelation>,
@@ -18,11 +27,11 @@ export default <
   Related,
   Data,
 >(
-  action: Action<C & ConsumeSerializer<Record, Related, Data>>,
+  context: ConsumeSerializer<Record, Related, Data>,
   instance: I,
   relation: K & ModelRelationKey<I>,
   value: InferModelValuePropType<R>,
-) => serializeWith(action, async (serializer, context) => serializer.serialize(
+) => using(await consumeSerializer(context), async (serializer) => serializer.serialize(
   await serializer.serializeRelation(
     instance,
     instance.$model.$schema[relation] as R,

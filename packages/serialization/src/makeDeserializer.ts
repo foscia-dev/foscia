@@ -22,13 +22,13 @@ import {
   shouldSync,
 } from '@foscia/core';
 import {
-  RecordDeserializer,
   DeserializerConfig,
   DeserializerContext,
   DeserializerExtract,
   DeserializerInstancesMap,
   DeserializerModelIdentifier,
   DeserializerRecord,
+  RecordDeserializer,
 } from '@foscia/serialization/types';
 import {
   type Arrayable,
@@ -37,6 +37,7 @@ import {
   isNone,
   makeIdentifiersMap,
   mapArrayable,
+  using,
   wrap,
 } from '@foscia/shared';
 
@@ -113,23 +114,17 @@ You should either:
   const findInstance = async (
     identifier: DeserializerModelIdentifier,
     context: {},
-  ) => {
-    const cache = await consumeCache(context, null);
-    if (cache && !isNil(identifier.id)) {
-      return cache.find(identifier.model.$type, identifier.id);
-    }
-
-    const instance = consumeInstance(context, null);
-    if (
-      instance
-      && identifier.id === instance.id
-      && identifier.model.$type === instance.$model.$type
-    ) {
-      return instance;
-    }
-
-    return null;
-  };
+  ) => using(await consumeCache(context, null), (cache) => (
+    cache && !isNil(identifier.id)
+      ? cache.find(identifier.model.$type, identifier.id)
+      : using(consumeInstance(context, null), (instance) => (
+        instance
+        && identifier.id === instance.id
+        && identifier.model.$type === instance.$model.$type
+          ? instance
+          : null
+      ))
+  ));
 
   const findOrMakeInstance = async (
     identifier: DeserializerModelIdentifier,

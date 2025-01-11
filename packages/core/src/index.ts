@@ -21,7 +21,6 @@ import isInstanceUsing from '@foscia/core/model/checks/isInstanceUsing';
 import isModel from '@foscia/core/model/checks/isModel';
 import isModelUsing from '@foscia/core/model/checks/isModelUsing';
 import isPluralRelationDef from '@foscia/core/model/checks/isPluralRelationDef';
-import isPropDef from '@foscia/core/model/checks/isPropDef';
 import isRelationDef from '@foscia/core/model/checks/isRelationDef';
 import isSingularRelationDef from '@foscia/core/model/checks/isSingularRelationDef';
 import fill from '@foscia/core/model/fill';
@@ -51,7 +50,6 @@ import hasMany from '@foscia/core/model/props/builders/hasMany';
 import hasOne from '@foscia/core/model/props/builders/hasOne';
 import id from '@foscia/core/model/props/builders/id';
 import mapAttributes from '@foscia/core/model/props/mappers/mapAttributes';
-import mapIds from '@foscia/core/model/props/mappers/mapIds';
 import mapRelations from '@foscia/core/model/props/mappers/mapRelations';
 import shouldSync from '@foscia/core/model/props/shouldSync';
 import loaded from '@foscia/core/model/relations/loaded';
@@ -180,7 +178,6 @@ export {
   registerHook,
   unregisterHook,
   withoutHooks,
-  isPropDef,
   isAttributeDef,
   isRelationDef,
   isIdDef,
@@ -190,7 +187,6 @@ export {
   isInstance,
   isModelUsing,
   isInstanceUsing,
-  mapIds,
   mapAttributes,
   mapRelations,
   shouldSync,

@@ -52,12 +52,11 @@ export default /* @__PURE__ */ makeRunner('all', <
   // eslint-disable-next-line max-len
   action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>>,
 ) => {
-  const response = await executeContextThroughAdapter(
-    await action.useContext(),
-  );
+  const context = await action.useContext();
+  const response = await executeContextThroughAdapter(context);
   const data = await response.read();
   const deserialized = await deserializeInstances(
-    action,
+    context,
     data,
   ) as DeserializedDataOf<I, Deserialized>;
 

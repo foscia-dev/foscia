@@ -21,37 +21,29 @@ export default (config: RefsCacheConfig) => {
     normalizeId(id),
   );
 
-  const forgetAll = async (type: string) => instances.forgetAll(normalizeType(type));
-
-  const clear = async () => instances.clear();
-
-  const find = async (type: string, id: ModelIdType) => {
-    const ref = instances.find(normalizeType(type), normalizeId(id));
-    if (ref) {
-      const instance = await config.manager.value(ref);
-      if (instance) {
-        return instance;
-      }
-
-      await forget(normalizeType(type), normalizeId(id));
-    }
-
-    return null;
-  };
-
-  const put = async (type: string, id: ModelIdType, instance: ModelInstance) => instances.put(
-    normalizeType(type),
-    normalizeId(id),
-    await config.manager.ref(instance),
-  );
-
   return {
     cache: {
       forget,
-      forgetAll,
-      clear,
-      find,
-      put,
+      forgetAll: async (type: string) => instances.forgetAll(normalizeType(type)),
+      clear: async () => instances.clear(),
+      find: async (type: string, id: ModelIdType) => {
+        const ref = instances.find(normalizeType(type), normalizeId(id));
+        if (ref) {
+          const instance = await config.manager.value(ref);
+          if (instance) {
+            return instance;
+          }
+
+          await forget(normalizeType(type), normalizeId(id));
+        }
+
+        return null;
+      },
+      put: async (type: string, id: ModelIdType, instance: ModelInstance) => instances.put(
+        normalizeType(type),
+        normalizeId(id),
+        await config.manager.ref(instance),
+      ),
     } as RefsCache,
   };
 };

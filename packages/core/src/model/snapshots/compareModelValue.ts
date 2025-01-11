@@ -1,5 +1,14 @@
 import { Model } from '@foscia/core/model/types';
 
+/**
+ * Compare values using configured comparator.
+ *
+ * @param model
+ * @param nextValue
+ * @param prevValue
+ *
+ * @internal
+ */
 export default (
   model: Model,
   nextValue: unknown,

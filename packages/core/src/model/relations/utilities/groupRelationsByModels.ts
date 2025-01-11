@@ -2,6 +2,15 @@ import { consumeRegistry, guessContextModel } from '@foscia/core/actions';
 import FosciaError from '@foscia/core/errors/fosciaError';
 import { Model, ModelRelation, ModelRelationKey } from '@foscia/core/model/types';
 
+/**
+ * Group a map of relations by applicable models.
+ *
+ * @param model
+ * @param relations
+ * @param context
+ *
+ * @internal
+ */
 export default async <M extends Model>(
   model: M,
   relations: Map<ModelRelationKey<M>, string[]>,

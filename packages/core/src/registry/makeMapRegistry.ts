@@ -14,9 +14,9 @@ export default (config: MapRegistryConfig) => {
     normalizeType(model.$type), model,
   ]));
 
-  const modelFor = async (type: string) => modelsMap.get(normalizeType(type)) ?? null;
-
   return {
-    registry: { modelFor } as MapRegistry,
+    registry: {
+      modelFor: async (type: string) => modelsMap.get(normalizeType(type)) ?? null,
+    } as MapRegistry,
   };
 };

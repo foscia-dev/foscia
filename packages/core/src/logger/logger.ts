@@ -16,7 +16,7 @@ const LOGGER_LEVELS_WEIGHTS = {
 
 type LoggerLevel = keyof typeof LOGGER_LEVELS;
 
-const defaultLoggerLevel = (): LoggerLevel | null => {
+const makeDefaultLevel = (): LoggerLevel | null => {
   if (IS_TEST) {
     return null;
   }
@@ -24,34 +24,47 @@ const defaultLoggerLevel = (): LoggerLevel | null => {
   return IS_DEV ? 'warn' : 'error';
 };
 
-class Logger {
-  public level: LoggerLevel | null = defaultLoggerLevel();
-
-  public error(message: string, args: unknown[] = []) {
-    this.message('error', message, args);
+const makeMessageLog = (level: LoggerLevel) => function log(
+  this: { level: LoggerLevel | null; },
+  message: string,
+  args: unknown[] = [],
+) {
+  if (this.level
+    && LOGGER_LEVELS_WEIGHTS[level] >= LOGGER_LEVELS_WEIGHTS[this.level]
+    && typeof console !== 'undefined'
+    && typeof console[level] === 'function'
+  ) {
+    console[level](`[foscia] ${level}: ${message}`, ...args);
   }
+};
 
-  public warn(message: string, args: unknown[] = []) {
-    this.message('warn', message, args);
-  }
-
-  public info(message: string, args: unknown[] = []) {
-    this.message('info', message, args);
-  }
-
-  public debug(message: string, args: unknown[] = []) {
-    this.message('debug', message, args);
-  }
-
-  private message(level: LoggerLevel, message: string, args: unknown[]) {
-    if (this.level
-      && LOGGER_LEVELS_WEIGHTS[level] >= LOGGER_LEVELS_WEIGHTS[this.level]
-      && typeof console !== 'undefined'
-      && typeof console[level] === 'function'
-    ) {
-      console[level](`[foscia] ${level}: ${message}`, ...args);
-    }
-  }
-}
-
-export default /* @__PURE__ */ new Logger();
+export default {
+  /**
+   * The minimum level of logged messages.
+   */
+  level: makeDefaultLevel(),
+  /**
+   * Log an error message.
+   *
+   * @internal
+   */
+  error: makeMessageLog('error'),
+  /**
+   * Log a warning message.
+   *
+   * @internal
+   */
+  warn: makeMessageLog('warn'),
+  /**
+   * Log an info message.
+   *
+   * @internal
+   */
+  info: makeMessageLog('info'),
+  /**
+   * Log a debug message.
+   *
+   * @internal
+   */
+  debug: makeMessageLog('debug'),
+};

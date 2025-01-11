@@ -3,6 +3,12 @@ import { ConsumeDeserializer } from '@foscia/core/actions/types';
 import { DeserializedData } from '@foscia/core/types';
 import { value } from '@foscia/shared';
 
+/**
+ * Retrieve the deserializer from a context.
+ *
+ * @param context
+ * @param defaultValue
+ */
 export default <
   C extends {},
   Data,

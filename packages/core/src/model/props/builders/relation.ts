@@ -6,6 +6,14 @@ import {
 import { ModelInstance, ModelRelation, ModelRelationType } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_PROP_KIND_RELATION } from '@foscia/core/symbols';
 
+/**
+ * Make a relation property definition factory.
+ *
+ * @param relationType
+ * @param config
+ *
+ * @internal
+ */
 export default (
   relationType: ModelRelationType,
   config?: ModelRelationFactoryConfig,

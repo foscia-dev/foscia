@@ -14,7 +14,5 @@ export default <Data>(
   config: { reader: HttpResponseReader<Data> },
 ): AdapterResponse<Response, Data | undefined> => ({
   read: async () => (response.status === 204 ? undefined : config.reader(response)),
-  get raw() {
-    return response;
-  },
+  raw: response,
 });

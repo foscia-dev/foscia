@@ -40,6 +40,8 @@ describe.concurrent('unit: composition', () => {
     }
 
     const model = new Model();
+    expect(model).toBeInstanceOf(Model);
+    expect(model.$model).toStrictEqual(Model);
     expect(model.foob).toStrictEqual(false);
     expect(model.foo).toStrictEqual('foo');
     expect(model.bar).toStrictEqual('bar');

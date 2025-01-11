@@ -14,7 +14,7 @@ export default async (
   includeParamKey: string | null = 'include',
 ) => {
   if (!isNil(includeParamKey)) {
-    const include = consumeInclude(context, null) ?? [];
+    const include = consumeInclude(context, []);
     if (include.length) {
       return {
         [includeParamKey]: optionalJoin(await normalizeInclude(context, include), ','),

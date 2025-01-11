@@ -1,6 +1,13 @@
+import isPluralRelationDef from '@foscia/core/model/checks/isPluralRelationDef';
 import { ModelRelation } from '@foscia/core/model/types';
-import { SYMBOL_MODEL_RELATION_HAS_ONE } from '@foscia/core/symbols';
 
+/**
+ * Check if relation definition is a singular relation.
+ *
+ * @param def
+ *
+ * @category Utilities
+ */
 export default (
   def: ModelRelation,
-): boolean => def.$RELATION_TYPE === SYMBOL_MODEL_RELATION_HAS_ONE;
+) => !isPluralRelationDef(def);

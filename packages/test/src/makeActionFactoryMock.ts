@@ -23,7 +23,7 @@ import UnexpectedActionError from '@foscia/test/unexpectedActionError';
 /**
  * Create an action factory mock.
  *
- * @experimental
+ * @internal
  */
 export default <A extends any[], C extends {}>(
   factory: ActionFactory<A, C>,

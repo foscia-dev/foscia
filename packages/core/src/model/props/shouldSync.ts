@@ -1,5 +1,13 @@
 import { ModelPropSync, ModelValueProp } from '@foscia/core/model/types';
 
+/**
+ * Check if a value property should be synced depending on the current action.
+ *
+ * @param def
+ * @param actions
+ *
+ * @internal
+ */
 export default (def: ModelValueProp, actions: ModelPropSync[]) => (
   typeof def.sync === 'string'
     ? actions.indexOf(def.sync) !== -1

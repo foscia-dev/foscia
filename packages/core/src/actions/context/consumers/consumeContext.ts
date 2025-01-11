@@ -1,6 +1,18 @@
 import InvalidContextError from '@foscia/core/errors/invalidContextError';
 import { isNil } from '@foscia/shared';
 
+/**
+ * Consume a context property. If the property is null or undefined, it will
+ * return the default value (if set), or throw and error listing the enhancers
+ * that could be used to provide the context property.
+ *
+ * @param context
+ * @param key
+ * @param enhancers
+ * @param defaultValue
+ *
+ * @internal
+ */
 export default <
   Context extends {},
   Key extends keyof Context,

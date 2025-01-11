@@ -1,6 +1,15 @@
 import { ModelInstance, ModelRelationDotKey, ModelRelationKey } from '@foscia/core/model/types';
 import { Arrayable, ArrayableVariadic, Awaitable, wrap, wrapVariadic } from '@foscia/shared';
 
+/**
+ * Load instances' relations if none are empty.
+ *
+ * @param instances
+ * @param relations
+ * @param loader
+ *
+ * @internal
+ */
 export default async <
   I extends ModelInstance,
   K extends ModelRelationKey<I> | ModelRelationDotKey<I>,

@@ -1,5 +1,14 @@
 import { ModelInstance, ModelRelationDotKey } from '@foscia/core/model/types';
 
+/**
+ * Exclude instances and relations depending on a predicate.
+ *
+ * @param instances
+ * @param relations
+ * @param exclude
+ *
+ * @internal
+ */
 export default <I extends ModelInstance>(
   instances: I[],
   relations: ModelRelationDotKey<I>[],

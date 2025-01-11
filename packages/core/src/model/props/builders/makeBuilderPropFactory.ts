@@ -1,5 +1,5 @@
-import { ModelPropFactoryDefinition } from '@foscia/core/model/props/builders/types';
 import makePropFactory from '@foscia/core/model/props/builders/makePropFactory';
+import { ModelPropFactoryDefinition } from '@foscia/core/model/props/builders/types';
 import { ModelProp, ModelPropFactory } from '@foscia/core/model/types';
 import { Dictionary, mapWithKeys } from '@foscia/shared';
 
@@ -10,6 +10,14 @@ type BuilderPropFactory<
   & { [K in keyof M]: (...args: Parameters<M[K]>) => BuilderPropFactory<P, M>; }
   & ModelPropFactory<P>;
 
+/**
+ * Make a builder property definition factory supporting given modifiers.
+ *
+ * @param prop
+ * @param modifiers
+ *
+ * @internal
+ */
 const makeBuilderPropFactory = <
   P extends ModelProp,
   M extends Dictionary<(...args: any[]) => Partial<P>>,

@@ -7,7 +7,7 @@ import {
   ReducedModelSnapshot,
 } from '@foscia/core/model/revivers/types';
 import { Model, ModelInstance, ModelSnapshot } from '@foscia/core/model/types';
-import { Dictionary, mapWithKeys } from '@foscia/shared';
+import { Dictionary, mapWithKeys, tap } from '@foscia/shared';
 
 /**
  * Create a models reviver.
@@ -32,37 +32,32 @@ export default (options: { models: Model[]; }) => {
     && value.$FOSCIA_TYPE === type;
 
   const modelsMap = new Map(options.models.map((model) => [model.$type, model]));
-  const reviveModel = (reducedModel: ReducedModel) => {
-    const model = modelsMap.get(reducedModel.$type);
+  const reviveModel = (
+    reducedModel: ReducedModel,
+  ) => tap(modelsMap.get(reducedModel.$type), (model) => {
     if (!model) {
       throw new FosciaError(`Could not revive model with type \`${reducedModel.$type}\`.`);
     }
+  })!;
 
-    return model;
-  };
-
-  const reviveCircularRef = (ref: ReducedModelCircularRef, parents: Map<string, ModelInstance>) => {
-    const instance = parents.get(ref.$ref);
+  const reviveCircularRef = (
+    ref: ReducedModelCircularRef,
+    parents: Map<string, ModelInstance>,
+  ) => tap(parents.get(ref.$ref), (instance) => {
     if (!instance) {
       throw new FosciaError('Could not revive not found instance, reduced data might be corrupted.');
     }
-
-    return instance;
-  };
+  })!;
 
   const reviveValue = (value: unknown, parents: Map<string, ModelInstance>): unknown => {
     if (Array.isArray(value)) {
       return value.map((item) => reviveValue(item, parents));
     }
 
-    if (
-      isReducedType<ReducedModelInstance>('instance', value)
-      || isReducedType<ReducedModelCircularRef>('circular', value)
-    ) {
-      return reviveInstance(value, parents);
-    }
-
-    return value;
+    return isReducedType<ReducedModelInstance>('instance', value)
+    || isReducedType<ReducedModelCircularRef>('circular', value)
+      ? reviveInstance(value, parents)
+      : value;
   };
 
   const reviveValues = (values: Dictionary, parents: Map<string, ModelInstance>) => mapWithKeys(
