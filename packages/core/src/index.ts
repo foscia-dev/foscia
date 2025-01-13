@@ -93,6 +93,8 @@ import {
   SYMBOL_MODEL_RELATION_HAS_MANY,
   SYMBOL_MODEL_RELATION_HAS_ONE,
 } from '@foscia/core/symbols';
+import isTransformer from '@foscia/core/transformers/isTransformer';
+import makeCustomTransformer from '@foscia/core/transformers/makeCustomTransformer';
 import makeTransformer from '@foscia/core/transformers/makeTransformer';
 import toArrayOf from '@foscia/core/transformers/toArrayOf';
 import toBoolean from '@foscia/core/transformers/toBoolean';
@@ -156,6 +158,8 @@ export {
   toNumber,
   toString,
   makeTransformer,
+  makeCustomTransformer,
+  isTransformer,
   onBoot,
   onInit,
   onRetrieved,

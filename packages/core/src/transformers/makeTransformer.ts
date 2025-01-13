@@ -1,22 +1,24 @@
+import makeCustomTransformer from '@foscia/core/transformers/makeCustomTransformer';
 import { ObjectTransformer } from '@foscia/core/transformers/types';
 import { Awaitable, isNil, Optional } from '@foscia/shared';
 
 /**
- * Create a transformer.
+ * Create a transformer with automatic support for `null`
+ * or `undefined` values.
  *
- * @param deserializeFn
- * @param serializeFn
+ * @param deserialize
+ * @param serialize
  *
  * @category Factories
  */
 export default <T, DS, SR>(
-  deserializeFn: (value: DS) => Awaitable<T>,
-  serializeFn?: (value: T) => Awaitable<SR>,
-) => ({
-  deserialize: (value: Optional<DS>) => (isNil(value) ? null : deserializeFn(value)),
-  serialize: (value: T | null) => (
+  deserialize: (value: DS) => Awaitable<T>,
+  serialize?: (value: T) => Awaitable<SR>,
+) => makeCustomTransformer(
+  (value: Optional<DS>) => (isNil(value) ? null : deserialize(value)),
+  (value: T | null) => (
     isNil(value)
       ? null
-      : (serializeFn ?? deserializeFn)(value as any)
+      : (serialize ?? deserialize)(value as any)
   ),
-} as ObjectTransformer<T | null, Optional<DS>, SR | null>);
+) as ObjectTransformer<T | null, Optional<DS>, SR | null>;

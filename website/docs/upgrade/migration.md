@@ -23,6 +23,7 @@ sidebar_position: 5
 
 ### Low impacts changes
 
+- [Custom transformers must use `makeCustomTransformer`](#custom-transformers-must-use-makecustomtransformer)
 - [`$model` property of snapshots is replaced by `$instance`](#model-property-of-snapshots-is-replaced-by-instance)
 
 ### Main dependencies types have been renamed
@@ -223,6 +224,47 @@ may have been renamed or removed.
 
 If you are using an internal APIs, you should avoid using them or
 [open an issue to request the API to be publicly maintained](https://github.com/foscia-dev/foscia/issues/new/choose).
+
+### Custom transformers must use `makeCustomTransformer`
+
+**Likelihood Of Impact: Low**
+
+To improve attributes and relations factories' parameters typologies,
+transformers are now special Foscia objects, like models, instances, etc.
+This has no impact to transformer created using `makeTransformer`, but you
+must now use a factory when defining totally custom transformers.
+This is made possible with `makeCustomTransformer`:
+
+```typescript
+// highlight.addition
+import { makeCustomTransformer } from '@foscia/core';
+
+// highlight.deletion
+export default {
+// highlight.deletion
+  deserialize: (value: string | null) => {
+// highlight.addition
+export default makeCustomTransformer(
+// highlight.addition
+  (value: string | null) => {
+    if (value === null) {
+      return null;
+    }
+
+    const date = new Date();
+    date.setTime(Date.parse(value));
+
+    return date;
+  },
+// highlight.addition
+  (value: Date | null) => (value ? value.toISOString() : null),
+// highlight.addition
+);
+// highlight.deletion
+  serialize: (value: Date | null) => (value ? value.toISOString() : null),
+// highlight.deletion
+};
+```
 
 ### `$model` property of snapshots is replaced by `$instance`
 

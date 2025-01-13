@@ -6,6 +6,13 @@
 export const SYMBOL_MODEL_PROP_FACTORY: unique symbol = Symbol('foscia:prop factory');
 
 /**
+ * Unique symbol for a model property transformer.
+ *
+ * @internal
+ */
+export const SYMBOL_MODEL_PROP_TRANSFORMER: unique symbol = Symbol('foscia:prop transformer');
+
+/**
  * Unique symbol for a model property.
  *
  * @internal

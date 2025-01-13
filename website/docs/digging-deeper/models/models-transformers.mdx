@@ -4,6 +4,7 @@ description: Creating custom functional or object transformers.
 ---
 
 import ShellCommand from '@site/src/components/ShellCommand';
+import FunctionInfo from '@site/src/components/FunctionInfo';
 
 # Using transformers
 
@@ -184,7 +185,7 @@ export default () => makeTransformer(
 ```
 
 The return value of [`makeTransformer`](/docs/api/@foscia/core/functions/makeTransformer)
-is a transformer object.
+is a transformer object which can be used on model's attributes.
 
 ```typescript
 import { attr, makeModel } from '@foscia/core';
@@ -197,17 +198,22 @@ makeModel('posts', {
 });
 ```
 
-### Custom transformers
+### `makeCustomTransformer`
+
+<FunctionInfo version="0.13.0" />
 
 If you want full control on your transformers, you can create transformer
-objects manually. A transformer object should have two methods:
+objects using [`makeCustomTransformer`](/docs/api/@foscia/core/functions/makeCustomTransformer).
 
-- `serialize` which converts a _real_ value to its _raw_ counterpart
-- `deserialize` which converts a _raw_ value to its _real_ counterpart
+Custom transformers must handle `null` values because `null` may also be
+transformed by serializers and deserializers (e.g. converting a `null` value to
+an empty string).
 
 ```typescript
-export default {
-  deserialize: (value: string | null) => {
+import { makeCustomTransformer } from '@foscia/core';
+
+export default makeCustomTransformer(
+  (value: string | null) => {
     if (value === null) {
       return null;
     }
@@ -217,14 +223,6 @@ export default {
 
     return date;
   },
-  serialize: (value: Date | null) => (value ? value.toISOString() : null),
-};
+  (value: Date | null) => (value ? value.toISOString() : null),
+);
 ```
-
-:::warning
-
-Custom transformers must handle `null` values because `null` may also be
-transformed by serializers and deserializers (e.g. converting a `null` value to
-an empty string).
-
-:::
