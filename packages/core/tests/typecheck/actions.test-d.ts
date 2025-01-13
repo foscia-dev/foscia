@@ -1,6 +1,6 @@
 import {
   Adapter,
-  all, appendMiddlewares,
+  all, appendActionMiddlewares,
   associate,
   attach,
   cached,
@@ -231,7 +231,7 @@ test('Actions are type safe', async () => {
     expectTypeOf((await event.action.useContext()).foo).not.toEqualTypeOf<number>();
   }));
 
-  action().use(context({ foo: 'bar' }), appendMiddlewares([async (a, next) => {
+  action().use(context({ foo: 'bar' }), appendActionMiddlewares([async (a, next) => {
     const ctx = await a.useContext();
 
     expectTypeOf(ctx.foo).toEqualTypeOf<string>();

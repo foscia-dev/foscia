@@ -6,12 +6,14 @@ import { ActionMiddleware, ConsumeMiddlewares } from '@foscia/core/actions/types
  *
  * @param context
  * @param defaultValue
+ *
+ * @internal
  */
 export default <C extends {}, R, D = never>(
   context: C & Partial<ConsumeMiddlewares<C, R>>,
   defaultValue?: D,
 ) => consumeContext(context, 'middlewares', [
-  'appendMiddlewares',
-  'prependMiddlewares',
-  'replaceMiddlewares',
+  'appendActionMiddlewares',
+  'prependActionMiddlewares',
+  'replaceActionMiddlewares',
 ], defaultValue) as ActionMiddleware<C, R>[] | D;

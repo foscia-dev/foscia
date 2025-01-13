@@ -578,9 +578,9 @@ their results.
 
 To register middlewares, you can use:
 
-- [`appendMiddlewares`](/docs/api/@foscia/core/functions/appendMiddlewares)
+- [`appendActionMiddlewares`](/docs/api/@foscia/core/functions/appendActionMiddlewares)
   to add new middlewares after already registered ones
-- [`prependMiddlewares`](/docs/api/@foscia/core/functions/prependMiddlewares)
+- [`prependActionMiddlewares`](/docs/api/@foscia/core/functions/prependActionMiddlewares)
   to add new middlewares before already registered ones
 
 Each middleware callback will receive two arguments:
@@ -591,9 +591,9 @@ Thanks to the access to `next` callback, you can create a middleware which would
 execute **before** the action is ran, but also **after**.
 
 ```typescript
-import { appendMiddlewares } from '@foscia/core';
+import { appendActionMiddlewares } from '@foscia/core';
 
-action().use(appendMiddlewares([
+action().use(appendActionMiddlewares([
   (a, next) => {
     // Do something before execution.
     return next(a);
@@ -606,15 +606,15 @@ action().use(appendMiddlewares([
 ]));
 ```
 
-Finally, when using [`replaceMiddlewares`](/docs/api/@foscia/core/functions/replaceMiddlewares),
+Finally, when using [`replaceActionMiddlewares`](/docs/api/@foscia/core/functions/replaceActionMiddlewares),
 you can replace the already configured middlewares by passing a factory function.
 This allows to replace or merge middlewares manually.
 
 ```typescript
-import { replaceMiddlewares } from '@foscia/core';
+import { replaceActionMiddlewares } from '@foscia/core';
 
-action().use(replaceMiddlewares((previousMiddlewares) => [
+action().use(replaceActionMiddlewares((previousActionMiddlewares) => [
   (a, next) => next(a),
-  ...previousMiddlewares,
+  ...previousActionMiddlewares,
 ]));
 ```

@@ -1,4 +1,5 @@
-import consumeMiddlewares from '@foscia/core/actions/context/consumers/consumeMiddlewares';
+import consumeActionMiddlewares
+  from '@foscia/core/actions/context/consumers/consumeActionMiddlewares';
 import context from '@foscia/core/actions/context/enhancers/context';
 import makeEnhancer from '@foscia/core/actions/makeEnhancer';
 import { Action, ActionMiddleware } from '@foscia/core/actions/types';
@@ -14,9 +15,9 @@ import { Awaitable } from '@foscia/shared';
  *
  * @example
  * ```typescript
- * import { replaceMiddlewares } from '@foscia/core';
+ * import { replaceActionMiddlewares } from '@foscia/core';
  *
- * const posts = await action().use(replaceMiddlewares((previous) => [
+ * const posts = await action().use(replaceActionMiddlewares((previous) => [
  *   ...previous,
  *   (action, next) => {
  *     // Do something...
@@ -26,10 +27,10 @@ import { Awaitable } from '@foscia/shared';
  * ]));
  * ```
  */
-export default /* @__PURE__ */ makeEnhancer('replaceMiddlewares', (<C extends {}, R>(
+export default /* @__PURE__ */ makeEnhancer('replaceActionMiddlewares', (<C extends {}, R>(
   middlewares: ((prev: ActionMiddleware<C, R>[]) => Awaitable<ActionMiddleware<C, R>[]>),
 ) => async (action: Action<C>) => action.use(context({
   middlewares: await middlewares(
-    consumeMiddlewares(await action.useContext(), []) as ActionMiddleware<C, R>[],
+    consumeActionMiddlewares(await action.useContext(), []) as ActionMiddleware<C, R>[],
   ),
 }))));

@@ -1,7 +1,7 @@
 import {
   Action,
   ActionCall,
-  appendMiddlewares,
+  appendActionMiddlewares,
   cachedOr,
   context,
   ContextFunctionType,
@@ -14,7 +14,7 @@ import {
   onFinally,
   onRunning,
   onSuccess,
-  prependMiddlewares,
+  prependActionMiddlewares,
   query,
   SYMBOL_ACTION_CONTEXT_ENHANCER,
   SYMBOL_ACTION_CONTEXT_RUNNER,
@@ -91,7 +91,7 @@ describe('unit: makeActionFactory', () => {
     const action = makeActionFactory()();
     const result = await action
       .use(context({ value: 'foo' }))
-      .use(appendMiddlewares([
+      .use(appendActionMiddlewares([
         async (a, next) => {
           a.use(context({ value: `${(await a.useContext()).value}1` }));
 
@@ -107,7 +107,7 @@ describe('unit: makeActionFactory', () => {
           return `${r}1`;
         },
       ]))
-      .use(prependMiddlewares(async (a, next) => `${await next(a)}3`))
+      .use(prependActionMiddlewares(async (a, next) => `${await next(a)}3`))
       .run(() => 'bar');
 
     expect(result).toEqual('bar123');

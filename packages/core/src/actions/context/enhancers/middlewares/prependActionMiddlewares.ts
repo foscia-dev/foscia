@@ -1,11 +1,11 @@
-import replaceMiddlewares
-  from '@foscia/core/actions/context/enhancers/middlewares/replaceMiddlewares';
+import replaceActionMiddlewares
+  from '@foscia/core/actions/context/enhancers/middlewares/replaceActionMiddlewares';
 import makeEnhancer from '@foscia/core/actions/makeEnhancer';
 import { ActionMiddleware } from '@foscia/core/actions/types';
 import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
 
 /**
- * Append one or many middlewares.
+ * Prepend one or many middlewares.
  *
  * @param middlewares
  *
@@ -14,9 +14,9 @@ import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
  *
  * @example
  * ```typescript
- * import { appendMiddlewares } from '@foscia/core';
+ * import { prependActionMiddlewares } from '@foscia/core';
  *
- * const posts = await action().use(appendMiddlewares(
+ * const posts = await action().use(prependActionMiddlewares(
  *   (action, next) => {
  *     // Do something...
  *
@@ -25,6 +25,6 @@ import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
  * ));
  * ```
  */
-export default /* @__PURE__ */ makeEnhancer('appendMiddlewares', (<C extends {}, R>(
+export default /* @__PURE__ */ makeEnhancer('prependActionMiddlewares', (<C extends {}, R>(
   ...middlewares: ArrayableVariadic<ActionMiddleware<C, R>>
-) => replaceMiddlewares<C, R>((prev) => [...prev, ...wrapVariadic(...middlewares)])));
+) => replaceActionMiddlewares<C, R>((prev) => [...wrapVariadic(...middlewares), ...prev])));

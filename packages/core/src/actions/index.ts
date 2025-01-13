@@ -32,12 +32,12 @@ import onFinally from '@foscia/core/actions/context/enhancers/hooks/onFinally';
 import onRunning from '@foscia/core/actions/context/enhancers/hooks/onRunning';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import include from '@foscia/core/actions/context/enhancers/include';
-import appendMiddlewares
-  from '@foscia/core/actions/context/enhancers/middlewares/appendMiddlewares';
-import prependMiddlewares
-  from '@foscia/core/actions/context/enhancers/middlewares/prependMiddlewares';
-import replaceMiddlewares
-  from '@foscia/core/actions/context/enhancers/middlewares/replaceMiddlewares';
+import appendActionMiddlewares
+  from '@foscia/core/actions/context/enhancers/middlewares/appendActionMiddlewares';
+import prependActionMiddlewares
+  from '@foscia/core/actions/context/enhancers/middlewares/prependActionMiddlewares';
+import replaceActionMiddlewares
+  from '@foscia/core/actions/context/enhancers/middlewares/replaceActionMiddlewares';
 import query from '@foscia/core/actions/context/enhancers/query';
 import queryAs from '@foscia/core/actions/context/enhancers/queryAs';
 import guessContextModel from '@foscia/core/actions/context/guessers/guessContextModel';
@@ -96,9 +96,9 @@ export {
   onSuccess,
   onError,
   onFinally,
-  appendMiddlewares,
-  prependMiddlewares,
-  replaceMiddlewares,
+  appendActionMiddlewares,
+  prependActionMiddlewares,
+  replaceActionMiddlewares,
   consumeAction,
   consumeAdapter,
   consumeCache,
