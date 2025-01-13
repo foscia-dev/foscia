@@ -28,7 +28,7 @@ import { Awaitable } from '@foscia/shared';
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('replaceActionMiddlewares', (<C extends {}, R>(
-  middlewares: ((prev: ActionMiddleware<C, R>[]) => Awaitable<ActionMiddleware<C, R>[]>),
+  middlewares: (prev: ActionMiddleware<C, R>[]) => Awaitable<ActionMiddleware<C, R>[]>,
 ) => async (action: Action<C>) => action.use(context({
   middlewares: await middlewares(
     consumeActionMiddlewares(await action.useContext(), []) as ActionMiddleware<C, R>[],

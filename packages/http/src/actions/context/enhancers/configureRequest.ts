@@ -7,12 +7,12 @@ import { using } from '@foscia/shared';
  * Configure an HTTP request used by the HTTP adapter.
  *
  * Some configuration options will be merged when possible (object query params,
- * headers, transformers, etc.).
+ * headers, middlewares, etc.).
  * This enhancer can be used to configure a full request object or preconfigure
- * some common options (e.g. headers and transformers).
+ * some common options (e.g. headers and middlewares).
  * Passing a {@link !Request | fetch `Request` object}
  * as `request` option will ignore any other configuration and request
- * object will be directly passed to the adapter. Transformers will still be
+ * object will be directly passed to the adapter. Middlewares will still be
  * applied, but other automatic transformation or data passing (params, body, etc.)
  * won't be applied.
  *
@@ -74,18 +74,6 @@ export default /* @__PURE__ */ makeEnhancer('configureRequest', (
         ...(typeof prevRequestConfig.params === 'string' ? {} : prevRequestConfig.params),
         ...nextConfig.params,
       },
-      requestTransformers: [
-        ...(prevRequestConfig.requestTransformers ?? []),
-        ...(nextConfig?.requestTransformers ?? []),
-      ],
-      responseTransformers: [
-        ...(prevRequestConfig.responseTransformers ?? []),
-        ...(nextConfig?.responseTransformers ?? []),
-      ],
-      errorTransformers: [
-        ...(prevRequestConfig.errorTransformers ?? []),
-        ...(nextConfig?.errorTransformers ?? []),
-      ],
     } as HttpRequestConfig,
   })),
 ));

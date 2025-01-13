@@ -1,5 +1,5 @@
 import { Adapter } from '@foscia/core';
-import { Awaitable, Dictionary, Transformer } from '@foscia/shared';
+import { Awaitable, Dictionary, Middleware, Transformer } from '@foscia/shared';
 
 /**
  * The HTTP method to use in request.
@@ -84,20 +84,13 @@ export type HttpRequestConfig =
      */
     responseReader?: HttpResponseReader;
     /**
-     * Transforms the {@link !Request | `Request`} object sequentially
-     * (after adapter transformers).
+     * Middlewares to affect requests, responses, and errors.
+     * If a callback is given, it makes possible to replace globally configured
+     * middlewares.
      */
-    requestTransformers?: RequestTransformer[];
-    /**
-     * Transforms the {@link !Response | `Response`} object sequentially
-     * (after adapter transformers).
-     */
-    responseTransformers?: ResponseTransformer[];
-    /**
-     * Transforms the thrown error sequentially
-     * (after adapter transformers).
-     */
-    errorTransformers?: ErrorTransformer[];
+    middlewares?: HttpAdapterMiddleware[] | ((
+      prev: HttpAdapterMiddleware[],
+    ) => Awaitable<HttpAdapterMiddleware[]>);
   }
   & Pick<RequestInit, HttpRequestInitPickKey>;
 
@@ -144,6 +137,11 @@ export type HttpURLContext = {
  * @internal
  */
 export type HttpResponseReader<Data = any> = (response: Response) => Promise<Data>;
+
+/**
+ * Dedicated middleware for the HTTP adapter implementation.
+ */
+export type HttpAdapterMiddleware = Middleware<Request, Promise<Response>>;
 
 /**
  * The configuration for the HTTP adapter implementation.
@@ -216,17 +214,9 @@ export type HttpAdapterConfig<Data = any> = {
    */
   relationPathTransformer?: Transformer<string>;
   /**
-   * Transforms the {@link !Request | `Request`} object sequentially.
+   * Middlewares to affect requests, responses, and errors.
    */
-  requestTransformers?: RequestTransformer[];
-  /**
-   * Transforms the {@link !Response | `Response`} object sequentially.
-   */
-  responseTransformers?: ResponseTransformer[];
-  /**
-   * Transforms the thrown error sequentially.
-   */
-  errorTransformers?: ErrorTransformer[];
+  middlewares?: HttpAdapterMiddleware[];
 };
 
 /**

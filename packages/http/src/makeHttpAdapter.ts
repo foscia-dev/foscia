@@ -25,7 +25,7 @@ import {
   HttpRequestInitPickKey,
 } from '@foscia/http/types';
 import clearEndpoint from '@foscia/http/utilities/clearEndpoint';
-import { Dictionary, isNil, optionalJoin, sequentialTransform } from '@foscia/shared';
+import { Dictionary, isNil, optionalJoin, throughMiddlewares } from '@foscia/shared';
 
 /**
  * Make a {@link HttpAdapter | `HttpAdapter`}.
@@ -35,30 +35,6 @@ import { Dictionary, isNil, optionalJoin, sequentialTransform } from '@foscia/sh
  * @category Factories
  */
 export default <Data = any>(config: HttpAdapterConfig<Data>) => {
-  const transformRequest = (
-    contextConfig: HttpRequestConfig,
-    request: Request,
-  ) => sequentialTransform([
-    ...(config.requestTransformers ?? []),
-    ...(contextConfig.requestTransformers ?? []),
-  ], request);
-
-  const transformResponse = (
-    contextConfig: HttpRequestConfig,
-    response: Response,
-  ) => sequentialTransform([
-    ...(config.responseTransformers ?? []),
-    ...(contextConfig.responseTransformers ?? []),
-  ], response);
-
-  const transformError = (
-    contextConfig: HttpRequestConfig,
-    error: unknown,
-  ) => sequentialTransform([
-    ...(config.errorTransformers ?? []),
-    ...(contextConfig.errorTransformers ?? []),
-  ], error);
-
   const makeRequestError = (request: Request, error: unknown) => (
     error instanceof DOMException && error.name === 'AbortError'
       ? new HttpAbortedError(error.message, request, error)
@@ -210,25 +186,29 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
 
   const execute = async (context: {}) => {
     const contextConfig = consumeRequestConfig(context, null) ?? {};
-    const request = await transformRequest(
-      contextConfig,
-      await makeRequest(context, contextConfig),
-    );
+    const middlewares = [...config.middlewares ?? []];
 
-    let response: Response;
-    try {
-      response = await runRequest(request);
-    } catch (error) {
-      throw await transformError(contextConfig, makeRequestError(request, error));
-    }
+    return makeHttpAdapterResponse(await throughMiddlewares(
+      typeof contextConfig.middlewares === 'function'
+        ? await contextConfig.middlewares(middlewares)
+        : [...middlewares, ...(contextConfig.middlewares ?? [])],
+      async (request) => {
+        let response: Response;
+        try {
+          response = await runRequest(request);
+        } catch (error) {
+          throw makeRequestError(request, error);
+        }
 
-    if (response.status >= 200 && response.status < 300) {
-      return makeHttpAdapterResponse(await transformResponse(context, response), {
-        reader: contextConfig.responseReader ?? config.defaultResponseReader ?? ((r) => r.json()),
-      });
-    }
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        }
 
-    throw await transformError(contextConfig, makeResponseError(request, response));
+        throw makeResponseError(request, response);
+      },
+    )(await makeRequest(context, contextConfig)), {
+      reader: contextConfig.responseReader ?? config.defaultResponseReader ?? ((r) => r.json()),
+    });
   };
 
   return { adapter: { execute } as HttpAdapter<Data> };

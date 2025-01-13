@@ -17,6 +17,7 @@ sidebar_position: 5
 ### Medium impacts changes
 
 - [Action hooks events now provide action instead of context](#action-hooks-events-now-provide-action-instead-of-context)
+- [HTTP transformers replaced with middlewares](#http-transformers-replaced-with-middlewares)
 - [Properties definition are now defined using factories](#properties-definition-are-now-defined-using-factories)
 - [Internal APIs are now tagged and may have changed](#internal-apis-are-now-tagged-and-may-have-changed)
 
@@ -132,6 +133,68 @@ action.use(onRunning(async (event) => {
 // highlight.addition
   console.log(await event.action.useContext());
 }));
+```
+
+### HTTP transformers replaced with middlewares
+
+**Likelihood Of Impact: Medium**
+
+To provide a simpler API and improve maintainability, HTTP adapter's and
+request's transformers have been replaced by middlewares.
+Instead of `requestTransformers`, `responseTransformers` and `errorTransformers`,
+you should now use `middlewares`.
+
+```typescript
+import { onRunning } from '@foscia/core';
+
+makeHttpAdapter({
+// highlight.deletion
+  requestTransformers: [(request) => {
+// highlight.deletion
+    // Transform request...
+// highlight.deletion
+    return request;
+// highlight.deletion
+  }],
+// highlight.deletion
+  responseTransformers: [(response) => {
+// highlight.deletion
+    // Transform response...
+// highlight.deletion
+    return response;
+// highlight.deletion
+  }],
+// highlight.deletion
+  errorTransformers: [(error) => {
+// highlight.deletion
+    // Transform error...
+// highlight.deletion
+    return error;
+// highlight.deletion
+  }],
+// highlight.addition
+  middlewares: [async (request, next) => {
+// highlight.addition
+    // Transform request...
+// highlight.addition
+    try {
+// highlight.addition
+      const response = await next(request);
+// highlight.addition
+      // Transform response...
+// highlight.addition
+      return response;
+// highlight.addition
+    } catch (error) {
+// highlight.addition
+      // Transform error...
+// highlight.addition
+      throw error;
+// highlight.addition
+    }
+// highlight.addition
+  }],
+});
 ```
 
 ### Properties definition are now defined using factories

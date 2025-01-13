@@ -164,7 +164,7 @@ Here are common configuration for `@foscia/jsonapi` implementation. You can read
 for more details.
 
 You can also take a look at
-[HTTP usage and common configuration recipes](/docs/digging-deeper/usages/http), as
+[HTTP usage and common configuration recipes](/docs/digging-deeper/usages/http#configuration-recipes), as
 the JSON:API adapter is based on HTTP adapter.
 
 ### Changing endpoint case

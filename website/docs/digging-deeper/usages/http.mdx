@@ -105,20 +105,20 @@ const data = await action().run(
     credentials: 'same-origin',
     abortSignal: abortController.signal,
     // cache, redirect, referrer, etc.
-    requestTransformers: [(request) => {
+    middlewares: [async (request, next) => {
       // Do something with `request`.
 
-      return request;
-    }],
-    responseTransformers: [(response) => {
-      // Do something with `response`.
+      try {
+        const response = await next(request);
 
-      return response;
-    }],
-    errorTransformers: [(error) => {
-      // Do something with `error`.
+        // Do something with `response`.
 
-      return error;
+        return response;
+      } catch (error) {
+        // Do something with `error`.
+
+        throw error;
+      }
     }],
   }),
   raw((response) => response.json()),
@@ -156,7 +156,7 @@ for more details.
 
 To define a default request headers, use the
 [`defaultHeaders`](/docs/api/@foscia/http/type-aliases/HttpAdapterConfig#defaultheaders)
-option or implement a request transformer (useful for unstable headers,
+option or implement a middleware (useful for dynamic headers,
 such as `Accept-Language` in an internationalized application).
 
 ```typescript
@@ -164,9 +164,9 @@ import { makeHttpAdapter } from '@foscia/http';
 
 const { adapter } = makeHttpAdapter({
   defaultHeaders: { 'Accept-Language': 'fr-FR' },
-  requestTransformers: [(request) => {
+  middlewares: [(request, next) => {
     request.headers.set('Accept-Language', 'en-US');
-    return request;
+    return next(request);
   }],
 });
 ```

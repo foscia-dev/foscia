@@ -15,10 +15,10 @@ export default function makeJsonApiActionMock() {
     ...makeJsonApiSerializer(),
     ...makeJsonApiAdapter({
       baseURL: 'https://example.com/api/v1',
-      requestTransformers: [(request) => {
+      middlewares: [(request, next) => {
         request.headers.set('X-Foo-Header', 'bar');
 
-        return request;
+        return next(request);
       }],
     }),
   });
