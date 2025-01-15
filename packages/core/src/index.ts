@@ -1,8 +1,8 @@
 import normalizeInclude from '@foscia/core/actions/context/utilities/normalizeInclude';
 import makeCache from '@foscia/core/cache/makeCache';
 import makeRefsCache from '@foscia/core/cache/makeRefsCache';
-import makeTimeoutRefManager from '@foscia/core/cache/makeTimeoutRefManager';
-import makeWeakRefManager from '@foscia/core/cache/makeWeakRefManager';
+import makeTimedRefFactory from '@foscia/core/cache/makeTimedRefFactory';
+import makeWeakRefFactory from '@foscia/core/cache/makeWeakRefFactory';
 import AdapterError from '@foscia/core/errors/adapterError';
 import DeserializerError from '@foscia/core/errors/deserializerError';
 import ExpectedRunFailureError from '@foscia/core/errors/expectedRunFailureError';
@@ -127,8 +127,8 @@ export {
   makeMapRegistry,
   makeCache,
   makeRefsCache,
-  makeWeakRefManager,
-  makeTimeoutRefManager,
+  makeWeakRefFactory,
+  makeTimedRefFactory,
   attr,
   hasMany,
   hasOne,

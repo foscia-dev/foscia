@@ -1,5 +1,5 @@
-import { makeRefsCache, makeWeakRefManager } from '@foscia/core';
-import { describe, expect, it, vi } from 'vitest';
+import { makeRefsCache, makeWeakRefFactory } from '@foscia/core';
+import { describe, expect, it } from 'vitest';
 import CommentMock from '../../mocks/models/comment.mock';
 import PostMock from '../../mocks/models/post.mock';
 
@@ -9,7 +9,7 @@ describe.concurrent('unit: makeRefsCache', () => {
     const secondPost = new PostMock();
     const comment = new CommentMock();
 
-    const { cache } = makeRefsCache({ manager: makeWeakRefManager() });
+    const { cache } = makeRefsCache({ makeRef: makeWeakRefFactory() });
 
     expect(await cache.find('posts', '1')).toBeNull();
     expect(await cache.find('posts', '2')).toBeNull();
@@ -58,26 +58,15 @@ describe.concurrent('unit: makeRefsCache', () => {
   });
 
   it('should forget if ref has expired', async () => {
-    const post = new PostMock();
-    const refManager = {
-      ref: vi.fn().mockImplementation(() => post),
-      value: vi.fn(),
-    };
+    let post: PostMock | null = new PostMock();
+    const fakeRef = () => () => post as any;
 
-    const { cache } = makeRefsCache({ manager: refManager });
+    const { cache } = makeRefsCache({ makeRef: fakeRef });
 
     expect(await cache.find('posts', '1')).toBeNull();
-    expect(refManager.value).not.toHaveBeenCalled();
-
-    refManager.value.mockImplementation(() => post);
     await cache.put('posts', '1', post);
-
     expect(await cache.find('posts', '1')).toBe(post);
-    expect(refManager.value).toHaveBeenCalledOnce();
-
-    refManager.value.mockImplementation(() => undefined);
-
+    post = null;
     expect(await cache.find('posts', '1')).toBeNull();
-    expect(refManager.value).toHaveBeenCalledTimes(2);
   });
 });

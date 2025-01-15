@@ -1,17 +1,17 @@
-import { RefsCache, RefsCacheConfig } from '@foscia/core/cache/types';
+import { RefsCache, RefsCacheConfig, RefValue } from '@foscia/core/cache/types';
 import { ModelIdType, ModelInstance } from '@foscia/core/model/types';
 import { makeIdentifiersMap } from '@foscia/shared';
 
 /**
- * Make a cache interacting with instance references
- * through configured {@link RefsManager | `RefsManager`}.
+ * Make a cache using a {@link RefFactory | `RefFactory`} to store cached
+ * instances inside {@link RefValue | `RefValue`}.
  *
  * @param config
  *
  * @category Factories
  */
 export default (config: RefsCacheConfig) => {
-  const instances = makeIdentifiersMap<string, ModelIdType, unknown>();
+  const instances = makeIdentifiersMap<string, ModelIdType, RefValue<ModelInstance>>();
 
   const normalizeType = config.normalizeType ?? ((t) => t);
   const normalizeId = config.normalizeId ?? ((v) => v);
@@ -29,7 +29,7 @@ export default (config: RefsCacheConfig) => {
       find: async (type: string, id: ModelIdType) => {
         const ref = instances.find(normalizeType(type), normalizeId(id));
         if (ref) {
-          const instance = await config.manager.value(ref);
+          const instance = await ref();
           if (instance) {
             return instance;
           }
@@ -42,7 +42,7 @@ export default (config: RefsCacheConfig) => {
       put: async (type: string, id: ModelIdType, instance: ModelInstance) => instances.put(
         normalizeType(type),
         normalizeId(id),
-        await config.manager.ref(instance),
+        await config.makeRef(instance),
       ),
     } as RefsCache,
   };

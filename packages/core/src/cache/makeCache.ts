@@ -1,5 +1,5 @@
 import makeRefsCache from '@foscia/core/cache/makeRefsCache';
-import makeWeakRefManager from '@foscia/core/cache/makeWeakRefManager';
+import makeWeakRefFactory from '@foscia/core/cache/makeWeakRefFactory';
 import { InstancesCache } from '@foscia/core/types';
 import { kebabCase } from '@foscia/shared';
 
@@ -9,7 +9,7 @@ import { kebabCase } from '@foscia/shared';
  * @category Factories
  */
 export default (): { cache: InstancesCache; } => makeRefsCache({
-  manager: makeWeakRefManager(),
+  makeRef: makeWeakRefFactory(),
   normalizeType: kebabCase,
   normalizeId: (id) => String(id),
 });

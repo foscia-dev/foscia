@@ -3,51 +3,31 @@ import { InstancesCache } from '@foscia/core/types';
 import { Awaitable, Optional, Transformer } from '@foscia/shared';
 
 /**
- * Config for the timeout ref manager.
+ * Function which stores a reference to a value.
+ * Calling the function retrieves the value, or `null` if the reference
+ * expired.
  *
  * @internal
  */
-export type TimeoutRefConfig = {
-  timeout: number;
-};
+export type RefValue<V> = () => Awaitable<V | null>;
 
 /**
- * Timeout ref object.
+ * Factory to create a reference to a value.
  *
  * @internal
  */
-export type TimeoutRef<T> = { deref: () => T | undefined; };
-
-/**
- * Reference manager to retain cached instances in cache.
- *
- * @internal
- */
-export type RefManager<R> = {
-  /**
-   * Create a ref to an instance.
-   *
-   * @param instance
-   */
-  ref(instance: ModelInstance): Awaitable<R>;
-  /**
-   * Retrieve an instance from a ref. If ref expired, it can return `undefined`.
-   *
-   * @param ref
-   */
-  value(ref: R): Awaitable<ModelInstance | undefined>;
-};
+export type RefFactory<V> = (value: V) => Awaitable<RefValue<V>>;
 
 /**
  * Config for refs cache implementation.
  *
  * @internal
  */
-export type RefsCacheConfig<R = unknown> = {
+export type RefsCacheConfig = {
   /**
-   * Manager to use to create and resolve reference to instances.
+   * Create a reference to a model instance.
    */
-  manager: RefManager<R>;
+  makeRef: RefFactory<ModelInstance>;
   /**
    * Normalize the type before storing and resolving instances.
    */

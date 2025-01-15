@@ -266,6 +266,26 @@ export default makeCustomTransformer(
 };
 ```
 
+### `makeRefsCache` manager is replaced by references factories
+
+To simplify the code for reference holding inside the cache, the `manager`
+config option of `makeRefsCache` have been replaced by a `makeRef` option.
+In addition, `makeWeakRefManager` is replaced by `makeWeakRefFactory`.
+
+```typescript
+// highlight.deletion
+import { makeWeakRefManager } from '@foscia/core';
+// highlight.addition
+import { makeWeakRefFactory } from '@foscia/core';
+
+makeRefsCache({
+// highlight.deletion
+  manager: makeWeakRefManager(),
+// highlight.addition
+  makeRef: makeWeakRefFactory(),
+});
+```
+
 ### `$model` property of snapshots is replaced by `$instance`
 
 **Likelihood Of Impact: Low**
