@@ -14,7 +14,7 @@ const detectEnv = () => {
 
     return 'production';
   } catch {
-    return false;
+    return 'production';
   }
 };
 
