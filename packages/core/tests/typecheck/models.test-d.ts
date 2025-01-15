@@ -1,4 +1,6 @@
-import { attr, fill, makeModel, normalizeDotRelations } from '@foscia/core';
+/* eslint-disable max-classes-per-file */
+
+import { attr, fill, hasOne, makeModel, normalizeDotRelations, toString } from '@foscia/core';
 import { expectTypeOf, test } from 'vitest';
 import CommentMock from '../mocks/models/comment.mock';
 import FileMock from '../mocks/models/file.mock';
@@ -15,17 +17,22 @@ test('Models are type safe', () => {
   expectTypeOf(post.body).toEqualTypeOf<string | null>();
   expectTypeOf(post.publishedAt).toEqualTypeOf<Date | null>();
   expectTypeOf(post.comments).toEqualTypeOf<CommentMock[]>();
+  expectTypeOf(post.commentsCount).toEqualTypeOf<number>();
   expectTypeOf(post.published).toEqualTypeOf<boolean>();
 
   post.title = 'Hello World';
   // @ts-expect-error publishedAt is readonly
   post.publishedAt = new Date();
+  // @ts-expect-error commentsCount is readonly
+  post.commentsCount = 1;
   // @ts-expect-error published is readonly
   post.published = false;
 
   fill(post, { title: 'Hello World' });
   // @ts-expect-error publishedAt is readonly
   fill(post, { publishedAt: new Date() });
+  // @ts-expect-error publishedAt is readonly
+  fill(post, { commentsCount: 1 });
   // @ts-expect-error published is not a model's value
   fill(post, { published: false });
 
@@ -72,4 +79,34 @@ test('Models are type safe', () => {
   expectTypeOf(chained.name).toEqualTypeOf<string | null>();
   expectTypeOf(chained.email).toEqualTypeOf<string>();
   expectTypeOf(chained.age).toEqualTypeOf<number>();
+
+  class ModelProps extends makeModel('model-with-object-props', {
+    attr1: attr('', { readOnly: true }),
+    attr2: attr(toString(), { default: null }),
+    attr3: attr(toString(), { readOnly: true }),
+    rel1: hasOne<PostMock>('posts'),
+    rel2: hasOne<PostMock | CommentMock, true>({ readOnly: true }),
+    rel3: hasOne(() => PostMock, { readOnly: true }),
+  }) {
+  }
+
+  const modelProps = new ModelProps();
+
+  expectTypeOf(modelProps.attr1).toEqualTypeOf<string>();
+  // @ts-expect-error attr3 is readonly
+  modelProps.attr1 = 'hello';
+  expectTypeOf(modelProps.attr2).toEqualTypeOf<string | null>();
+  modelProps.attr2 = 'hello';
+  expectTypeOf(modelProps.attr3).toEqualTypeOf<string>();
+  // @ts-expect-error attr3 is readonly
+  modelProps.attr3 = 'hello';
+
+  expectTypeOf(modelProps.rel1).toEqualTypeOf<PostMock>();
+  modelProps.rel1 = new PostMock();
+  expectTypeOf(modelProps.rel2).toEqualTypeOf<PostMock | CommentMock>();
+  // @ts-expect-error rel2 is readonly
+  modelProps.rel2 = new CommentMock();
+  expectTypeOf(modelProps.rel3).toEqualTypeOf<PostMock>();
+  // @ts-expect-error rel3 is readonly
+  modelProps.rel3 = new CommentMock();
 });

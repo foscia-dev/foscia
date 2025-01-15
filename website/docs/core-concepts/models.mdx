@@ -179,27 +179,62 @@ aliasing an ID in Foscia.
 
 :::
 
-#### Example
+#### Examples
+
+<Tabs>
+<TabItem
+  value="type"
+  label="Type"
+  default
+>
 
 ```typescript
-import { id, toString } from '@foscia/core';
-
-// With TypeScript type.
 id<string>();
-// With default value.
-id(null as string | null);
-id(() => null as string | null);
-// With transformer to infer type.
+id<string | null>();
+```
+
+</TabItem>
+<TabItem
+  value="default"
+  label="Default"
+>
+
+```typescript
+id('');
+id(() => uuidV4(), { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="transformer"
+  label="Transformer"
+>
+
+```typescript
 id(toString());
-// With chained modifiers.
-id(toString())
+id(toString(), { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="chaining"
+  label="Chaining"
+>
+
+```typescript
+id<string>()
   .nullable()
   .default(() => null)
   .readOnly();
 ```
 
+</TabItem>
+</Tabs>
+
 #### API {#ids-chained-modifiers}
 
+[`id`](/docs/api/@foscia/core/functions/id) provides type definition
+for the factory and examples.
 [`ModelIdFactory`](/docs/api/@foscia/core/type-aliases/ModelIdFactory)
 provides type definition of `id` chained modifiers.
 
@@ -218,29 +253,62 @@ attributes. You can pass a transformer or a default value to this factory.
 - `attr` definition factory supports
   [chained modifiers](#attributes-chained-modifiers).
 
-#### Example
+#### Examples
+
+<Tabs>
+<TabItem
+  value="type"
+  label="Type"
+  default
+>
 
 ```typescript
-import { attr, toDateTime } from '@foscia/core';
-
-// With TypeScript type.
 attr<string>();
-// With default value.
-attr(null as string | null);
-attr(() => null as string | null);
-// With transformer to infer type.
-attr(toDateTime());
-// With chained modifiers.
-attr(toDateTime())
+attr<Date | null>();
+```
+
+</TabItem>
+<TabItem
+  value="default"
+  label="Default"
+>
+
+```typescript
+attr('');
+attr(() => new Date(), { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="transformer"
+  label="Transformer"
+>
+
+```typescript
+attr(toString());
+attr(toDateTime(), { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="chaining"
+  label="Chaining"
+>
+
+```typescript
+attr<Date>()
   .nullable()
   .default(() => null)
-  .readOnly()
-  .alias('published-at')
-  .sync('pull');
+  .readOnly();
 ```
+
+</TabItem>
+</Tabs>
 
 #### API {#attributes-chained-modifiers}
 
+[`attr`](/docs/api/@foscia/core/functions/attr) provides type definition
+for the factory and examples.
 [`ModelAttributeFactory`](/docs/api/@foscia/core/type-aliases/ModelAttributeFactory)
 provides type definition of `attr` chained modifiers.
 
@@ -264,93 +332,155 @@ model. You can pass the relation information to this factory.
   - [Explicit **model** when **not having circular dependencies**](#explicit-model-when-not-having-circular-references).
   - [Explicit **type** when **having circular dependencies**](#explicit-type-when-having-circular-references).
 
-#### Example
+#### Examples
 
 <Tabs>
-  <TabItem
-    value="hasOne"
-    label="hasOne"
-    default
-  >
+<TabItem
+  value="hasOne"
+  label="hasOne"
+  default
+>
+
+<Tabs>
+<TabItem
+  value="model"
+  label="Model"
+  default
+>
 
 ```typescript
-import { hasOne } from '@foscia/core';
-import User from './user';
-
-// With explicit related model.
 hasOne(() => User);
-// With TypeScript type.
+hasOne(() => User, { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="type"
+  label="Type"
+>
+
+```typescript
 hasOne<User>();
-// With explicit related type.
 hasOne<User>('users');
-// With config object.
-hasOne<User>({ type: 'users', path: 'author' });
-// With chained modifiers.
-hasOne<User>('users')
-  .config({ path: 'author' })
+```
+
+</TabItem>
+<TabItem
+  value="polymorphism"
+  label="Polymorphism"
+>
+
+```typescript
+hasOne(() => [Comment, Post]);
+hasOne<Comment | Post>(['comments', 'posts']);
+```
+
+</TabItem>
+<TabItem
+  value="config"
+  label="Config"
+>
+
+```typescript
+hasMany(() => User, { path: 'author' });
+hasMany<User>({ path: 'author' });
+```
+
+</TabItem>
+<TabItem
+  value="chaining"
+  label="Chaining"
+>
+
+```typescript
+hasOne(() => User)
   .nullable()
-  .default(() => null)
   .readOnly()
   .alias('author')
   .sync('pull');
 ```
 
-  </TabItem>
-  <TabItem
-    value="hasMany"
-    label="hasMany"
-  >
+</TabItem>
+</Tabs>
+
+</TabItem>
+<TabItem
+  value="hasMany"
+  label="hasMany"
+>
+
+<Tabs>
+<TabItem
+  value="model"
+  label="Model"
+  default
+>
 
 ```typescript
-import { hasMany } from '@foscia/core';
-import Comment from './comment';
-
-// With explicit related model.
 hasMany(() => Comment);
-// With TypeScript type.
+hasMany(() => Comment, { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="type"
+  label="Type"
+>
+
+```typescript
 hasMany<Comment[]>();
-// With explicit related type.
 hasMany<Comment[]>('comments');
-// With config object.
-hasMany<Comment[]>({ type: 'comments', path: 'comments' });
-// With chained modifiers.
-hasMany<Comment[]>('comments')
-  .config({ path: 'comments' })
-  .nullable()
-  .default(() => null)
+```
+
+</TabItem>
+<TabItem
+  value="polymorphism"
+  label="Polymorphism"
+>
+
+```typescript
+hasMany(() => [Comment, Post]);
+hasMany<(Comment | Post)[]>(['comments', 'posts']);
+```
+
+</TabItem>
+<TabItem
+  value="config"
+  label="Config"
+>
+
+```typescript
+hasMany(() => Comment, { path: 'top-comments' });
+hasMany<Comment[]>({ path: 'top-comments' });
+```
+
+</TabItem>
+<TabItem
+  value="chaining"
+  label="Chaining"
+>
+
+```typescript
+hasMany(() => Comment)
   .readOnly()
-  .alias('comments')
   .sync('pull');
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
-#### Configuration {#relations-configuration}
-
-Using `config` chained modifier, you can customize the
-[`ModelRelationConfig`](/docs/api/@foscia/core/type-aliases/ModelRelationConfig),
-which can vary between implementations and used dependencies.
+</TabItem>
+</Tabs>
 
 #### API {#relations-chained-modifiers}
 
+[`hasOne`](/docs/api/@foscia/core/functions/hasOne) and
+[`hasMany`](/docs/api/@foscia/core/functions/hasMany) provide type definition
+for the factories and examples.
 [`ModelRelationFactory`](/docs/api/@foscia/core/type-aliases/ModelRelationFactory)
-provides type definition of `hasMany` and `hasOne` chained modifiers.
+provides type definition of `hasOne` and `hasMany` chained modifiers.
 
-#### Polymorphism
-
-Defining a polymorphic relation is pretty simple:
-
-```typescript
-// With explicit related models.
-hasOne(() => [Post, Comment]);
-hasMany(() => [Post, Comment]);
-// With explicit related types.
-hasOne<Post | Comment>(['posts', 'comments']);
-hasMany<(Post | Comment)[]>(['posts', 'comments']);
-```
-
-:::warning
+#### Polymorphism support
 
 Polymorphism may require a specific configuration of your action or your data
 source.
@@ -361,8 +491,6 @@ correct model.
 
 When implementing polymorphism with a REST data source, your record JSON object
 must contain a `type` property matching your Foscia models' types.
-
-:::
 
 #### Recommandations
 

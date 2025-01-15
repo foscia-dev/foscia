@@ -1,5 +1,4 @@
 import {
-  Model,
   ModelAttribute,
   ModelId,
   ModelIdType,
@@ -10,7 +9,7 @@ import {
   ModelRelationConfig,
 } from '@foscia/core/model/types';
 import { ObjectTransformer } from '@foscia/core/transformers/types';
-import { Awaitable, Constructor } from '@foscia/shared';
+import { Arrayable, Constructor } from '@foscia/shared';
 
 /**
  * Default prop factory definition object type.
@@ -53,6 +52,14 @@ export type ModelIdFactory<T extends ModelIdType | null, R extends boolean> = {
    */
   nullable: () => ModelIdFactory<T | null, R>;
 } & ModelPropFactory<ModelId<string, T, R>>;
+
+/**
+ * Model ID factory object config.
+ *
+ * @internal
+ */
+export type ModelIdFactoryConfig<T extends ModelIdType | null, R extends boolean> =
+  Pick<ModelId<string, T, R>, 'transformer' | 'default' | 'readOnly'>;
 
 /**
  * Model attribute factory object.
@@ -101,25 +108,22 @@ export type ModelAttributeFactory<T, R extends boolean> = {
 } & ModelPropFactory<ModelAttribute<string, T, R>>;
 
 /**
+ * Model attribute factory object config.
+ *
+ * @internal
+ */
+export type ModelAttributeFactoryConfig<T, R extends boolean> =
+  Pick<ModelAttribute<string, T, R>, 'transformer' | 'default' | 'readOnly' | 'alias' | 'sync'>;
+
+/**
  * Infer related instance types from relationship models.
  *
  * @internal
  */
 export type InferModelRelationFactoryInstance<M> =
-  M extends Constructor<infer I>[] ? I
-    : M extends Constructor<infer I> ? I
+  M extends Constructor<infer I>[] ? I extends object ? I : never
+    : M extends Constructor<infer I> ? I extends object ? I : never
       : never;
-
-/**
- * Model relationship factory configuration object.
- *
- * @internal
- */
-export type ModelRelationFactoryConfig =
-  | string
-  | string[]
-  | ModelRelationConfig
-  | (() => Awaitable<Model | Model[]>);
 
 /**
  * Model relationship factory object.
@@ -164,3 +168,12 @@ export type ModelRelationFactory<T, R extends boolean> = {
    */
   sync: (sync: boolean | ModelPropSync) => ModelRelationFactory<T, R>;
 } & ModelPropFactory<ModelRelation<string, T, R>>;
+
+/**
+ * Model relation factory object options.
+ *
+ * @internal
+ */
+export type ModelRelationFactoryConfig<T extends Arrayable<object> | null, R extends boolean> =
+  & ModelRelationConfig
+  & Pick<ModelRelation<string, T, R>, 'default' | 'readOnly' | 'alias' | 'sync'>;

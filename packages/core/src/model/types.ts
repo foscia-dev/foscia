@@ -197,14 +197,14 @@ export type ModelProp<K = string, T = any, R extends boolean = boolean> =
      * The type the property's value is of.
      * This is a generic type annotation only property and should not be accessed.
      *
-     * @private
+     * @internal
      */
     readonly __type__: T;
     /**
      * Tells if the property is read-only.
      * This is a generic type annotation only property and should not be accessed.
      *
-     * @private
+     * @internal
      */
     readonly __readOnly__: R;
   }
