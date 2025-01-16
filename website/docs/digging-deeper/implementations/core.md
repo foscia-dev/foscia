@@ -67,7 +67,7 @@ Foscia proposes two implementations of a
   [`WeakRef`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/WeakRef).
   With this implementation, only instance that are still stored in your
   application memory (not garbage collected) remains in cache.
-- [`makeTimeoutRefFactory`](/docs/api/@foscia/core/functions/makeTimeoutRefFactory),
+- [`makeTimedRefFactory`](/docs/api/@foscia/core/functions/makeTimedRefFactory),
   which will store every instance in a special object which expires after a
   configured timeout.
 
@@ -83,7 +83,7 @@ import { makeRefsCache, makeWeakRefManager } from '@foscia/core';
 const { cache } = makeRefsCache({
   manager: makeWeakRefManager(),
   // or...
-  // manager: makeTimeoutRefManager({ lifetime: 5 * 60 * 1000 }),
+  // manager: makeTimedRefFactory({ lifetime: 5 * 60 * 1000 }),
 });
 
 cache.put('posts', '1', post);
