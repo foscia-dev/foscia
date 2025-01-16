@@ -24,7 +24,7 @@ Foscia proposes core implementations of those dependencies.
 [`InstancesCache`](/docs/api/@foscia/core/type-aliases/InstancesCache) implementation.
 
 Currently, it uses [`makeRefsCache`](#makerefscache) with
-[`makeWeakRefManager`](/docs/api/@foscia/core/functions/makeWeakRefManager).
+[`makeWeakRefFactory`](/docs/api/@foscia/core/functions/makeWeakRefFactory).
 This factory is agnostic of this implementation, so it may change in the future
 if a better implementation exists. If you want to lock the used implementation,
 prefer using [`makeRefsCache`](#makerefscache) directly.
@@ -53,23 +53,21 @@ Since this factory is agnostic of implementation, no configuration is available.
 [`makeRefsCache`](/docs/api/@foscia/core/functions/makeRefsCache) provides a
 [`InstancesCache`](/docs/api/@foscia/core/type-aliases/InstancesCache) implementation
 which stores reference to instances created by a
-[`RefManager`](/docs/api/@foscia/core/type-aliases/RefManager).
+[`RefFactory`](/docs/api/@foscia/core/type-aliases/RefFactory).
 
-The [`RefManager`](/docs/api/@foscia/core/type-aliases/RefManager) is responsible to:
+The [`RefFactory`](/docs/api/@foscia/core/type-aliases/RefFactory) creates
+a value reference function which returns a value or `null` if the reference
+is expired.
 
-- Create a ref object for a cached instance.
-- Retrieve value for this ref object (may return undefined if the ref is
-  considered expired).
+Foscia proposes two implementations of a
+[`RefFactory`](/docs/api/@foscia/core/type-aliases/RefFactory):
 
-Foscia proposes a two implementations of a
-[`RefManager`](/docs/api/@foscia/core/type-aliases/RefManager):
-
-- [`makeWeakRefManager`](/docs/api/@foscia/core/functions/makeWeakRefManager),
+- [`makeWeakRefFactory`](/docs/api/@foscia/core/functions/makeWeakRefFactory),
   which will store every instance as a
   [`WeakRef`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/WeakRef).
   With this implementation, only instance that are still stored in your
   application memory (not garbage collected) remains in cache.
-- [`makeTimeoutRefManager`](/docs/api/@foscia/core/functions/makeTimeoutRefManager),
+- [`makeTimeoutRefFactory`](/docs/api/@foscia/core/functions/makeTimeoutRefFactory),
   which will store every instance in a special object which expires after a
   configured timeout.
 
@@ -85,7 +83,7 @@ import { makeRefsCache, makeWeakRefManager } from '@foscia/core';
 const { cache } = makeRefsCache({
   manager: makeWeakRefManager(),
   // or...
-  // manager: makeTimeoutRefManager({ timeout: 5 * 60 * 1000 }),
+  // manager: makeTimeoutRefManager({ lifetime: 5 * 60 * 1000 }),
 });
 
 cache.put('posts', '1', post);
