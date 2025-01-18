@@ -150,50 +150,26 @@ makeModel({
 });
 ```
 
-#### `compareValue` and `cloneValue`
+#### `limitedSnapshots`
 
 ##### Description
 
-**Default**: compare will check for strict equality and clone will return the
-base value.
+**Default**: `true`.
 
-**Recommandation**: use this configuration option inside a
-[custom model factory](/docs/digging-deeper/models/models-composition#factory).
-
-You may have noticed that Foscia provide some model history features. Those
-allow you to know which parts of a model instance changed since its retrieval
-from the data source or interact with those changes, through
-[some utilities functions](/docs/api/@foscia/core/#utilities):
-[`changed`](/docs/api/@foscia/core/functions/changed),
-[`restore`](/docs/api/@foscia/core/functions/restore), etc.
-
-Currently, Foscia won't clone any value when syncing the instance values (on
-save, etc.) and will do a strict equal comparison to known if the value changed.
+Enable storing related records of a snapshot as
+[`ModelLimitedSnapshot`](/docs/api/@foscia/core/type-aliases/ModelLimitedSnapshot),
+instead of [`ModelSnapshot`](/docs/api/@foscia/core/type-aliases/ModelSnapshot),
+to improve memory footprint and performance.
 
 ##### Example
-
-The following model configuration is equivalent to the default behavior of
-Foscia:
 
 ```typescript title="post.ts"
 import { makeModel } from '@foscia/core';
 
 makeModel({
-  type: 'posts',
-  compareValue: (newValue, prevValue) => nextValue === prevValue,
-  cloneValue: (value) => value,
+  limitedSnapshots: false,
 });
 ```
-
-You may change those two functions to really clone values when syncing the
-instance state (such as arrays). Keep in mind that:
-
-- Values might be any value your instance could contain, including complex
-  object and even other model instance
-- Cloned values might be restored through
-  [`restore`](/docs/api/@foscia/core/functions/restore) utility
-- Making a real clone of a value without updating the comparator will break the
-  history because of its default behavior
 
 #### `strict`
 
@@ -269,6 +245,57 @@ makeModel({
   strictReadOnly: true,
 });
 ```
+
+#### `compareValues` and `cloneValue`
+
+##### Description
+
+**Default**: defaults implementations are available at
+[`compareModelValues`](/docs/api/@foscia/core/functions/compareModelValues) and
+[`cloneModelValue`](/docs/api/@foscia/core/functions/cloneModelValue).
+
+**Recommandation**: use this configuration option inside a
+[custom model factory](/docs/digging-deeper/models/models-composition#factory).
+
+You may have noticed that Foscia provide some model history features. Those
+allow you to know which parts of a model instance changed since its retrieval
+from the data source or interact with those changes, through
+[some utilities functions](/docs/api/@foscia/core/#utilities):
+[`changed`](/docs/api/@foscia/core/functions/changed),
+[`restore`](/docs/api/@foscia/core/functions/restore), etc.
+
+Those two configuration options allow you to customize how values are
+compared and copied when taking a snapshot of an instance or comparing
+two snapshots.
+
+##### Example
+
+The following model configuration is equivalent to the default behavior of
+Foscia:
+
+```typescript title="post.ts"
+import { makeModel, compareModelValues, cloneModelValue } from '@foscia/core';
+
+makeModel({
+  type: 'posts',
+  compareValue: compareModelValues,
+  cloneValue: cloneModelValue,
+});
+```
+
+:::tip
+
+You may change those two functions to implement more flexible cloner and
+comparator, for example supporting objects, map, etc. Keep in mind that:
+
+- Values might be any value your instance could contain, including complex
+  object and even other model instance
+- Cloned values might be restored through
+  [`restore`](/docs/api/@foscia/core/functions/restore) utility
+- Making a real clone of a value without updating the comparator might break the
+  history because of its default behavior
+
+:::
 
 ### HTTP
 

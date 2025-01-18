@@ -68,11 +68,13 @@ import guessRelationType from '@foscia/core/model/relations/utilities/guessRelat
 import makeModelsReducer from '@foscia/core/model/revivers/makeModelsReducer';
 import makeModelsReviver from '@foscia/core/model/revivers/makeModelsReviver';
 import changed from '@foscia/core/model/snapshots/changed';
-import compareSnapshots from '@foscia/core/model/snapshots/compareSnapshots';
+import isSameSnapshot from '@foscia/core/model/snapshots/isSameSnapshot';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
 import restore from '@foscia/core/model/snapshots/restore';
 import restoreSnapshot from '@foscia/core/model/snapshots/restoreSnapshot';
 import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
+import cloneModelValue from '@foscia/core/model/utilities/cloneModelValue';
+import compareModelValues from '@foscia/core/model/utilities/compareModelValues';
 import normalizeDotRelations from '@foscia/core/normalization/normalizeDotRelations';
 import normalizeKey from '@foscia/core/normalization/normalizeKey';
 import makeMapRegistry from '@foscia/core/registry/makeMapRegistry';
@@ -175,7 +177,7 @@ export {
   onPropertyReading,
   onPropertyWrite,
   onPropertyWriting,
-  compareSnapshots,
+  isSameSnapshot,
   restoreSnapshot,
   takeSnapshot,
   runHooks,
@@ -200,6 +202,8 @@ export {
   normalizeKey,
   makeModelsReducer,
   makeModelsReviver,
+  cloneModelValue,
+  compareModelValues,
   logger,
   SYMBOL_MODEL_PROP_FACTORY,
   SYMBOL_MODEL_PROP,

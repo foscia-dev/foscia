@@ -1,9 +1,9 @@
-import compareModelValue from '@foscia/core/model/snapshots/compareModelValue';
-import { Model, ModelKey, ModelSnapshot } from '@foscia/core/model/types';
+import { Model, ModelKey, ModelLimitedSnapshot, ModelSnapshot } from '@foscia/core/model/types';
 import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
 
 /**
- * Compare two snapshots.
+ * Check if two snapshots are similar (same model, same existence state
+ * and same values).
  *
  * @param nextSnapshot
  * @param prevSnapshot
@@ -13,16 +13,16 @@ import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
  *
  * @example
  * ```typescript
- * import { compareSnapshot } from '@foscia/core';
+ * import { isSameSnapshot } from '@foscia/core';
  *
- * const titleChanged = compareSnapshot(newSnapshot, oldSnapshot, ['title']);
+ * const titleChanged = isSameSnapshot(newSnapshot, oldSnapshot, ['title']);
  * if (titleChanged) {
  * }
  * ```
  */
 export default <M extends Model>(
-  nextSnapshot: ModelSnapshot<M>,
-  prevSnapshot: ModelSnapshot<M>,
+  nextSnapshot: ModelSnapshot<M> | ModelLimitedSnapshot<M>,
+  prevSnapshot: ModelSnapshot<M> | ModelLimitedSnapshot<M>,
   ...only: ArrayableVariadic<ModelKey<M>>
 ) => {
   if (nextSnapshot.$instance.$model !== prevSnapshot.$instance.$model) {
@@ -38,8 +38,7 @@ export default <M extends Model>(
     keys.length > 0
     || Object.keys(nextSnapshot.$values).length === Object.keys(prevSnapshot.$values).length
   ) && (keys.length ? keys : Object.keys(nextSnapshot.$values) as ModelKey<M>[]).every(
-    (key) => compareModelValue(
-      nextSnapshot.$instance.$model,
+    (key) => nextSnapshot.$instance.$model.$config.compareValues(
       nextSnapshot.$values[key],
       prevSnapshot.$values[key],
     ),

@@ -1,20 +1,20 @@
 import isRelationDef from '@foscia/core/model/checks/isRelationDef';
 import mapProps from '@foscia/core/model/props/mappers/mapProps';
-import { ModelInstance, ModelKey, ModelRelation } from '@foscia/core/model/types';
+import { Model, ModelKey, ModelRelation } from '@foscia/core/model/types';
 
 /**
- * Map all relations of an instance.
+ * Map all relations of a model.
  *
- * @param instance
+ * @param model
  * @param callback
  *
  * @category Utilities
  */
-export default <I extends ModelInstance, R>(
-  instance: I,
-  callback: (def: ModelRelation<ModelKey<I>>) => R,
+export default <M extends Model, R>(
+  model: M,
+  callback: (def: ModelRelation<ModelKey<M>>) => R,
 ) => mapProps(
-  instance,
+  model,
   callback as any,
   isRelationDef,
 ) as R[];

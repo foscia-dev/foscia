@@ -7,6 +7,8 @@ import {
   ModelInstance,
   ModelParsedDefinition,
 } from '@foscia/core/model/types';
+import cloneModelValue from '@foscia/core/model/utilities/cloneModelValue';
+import compareModelValues from '@foscia/core/model/utilities/compareModelValues';
 import { using } from '@foscia/shared';
 
 /**
@@ -29,16 +31,18 @@ import { using } from '@foscia/shared';
  * ```
  */
 export default <D extends {} = {}>(
-  baseConfig?: ModelConfig,
+  baseConfig?: Partial<ModelConfig>,
   // eslint-disable-next-line max-len
   baseRawDefinition?: D & ThisType<ModelInstance<ModelFlattenDefinition<ModelParsedDefinition<D>>>>,
 ) => {
   const factory = (
-    rawConfig: string | (ModelConfig & { type: string; }),
+    rawConfig: string | (Partial<ModelConfig> & { type: string; }),
     rawDefinition?: object,
   ) => using(
     typeof rawConfig === 'string' ? { type: rawConfig } : rawConfig,
     ({ type, ...config }) => makeModelClass(type, {
+      compareValues: compareModelValues,
+      cloneValue: cloneModelValue,
       ...baseConfig,
       ...config,
     }, factory.$hooks, {

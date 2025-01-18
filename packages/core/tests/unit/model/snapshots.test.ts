@@ -1,6 +1,6 @@
 import {
   changed,
-  compareSnapshots,
+  isSameSnapshot,
   markSynced,
   restore,
   restoreSnapshot,
@@ -15,9 +15,9 @@ describe.concurrent('unit: snapshots', () => {
     const post = new PostMock();
     const comment = new CommentMock();
 
-    expect(compareSnapshots(takeSnapshot(post), takeSnapshot(comment))).toStrictEqual(false);
-    expect(compareSnapshots(takeSnapshot(post), takeSnapshot(post))).toStrictEqual(true);
-    expect(compareSnapshots(takeSnapshot(post), post.$original)).toStrictEqual(false);
+    expect(isSameSnapshot(takeSnapshot(post), takeSnapshot(comment))).toStrictEqual(false);
+    expect(isSameSnapshot(takeSnapshot(post), takeSnapshot(post))).toStrictEqual(true);
+    expect(isSameSnapshot(takeSnapshot(post), post.$original)).toStrictEqual(false);
     expect(changed(post)).toStrictEqual(true);
     expect(changed(post, 'commentsCount')).toStrictEqual(true);
     expect(changed(post, 'title')).toStrictEqual(false);
@@ -101,20 +101,20 @@ describe.concurrent('unit: snapshots', () => {
 
   it('should use clone and compare model options', () => {
     const cloneValue = vi.fn((v) => (Array.isArray(v) ? [...v] : v));
-    const compareValue = vi.fn((n, p) => n !== p);
+    const compareValues = vi.fn((n, p) => n !== p);
 
     const ExtendedPostMock = PostMock.configure({
       cloneValue,
-      compareValue,
+      compareValues,
     });
 
     expect(cloneValue).not.toHaveBeenCalled();
-    expect(compareValue).not.toHaveBeenCalled();
+    expect(compareValues).not.toHaveBeenCalled();
 
     const post = new ExtendedPostMock();
 
     expect(cloneValue).not.toHaveBeenCalled();
-    expect(compareValue).not.toHaveBeenCalled();
+    expect(compareValues).not.toHaveBeenCalled();
 
     post.title = 'foo';
     post.comments = [];
@@ -122,14 +122,14 @@ describe.concurrent('unit: snapshots', () => {
     const snapshot = takeSnapshot(post);
 
     expect(cloneValue).toHaveBeenCalledTimes(3);
-    expect(compareValue).not.toHaveBeenCalled();
+    expect(compareValues).not.toHaveBeenCalled();
 
-    expect(compareSnapshots(snapshot, post.$original, 'title')).toStrictEqual(true);
-    expect(compareValue).toHaveBeenCalledTimes(1);
-    expect(compareSnapshots(snapshot, post.$original, 'comments')).toStrictEqual(true);
-    expect(compareValue).toHaveBeenCalledTimes(2);
-    expect(compareSnapshots(snapshot, post.$original, 'commentsCount')).toStrictEqual(true);
-    expect(compareValue).toHaveBeenCalledTimes(3);
+    expect(isSameSnapshot(snapshot, post.$original, 'title')).toStrictEqual(true);
+    expect(compareValues).toHaveBeenCalledTimes(1);
+    expect(isSameSnapshot(snapshot, post.$original, 'comments')).toStrictEqual(true);
+    expect(compareValues).toHaveBeenCalledTimes(2);
+    expect(isSameSnapshot(snapshot, post.$original, 'commentsCount')).toStrictEqual(true);
+    expect(compareValues).toHaveBeenCalledTimes(3);
 
     expect(cloneValue).toHaveBeenCalledTimes(3);
   });

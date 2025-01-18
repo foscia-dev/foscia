@@ -48,7 +48,7 @@ import Post from './models/post';
 import Comment from './models/comment';
 
 const { reduce } = makeModelsReducer();
-const { revive } = makeModelsReviver([Post, Comment]);
+const { revive } = makeModelsReviver({ models: [Post, Comment] });
 
 const myPost = new Post();
 
@@ -58,16 +58,35 @@ const myRevivedPost = revive(JSON.parse(json));
 
 :::info
 
-Notice that:
-
-- [`makeModelsReviver`](/docs/api/@foscia/core/functions/makeModelsReviver)
-  must receive an array of revivable models. Otherwise, it won't be able to
-  resolve models to revive records in.
-- Reducing models will not "serialize" object values, such as Date.
-  You can use a tool like [**`devalue`**](https://github.com/Rich-Harris/devalue)
-  to leverage this.
+Notice that [`makeModelsReviver`](/docs/api/@foscia/core/functions/makeModelsReviver)
+must receive an array of revivable models. Otherwise, it won't be able to
+resolve models to revive records in.
 
 :::
+
+## Handling advanced data types
+
+If you want to use the reducer and reviver to serialize advanced data types,
+(such as date, etc.), you can use a tool like
+[**`devalue`**](https://github.com/Rich-Harris/devalue), because
+`JSON.stringify` does not support dates, `Map`, etc.
+
+Those kind of tool can be used to (de)serialize reduced models directly, or
+can be configured inside the reducer and reviver using
+[`reduce`](/docs/api/@foscia/core/type-aliases/ModelsReducerConfig#reduce) and
+[`revive`](/docs/api/@foscia/core/type-aliases/ModelsReviverConfig#revive).
+
+```typescript
+import { makeModelsReducer, makeModelsReviver } from '@foscia/core';
+import * as devalue from 'devalue';
+
+const { reduce } = makeModelsReducer({
+  reduce: (value) => devalue.stringify(value),
+});
+const { revive } = makeModelsReviver({
+  revive: (value) => devalue.parse(value),
+});
+```
 
 ## Custom behaviors
 

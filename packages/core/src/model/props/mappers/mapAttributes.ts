@@ -1,20 +1,20 @@
 import isAttributeDef from '@foscia/core/model/checks/isAttributeDef';
 import mapProps from '@foscia/core/model/props/mappers/mapProps';
-import { ModelAttribute, ModelInstance, ModelKey } from '@foscia/core/model/types';
+import { Model, ModelAttribute, ModelKey } from '@foscia/core/model/types';
 
 /**
- * Map all attributes of an instance.
+ * Map all attributes of a model.
  *
- * @param instance
+ * @param model
  * @param callback
  *
  * @category Utilities
  */
-export default <I extends ModelInstance, R>(
-  instance: I,
-  callback: (def: ModelAttribute<ModelKey<I>>) => R,
+export default <M extends Model, R>(
+  model: M,
+  callback: (def: ModelAttribute<ModelKey<M>>) => R,
 ) => mapProps(
-  instance,
+  model,
   callback as any,
   isAttributeDef,
 ) as R[];

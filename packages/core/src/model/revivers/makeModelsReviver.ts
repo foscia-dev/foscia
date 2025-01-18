@@ -1,27 +1,36 @@
 import FosciaError from '@foscia/core/errors/fosciaError';
 import {
+  ModelsReviverConfig,
   ReducedModel,
   ReducedModelCircularRef,
   ReducedModelInstance,
   ReducedModelInstanceData,
   ReducedModelSnapshot,
+  ReducerReferenceable,
+  ReviverDereferenceable,
+  ReviverParentsMap,
 } from '@foscia/core/model/revivers/types';
-import { Model, ModelInstance, ModelSnapshot } from '@foscia/core/model/types';
-import { Dictionary, mapWithKeys, tap } from '@foscia/shared';
+import { ModelInstance, ModelLimitedSnapshot, ModelSnapshot } from '@foscia/core/model/types';
+import { SYMBOL_MODEL_SNAPSHOT } from '@foscia/core/symbols';
+import { Dictionary, mapWithKeys, tap, using } from '@foscia/shared';
 
 /**
  * Create a models reviver.
  *
- * @param options
+ * @param config
  *
  * @category Factories
  * @since 0.8.6
  */
-export default (options: { models: Model[]; }) => {
+export default (config: ModelsReviverConfig) => {
   let reviveInstance: (
     instance: ReducedModelInstance | ReducedModelCircularRef,
-    parents: Map<string, ModelInstance>,
+    parents: ReviverParentsMap,
   ) => ModelInstance;
+  let reviveSnapshot: (
+    snapshot: ReducedModelSnapshot | ReducedModelCircularRef,
+    parents: ReviverParentsMap,
+  ) => ModelSnapshot | ModelLimitedSnapshot;
 
   const isReducedType = <T extends { $FOSCIA_TYPE: string; }>(
     type: T['$FOSCIA_TYPE'],
@@ -31,7 +40,7 @@ export default (options: { models: Model[]; }) => {
     && '$FOSCIA_TYPE' in value
     && value.$FOSCIA_TYPE === type;
 
-  const modelsMap = new Map(options.models.map((model) => [model.$type, model]));
+  const modelsMap = new Map(config.models.map((model) => [model.$type, model]));
   const reviveModel = (
     reducedModel: ReducedModel,
   ) => tap(modelsMap.get(reducedModel.$type), (model) => {
@@ -42,87 +51,116 @@ export default (options: { models: Model[]; }) => {
 
   const reviveCircularRef = (
     ref: ReducedModelCircularRef,
-    parents: Map<string, ModelInstance>,
+    parents: ReviverParentsMap,
   ) => tap(parents.get(ref.$ref), (instance) => {
     if (!instance) {
-      throw new FosciaError('Could not revive not found instance, reduced data might be corrupted.');
+      throw new FosciaError('Could not revive not found ref, reduced data might be corrupted.');
     }
   })!;
 
-  const reviveValue = (value: unknown, parents: Map<string, ModelInstance>): unknown => {
+  const reviveValue = (value: unknown, parents: ReviverParentsMap): unknown => {
     if (Array.isArray(value)) {
       return value.map((item) => reviveValue(item, parents));
     }
 
-    return isReducedType<ReducedModelInstance>('instance', value)
-    || isReducedType<ReducedModelCircularRef>('circular', value)
-      ? reviveInstance(value, parents)
-      : value;
+    if (isReducedType<ReducedModelCircularRef>('circular', value)) {
+      return reviveCircularRef(value, parents);
+    }
+
+    if (isReducedType<ReducedModelInstance>('instance', value)) {
+      return reviveInstance(value, parents);
+    }
+
+    if (isReducedType<ReducedModelSnapshot>('snapshot', value)) {
+      return reviveSnapshot(value, parents);
+    }
+
+    return config.revive ? config.revive(value) : value;
   };
 
-  const reviveValues = (values: Dictionary, parents: Map<string, ModelInstance>) => mapWithKeys(
+  const reviveValues = (values: Dictionary, parents: ReviverParentsMap) => mapWithKeys(
     values,
     (value, key) => ({ [key]: reviveValue(value, parents) }),
   );
 
-  const reviveSnapshot = (
-    instance: ModelInstance,
-    snapshot: ReducedModelSnapshot,
-    parents: Map<string, ModelInstance>,
-  ) => ({
-    $instance: instance,
-    $exists: snapshot.$exists,
-    $raw: snapshot.$raw,
-    $loaded: snapshot.$loaded,
-    $values: reviveValues(snapshot.$values, parents),
-  }) as ModelSnapshot;
-
   const reviveInstanceData = (
     instance: ModelInstance,
     data: ReducedModelInstanceData,
-    parents: Map<string, ModelInstance>,
+    parents: ReviverParentsMap,
   ) => {
     /* eslint-disable no-param-reassign */
     instance.$exists = data.$exists;
     instance.$raw = data.$raw;
     instance.$loaded = data.$loaded;
     instance.$values = reviveValues(data.$values, parents);
-    instance.$original = reviveSnapshot(instance, data.$original, parents);
+    instance.$original = reviveSnapshot(data.$original, parents) as ModelSnapshot;
     /* eslint-enable */
   };
 
-  reviveInstance = (
-    reducedInstance: ReducedModelInstance | ReducedModelCircularRef,
-    parents: Map<string, ModelInstance>,
-  ) => {
-    if (reducedInstance.$FOSCIA_TYPE === 'circular') {
-      return reviveCircularRef(reducedInstance, parents);
-    }
+  const makeReferenceableReviver = <
+    T extends ReviverDereferenceable,
+    U extends ReducerReferenceable,
+  >(
+    reviver: (value: T) => U,
+    hydrator: (value: T, revived: U, parents: ReviverParentsMap) => void,
+  ) => (
+    value: T | ReducedModelCircularRef,
+    parents: ReviverParentsMap,
+  ) => (
+    isReducedType<ReducedModelCircularRef>('circular', value)
+      ? reviveCircularRef(value, parents)
+      : tap(reviver(value), (revived) => {
+        parents.set(value.$ref, revived);
+        hydrator(value, revived, parents);
+      })
+  ) as U;
 
-    const RevivedModel = reviveModel(reducedInstance.$model);
-    const instance = new RevivedModel();
-    parents.set(reducedInstance.$ref, instance);
+  reviveSnapshot = makeReferenceableReviver(
+    (value: ReducedModelSnapshot) => ({
+      $FOSCIA_TYPE: SYMBOL_MODEL_SNAPSHOT,
+      $exists: value.$exists,
+      $instance: null as any,
+      $values: null as any,
+      ...('$raw' in value ? {
+        $raw: value.$raw,
+        $loaded: value.$loaded,
+      } : {}),
+    }),
+    (value: ReducedModelSnapshot, snapshot: ModelSnapshot | ModelLimitedSnapshot, parents) => {
+      /* eslint-disable no-param-reassign */
+      // @ts-ignore
+      snapshot.$values = reviveValues(value.$values, parents);
+      // @ts-ignore
+      snapshot.$instance = reviveInstance(value.$instance, parents);
+      /* eslint-enable */
+    },
+  );
 
-    if (reducedInstance.$data) {
-      reviveInstanceData(instance, reducedInstance.$data, parents);
-    }
-
-    if (reducedInstance.$custom) {
-      if (!('$revive' in instance) || typeof instance.$revive !== 'function') {
-        throw new FosciaError(
-          `Missing \`$revive\` method inside model with type \`${instance.$model.$type}\`.`,
-        );
+  reviveInstance = makeReferenceableReviver(
+    (value: ReducedModelInstance) => using(
+      reviveModel(value.$model),
+      (RevivedModel) => new RevivedModel(),
+    ),
+    (value: ReducedModelInstance, instance: ModelInstance, parents) => {
+      if (value.$data) {
+        reviveInstanceData(instance, value.$data, parents);
       }
 
-      instance.$revive(reducedInstance.$custom, {
-        revive: (
-          i: ReducedModelInstance | ReducedModelCircularRef,
-        ) => reviveInstance(i, parents),
-      });
-    }
+      if (value.$custom) {
+        if (!('$revive' in instance) || typeof instance.$revive !== 'function') {
+          throw new FosciaError(
+            `Missing \`$revive\` method inside model with type \`${instance.$model.$type}\`.`,
+          );
+        }
 
-    return instance;
-  };
+        instance.$revive(value.$custom, {
+          revive: (
+            i: ReducedModelInstance | ReducedModelCircularRef,
+          ) => reviveInstance(i, parents),
+        });
+      }
+    },
+  );
 
   return {
     revive: (

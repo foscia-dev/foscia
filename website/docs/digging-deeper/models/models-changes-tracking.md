@@ -22,6 +22,16 @@ properties will be synced in an "original" snapshot.
 This original snapshot allows you to check if some properties have changed since
 last synchronization.
 
+:::info
+
+Instance snapshot is a locked state of your record attributes and relations.
+By default, related records are only stored inside a limited snapshot.
+If you want to deeply store related records snapshots, you can disable
+[`limitedSnapshots`](/docs/digging-deeper/models/models-configuration#limitedsnapshots)
+on your models.
+
+:::
+
 ## Taking a snapshot
 
 You can take a snapshot of an instance at any time using
@@ -40,23 +50,23 @@ const myPostSnapshot = takeSnapshot(myPost);
 ## Checking for changes
 
 To check for changes between two snapshots, you can use
-[`compareSnapshots`](/docs/api/@foscia/core/functions/compareSnapshots). To
+[`isSameSnapshot`](/docs/api/@foscia/core/functions/isSameSnapshot). To
 check for changes between an instance and its original snapshot, you can use
 [`changed`](/docs/api/@foscia/core/functions/changed)
 (this will automatically take a new snapshot and compare against it).
 
 ```typescript
-import { changed, compareSnapshots, takeSnapshot } from '@foscia/core';
+import { changed, isSameSnapshot, takeSnapshot } from '@foscia/core';
 
 // True if any properties changed or instance does exists now.
 changed(myPost);
 // False in the same case as above.
-compareSnapshots(takeSnapshot(myPost), myPost.$original);
+isSameSnapshot(takeSnapshot(myPost), myPost.$original);
 
 // True only if title has changed.
 changed(myPost, ['title']);
 // False in the same case as above.
-compareSnapshots(takeSnapshot(myPost), myPost.$original, ['title']);
+isSameSnapshot(takeSnapshot(myPost), myPost.$original, ['title']);
 ```
 
 ## Syncing changes

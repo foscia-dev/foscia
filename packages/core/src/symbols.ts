@@ -76,6 +76,13 @@ export const SYMBOL_MODEL_INSTANCE: unique symbol = Symbol('foscia:instance');
 export const SYMBOL_MODEL_COMPOSABLE: unique symbol = Symbol('foscia:composable');
 
 /**
+ * Unique symbol for an instance snapshot.
+ *
+ * @internal
+ */
+export const SYMBOL_MODEL_SNAPSHOT: unique symbol = Symbol('foscia:snapshot');
+
+/**
  * Unique symbol for an action "when" context function.
  *
  * @internal

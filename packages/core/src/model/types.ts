@@ -10,6 +10,7 @@ import {
   SYMBOL_MODEL_PROP_KIND_RELATION,
   SYMBOL_MODEL_RELATION_HAS_MANY,
   SYMBOL_MODEL_RELATION_HAS_ONE,
+  SYMBOL_MODEL_SNAPSHOT,
 } from '@foscia/core/symbols';
 import { ObjectTransformer } from '@foscia/core/transformers/types';
 import {
@@ -68,22 +69,28 @@ export type ModelConfig = {
    */
   guessAlias?: Transformer<string>;
   /**
-   * Compare two properties values.
-   * Defaults to strict equality (`next === prev`).
-   * This is used when comparing snapshot values.
+   * Compare two properties values when comparing snapshots.
+   * Defaults to {@link compareModelValues | `compareModelValues`}.
    *
    * @param nextValue
    * @param prevValue
    */
-  compareValue?: (nextValue: unknown, prevValue: unknown) => boolean;
+  compareValues: (nextValue: unknown, prevValue: unknown) => boolean;
   /**
-   * Clone a property value.
-   * Defaults to no clone at all.
-   * This is used when creating a snapshot.
+   * Clone a property value when creating a snapshot.
+   * Defaults to {@link cloneModelValue | `cloneModelValue`}.
    *
    * @param value
    */
-  cloneValue?: <T>(value: T) => T;
+  cloneValue: <T>(value: T) => T;
+  /**
+   * Tells if snapshots of related instances should be using
+   * {@link ModelSnapshot | `ModelSnapshot`} or
+   * {@link ModelLimitedSnapshot | `ModelLimitedSnapshot`}
+   * to reduced memory footprint and improve performance.
+   * Defaults to `true` (uses {@link ModelLimitedSnapshot | `ModelLimitedSnapshot`}).
+   */
+  limitedSnapshots?: boolean;
 
   // Specific HTTP config.
 
@@ -517,7 +524,10 @@ export type ExtendableModel<D extends {} = any, I extends ModelInstance<D> = any
      * @param config
      * @param override
      */
-    configure(config: ModelConfig, override?: boolean): ExtendableModel<D, ModelInstance<D>>;
+    configure(
+      config: Partial<ModelConfig>,
+      override?: boolean,
+    ): ExtendableModel<D, ModelInstance<D>>;
     /**
      * Create a new model class with an extended definition.
      *
@@ -539,7 +549,7 @@ export type ExtendableModel<D extends {} = any, I extends ModelInstance<D> = any
 export type ModelFactory<
   D extends {} = {},
 > = Hookable<ModelHooksDefinition> & (<ND extends {}>(
-  rawConfig: string | (ModelConfig & { type: string; }),
+  rawConfig: string | (Partial<ModelConfig> & { type: string; }),
   // eslint-disable-next-line max-len
   rawDefinition?: ND & ThisType<ModelInstance<D & ModelFlattenDefinition<ModelParsedDefinition<ND>>>>,
   // eslint-disable-next-line max-len
@@ -622,6 +632,31 @@ export type ModelDefinitionValues<D extends {}> =
   & ModelDefinitionReadOnlyValues<D>;
 
 /**
+ * Model values map for a snapshot (IDs/attributes/relations).
+ *
+ * @internal
+ */
+export type ModelSnapshotDefinitionValues<D extends {}> = ModelIdsDefaults<D> & {
+  [K in keyof D]: D[K] extends ModelPropFactory<ModelRelation<any, infer T, any>>
+    ? T extends (infer I)[]
+      ? (ModelLimitedSnapshot<I> | ModelSnapshot<I>)[]
+      : (ModelLimitedSnapshot<T> | ModelSnapshot<T>)
+    : D[K] extends ModelPropFactory<ModelProp<any, infer T, any>>
+      ? T
+      : D[K] extends ModelPropFactory<ModelProp<any, any, any>> ? any : never;
+};
+
+/**
+ * Model values map for a limited snapshot (IDs/attributes/relations).
+ *
+ * @internal
+ */
+export type ModelLimitedSnapshotDefinitionValues<D extends {}> = ModelIdsDefaults<D> & {
+  [K in keyof ModelSnapshotDefinitionValues<D>]: K extends 'id' | 'lid'
+    ? ModelSnapshotDefinitionValues<D>[K] : never;
+};
+
+/**
  * Model descriptors map (only custom properties).
  *
  * @internal
@@ -673,15 +708,25 @@ export type ModelInstanceUsing<C extends ModelComposable> =
   ModelInstance<ModelDefinitionFromComposable<C>>;
 
 /**
- * Model class or instance snapshot.
+ * Model instance snapshot which only contains ID and LID
+ * and is used to track related records inside a snapshot.
+ */
+export type ModelLimitedSnapshot<M = any> = {
+  readonly $instance: ModelInstance;
+  readonly $exists: boolean;
+  readonly $values: Partial<Readonly<ModelLimitedSnapshotValues<M>>>;
+} & FosciaObject<typeof SYMBOL_MODEL_SNAPSHOT>;
+
+/**
+ * Model instance snapshot.
  */
 export type ModelSnapshot<M = any> = {
   readonly $instance: ModelInstance;
   readonly $exists: boolean;
   readonly $raw: any;
   readonly $loaded: Dictionary<true>;
-  readonly $values: Partial<ModelValues<M>>;
-};
+  readonly $values: Partial<Readonly<ModelSnapshotValues<M>>>;
+} & FosciaObject<typeof SYMBOL_MODEL_SNAPSHOT>;
 
 /**
  * Infer the definition from a model class or model instance.
@@ -712,6 +757,18 @@ export type InferModelSchemaProp<M, K, P extends ModelProp = ModelProp> =
     ? ModelSchema<InferModelDefinition<M>>[K] extends P
       ? ModelSchema<InferModelDefinition<M>>[K]
       : never : never;
+
+/**
+ * Model snapshot values map (only IDs/attributes/relations).
+ */
+export type ModelSnapshotValues<M> = ModelSnapshotDefinitionValues<InferModelDefinition<M>>;
+
+/**
+ * Model limited snapshot values map (only IDs).
+ */
+export type ModelLimitedSnapshotValues<
+  M,
+> = ModelLimitedSnapshotDefinitionValues<InferModelDefinition<M>>;
 
 /**
  * Model class or instance values map (only IDs/attributes/relations).

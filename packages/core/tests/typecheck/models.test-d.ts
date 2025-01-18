@@ -1,6 +1,18 @@
 /* eslint-disable max-classes-per-file */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
-import { attr, fill, hasOne, makeModel, normalizeDotRelations, toString } from '@foscia/core';
+import {
+  attr,
+  fill,
+  hasOne,
+  makeModel,
+  ModelInstance,
+  ModelLimitedSnapshot,
+  ModelSnapshot,
+  normalizeDotRelations,
+  takeSnapshot,
+  toString,
+} from '@foscia/core';
 import { expectTypeOf, test } from 'vitest';
 import CommentMock from '../mocks/models/comment.mock';
 import FileMock from '../mocks/models/file.mock';
@@ -9,6 +21,47 @@ import TagMock from '../mocks/models/tag.mock';
 import UserMock from '../mocks/models/user.mock';
 
 test('Models are type safe', () => {
+  const anyInstance = {} as unknown as ModelInstance;
+
+  expectTypeOf(anyInstance.id).toEqualTypeOf<any>();
+  expectTypeOf(anyInstance.anything).toEqualTypeOf<any>();
+  expectTypeOf(anyInstance.anything.toUpperCase()).toEqualTypeOf<any>();
+  // @ts-expect-error id is any
+  expectTypeOf(anyInstance.id).toEqualTypeOf<unknown>();
+  // @ts-expect-error anything is any
+  expectTypeOf(anyInstance.anything).toEqualTypeOf<unknown>();
+  // @ts-expect-error id is any
+  expectTypeOf(anyInstance.id).toEqualTypeOf<never>();
+  // @ts-expect-error anything is any
+  expectTypeOf(anyInstance.anything).toEqualTypeOf<never>();
+
+  const anySnapshot1 = {} as unknown as ModelSnapshot;
+  const anySnapshot2 = takeSnapshot(anyInstance);
+
+  expectTypeOf(anySnapshot1.$values.id).toEqualTypeOf<any>();
+  expectTypeOf(anySnapshot1.$values.anything).toEqualTypeOf<any>();
+  expectTypeOf(anySnapshot1.$values.anything.toUpperCase()).toEqualTypeOf<any>();
+  // @ts-expect-error id is any
+  expectTypeOf(anySnapshot1.$values.id).toEqualTypeOf<unknown>();
+  // @ts-expect-error anything is any
+  expectTypeOf(anySnapshot1.$values.anything).toEqualTypeOf<unknown>();
+  // @ts-expect-error id is any
+  expectTypeOf(anySnapshot1.$values.id).toEqualTypeOf<never>();
+  // @ts-expect-error anything is any
+  expectTypeOf(anySnapshot1.$values.anything).toEqualTypeOf<never>();
+
+  expectTypeOf(anySnapshot2.$values.id).toEqualTypeOf<any>();
+  expectTypeOf(anySnapshot2.$values.anything).toEqualTypeOf<any>();
+  expectTypeOf(anySnapshot2.$values.anything.toUpperCase()).toEqualTypeOf<any>();
+  // @ts-expect-error id is any
+  expectTypeOf(anySnapshot2.$values.id).toEqualTypeOf<unknown>();
+  // @ts-expect-error anything is any
+  expectTypeOf(anySnapshot2.$values.anything).toEqualTypeOf<unknown>();
+  // @ts-expect-error id is any
+  expectTypeOf(anySnapshot2.$values.id).toEqualTypeOf<never>();
+  // @ts-expect-error anything is any
+  expectTypeOf(anySnapshot2.$values.anything).toEqualTypeOf<never>();
+
   const post = new PostMock();
 
   expectTypeOf(post.id).toEqualTypeOf<string | number | null>();
@@ -36,6 +89,27 @@ test('Models are type safe', () => {
   // @ts-expect-error published is not a model's value
   fill(post, { published: false });
 
+  const postSnapshot = takeSnapshot(post);
+
+  expectTypeOf(postSnapshot.$values.id).toEqualTypeOf<string | number | null | undefined>();
+  expectTypeOf(postSnapshot.$values.lid).toEqualTypeOf<string | number | null | undefined>();
+  expectTypeOf(postSnapshot.$values.title).toEqualTypeOf<string | undefined>();
+  expectTypeOf(postSnapshot.$values.body).toEqualTypeOf<string | null | undefined>();
+  expectTypeOf(postSnapshot.$values.publishedAt).toEqualTypeOf<Date | null | undefined>();
+  expectTypeOf(postSnapshot.$values.commentsCount).toEqualTypeOf<number | undefined>();
+  // eslint-disable-next-line max-len
+  expectTypeOf(postSnapshot.$values.comments).toEqualTypeOf<(ModelSnapshot<CommentMock> | ModelLimitedSnapshot<CommentMock>)[] | undefined>();
+  // @ts-expect-error notFound property does not exists
+  postSnapshot.$values.notFound;
+  // @ts-expect-error published property does not exists
+  postSnapshot.$values.published;
+  // @ts-expect-error title is readonly
+  postSnapshot.$values.title = 'Hello World';
+
+  expectTypeOf(postSnapshot.$values.comments![0].$values.id)
+    .toEqualTypeOf<number | null | undefined>();
+  expectTypeOf(postSnapshot.$values.comments![0].$values.lid).toEqualTypeOf<string | undefined>();
+
   const comment = new CommentMock();
 
   expectTypeOf(comment.id).toEqualTypeOf<number | null>();
@@ -53,6 +127,15 @@ test('Models are type safe', () => {
   fill(comment, { body: new Date() });
   // @ts-expect-error postedAt is a date
   fill(comment, { postedAt: 'Hello World' });
+
+  const commentSnapshot = takeSnapshot(comment);
+
+  expectTypeOf(commentSnapshot.$values.id).toEqualTypeOf<number | null | undefined>();
+  expectTypeOf(commentSnapshot.$values.lid).toEqualTypeOf<string | undefined>();
+  expectTypeOf(commentSnapshot.$values.body).toEqualTypeOf<string | undefined>();
+  expectTypeOf(commentSnapshot.$values.postedAt).toEqualTypeOf<Date | undefined>();
+  expectTypeOf(commentSnapshot.$values.postedBy)
+    .toEqualTypeOf<(ModelSnapshot<UserMock> | ModelLimitedSnapshot<UserMock>) | undefined>();
 
   normalizeDotRelations(PostMock, ['comments']);
   normalizeDotRelations(PostMock, ['comments.postedBy']);

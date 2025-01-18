@@ -100,7 +100,7 @@ const makeModelClass = (
     },
   });
 
-  model.configure = function configureModel(newConfig?: ModelConfig, override = true) {
+  model.configure = function configureModel(newConfig?: Partial<ModelConfig>, override = true) {
     return makeModelClass(
       this.$type,
       mergeConfig(this.$config, newConfig ?? {}, override),

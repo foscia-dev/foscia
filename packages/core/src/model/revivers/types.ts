@@ -1,5 +1,45 @@
-import { ModelInstance } from '@foscia/core/model/types';
+import {
+  Model,
+  ModelInstance,
+  ModelLimitedSnapshot,
+  ModelSnapshot,
+} from '@foscia/core/model/types';
 import { Dictionary } from '@foscia/shared';
+
+/**
+ * Objects which have can be dereferenced to a
+ * {@link ReducerReferenceable | `ReducerReferenceable`}.
+ *
+ * @internal
+ */
+export type ReviverDereferenceable = {
+  $ref: string;
+};
+
+/**
+ * Objects which have can be referenced to a
+ * {@link ReviverDereferenceable | `ReviverDereferenceable`}.
+ *
+ * @internal
+ */
+export type ReducerReferenceable =
+  | ModelInstance
+  | ModelSnapshot
+  | ModelLimitedSnapshot;
+
+/**
+ * Map of parent objects which have been referenced.
+ *
+ * @internal
+ */
+export type ReducerParentsMap = Map<ReducerReferenceable, string>;
+
+/**
+ * Map of parent objects which have been dereferenced.
+ *
+ * @internal
+ */
+export type ReviverParentsMap = Map<string, ReducerReferenceable>;
 
 /**
  * Reduced (serialized) model class.
@@ -16,13 +56,15 @@ export type ReducedModel = {
  *
  * @internal
  */
-export type ReducedModelSnapshot = {
-  $FOSCIA_TYPE: 'snapshot';
-  $exists: boolean;
-  $raw: any;
-  $loaded: Dictionary<true>;
-  $values: Dictionary;
-};
+export type ReducedModelSnapshot =
+  & {
+    $FOSCIA_TYPE: 'snapshot';
+    $instance: ReducedModelInstance | ReducedModelCircularRef;
+    $exists: boolean;
+    $values: Dictionary;
+  }
+  & ({ $raw: any; $loaded: Dictionary<true>; } | {})
+  & ReviverDereferenceable;
 
 /**
  * Reduced (serialized) model instance data.
@@ -42,12 +84,23 @@ export type ReducedModelInstanceData = {
  *
  * @internal
  */
-export type ReducedModelInstance = {
-  $FOSCIA_TYPE: 'instance';
-  $model: ReducedModel;
+export type ReducedModelInstance =
+  & {
+    $FOSCIA_TYPE: 'instance';
+    $model: ReducedModel;
+    $data?: ReducedModelInstanceData;
+    $custom?: ReducedModelInstanceCustomData;
+  }
+  & ReviverDereferenceable;
+
+/**
+ * Reduced (serialized) value reference.
+ *
+ * @internal
+ */
+export type ReducedModelCircularRef = {
+  $FOSCIA_TYPE: 'circular';
   $ref: string;
-  $data?: ReducedModelInstanceData;
-  $custom?: ReducedModelInstanceCustomData;
 };
 
 /**
@@ -59,16 +112,6 @@ export type ReducedModelInstanceCustomData = {
    * This provides Foscia data override.
    */
   $data?: ReducedModelInstanceData;
-};
-
-/**
- * Reduced (serialized) model instance reference.
- *
- * @internal
- */
-export type ReducedModelCircularRef = {
-  $FOSCIA_TYPE: 'circular';
-  $ref: string;
 };
 
 /**
@@ -118,4 +161,19 @@ export type ModelCanReduceRevive<T extends ReducedModelInstanceCustomData = any>
    * @param tools
    */
   $revive(customData: T, tools: ModelReviveTools): void;
+};
+
+/**
+ * Config for the models reviver.
+ */
+export type ModelsReviverConfig = {
+  models: Model[];
+  revive?: (value: unknown) => unknown;
+};
+
+/**
+ * Config for the models reducer.
+ */
+export type ModelsReducerConfig = {
+  reduce?: (value: unknown) => unknown;
 };
