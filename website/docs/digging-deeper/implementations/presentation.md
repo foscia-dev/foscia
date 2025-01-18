@@ -55,8 +55,8 @@ sources.
 `Deserializer` to interact with JSON:API data sources.
 
 - [Adapter through `makeJsonApiAdapter`](/docs/digging-deeper/implementations/jsonapi#makejsonapiadapter)
-- [Serializer through `makeJsonApiSerializer`](/docs/digging-deeper/implementations/jsonapi#makejsonapiserializer)
 - [Deserializer through `makeJsonApiDeserializer`](/docs/digging-deeper/implementations/jsonapi#makejsonapideserializer)
+- [Serializer through `makeJsonApiSerializer`](/docs/digging-deeper/implementations/jsonapi#makejsonapiserializer)
 
 ### REST
 
@@ -64,13 +64,13 @@ sources.
 `Deserializer` to interact with JSON REST HTTP data sources.
 
 - [Adapter through `makeRestAdapter`](/docs/digging-deeper/implementations/rest#makerestadapter)
-- [Serializer through `makeRestSerializer`](/docs/digging-deeper/implementations/rest#makerestserializer)
 - [Deserializer through `makeRestDeserializer`](/docs/digging-deeper/implementations/rest#makerestdeserializer)
+- [Serializer through `makeRestSerializer`](/docs/digging-deeper/implementations/rest#makerestserializer)
 
 ### Serialization
 
 `@foscia/serialization` provides partial implementations of `Serializer` and
 `Deserializer` to transform model instances to/from record generic records.
 
-- [Serializer through `makeSerializer`](/docs/digging-deeper/implementations/serialization#makeserializer)
 - [Deserializer through `makeDeserializer`](/docs/digging-deeper/implementations/serialization#makedeserializer)
+- [Serializer through `makeSerializer`](/docs/digging-deeper/implementations/serialization#makeserializer)

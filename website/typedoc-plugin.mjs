@@ -72,6 +72,8 @@ export function load(app) {
           page.contents = page.contents.replace(matches[0], `\n${chipFactory()}\n`);
         }
       });
+
+      page.contents = page.contents.replace(/\[\\`([^`]+)\\`]\(([^)]+)\)/g, '[`$1`]($2)');
     }
   });
 }
