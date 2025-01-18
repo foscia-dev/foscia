@@ -109,6 +109,7 @@ export * from '@foscia/core/actions/types';
 export * from '@foscia/core/cache/types';
 export * from '@foscia/core/errors/flags/types';
 export * from '@foscia/core/hooks/types';
+export * from '@foscia/core/logger/types';
 export * from '@foscia/core/model/props/builders/types';
 export * from '@foscia/core/model/revivers/types';
 export * from '@foscia/core/model/types';

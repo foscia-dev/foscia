@@ -34,7 +34,7 @@ write messages on.
 ### Configuring minimum log level
 
 You can configure the minimum log level by changing the
-[`level`](/docs/api/@foscia/core/variables/logger#level) property
+[`level`](/docs/api/@foscia/core/type-aliases/Logger#level) property
 of the logger to any level in `error`, `warn`, `info` and `debug`.
 
 Setting the property to `null` will totally disable logging.
