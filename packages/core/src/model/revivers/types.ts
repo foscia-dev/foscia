@@ -52,19 +52,40 @@ export type ReducedModel = {
 };
 
 /**
- * Reduced (serialized) model snapshot.
+ * Reduced (serialized) model limited snapshot.
  *
  * @internal
  */
-export type ReducedModelSnapshot =
+export type ReducedModelLimitedSnapshot =
   & {
     $FOSCIA_TYPE: 'snapshot';
     $instance: ReducedModelInstance | ReducedModelCircularRef;
     $exists: boolean;
     $values: Dictionary;
   }
-  & ({ $raw: any; $loaded: Dictionary<true>; } | {})
   & ReviverDereferenceable;
+
+/**
+ * Reduced (serialized) model limited snapshot.
+ *
+ * @internal
+ */
+export type ReducedModelFullSnapshot =
+  & {
+    $original: ReducedModelSnapshot | ReducedModelCircularRef | null;
+    $raw: any;
+    $loaded: Dictionary<true>;
+  }
+  & ReducedModelLimitedSnapshot;
+
+/**
+ * Reduced (serialized) model snapshot.
+ *
+ * @internal
+ */
+export type ReducedModelSnapshot =
+  | ReducedModelLimitedSnapshot
+  | ReducedModelFullSnapshot;
 
 /**
  * Reduced (serialized) model instance data.

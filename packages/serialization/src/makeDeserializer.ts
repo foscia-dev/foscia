@@ -212,7 +212,7 @@ You should either:
     setInstanceId('lid');
 
     await Promise.all([
-      ...mapAttributes(instance, async (def) => {
+      ...mapAttributes(instance.$model, async (def) => {
         const deserializerContext = await makeDeserializerContext(
           instance,
           def,
@@ -225,7 +225,7 @@ You should either:
           });
         }
       }),
-      ...mapRelations(instance, async (def) => {
+      ...mapRelations(instance.$model, async (def) => {
         const deserializerContext = await makeDeserializerContext(
           instance,
           def,

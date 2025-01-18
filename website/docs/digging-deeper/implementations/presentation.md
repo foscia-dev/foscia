@@ -21,7 +21,7 @@ There are 5 kinds of dependency:
   will deserialize records to instances. It might use the cache and
   registry internally.
 - [`Serializer`](/docs/api/@foscia/core/type-aliases/Serializer)
-  will serialize instances to the data source format.
+  will serialize instances' snapshots to the data source format.
 - [`InstancesCache`](/docs/api/@foscia/core/type-aliases/InstancesCache)
   will store already fetched models instances. It will avoid multiple
   instances of the same record coexisting and allows you to retrieve already

@@ -9,6 +9,7 @@ const takeFullSnapshot = <I extends ModelInstance>(
 ) => {
   const snapshot: ModelSnapshot<I> = {
     $FOSCIA_TYPE: SYMBOL_MODEL_SNAPSHOT,
+    $original: instance.$original ?? null,
     $instance: instance,
     $exists: instance.$exists,
     $raw: instance.$raw,

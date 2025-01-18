@@ -23,21 +23,12 @@ export default <
 >(
   config?: Partial<JsonApiSerializerConfig<Record, Related, Data>>,
 ) => makeSerializer({
-  serializeRelation: (_, related) => ({
-    type: related.$model.$type,
-    id: serializeId(related.id),
-    lid: serializeId(related.lid),
-  }),
-  serializeRelated: (_, related) => ({
-    type: related.$model.$type,
-    id: serializeId(related.id),
-  } as Related),
   createData: (records) => ({ data: records } as Data),
   createRecord: makeSerializerRecordFactory(
-    (instance) => ({
-      type: instance.$model.$type,
-      id: serializeId(instance.id),
-      lid: serializeId(instance.lid),
+    (snapshot) => ({
+      type: snapshot.$instance.$model.$type,
+      id: serializeId(snapshot.$values.id),
+      lid: serializeId(snapshot.$values.lid),
       attributes: {},
       relationships: {},
     } as Record),
@@ -51,5 +42,14 @@ export default <
       }
     },
   ),
+  serializeRelation: (_, related) => ({
+    type: related.$instance.$model.$type,
+    id: serializeId(related.$values.id),
+    lid: serializeId(related.$values.lid),
+  }),
+  serializeRelated: (_, related) => ({
+    type: related.$instance.$model.$type,
+    id: serializeId(related.$values.id),
+  } as Related),
   ...config,
 });

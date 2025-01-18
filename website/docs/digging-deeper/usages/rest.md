@@ -229,7 +229,9 @@ makeRestDeserializer({
 By default, REST implementation will only serialize the related IDs as the
 serialized relation's data. You can customize this behavior using
 [`serializeRelation`](/docs/api/@foscia/serialization/type-aliases/SerializerConfig#serializerelation)
-option.
+option, which will provide the related instance snapshot.
+
+#### Supporting polymorphism
 
 Here is an example which will serialize ID and type to support polymorphic
 relations:
@@ -238,11 +240,28 @@ relations:
 import { makeRestSerializer } from '@foscia/rest';
 
 makeRestSerializer({
-  serializeRelation: (_, related) => ({ type: related.$model.$type, id: related.id }),
+  serializeRelation: (_, related) => ({
+    type: related.$instance.$model.$type,
+    id: related.$values.id,
+  }),
 });
 ```
 
-Here is another example where we serialize the whole related record:
+:::info
+
+Be aware that the serializer is using instance snapshots (not instances), this
+is why we are accessing the `id` property inside a `related.$values` object
+instead of directly on the `related` object.
+This allows locking the values during an action execution process.
+
+:::
+
+#### Deeply serializing instances
+
+Here is another example where we serialize the whole related record. Since
+related instances' snapshots are limited and only contain ID by default,
+you must disable [`limitedSnapshots`](/docs/digging-deeper/models/models-configuration#limitedsnapshots)
+to make it work.
 
 ```typescript
 import { makeRestSerializer } from '@foscia/rest';

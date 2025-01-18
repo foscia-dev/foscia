@@ -105,6 +105,7 @@ export default (config: ModelsReducerConfig = {}) => {
       $exists: snapshot.$exists,
       $values: reduceValues(snapshot.$values, parents),
       ...('$raw' in snapshot ? {
+        $original: snapshot.$original ? reduceSnapshot(snapshot.$original, parents) : null,
         $raw: snapshot.$raw,
         $loaded: snapshot.$loaded,
       } : {}),

@@ -286,6 +286,26 @@ makeRefsCache({
 });
 ```
 
+### Serializer functions signature changed to use snapshots
+
+**Likelihood Of Impact: Low**
+
+`makeSerializer` and all associated functions or types are now serializing
+instances' snapshots instead of instances. This provides a more consistent
+attributes and relations serialization and operation in time-critic systems.
+
+If you are directly using the serializer, you should use the new call signature
+and provide snapshots instead of instances. If you are using a custom
+serializer, you must change your implementation to match the signature
+requirements.
+
+```typescript
+// highlight.deletion
+serializer.serializeInstance(instance, context)
+// highlight.addition
+serializer.serializeToRecords(takeSnapshot(instance), context)
+```
+
 ### `$model` property of snapshots is replaced by `$instance`
 
 **Likelihood Of Impact: Low**

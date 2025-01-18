@@ -68,8 +68,8 @@ implementation which will produce a generic record value from a model instance.
 
 It handles multiple features, such as:
 
-- Serialize instance into generic record value
-- Serialize relation instances into generic record values
+- Serialize instances' snapshots into generic record value
+- Serialize relation instances' snapshots into generic record values
 - Serialize generic record values into adapter's data format
 - Only serialize changed instance's values
 - Use model's properties aliases and value transformers.
@@ -83,7 +83,7 @@ import { makeSerializer, makeSerializerRecordFactory } from '@foscia/serializati
 const serializer = makeSerializer({
   createData: (records) => records,
   createRecord: makeSerializerRecordFactory(
-    (instance) => ({ id: instance.id } as Record<string, any>),
+    (snapshot) => ({ id: snapshot.$values.id } as Record<string, any>),
     (record, { key, value }) => {
       record[key] = value;
     },

@@ -1,4 +1,4 @@
-import { ModelInstance, ModelRelation, SerializerError } from '@foscia/core';
+import { ModelRelation, ModelSnapshot, SerializerError } from '@foscia/core';
 import { SerializerCircularRelationBehavior } from '@foscia/serialization/types';
 
 /**
@@ -10,12 +10,12 @@ export default class SerializerCircularRelationError extends SerializerError {
   public readonly behavior: SerializerCircularRelationBehavior;
 
   public constructor(
-    instance: ModelInstance,
+    snapshot: ModelSnapshot,
     relation: ModelRelation,
     behavior: SerializerCircularRelationBehavior,
   ) {
     super(
-      `Circular relation detected on \`${instance.$model.$type}.${relation.key}\` during serialization. Handling it with behavior \`${behavior}\`.`,
+      `Circular relation detected on \`${snapshot.$instance.$model.$type}.${relation.key}\` during serialization. Handling it with behavior \`${behavior}\`.`,
     );
 
     this.behavior = behavior;

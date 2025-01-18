@@ -722,6 +722,7 @@ export type ModelLimitedSnapshot<M = any> = {
  */
 export type ModelSnapshot<M = any> = {
   readonly $instance: ModelInstance;
+  readonly $original: ModelSnapshot | null;
   readonly $exists: boolean;
   readonly $raw: any;
   readonly $loaded: Dictionary<true>;

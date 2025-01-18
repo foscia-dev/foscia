@@ -1,4 +1,10 @@
-import type { Model, ModelIdType, ModelInstance, ModelRelation } from '@foscia/core/model/types';
+import type {
+  Model,
+  ModelIdType,
+  ModelInstance,
+  ModelRelation,
+  ModelSnapshot,
+} from '@foscia/core/model/types';
 import type { Arrayable, Awaitable } from '@foscia/shared';
 
 /**
@@ -101,46 +107,6 @@ export type Adapter<RawData, Data = any> = {
 };
 
 /**
- * Serializer converting model instances to adapter data source format.
- *
- * @typeParam Record Serialized value for an instance.
- * @typeParam Related Serialized value for a related instance.
- * @typeParam Data Serialized value for one/many/none instances.
- * Usually, it is a wrapper type for `Record` or `Related` records.
- */
-export type Serializer<Record, Related, Data> = {
-  /**
-   * Serialize a given instance value.
-   *
-   * @param value
-   * @param context
-   */
-  serializeInstance(value: ModelInstance, context: {}): Awaitable<Record>;
-  /**
-   * Serialize a given instance's relation value.
-   *
-   * @param instance
-   * @param def
-   * @param value
-   * @param context
-   */
-  serializeRelation(
-    instance: ModelInstance,
-    def: ModelRelation,
-    value: Arrayable<ModelInstance> | null,
-    context: {},
-  ): Awaitable<Arrayable<Related> | null>;
-  /**
-   * Serialize a set of already serialized records.
-   * This should be used to "wrap" records.
-   *
-   * @param records
-   * @param context
-   */
-  serialize(records: Arrayable<Record | Related> | null, context: {}): Awaitable<Data>;
-};
-
-/**
  * Base deserialized data which must contain at least an instances array.
  */
 export type DeserializedData<I extends ModelInstance = ModelInstance> = {
@@ -165,4 +131,111 @@ export type Deserializer<Data, Deserialized extends DeserializedData = Deseriali
    * @param context
    */
   deserialize(data: Data, context: {}): Awaitable<Deserialized>;
+};
+
+/**
+ * Serializer converting model instances to adapter data source format.
+ *
+ * @typeParam Record Serialized value for an instance.
+ * @typeParam RelatedRecord Serialized value for a related instance.
+ * @typeParam Data Serialized value for one/many/none instances.
+ * Usually, it is a wrapper type for `Record` or `RelatedRecord` records.
+ */
+export type Serializer<Record, RelatedRecord, Data> = {
+  /**
+   * Serialize snapshots to records.
+   *
+   * @param snapshot
+   * @param context
+   */
+  serializeToRecords(snapshot: ModelSnapshot, context: {}): Awaitable<Record>;
+  /**
+   * Serialize snapshots to records.
+   *
+   * @param snapshots
+   * @param context
+   */
+  serializeToRecords(snapshots: ModelSnapshot[], context: {}): Awaitable<Record[]>;
+  /**
+   * Serialize snapshots to records.
+   *
+   * @param snapshot
+   * @param context
+   */
+  serializeToRecords(snapshot: null, context: {}): Awaitable<null>;
+  /**
+   * Serialize snapshots to records.
+   *
+   * @param snapshot
+   * @param context
+   */
+  serializeToRecords(
+    snapshot: ModelSnapshot[] | ModelSnapshot | null,
+    context: {},
+  ): Awaitable<Record[] | Record | null>;
+  /**
+   * Serialize related snapshots to related records.
+   *
+   * @param parent
+   * @param def
+   * @param snapshot
+   * @param context
+   */
+  serializeToRelatedRecords(
+    parent: ModelSnapshot,
+    def: ModelRelation,
+    snapshot: ModelSnapshot,
+    context: {},
+  ): Awaitable<RelatedRecord>;
+  /**
+   * Serialize related snapshots to related records.
+   *
+   * @param parent
+   * @param def
+   * @param snapshots
+   * @param context
+   */
+  serializeToRelatedRecords(
+    parent: ModelSnapshot,
+    def: ModelRelation,
+    snapshots: ModelSnapshot[],
+    context: {},
+  ): Awaitable<RelatedRecord[]>;
+  /**
+   * Serialize related snapshots to related records.
+   *
+   * @param parent
+   * @param def
+   * @param snapshot
+   * @param context
+   */
+  serializeToRelatedRecords(
+    parent: ModelSnapshot,
+    def: ModelRelation,
+    snapshot: null,
+    context: {},
+  ): Awaitable<null>;
+  /**
+   * Serialize related snapshots to related records.
+   *
+   * @param parent
+   * @param def
+   * @param snapshot
+   * @param context
+   */
+  serializeToRelatedRecords(
+    parent: ModelSnapshot,
+    def: ModelRelation,
+    snapshot: ModelSnapshot[] | ModelSnapshot | null,
+    context: {},
+  ): Awaitable<RelatedRecord[] | RelatedRecord | null>;
+  /**
+   * Serialize already serialized records to data.
+   * It will usually only wrap records if necessary (e.g. to a `data` key
+   * in a JSON:API context).
+   *
+   * @param records
+   * @param context
+   */
+  serializeToData(records: Arrayable<Record | RelatedRecord> | null, context: {}): Awaitable<Data>;
 };

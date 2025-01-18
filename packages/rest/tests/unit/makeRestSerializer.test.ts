@@ -4,14 +4,19 @@ import {
   hasMany,
   hasOne,
   makeComposable,
-  makeModel,
+  makeModelFactory,
   makeTransformer,
+  takeSnapshot,
 } from '@foscia/core';
 import { makeRestSerializer, RestSerializerConfig } from '@foscia/rest';
 import { Awaitable } from '@foscia/shared';
 import { Assertion, describe, expect, it } from 'vitest';
 
 describe.concurrent('unit: makeRestSerializer', () => {
+  const makeModel = makeModelFactory({
+    limitedSnapshots: false,
+  });
+
   const authored = makeComposable({
     author: hasOne(),
   });
@@ -132,7 +137,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
       post1,
       {
         serializeRelation: (context, related, parents) => context.serializer
-          .serializeInstance(related, context, parents),
+          .serializeToRecords(related, context, parents),
       },
       {},
       (assertion: Assertion) => assertion.resolves.toStrictEqual({
@@ -169,7 +174,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
       {
         serializeType: true,
         serializeRelation: (context, related, parents) => context.serializer
-          .serializeInstance(related, context, parents),
+          .serializeToRecords(related, context, parents),
         circularRelationBehavior: () => 'keep',
       },
       {},
@@ -270,7 +275,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
       {
         circularRelationBehavior: () => 'throw',
         serializeRelation: (context, related, parents) => context.serializer
-          .serializeInstance(related, context, parents),
+          .serializeToRecords(related, context, parents),
       },
       {},
       (assertion: Assertion) => assertion.rejects.toThrowError(
@@ -281,8 +286,8 @@ describe.concurrent('unit: makeRestSerializer', () => {
     'should serialize instance with configuration',
     async (instance, config, context, expectation) => {
       const { serializer } = makeRestSerializer(config);
-      const serialize = async () => serializer.serialize(
-        await serializer.serializeInstance(instance, context),
+      const serialize = async () => serializer.serializeToData(
+        await serializer.serializeToRecords(takeSnapshot(instance), context),
         context,
       );
 
@@ -301,8 +306,8 @@ describe.concurrent('unit: makeRestSerializer', () => {
       post1,
       {
         serializeRelated: (_, related) => ({
-          type: related.$model.$type,
-          id: related.id,
+          type: related.$instance.$model.$type,
+          id: related.$values.id,
         }),
       },
       {},
@@ -315,7 +320,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
       post1,
       {
         serializeRelated: (context, related, parents) => context.serializer
-          .serializeInstance(related, context, parents),
+          .serializeToRecords(related, context, parents),
       },
       {},
       (assertion: Assertion) => assertion.resolves.toStrictEqual({
@@ -328,11 +333,11 @@ describe.concurrent('unit: makeRestSerializer', () => {
     'should serialize relation with configuration',
     async (instance, config, context, expectation) => {
       const { serializer } = makeRestSerializer(config);
-      const serialize = async () => serializer.serialize(
-        await serializer.serializeRelation(
-          instance,
+      const serialize = async () => serializer.serializeToData(
+        await serializer.serializeToRelatedRecords(
+          takeSnapshot(instance),
           instance.$model.$schema.author,
-          instance.author,
+          takeSnapshot(instance.author),
           context,
         ),
         context,
@@ -356,7 +361,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
       serializeAttribute: ({ value }) => String(value).toUpperCase(),
     });
 
-    await expect(serializer.serializeInstance(instance, {})).resolves.toStrictEqual({
+    await expect(serializer.serializeToRecords(takeSnapshot(instance), {})).resolves.toStrictEqual({
       id: undefined,
       BAR: 'BAR',
     });

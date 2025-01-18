@@ -71,26 +71,14 @@ export default (async (
    * Guess the model targeted by the given context.
    *
    * @param context
-   *
-   * @internal
-   */
-  (context: GuessContextModelContext): Promise<Model | null>;
-  /**
-   * Guess the model targeted by the given context.
-   *
-   * @param context
    * @param multiple
-   *
-   * @internal
    */
-  (context: GuessContextModelContext, multiple: false): Promise<Model | null>;
+  (context: GuessContextModelContext, multiple?: false): Promise<Model | null>;
   /**
    * Guess the models targeted by the given context.
    *
    * @param context
    * @param multiple
-   *
-   * @internal
    */
   (context: GuessContextModelContext, multiple: true): Promise<Model[]>;
 };

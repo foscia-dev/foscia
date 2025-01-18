@@ -122,6 +122,7 @@ export default (config: ModelsReviverConfig) => {
       $instance: null as any,
       $values: null as any,
       ...('$raw' in value ? {
+        $original: null,
         $raw: value.$raw,
         $loaded: value.$loaded,
       } : {}),
@@ -132,6 +133,10 @@ export default (config: ModelsReviverConfig) => {
       snapshot.$values = reviveValues(value.$values, parents);
       // @ts-ignore
       snapshot.$instance = reviveInstance(value.$instance, parents);
+      if ('$raw' in value && value.$original) {
+        // @ts-ignore
+        snapshot.$original = reviveSnapshot(value.$original, parents);
+      }
       /* eslint-enable */
     },
   );

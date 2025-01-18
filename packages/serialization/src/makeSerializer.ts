@@ -1,10 +1,10 @@
 import {
-  changed,
+  isSameSnapshot,
   mapAttributes,
   mapRelations,
   ModelAttribute,
-  ModelInstance,
   ModelRelation,
+  ModelSnapshot,
   normalizeKey,
   shouldSync,
 } from '@foscia/core';
@@ -32,38 +32,41 @@ export default <Record, Related, Data>(
     ?? ((context) => (
       shouldSync(context.def, ['push'])
       && context.value !== undefined
-      && changed(context.instance, context.def.key)
+      && (
+        !context.snapshot.$original
+        || !isSameSnapshot(context.snapshot, context.snapshot.$original, context.def.key)
+      )
     ));
 
   const serializeKey = config.serializeKey
-    ?? ((context) => normalizeKey(context.instance.$model, context.def.key));
+    ?? ((context) => normalizeKey(context.snapshot.$instance.$model, context.def.key));
 
   const serializeAttributeValue = config.serializeAttribute
     ?? ((context) => (context.def.transformer?.serialize ?? ((v) => v))(context.value));
 
   const serializeRelation = config.serializeRelation
-    ?? ((_, related) => related.id);
+    ?? ((_, related) => related.$values.id);
 
   const serializeRelated = config.serializeRelated
-    ?? ((_, related) => related.id);
+    ?? ((_, related) => related.$values.id);
 
   const serializeRelationWith = async <T>(
     context: SerializerContext<Record, Related, Data, ModelRelation>,
     serialize: (
       context: SerializerContext<Record, Related, Data, ModelRelation>,
-      related: ModelInstance,
+      snapshot: ModelSnapshot,
       parents: SerializerParents,
     ) => Awaitable<T>,
     parents: SerializerParents,
   ) => mapArrayable(context.value, (related) => serialize(
     context,
-    related as ModelInstance,
+    related as ModelSnapshot,
     parents,
   ));
 
   const isCircularRelation = config.isCircularRelation
     ?? ((context, parents) => parents.some((parent) => (
-      parent.instance.$model === context.instance.$model && parent.def === context.def
+      parent.model === context.snapshot.$instance.$model && parent.def === context.def
     )));
 
   const circularRelationBehavior = config.circularRelationBehavior
@@ -72,21 +75,21 @@ export default <Record, Related, Data>(
   let serializer: RecordSerializer<Record, Related, Data>;
 
   const makeSerializerContext = <Def extends ModelAttribute | ModelRelation>(
-    instance: ModelInstance,
+    snapshot: ModelSnapshot,
     def: Def,
     context: {},
-  ) => ({ instance, def, key: def.key, value: instance[def.key], context, serializer });
+  ) => ({ snapshot, def, key: def.key, value: snapshot.$values[def.key], context, serializer });
 
-  const serializeInstance = async (
-    instance: ModelInstance,
+  const serializeToRecords = async (
+    snapshots: ModelSnapshot[] | ModelSnapshot | null,
     context: {},
     parents: SerializerParents = [],
-  ) => {
-    const record = await config.createRecord(instance, context);
+  ) => mapArrayable(snapshots, async (snapshot) => {
+    const record = await config.createRecord(snapshot, context);
 
     await Promise.all([
-      ...mapAttributes(instance, async (def) => {
-        const serializerContext = makeSerializerContext(instance, def, context);
+      ...mapAttributes(snapshot.$instance.$model, async (def) => {
+        const serializerContext = makeSerializerContext(snapshot, def, context);
         if (await shouldSerialize(serializerContext)) {
           const key = await serializeKey(serializerContext);
           const value = await serializeAttributeValue(serializerContext);
@@ -94,8 +97,8 @@ export default <Record, Related, Data>(
           await record.put({ ...serializerContext, key, value });
         }
       }),
-      ...mapRelations(instance, async (def) => {
-        const serializerContext = makeSerializerContext(instance, def, context);
+      ...mapRelations(snapshot.$instance.$model, async (def) => {
+        const serializerContext = makeSerializerContext(snapshot, def, context);
         const isCircular = await isCircularRelation(serializerContext, parents);
         if (isCircular) {
           const circularBehavior = await circularRelationBehavior(serializerContext, parents);
@@ -103,7 +106,7 @@ export default <Record, Related, Data>(
             return;
           }
 
-          throw new SerializerCircularRelationError(instance, def, circularBehavior);
+          throw new SerializerCircularRelationError(snapshot, def, circularBehavior);
         }
 
         if (await shouldSerialize(serializerContext)) {
@@ -111,7 +114,7 @@ export default <Record, Related, Data>(
           try {
             const value = await serializeRelationWith(serializerContext, serializeRelation, [
               ...parents,
-              { instance, def },
+              { model: snapshot.$instance.$model, def },
             ]);
 
             await record.put({ ...serializerContext, key, value });
@@ -129,30 +132,28 @@ export default <Record, Related, Data>(
     ]);
 
     return record.retrieve();
-  };
-
-  const serialize = async (
-    records: Arrayable<Record> | null,
-    context: {},
-  ) => (config.createData ? config.createData(records, context) : records) as Data;
+  });
 
   serializer = {
-    serializeRelation: async (
-      instance: ModelInstance,
+    serializeToRelatedRecords: async (
+      parent: ModelSnapshot,
       def: ModelRelation,
-      value: Arrayable<ModelInstance> | null,
+      value: ModelSnapshot[] | ModelSnapshot | null,
       context: {},
     ) => using(
-      makeSerializerContext(instance, def, context),
+      makeSerializerContext(parent, def, context),
       (serializerContext) => serializeRelationWith(
         { ...serializerContext, value },
         serializeRelated,
-        [{ instance, def }],
+        [{ model: parent.$instance.$model, def }],
       ),
     ),
-    serializeInstance,
-    serialize,
-  };
+    serializeToRecords,
+    serializeToData: async (
+      records: Arrayable<Record> | null,
+      context: {},
+    ) => (config.createData ? config.createData(records, context) : records) as Data,
+  } as RecordSerializer<Record, Related, Data>;
 
   return { serializer };
 };

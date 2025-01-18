@@ -1,11 +1,18 @@
-import { fill, hasMany, hasOne, makeModel } from '@foscia/core';
+import { fill, hasMany, hasOne, makeModelFactory, takeSnapshot } from '@foscia/core';
 import { makeSerializer, makeSerializerRecordFactory } from '@foscia/serialization';
 import { Dictionary } from '@foscia/shared';
 import { describe, expect, it } from 'vitest';
 
 describe('unit: makeSerializer', () => {
   it.concurrent('should support circular relations', async () => {
-    const PostMock = makeModel('posts', {
+    const makeModel = makeModelFactory({
+      limitedSnapshots: false,
+    });
+
+    const PostMock = makeModel({
+      type: 'posts',
+      limitedSnapshots: false,
+    }, {
       comments: hasMany(),
     });
     const CommentMock = makeModel('comments', {
@@ -25,18 +32,18 @@ describe('unit: makeSerializer', () => {
 
     const { serializer: deepSerializer } = makeSerializer({
       createRecord: makeSerializerRecordFactory(
-        (instance) => ({ id: instance.id } as Dictionary),
+        (snapshot) => ({ id: snapshot.$values.id } as Dictionary),
         (record, { key, value }) => {
           // eslint-disable-next-line no-param-reassign
           record[key] = value;
         },
       ),
       serializeRelation: ({ serializer, context }, related, parents) => serializer
-        .serializeInstance(related, context, parents),
+        .serializeToRecords(related, context, parents),
     });
 
     await expect(
-      deepSerializer.serializeInstance(post, {}),
+      deepSerializer.serializeToRecords(takeSnapshot(post), {}),
     ).resolves.toStrictEqual({
       id: 1,
       comments: [{ id: 2, author: { id: 3 } }],

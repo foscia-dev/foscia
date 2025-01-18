@@ -1,4 +1,4 @@
-import { ModelInstance } from '@foscia/core';
+import { ModelSnapshot } from '@foscia/core';
 import { SerializerContext, SerializerRecordFactory } from '@foscia/serialization/types';
 import { Awaitable, using } from '@foscia/shared';
 
@@ -15,15 +15,15 @@ export default <
   Related,
   Data,
 >(
-  initialize: (instance: ModelInstance, context: {}) => Awaitable<Record>,
+  initialize: (snapshot: ModelSnapshot, context: {}) => Awaitable<Record>,
   put: (
     record: Record,
     serializerContext: SerializerContext<Record, Related, Data>,
   ) => Awaitable<void>,
 ): SerializerRecordFactory<Record, Related, Data> => async (
-  instance: ModelInstance,
+  snapshot: ModelSnapshot,
   context: {},
-) => using(await initialize(instance, context), (record) => ({
+) => using(await initialize(snapshot, context), (record) => ({
   put: (
     serializerContext: SerializerContext<Record, Related, Data>,
   ) => put(record, serializerContext),

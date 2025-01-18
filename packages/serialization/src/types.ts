@@ -6,6 +6,7 @@ import {
   ModelIdType,
   ModelInstance,
   ModelRelation,
+  ModelSnapshot,
   Serializer,
 } from '@foscia/core';
 import { type Arrayable, Awaitable, IdentifiersMap } from '@foscia/shared';
@@ -208,7 +209,7 @@ export type SerializerContext<
   Data = unknown,
   Def = ModelAttribute | ModelRelation,
 > = {
-  instance: ModelInstance;
+  snapshot: ModelSnapshot;
   def: Def;
   key: string;
   value: unknown;
@@ -242,7 +243,7 @@ export type SerializerRecord<Record, Related, Data> = {
  * @internal
  */
 export type SerializerRecordFactory<Record, Related, Data> = (
-  instance: ModelInstance,
+  snapshot: ModelSnapshot,
   context: {},
 ) => Awaitable<SerializerRecord<Record, Related, Data>>;
 
@@ -252,7 +253,7 @@ export type SerializerRecordFactory<Record, Related, Data> = (
  *
  * @internal
  */
-export type SerializerParents = { instance: ModelInstance; def: ModelRelation }[];
+export type SerializerParents = { model: Model; def: ModelRelation }[];
 
 /**
  * Available behaviors to apply when encountering a circular relation:
@@ -322,7 +323,7 @@ export type SerializerConfig<Record, Related, Data> = {
    */
   serializeRelation?: (
     serializerContext: SerializerContext<Record, Related, Data, ModelRelation>,
-    related: ModelInstance,
+    related: ModelSnapshot,
     parents: SerializerParents,
   ) => Awaitable<unknown>;
   /**
@@ -336,7 +337,7 @@ export type SerializerConfig<Record, Related, Data> = {
    */
   serializeRelated?: (
     serializerContext: SerializerContext<Record, Related, Data, ModelRelation>,
-    related: ModelInstance,
+    related: ModelSnapshot,
     parents: SerializerParents,
   ) => Awaitable<Arrayable<Related> | null>;
   /**
@@ -372,17 +373,17 @@ export type SerializerConfig<Record, Related, Data> = {
 export type RecordSerializer<Record, Related, Data> =
   & {
     /**
-     * Serialize a given instance value.
-     * This overload will handle circular relations using the parents of the instance.
+     * Serialize snapshots to records.
+     * This overload handles circular relations using the parents of the instance.
      *
-     * @param instance
+     * @param value
      * @param context
      * @param parents
      */
-    serializeInstance(
-      instance: ModelInstance,
+    serializeToRecords(
+      value: ModelSnapshot,
       context: {},
-      parents?: SerializerParents,
+      parents: SerializerParents,
     ): Awaitable<Record>;
   }
   & Serializer<Record, Related, Data>;
