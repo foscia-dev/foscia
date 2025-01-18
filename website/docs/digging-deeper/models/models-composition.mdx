@@ -74,7 +74,7 @@ export default class Post extends makeModel('posts').extend({ publishable }) {}
 
 ### Using hooks {#composable-using-hooks}
 
-Composables share the [models' hooks system](/docs/core-concepts/models#hooks).
+Composables share the [models' hooks system](/docs/digging-deeper/models/models-hooks).
 Each hooks you define on a composable will be added to models which use
 the composable. This is useful when defining common behaviors, such as
 a UUID keyed model with automatic generation before first saving.
@@ -216,7 +216,7 @@ export default class Post extends makeModel('posts', {
 
 ### Using hooks {#factory-using-hooks}
 
-Models factories share the [models' hooks system](/docs/core-concepts/models#hooks).
+Models factories share the [models' hooks system](/docs/digging-deeper/models/models-hooks).
 Each hooks you define on a factory will be added to models which are defined
 using the factory. This is useful when defining common behaviors, such as a UUID
 keyed model with automatic generation before first saving.
