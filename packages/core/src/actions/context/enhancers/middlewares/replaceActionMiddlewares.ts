@@ -8,7 +8,7 @@ import { Awaitable } from '@foscia/shared';
 /**
  * Replace existing middlewares with the given middlewares array factory.
  *
- * @param factory
+ * @param middlewares
  *
  * @category Enhancers
  * @since 0.13.0
