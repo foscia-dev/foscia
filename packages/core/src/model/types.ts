@@ -64,6 +64,12 @@ export type ModelConfig = {
    */
   guessRelationType?: Transformer<ModelRelation, string>;
   /**
+   * Guess a relation inverse.
+   * Defaults is to use the model type (and singularize it if it is a "to many"
+   * relation).
+   */
+  guessRelationInverse?: Transformer<ModelRelation, string[] | string>;
+  /**
    * Guess alias from a property's name.
    * Defaults is to keep the property's name.
    */
@@ -295,28 +301,6 @@ export type ModelRelationType =
   | typeof SYMBOL_MODEL_RELATION_HAS_MANY;
 
 /**
- * Configuration of a model's relation.
- *
- * @internal
- */
-export type ModelRelationConfig = {
-  /**
-   * The related type(s) to help Foscia resolving related models.
-   */
-  type?: string | string[];
-
-  // Specific HTTP config.
-
-  /**
-   * The path to use when requesting relation's endpoint.
-   *
-   * @remarks
-   * This is specific to HTTP implementations (REST, JSON:API).
-   */
-  path?: string;
-};
-
-/**
  * Model sync relation property definition.
  */
 export type ModelRelation<K = string, T = any, R extends boolean = boolean> =
@@ -333,9 +317,29 @@ export type ModelRelation<K = string, T = any, R extends boolean = boolean> =
      * @internal
      */
     readonly $RELATION_TYPE: ModelRelationType;
+    /**
+     * Resolve the related model(s).
+     */
     model?: () => Awaitable<Model | Model[]>;
+    /**
+     * The related type(s) to help Foscia resolving related models.
+     */
+    type?: string | string[];
+    /**
+     * The inverse relation key on related instances.
+     */
+    inverse?: string | boolean;
+
+    // Specific HTTP config.
+
+    /**
+     * The path to use when requesting relation's endpoint.
+     *
+     * @remarks
+     * This is specific to HTTP implementations (REST, JSON:API).
+     */
+    path?: string;
   }
-  & ModelRelationConfig
   & ModelValueProp<K, T, R>;
 
 /**

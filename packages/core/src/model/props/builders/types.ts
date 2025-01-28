@@ -6,7 +6,7 @@ import {
   ModelPropFactory,
   ModelPropSync,
   ModelRelation,
-  ModelRelationConfig,
+  ModelRelationKey,
 } from '@foscia/core/model/types';
 import { ObjectTransformer } from '@foscia/core/transformers/types';
 import { Arrayable, Constructor } from '@foscia/shared';
@@ -126,6 +126,17 @@ export type InferModelRelationFactoryInstance<M> =
       : never;
 
 /**
+ * Infer a model's relation possible inverse key.
+ *
+ * @internal
+ */
+export type InferModelRelationInverseKey<T> = 0 extends (1 & T)
+  ? string
+  : T extends (infer I)[]
+    ? ModelRelationKey<I>
+    : ModelRelationKey<T>;
+
+/**
  * Model relationship factory object.
  *
  * @internal
@@ -136,7 +147,9 @@ export type ModelRelationFactory<T, R extends boolean> = {
    *
    * @param config
    */
-  config: (config: string | string[] | ModelRelationConfig) => ModelRelationFactory<T, R>;
+  config: (
+    config: string | string[] | ModelRelationFactorySpecialConfig<T>,
+  ) => ModelRelationFactory<T, R>;
   /**
    * Define default value.
    * Object values should be provided with a factory function to avoid
@@ -167,6 +180,12 @@ export type ModelRelationFactory<T, R extends boolean> = {
    * @param sync
    */
   sync: (sync: boolean | ModelPropSync) => ModelRelationFactory<T, R>;
+  /**
+   * Define the inverse of the relation.
+   *
+   * @param inverse
+   */
+  inverse: (inverse?: InferModelRelationInverseKey<T> | boolean) => ModelRelationFactory<T, R>;
 } & ModelPropFactory<ModelRelation<string, T, R>>;
 
 /**
@@ -175,5 +194,31 @@ export type ModelRelationFactory<T, R extends boolean> = {
  * @internal
  */
 export type ModelRelationFactoryConfig<T extends Arrayable<object> | null, R extends boolean> =
-  & ModelRelationConfig
+  & ModelRelationFactorySpecialConfig<T>
   & Pick<ModelRelation<string, T, R>, 'default' | 'readOnly' | 'alias' | 'sync'>;
+
+/**
+ * Model relation factory object special options.
+ *
+ * @internal
+ */
+export type ModelRelationFactorySpecialConfig<T> = {
+  /**
+   * The related type(s) to help Foscia resolving related models.
+   */
+  type?: string | string[];
+  /**
+   * The inverse relation key on related instances.
+   */
+  inverse?: InferModelRelationInverseKey<T> | boolean;
+
+  // Specific HTTP config.
+
+  /**
+   * The path to use when requesting relation's endpoint.
+   *
+   * @remarks
+   * This is specific to HTTP implementations (REST, JSON:API).
+   */
+  path?: string;
+};

@@ -1,4 +1,5 @@
 import {
+  attachRelationInverse,
   consumeAction,
   consumeCache,
   consumeId,
@@ -220,9 +221,7 @@ You should either:
           context,
         );
         if (await shouldDeserialize(deserializerContext)) {
-          forceFill(instance, {
-            [def.key]: await deserializeAttributeValue(deserializerContext),
-          });
+          forceFill(instance, { [def.key]: await deserializeAttributeValue(deserializerContext) });
         }
       }),
       ...mapRelations(instance.$model, async (def) => {
@@ -233,11 +232,13 @@ You should either:
           context,
         );
         if (await shouldDeserialize(deserializerContext)) {
-          forceFill(instance, {
-            [def.key]: await deserializeRelationValue(deserializerContext, instancesMap),
-          });
+          const related = await deserializeRelationValue(deserializerContext, instancesMap);
+
+          forceFill(instance, { [def.key]: related });
 
           instance.$loaded[def.key] = true;
+
+          attachRelationInverse(instance, def, wrap(related));
         }
       }),
     ]);
@@ -250,14 +251,6 @@ You should either:
       )
     ));
     instance.$raw = record.raw;
-
-    markSynced(instance);
-    await runHooks(instance.$model, 'retrieved', instance);
-
-    const cache = await consumeCache(context, null);
-    if (cache && !isNil(instance.id)) {
-      await cache.put(instance.$model.$type, instance.id, instance);
-    }
 
     return instance;
   };
@@ -309,6 +302,21 @@ You should either:
     }
   };
 
+  const releaseInstancesMap = (
+    context: {},
+    instancesMap: DeserializerInstancesMap,
+  ) => Promise.all(instancesMap.all().map(async (instancePromise) => {
+    const instance = await instancePromise;
+
+    markSynced(instance);
+    await runHooks(instance.$model, 'retrieved', instance);
+
+    const cache = await consumeCache(context, null);
+    if (cache && !isNil(instance.id)) {
+      await cache.put(instance.$model.$type, instance.id, instance);
+    }
+  }));
+
   const deserialize = async (data: Data, context: {}) => {
     const extract = await config.extractData(data, context);
     const records = await mapArrayable(
@@ -325,6 +333,14 @@ You should either:
       context,
       instancesMap,
     )));
+
+    const parent = consumeInstance(context, null);
+    const relation = consumeRelation(context, null);
+    if (parent && relation) {
+      attachRelationInverse(parent, relation, instances);
+    }
+
+    await releaseInstancesMap(context, instancesMap);
 
     return (
       config.createData ? config.createData(instances, extract, context) : { instances }

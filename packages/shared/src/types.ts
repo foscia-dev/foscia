@@ -119,6 +119,7 @@ export type Middleware<V, R> = (value: V, next: MiddlewareNext<V, R>) => R;
  * @internal
  */
 export type IdentifiersMap<Type, Id, T> = {
+  all: () => T[];
   find: (type: Type, id: Id) => T | null;
   put: (type: Type, id: Id, value: T) => void;
   forget: (type: Type, id: Id) => void;

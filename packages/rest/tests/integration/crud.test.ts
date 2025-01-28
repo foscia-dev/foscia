@@ -81,10 +81,12 @@ describe('integration: JSON REST', () => {
     expect(posts[0].comments[0]).toBeInstanceOf(CommentMock);
     expect(posts[0].comments[0].id).toStrictEqual('1');
     expect(posts[0].comments[0].body).toStrictEqual('Foo Comment');
+    expect(posts[0].comments[0].commentable).toStrictEqual(posts[0]);
     expect(posts[0].comments[1].$exists).toStrictEqual(true);
     expect(posts[0].comments[1]).toBeInstanceOf(CommentMock);
     expect(posts[0].comments[1].id).toStrictEqual('2');
     expect(posts[0].comments[1].body).toStrictEqual('Bar Comment');
+    expect(posts[0].comments[0].commentable).toStrictEqual(posts[0]);
 
     expect(posts[1]).toBeInstanceOf(PostMock);
     expect(posts[1].$exists).toStrictEqual(true);

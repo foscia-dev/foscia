@@ -23,6 +23,7 @@ import isModelUsing from '@foscia/core/model/checks/isModelUsing';
 import isPluralRelationDef from '@foscia/core/model/checks/isPluralRelationDef';
 import isRelationDef from '@foscia/core/model/checks/isRelationDef';
 import isSingularRelationDef from '@foscia/core/model/checks/isSingularRelationDef';
+import isSnapshot from '@foscia/core/model/checks/isSnapshot';
 import fill from '@foscia/core/model/fill';
 import filled from '@foscia/core/model/filled';
 import forceFill from '@foscia/core/model/forceFill';
@@ -64,6 +65,8 @@ import makeQueryRelationLoader, {
 import makeRefreshIncludeLoader, {
   RefreshIncludeLoaderOptions,
 } from '@foscia/core/model/relations/makeRefreshIncludeLoader';
+import attachRelationInverse from '@foscia/core/model/relations/utilities/attachRelationInverse';
+import guessRelationInverses from '@foscia/core/model/relations/utilities/guessRelationInverses';
 import guessRelationType from '@foscia/core/model/relations/utilities/guessRelationType';
 import makeModelsReducer from '@foscia/core/model/revivers/makeModelsReducer';
 import makeModelsReviver from '@foscia/core/model/revivers/makeModelsReviver';
@@ -178,6 +181,7 @@ export {
   onPropertyReading,
   onPropertyWrite,
   onPropertyWriting,
+  isSnapshot,
   isSameSnapshot,
   restoreSnapshot,
   takeSnapshot,
@@ -198,6 +202,8 @@ export {
   mapRelations,
   shouldSync,
   guessRelationType,
+  guessRelationInverses,
+  attachRelationInverse,
   normalizeDotRelations,
   normalizeInclude,
   normalizeKey,

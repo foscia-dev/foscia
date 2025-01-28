@@ -385,6 +385,17 @@ hasOne<Comment | Post>(['comments', 'posts']);
 
 </TabItem>
 <TabItem
+  value="inverse"
+  label="Inverse"
+>
+
+```typescript
+hasOne(() => CreditCard, { inverse: true });
+hasOne(() => CreditCard, { inverse: 'owner' });
+```
+
+</TabItem>
+<TabItem
   value="config"
   label="Config"
 >
@@ -405,7 +416,8 @@ hasOne(() => User)
   .nullable()
   .readOnly()
   .alias('author')
-  .sync('pull');
+  .sync('pull')
+  .inverse();
 ```
 
 </TabItem>
@@ -453,6 +465,17 @@ hasMany<(Comment | Post)[]>(['comments', 'posts']);
 
 </TabItem>
 <TabItem
+  value="inverse"
+  label="Inverse"
+>
+
+```typescript
+hasMany(() => Post, { inverse: true });
+hasMany(() => Post, { inverse: 'author' });
+```
+
+</TabItem>
+<TabItem
   value="config"
   label="Config"
 >
@@ -471,7 +494,8 @@ hasMany<Comment[]>({ path: 'top-comments' });
 ```typescript
 hasMany(() => Comment)
   .readOnly()
-  .sync('pull');
+  .sync('pull')
+  .inverse();
 ```
 
 </TabItem>
@@ -499,6 +523,76 @@ correct model.
 
 When implementing polymorphism with a REST data source, your record JSON object
 must contain a `type` property matching your Foscia models' types.
+
+#### Relations inverse
+
+Relations inverse allow to automatically fill the related instance inverse
+relation with the parent instance. This is particularly useful when fetching
+records with their relations, as all related records will get their "inverse"
+relation hydrated with the parent record.
+
+:::info
+
+Inverse of a relation must target a singular relation (like an `hasOne`
+relation). This is because plural inverse's related records cannot be reliably
+determined. In addition, be aware that inverse hydration only occurs
+during deserialization process.
+
+:::
+
+##### Configuring an inverse
+
+To enable inverse of a relation, you can define an
+[`inverse` option](/docs/api/@foscia/core/type-aliases/ModelRelationConfig#inverse)
+to your relation configuration, or call the
+[`inverse` chained modifier](/docs/api/@foscia/core/type-aliases/ModelRelationFactory#inverse).
+Giving a boolean value, it will enable or disable automatic inverse resolution
+(searching for a relation named by the singular camel case type of the parent
+model). Giving a string value, it will enable inverse resolution using
+the given relation name.
+
+```typescript
+class Post extends makeModel('posts', {
+  // Automatically define inverse to `post` relation on `Comment` model.
+  comments: hasMany(() => Comment, { inverse: true }),
+  // Manually define inverse to `post` relation on `Comment` model.
+  comments: hasMany(() => Comment, { inverse: 'post' }),
+}) {
+}
+```
+
+##### Example
+
+To explain this, we will take two models:
+a `Comment` model with an `post` "to one" relation to a `Post` model, with
+a `comments` "to many" relation to the `Post` model, like this:
+
+```typescript
+class Post extends makeModel('posts', {
+  comments: hasMany(() => Comment, { inverse: 'post' }),
+}) {
+}
+
+class Comment extends makeModel('comments', {
+  post: hasOne(() => Post),
+}) {
+}
+```
+
+With those models and relations definition, when deserializing a `Post`
+with included `comments` relation, each `Comment` will have its `post` relation
+filled with the parent `Post` instance.
+
+```typescript
+const posts = await action().run(query(Post), include('comments'), all());
+
+posts.forEach((post) => {
+  post.comments.forEach((comment) => {
+    // `comment.post` is filled with its parent `post`.
+    console.log(comment.post);
+  });
+});
+```
 
 #### Recommandations
 

@@ -4,8 +4,12 @@
 import {
   attr,
   fill,
+  hasMany,
   hasOne,
+  makeComposable,
   makeModel,
+  Model,
+  ModelIdType,
   ModelInstance,
   ModelLimitedSnapshot,
   ModelSnapshot,
@@ -163,7 +167,7 @@ test('Models are type safe', () => {
   expectTypeOf(chained.email).toEqualTypeOf<string>();
   expectTypeOf(chained.age).toEqualTypeOf<number>();
 
-  class ModelProps extends makeModel('model-with-object-props', {
+  class ModelProps extends makeModel('model-props', {
     attr1: attr('', { readOnly: true }),
     attr2: attr(toString(), { default: null }),
     attr3: attr(toString(), { readOnly: true }),
@@ -192,4 +196,42 @@ test('Models are type safe', () => {
   expectTypeOf(modelProps.rel3).toEqualTypeOf<PostMock>();
   // @ts-expect-error rel3 is readonly
   modelProps.rel3 = new CommentMock();
+
+  class ModelComposite extends makeModel('model-composite', {
+    user: makeComposable({
+      user: hasOne<UserMock>(),
+      userId: attr<ModelIdType>(),
+    }),
+  }) {
+  }
+
+  const modelComposite = new ModelComposite();
+
+  expectTypeOf(modelComposite.user).toEqualTypeOf<UserMock>();
+  expectTypeOf(modelComposite.userId).toEqualTypeOf<ModelIdType>();
+
+  class ModelInverse extends makeModel('model-inverse', {
+    comments1: hasMany(() => CommentMock, { inverse: 'postedBy' }),
+    comments2: hasMany(() => CommentMock).inverse('postedBy'),
+    comments3: hasMany<CommentMock[]>().inverse('postedBy'),
+
+    any1: hasMany(() => CommentMock as Model, { inverse: 'postedBy' }),
+    any2: hasMany(() => CommentMock as Model).inverse('postedBy'),
+    any3: hasMany<any[]>().inverse('postedBy'),
+    any4: hasMany<ModelInstance[]>().inverse('postedBy'),
+
+    // @ts-expect-error postedAt is not a relation
+    attrInvalid1: hasMany(() => CommentMock, { inverse: 'postedAt' }),
+    // @ts-expect-error postedAt is not a relation
+    attrInvalid2: hasMany(() => CommentMock).inverse('postedAt'),
+    // @ts-expect-error postedAt is not a relation
+    attrInvalid3: hasMany<CommentMock[]>().inverse('postedAt'),
+
+    relShouldFail1: hasOne(() => UserMock, { inverse: 'comments' }),
+    relShouldFail2: hasOne(() => UserMock).inverse('comments'),
+    relShouldFail3: hasOne<UserMock[]>().inverse('comments'),
+  }) {
+  }
+
+  expectTypeOf(new ModelInverse()).toEqualTypeOf<ModelInverse>();
 });

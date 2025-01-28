@@ -192,6 +192,15 @@ export type DeserializerConfig<
  */
 export type RecordDeserializer<Record, Data, Deserialized extends DeserializedData> =
   & {
+    /**
+     * Deserialize one record.
+     *
+     * @param record
+     * @param context
+     * @param instancesMap
+     *
+     * @internal
+     */
     deserializeRecord(
       record: DeserializerRecord<Record, Data, Deserialized>,
       context: {},
@@ -379,6 +388,8 @@ export type RecordSerializer<Record, Related, Data> =
      * @param value
      * @param context
      * @param parents
+     *
+     * @internal
      */
     serializeToRecords(
       value: ModelSnapshot,

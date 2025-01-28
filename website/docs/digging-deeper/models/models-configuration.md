@@ -137,7 +137,7 @@ your models.
 
 Here is an example of a type guesser using hypothetical `toKebabCase` and
 `pluralize` functions. For example, if a `Comment` model has a `blogPost`
-relation, this would guess the type to `blog-posts`;
+relation, this would guess the type to `blog-posts`:
 
 ```typescript title="post.ts"
 import { makeModel, isPluralRelationDef, ModelRelation } from '@foscia/core';
@@ -147,6 +147,33 @@ makeModel({
   guessRelationType: (def: ModelRelation) => (
     isPluralRelationDef(def) ? def.key : pluralize(def.key)
   ),
+});
+```
+
+#### `guessRelationInverse`
+
+##### Description
+
+**Default**: singularize parent model type.
+
+**Recommandation**: use this configuration option inside a
+[custom model factory](/docs/digging-deeper/models/models-composition#factory).
+
+To avoid manually defining inverse, you can configure a custom inverse
+resolution function which will guess the inverse of a relation.
+
+##### Example
+
+Here is an example of an inverse guesser using hypothetical `toCamelCase` and
+`singularize` functions. For example, if a `Post` model has a `comments`
+relation, this would guess the inverse to `post`:
+
+```typescript title="post.ts"
+import { makeModel, isPluralRelationDef, ModelRelation } from '@foscia/core';
+
+makeModel({
+  type: 'posts',
+  guessRelationInverse: (def: ModelRelation) => toCamelCase(singularize(def.parent.$type)),
 });
 ```
 

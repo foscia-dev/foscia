@@ -1,6 +1,11 @@
 import {
+  attr,
   changed,
+  fill,
+  hasOne,
   isSameSnapshot,
+  isSnapshot,
+  makeModel,
   markSynced,
   restore,
   restoreSnapshot,
@@ -132,5 +137,50 @@ describe.concurrent('unit: snapshots', () => {
     expect(compareValues).toHaveBeenCalledTimes(3);
 
     expect(cloneValue).toHaveBeenCalledTimes(3);
+  });
+
+  it('should take deep and limited snapshots', () => {
+    const FooModel = makeModel({ type: 'foo', limitedSnapshots: false }, {
+      foo: attr<any>(),
+      bar: hasOne<any>(),
+    });
+
+    const BarModel = makeModel({ type: 'bar', limitedSnapshots: true }, {
+      bar: attr<any>(),
+      baz: hasOne<any>(),
+    });
+
+    const BazModel = makeModel({ type: 'baz' }, {
+      baz: attr<any>(),
+    });
+
+    const fooSnapshot = takeSnapshot(fill(new FooModel(), {
+      id: 'foo',
+      foo: 'foo',
+      bar: fill(new BarModel(), {
+        id: 'bar',
+        bar: 'bar',
+        baz: fill(new BazModel(), {
+          id: 'baz',
+          baz: 'baz',
+        }),
+      }),
+    }));
+
+    expect(isSnapshot(fooSnapshot)).toStrictEqual(true);
+    expect(Object.keys(fooSnapshot.$values)).toStrictEqual(['id', 'foo', 'bar']);
+    expect(fooSnapshot.$values.id).toStrictEqual('foo');
+    expect(fooSnapshot.$values.foo).toStrictEqual('foo');
+
+    expect(isSnapshot(fooSnapshot.$values.bar)).toStrictEqual(true);
+    expect(Object.keys((fooSnapshot.$values.bar as any).$values))
+      .toStrictEqual(['id', 'bar', 'baz']);
+    expect((fooSnapshot.$values.bar as any).$values.id).toStrictEqual('bar');
+    expect((fooSnapshot.$values.bar as any).$values.bar).toStrictEqual('bar');
+
+    expect(isSnapshot((fooSnapshot.$values.bar as any).$values.baz)).toStrictEqual(true);
+    expect(Object.keys(((fooSnapshot.$values.bar as any).$values.baz as any).$values))
+      .toStrictEqual(['id']);
+    expect(((fooSnapshot.$values.bar as any).$values.baz as any).$values.id).toStrictEqual('baz');
   });
 });
