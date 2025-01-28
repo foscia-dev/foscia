@@ -33,4 +33,5 @@ export default (
   })(),
 } as ModelRelation, {
   inverse: (inverse) => ({ inverse }),
+  path: (path) => ({ path }),
 }) as ModelRelationFactory<ModelInstance | ModelInstance[] | null, false>;

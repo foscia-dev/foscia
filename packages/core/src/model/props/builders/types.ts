@@ -178,6 +178,15 @@ export type ModelRelationFactory<T, R extends boolean> = {
    * @param inverse
    */
   inverse: (inverse?: InferModelRelationInverseKey<T> | boolean) => ModelRelationFactory<T, R>;
+  /**
+   * Define the path to use when requesting relation's endpoint.
+   *
+   * @param path
+   *
+   * @remarks
+   * This is specific to HTTP implementations (REST, JSON:API).
+   */
+  path: (path: string) => ModelRelationFactory<T, R>;
 } & ModelPropFactory<ModelRelation<string, T, R>>;
 
 /**
