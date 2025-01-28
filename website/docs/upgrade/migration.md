@@ -20,6 +20,7 @@ sidebar_position: 5
 - [HTTP transformers replaced with middlewares](#http-transformers-replaced-with-middlewares)
 - [Properties definition are now defined using factories](#properties-definition-are-now-defined-using-factories)
 - [Internal APIs are now tagged and may have changed](#internal-apis-are-now-tagged-and-may-have-changed)
+- [Relation `.config()` chained modifier is removed](#relation-config-chained-modifier-is-removed)
 
 ### Low impacts changes
 
@@ -224,6 +225,27 @@ may have been renamed or removed.
 
 If you are using an internal APIs, you should avoid using them or
 [open an issue to request the API to be publicly maintained](https://github.com/foscia-dev/foscia/issues/new/choose).
+
+### Relation `.config()` chained modifier is removed
+
+**Likelihood Of Impact: Medium**
+
+Thanks to the new relation factories signature, you can now define your
+relations without calling `.config()` modifier, which has been removed.
+You must now use the new call signature.
+
+```typescript
+export default class Post extends makeModel('posts', {
+// highlight.deletion
+  comments: hasMany<Comment[]>().config('comments'),
+// highlight.addition
+  comments: hasMany<Comment[]>('comments'),
+// highlight.deletion
+  author: hasOne(() => User).config({ path: 'author' }),
+// highlight.addition
+  author: hasOne(() => User, { path: 'author' }),
+}) {}
+```
 
 ### Custom transformers must use `makeCustomTransformer`
 

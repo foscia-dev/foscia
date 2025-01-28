@@ -2,7 +2,6 @@ import makeValuePropFactory from '@foscia/core/model/props/builders/makeValuePro
 import {
   ModelRelationFactory,
   ModelRelationFactoryConfig,
-  ModelRelationFactorySpecialConfig,
 } from '@foscia/core/model/props/builders/types';
 import { ModelInstance, ModelRelation, ModelRelationType } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_PROP_KIND_RELATION } from '@foscia/core/symbols';
@@ -33,10 +32,5 @@ export default (
       : config;
   })(),
 } as ModelRelation, {
-  config: (newConfig: string | string[] | ModelRelationFactorySpecialConfig<any>) => (
-    typeof config === 'string' || Array.isArray(newConfig)
-      ? { type: newConfig }
-      : newConfig
-  ) as ModelRelationFactorySpecialConfig<any>,
   inverse: (inverse) => ({ inverse }),
 }) as ModelRelationFactory<ModelInstance | ModelInstance[] | null, false>;
