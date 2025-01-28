@@ -75,6 +75,13 @@ const config = {
           '@requireContext',
           '@example',
         ],
+        categoryOrder: [
+          'Enhancers',
+          'Runners',
+          'Utilities',
+          'Factories',
+          'Hooks',
+        ],
       }),
     ],
   ],

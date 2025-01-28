@@ -3,7 +3,6 @@ sidebar_position: 200
 description: Build actions, registering hooks, discover enhancers and runners.
 ---
 
-import Link from '@docusaurus/Link';
 import FunctionInfo from '@site/src/components/FunctionInfo';
 
 # Actions
@@ -13,7 +12,7 @@ import FunctionInfo from '@site/src/components/FunctionInfo';
 - Enhancing actions
 - Running actions
 - Conditionally enhancing and running actions
-- Registering hooks on actions
+- Action lifecycle
 
 :::
 
@@ -34,12 +33,13 @@ through your models.
 
 Foscia uses two typologies of functions to run actions, **enhancers** and
 **runners**, which are described in the [lifecycle guide](#lifecycle).
+The next part of this guide focuses on most common actions (e.g. CRUD).
 
-:::info
+:::tip
 
-Examples of the documentation commonly use
-[**variadic `run` calls**](#variadic-run) on actions, as this is the simplest
-way of using actions.
+To complete this, you can browse the API documentation to see available
+[**enhancers**](/docs/api/@foscia/core/#enhancers) and
+[**runners**](/docs/api/@foscia/core/#runners).
 
 :::
 
@@ -403,31 +403,33 @@ action().run(
 
 When using [variadic `run` calls](#variadic-run), Foscia actions lifecycle
 is "hidden" by variadic arguments. In fact, all actions execution have
-3 steps: instantiation, enhancements and execution (run).
+3 steps: creation, enhancements and execution (run).
 
 ```typescript
-action().run(               // Instantiation.
-  query(Post),              // `query` enhancement.
-  include('comments'),      // `include` enhancement.
-  all(),                    // `all` run.
-);
+action()                  // Creation.
+  .run(
+    query(Post),          // `query` enhancement.
+    include('comments'),  // `include` enhancement.
+    all(),                // `all` run.
+  );
 ```
 
 The above example is equivalent to and can be decomposed as follows:
 
 ```typescript
-action()                    // Instantiation.
+action()                    // Creation.
   .use(query(Post))         // `query` enhancement.
   .use(include('comments')) // `include` enhancement.
   .run(all());              // `all` run.
 ```
 
-### Instantiation
+### Creation
 
 As stated in the
 [getting started guide](/docs/getting-started#running-simple-actions), actions
-are instantiated through your action factory. In this guide, we'll admit you
-have a setup action factory.
+are created through your action factory. The creation step can already use
+enhancers, generally to provide common dependencies (adapter, serializer, etc.).
+In this guide, we'll admit you have a setup action factory.
 
 ### Enhancers
 
@@ -459,10 +461,6 @@ action().use(
 );
 ```
 
-<Link className="button border--gradient" to="/docs/api/@foscia/core/#enhancers">
-  Enhancers API reference
-</Link>
-
 ### Runners
 
 An action can be run using the `run` method. The runner can execute
@@ -476,7 +474,8 @@ When an action run, it does 3 things:
 - Return the runner result (might be any value, including void or an error
   throwing)
 
-Internally, action running will also trigger [actions hooks](#hooks).
+Internally, action running will also trigger
+[actions hooks](/docs/digging-deeper/actions/actions-hooks).
 
 ```typescript
 action()
@@ -498,121 +497,4 @@ const posts = await action().run(
   sortByDesc('publishedAt'),
   all(),
 );
-```
-
-<Link className="button border--gradient" to="/docs/api/@foscia/core/#runners">
-  Runners API reference
-</Link>
-
-### Hooks
-
-You may hook on multiple events which occurs on action using the hook
-registration function:
-
-- [`onRunning`](/docs/api/@foscia/core/functions/onRunning):
-  after context computation, before context runner execution.
-- [`onSuccess`](/docs/api/@foscia/core/functions/onSuccess):
-  after context runner successful execution (no error thrown).
-- [`onError`](/docs/api/@foscia/core/functions/onError):
-  after context runner failed execution (error thrown).
-- [`onFinally`](/docs/api/@foscia/core/functions/onFinally):
-  after context runner successful or failed execution.
-
-To register a hook callback, you must use the registration enhancer on your
-building action.
-
-```typescript
-import {
-    onRunning,
-    onSuccess,
-    onError,
-    onFinally,
-} from '@foscia/core';
-
-action().use(onRunning(({ context }) => /* ... */));
-action().use(onSuccess(({ context, result }) => /* ... */));
-action().use(onError(({ context, error }) => /* ... */));
-action().use(onFinally(({ context }) => /* ... */));
-```
-
-:::info
-
-Hooks' callbacks are async and executed in a sequential fashion (one by one, not
-parallelized).
-
-:::
-
-You can temporally disable hook execution for a given action by using the
-[`withoutHooks`](/docs/api/@foscia/core/functions/withoutHooks) function.
-[`withoutHooks`](/docs/api/@foscia/core/functions/withoutHooks) can receive
-a sync or async callback: if an async callback is passed (e.g. returning a
-`Promise`), it will also return a `Promise`.
-
-```typescript
-import { query, all, withoutHooks } from '@foscia/core';
-
-// Retrieve a list of User instances without action hooks running.
-const users = await withoutHooks(action(), async (a) => {
-  return await a.use(query(User)).run(all());
-});
-```
-
-:::warning
-
-**Foscia may also register hooks internally** when using some enhancers. Those
-provide some library features
-([**models hooks**](/docs/digging-deeper/models/models-hooks), etc.). Be careful running
-actions without hooks, as those hooks will also be disable.
-
-:::
-
-### Middlewares
-
-<FunctionInfo version="0.13.0" />
-
-You can use middlewares on your actions. Those are working the same as in most
-web frameworks, and offer an additional way of interacting with actions and
-their results.
-
-To register middlewares, you can use:
-
-- [`appendActionMiddlewares`](/docs/api/@foscia/core/functions/appendActionMiddlewares)
-  to add new middlewares after already registered ones
-- [`prependActionMiddlewares`](/docs/api/@foscia/core/functions/prependActionMiddlewares)
-  to add new middlewares before already registered ones
-
-Each middleware callback will receive two arguments:
-the `action` instance and a `next` callback which continues the action's
-execution stack.
-
-Thanks to the access to `next` callback, you can create a middleware which would
-execute **before** the action is ran, but also **after**.
-
-```typescript
-import { appendActionMiddlewares } from '@foscia/core';
-
-action().use(appendActionMiddlewares([
-  (a, next) => {
-    // Do something before execution.
-    return next(a);
-  },
-  async (a, next) => {
-    const result = await next(a);
-    // Do something after execution.
-    return result;
-  },
-]));
-```
-
-Finally, when using [`replaceActionMiddlewares`](/docs/api/@foscia/core/functions/replaceActionMiddlewares),
-you can replace the already configured middlewares by passing a factory function.
-This allows to replace or merge middlewares manually.
-
-```typescript
-import { replaceActionMiddlewares } from '@foscia/core';
-
-action().use(replaceActionMiddlewares((previousActionMiddlewares) => [
-  (a, next) => next(a),
-  ...previousActionMiddlewares,
-]));
 ```

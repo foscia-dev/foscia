@@ -29,13 +29,6 @@
     "@provideContext",
     "@requireContext"
   ],
-  "categoryOrder": [
-    "Enhancers",
-    "Runners",
-    "Utilities",
-    "Factories",
-    "Hooks"
-  ],
   "groupOrder": [
     "Functions",
     "Classes",

@@ -1,0 +1,69 @@
+---
+sidebar_position: 30
+description: Using middlewares with actions.
+---
+import FunctionInfo from '@site/src/components/FunctionInfo';
+
+# Using middlewares
+
+<FunctionInfo version="0.13.0" />
+
+:::tip What you'll learn
+
+- Registering middlewares on actions
+- Replacing middlewares on actions
+
+:::
+
+## Usage
+
+### Registering middlewares
+
+You can use middlewares on your actions. Those are working the same as in most
+web frameworks, and offer an additional way of interacting with actions and
+their results.
+
+To register middlewares, you can use:
+
+- [`appendActionMiddlewares`](/docs/api/@foscia/core/functions/appendActionMiddlewares)
+to add new middlewares after already registered ones
+- [`prependActionMiddlewares`](/docs/api/@foscia/core/functions/prependActionMiddlewares)
+to add new middlewares before already registered ones
+
+Each middleware callback will receive two arguments:
+the `action` instance and a `next` callback which continues the action's
+execution stack.
+
+Thanks to the access to `next` callback, you can create a middleware which would
+execute **before** the action is ran, but also **after**.
+
+```typescript
+import { appendActionMiddlewares } from '@foscia/core';
+
+action().use(appendActionMiddlewares([
+  (a, next) => {
+    // Do something before execution.
+    return next(a);
+  },
+  async (a, next) => {
+    const result = await next(a);
+    // Do something after execution.
+    return result;
+  },
+]));
+```
+
+### Replacing middlewares
+
+Finally, when using [`replaceActionMiddlewares`](/docs/api/@foscia/core/functions/replaceActionMiddlewares),
+you can replace the already configured middlewares by passing a factory function.
+This allows to replace or merge middlewares manually.
+
+```typescript
+import { replaceActionMiddlewares } from '@foscia/core';
+
+action().use(replaceActionMiddlewares((previousActionMiddlewares) => [
+  (a, next) => next(a),
+  ...previousActionMiddlewares,
+]));
+```
