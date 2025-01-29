@@ -1,11 +1,11 @@
+import makeDefinition from '@foscia/core/model/composition/makeDefinition';
 import makeModelClass from '@foscia/core/model/makeModelClass';
 import id from '@foscia/core/model/props/builders/id';
 import {
   ModelConfig,
   ModelFactory,
-  ModelFlattenDefinition,
   ModelInstance,
-  ModelParsedDefinition,
+  ModelParsedFlattenDefinition,
 } from '@foscia/core/model/types';
 import cloneModelValue from '@foscia/core/model/utilities/cloneModelValue';
 import compareModelValues from '@foscia/core/model/utilities/compareModelValues';
@@ -32,8 +32,7 @@ import { using } from '@foscia/shared';
  */
 export default <D extends {} = {}>(
   baseConfig?: Partial<ModelConfig>,
-  // eslint-disable-next-line max-len
-  baseRawDefinition?: D & ThisType<ModelInstance<ModelFlattenDefinition<ModelParsedDefinition<D>>>>,
+  baseRawDefinition?: D & ThisType<ModelInstance<ModelParsedFlattenDefinition<D>>>,
 ) => {
   const factory = (
     rawConfig: string | (Partial<ModelConfig> & { type: string; }),
@@ -41,19 +40,19 @@ export default <D extends {} = {}>(
   ) => using(
     typeof rawConfig === 'string' ? { type: rawConfig } : rawConfig,
     ({ type, ...config }) => makeModelClass(type, {
-      compareValues: compareModelValues,
-      cloneValue: cloneModelValue,
+      compareSnapshotValues: compareModelValues,
+      cloneSnapshotValue: cloneModelValue,
       ...baseConfig,
       ...config,
     }, factory.$hooks, {
       id: id(),
       lid: id(),
-      ...baseRawDefinition,
-      ...rawDefinition,
+      ...makeDefinition(baseRawDefinition),
+      ...makeDefinition(rawDefinition),
     }),
   );
 
   factory.$hooks = {};
 
-  return factory as ModelFactory<ModelFlattenDefinition<ModelParsedDefinition<D>>>;
+  return factory as unknown as ModelFactory<ModelParsedFlattenDefinition<D>>;
 };

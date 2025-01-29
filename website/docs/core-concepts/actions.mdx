@@ -53,7 +53,7 @@ the model instances.
 ```typescript
 import { query, all } from '@foscia/core';
 
-const posts = await action().run(
+const posts = await action(
   query(Post),
   all(),
 );
@@ -72,12 +72,12 @@ and handle not found errors.
 ```typescript
 import { query, oneOrFail } from '@foscia/core';
 
-const postOrFail = await action().run(
+const postOrFail = await action(
   query(Post, '1'),
   oneOrFail(),
 );
 
-const postOrNull = await action().run(
+const postOrNull = await action(
   query(Post, '2'),
   oneOr(() => null),
 );
@@ -92,7 +92,7 @@ or when [lazy loading a relation](#lazy-loading-relations).
 ```typescript
 import { query, oneOrFail } from '@foscia/core';
 
-const post = await action().run(query(somePost), oneOrFail());
+const post = await action(query(somePost), oneOrFail());
 ```
 
 ### Creating and updating records
@@ -119,7 +119,7 @@ source response.
 ```typescript
 import { create, save, fill, oneOrCurrent, none } from '@foscia/core';
 
-const post = await action().run(
+const post = await action(
   create(fill(new Post(), { title: 'Hello World!' })),
   include('author'),
   oneOrCurrent(),
@@ -127,7 +127,7 @@ const post = await action().run(
 
 post.title = 'Edited Hello World!';
 
-await action().run(save(post), none());
+await action(save(post), none());
 ```
 
 ### Deleting records
@@ -142,7 +142,7 @@ source's response (errors are still thrown by the adapter).
 ```typescript
 import { destroy, none } from '@foscia/core';
 
-await action().run(destroy(post), none());
+await action(destroy(post), none());
 ```
 
 #### Deleting by ID
@@ -155,7 +155,7 @@ passing an already retrieved instance.
 ```typescript
 import { destroy, none } from '@foscia/core';
 
-await action().run(destroy(Post, '1'), none());
+await action(destroy(Post, '1'), none());
 ```
 
 ### Relationships
@@ -178,7 +178,7 @@ To eager load a relation, you can use the
 ```typescript
 import { query, all, include } from '@foscia/core';
 
-const posts = await action().run(
+const posts = await action(
   query(Post),
   include('author'),
   all(),
@@ -194,9 +194,9 @@ relation with an already retrieved a record.
 import { query, all, oneOrFail } from '@foscia/core';
 
 // Fetch a post without relations.
-const post = await action().run(query(Post, 1), oneOrFail());
+const post = await action(query(Post, 1), oneOrFail());
 // Fetch "comments" relation.
-const comments = await action().run(query(post, 'comments'), all());
+const comments = await action(query(post, 'comments'), all());
 ```
 
 :::info
@@ -219,14 +219,14 @@ to change the relation value.
 import { associate, dissociate, none } from '@foscia/core';
 
 // Associate myUser as myPost's author.
-await action().run(
+await action(
   associate(myPost, 'author', myUser),
   none(),
 );
 console.log(myPost.author); // myUser
 
 // Dissociate author of myPost.
-await action().run(
+await action(
   dissociate(myPost, 'author'),
   none(),
 );
@@ -260,19 +260,19 @@ to change the relation value:
 import { attach, detach, updateRelation, none } from '@foscia/core';
 
 // Attach myUser1 and myUser2 to myTeam's members.
-await action().run(
+await action(
   attach(myTeam, 'members', [myUser1, myUser2]),
   none(),
 );
 
 // Detach myUser1 and myUser2 from myTeam's members.
-await action().run(
+await action(
   detach(myTeam, 'members', [myUser1, myUser2]),
   none(),
 );
 
 // Sync myUser1 and myUser2 as myTeam's members.
-await action().run(
+await action(
   updateRelation(myTeam, 'members', [myUser1, myUser2]),
   none(),
 );
@@ -302,7 +302,7 @@ This can be achieved using the
 import { create } from '@foscia/core';
 
 // Create a comment through a post.
-await action().run(
+await action(
   create(newComment, post, 'comments'),
   oneOrCurrent(),
 );
@@ -319,8 +319,8 @@ using [`cached`](/docs/api/@foscia/core/functions/cached) and
 ```typescript
 import { query, cached, cachedOrFail } from '@foscia/core';
 
-const postOrNull = await action().run(query(Post, 1), cached());
-const postOrFail = await action().run(query(Post, 1), cachedOrFail());
+const postOrNull = await action(query(Post, 1), cached());
+const postOrFail = await action(query(Post, 1), cachedOrFail());
 ```
 
 Sometimes, you may want to interact with the cache if your record does not
@@ -330,7 +330,7 @@ have been cached already. For this particular case, you can use
 ```typescript
 import { query, cachedOr, oneOrFail } from '@foscia/core';
 
-const cachedPostOrFetch = await action().run(query(Post, 1), cachedOr(oneOrFail()));
+const cachedPostOrFetch = await action(query(Post, 1), cachedOr(oneOrFail()));
 ```
 
 :::info
@@ -353,7 +353,7 @@ sort's direction. This can be done easily using the
 import { query, when } from '@foscia/core';
 import { sortByDesc } from '@foscia/jsonapi';
 
-action().run(
+action(
   query(Post),
   when(displayLatestFirst, sortByDesc('createdAt')),
 );
@@ -384,7 +384,7 @@ import { changed, create, oneOrFail, when } from '@foscia/core';
 
 const post = fill(new Post(), userInputData);
 
-action().run(
+action(
   create(post),
   when(
     () => /* compute a special value */,
@@ -399,22 +399,152 @@ action().run(
 );
 ```
 
+### Errors catching
+
+Catching special errors is a common use case when dealing with data exchanges.
+For this, Foscia provides a [`catchIf`](/docs/api/@foscia/core/functions/catchIf)
+runner, allowing you to quickly handle common error management scenarios.
+
+You can use [`catchIf`](/docs/api/@foscia/core/functions/catchIf) to make your
+runner returns `null` on every error. You can compare this code to his
+equivalent without using [`catchIf`](/docs/api/@foscia/core/functions/catchIf),
+which is more verbose.
+
+```typescript
+const postOrNull = await action(
+  query(Post, '123'),
+  catchIf(oneOrFail()),
+);
+```
+
+<details>
+
+<summary>
+
+Equivalent without `catchIf`
+
+</summary>
+
+```typescript
+let postOrNull = null as Post | null;
+
+try {
+  postOrNull = await action(
+    query(Post, '123'),
+    oneOrFail(),
+  );
+} catch (error) {
+  postOrNull = null;
+}
+```
+
+</details>
+
+#### Ignoring specific errors
+
+In the following example, we would like to create a stat event for each page
+viewed, ignoring all "too many requests" errors.
+
+```typescript
+const statEvent = fill(new StatEvent(), {
+  type: 'page-viewed',
+  url: 'https://example.com',
+});
+
+await action(
+  create(statEvent),
+  catchIf(none(), (error) => error instanceof HttpTooManyRequestsError),
+);
+```
+
+<details>
+
+<summary>
+
+Equivalent without `catchIf`
+
+</summary>
+
+```typescript
+const statEvent = fill(new StatEvent(), {
+  type: 'page-viewed',
+  url: 'https://example.com',
+});
+
+try {
+  await action(
+    create(statEvent),
+    none(),
+  );
+} catch (error) {
+  if (error instanceof HttpTooManyRequestsError) {
+    // Ignoring too many requests errors.
+  } else {
+    // Throwing any other errors.
+    throw error;
+  }
+}
+```
+
+</details>
+
+#### Using another runner on specific errors
+
+Instead of returning `null` on caught errors, you can also use
+[`catchIf`](/docs/api/@foscia/core/functions/catchIf) to execute another
+runner when catching errors.
+
+```typescript
+// Run a first `oneOrFail`, and another one if an error is thrown.
+await action(
+  query(Post, '123'),
+  catchIf(oneOrFail(), () => oneOrFail())
+);
+
+// Run a first `oneOrFail`, and another one only if a "too many requests"
+// error is thrown.
+await action(
+  query(Post, '123'),
+  catchIf(oneOrFail(), (error) => (
+    error instanceof HttpTooManyRequestsError && oneOrFail()
+  ))
+);
+```
+
+Here is a real world example which uses catch runner to retry a request
+which has been rejected by the server after a 15sec delay using a hypothetical
+`wait` helper function.
+
+```typescript
+await action(
+  create(statEvent),
+  catchIf(none(), (error) => (
+    error instanceof HttpTooManyRequestsError
+      && (async (action) => {
+        await wait(15 * 1000);
+
+        return action.run(none());
+      })
+  )),
+);
+```
+
 ## Lifecycle
 
-When using [variadic `run` calls](#variadic-run), Foscia actions lifecycle
+When using variadic factory calls, Foscia actions lifecycle
 is "hidden" by variadic arguments. In fact, all actions execution have
 3 steps: creation, enhancements and execution (run).
 
 ```typescript
-action()                  // Creation.
-  .run(
-    query(Post),          // `query` enhancement.
-    include('comments'),  // `include` enhancement.
-    all(),                // `all` run.
-  );
+// Creation, context enhancements (`query`, `include`) and run (`all`) in one call.
+action(
+  query(Post),
+  include('comments'),
+  all(),
+);
 ```
 
-The above example is equivalent to and can be decomposed as follows:
+The above example is equivalent to the following:
 
 ```typescript
 action()                    // Creation.
@@ -487,8 +617,9 @@ action()
 
 #### Variadic `run`
 
-`run` also support variadic enhancers. Last argument must be a runner.
-Number of arguments might be limited, check the function signature for details.
+`run` also support variadic enhancers finishing with a runner, just like the
+factory variadic calls. Number of arguments might be limited,
+check the function signature for details.
 
 ```typescript
 const posts = await action().run(

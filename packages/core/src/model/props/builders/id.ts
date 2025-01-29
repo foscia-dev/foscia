@@ -1,6 +1,10 @@
 import makeValuePropFactory from '@foscia/core/model/props/builders/makeValuePropFactory';
 import parseValuePropConfig from '@foscia/core/model/props/builders/parseValuePropConfig';
-import { ModelIdFactory, ModelIdFactoryConfig } from '@foscia/core/model/props/builders/types';
+import {
+  ModelIdFactory,
+  ModelIdFactoryConfig,
+  ModelPendingProp,
+} from '@foscia/core/model/props/builders/types';
 import { ModelId, ModelIdType } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_PROP_KIND_ID } from '@foscia/core/symbols';
 import { ObjectTransformer } from '@foscia/core/transformers/types';
@@ -44,7 +48,7 @@ const id: {
 ) => makeValuePropFactory({
   $VALUE_PROP_TYPE: SYMBOL_MODEL_PROP_KIND_ID,
   ...parseValuePropConfig(config, otherConfig),
-} as ModelId, {
+} as ModelPendingProp<ModelId>, {
   transform: (transformer: ObjectTransformer<unknown>) => ({ transformer }),
 }) as ModelIdFactory<T, boolean>;
 

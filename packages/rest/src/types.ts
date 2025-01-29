@@ -1,11 +1,11 @@
 import { DeserializedData, ModelAttribute, ModelIdType, ModelRelation } from '@foscia/core';
 import { HttpAdapterConfig } from '@foscia/http';
 import {
-  DeserializerConfig,
+  RecordDeserializerConfig,
   DeserializerContext,
   DeserializerExtract,
   DeserializerRecordIdentifier,
-  SerializerConfig,
+  RecordSerializerConfig,
 } from '@foscia/serialization';
 import { Arrayable, Awaitable, Dictionary } from '@foscia/shared';
 
@@ -30,6 +30,8 @@ export type RestNewResource = RestAbstractResource & {
 /**
  * Configuration for REST adapter.
  *
+ * @interface
+ *
  * @internal
  */
 export type RestAdapterConfig<Data = any> = HttpAdapterConfig<Data> & {
@@ -43,6 +45,8 @@ export type RestAdapterConfig<Data = any> = HttpAdapterConfig<Data> & {
 
 /**
  * Configuration for REST deserializer.
+ *
+ * @interface
  *
  * @internal
  */
@@ -89,10 +93,12 @@ export type RestDeserializerConfig<
       extract: Extract,
     ) => Awaitable<Arrayable<Record> | null | undefined>;
   }
-  & DeserializerConfig<Record, Data, Deserialized, Extract>;
+  & RecordDeserializerConfig<Record, Data, Deserialized, Extract>;
 
 /**
  * Configuration for REST serializer.
+ *
+ * @interface
  *
  * @internal
  */
@@ -108,4 +114,4 @@ export type RestSerializerConfig<
      */
     serializeType?: boolean;
   }
-  & SerializerConfig<Record, Related, Data>;
+  & RecordSerializerConfig<Record, Related, Data>;

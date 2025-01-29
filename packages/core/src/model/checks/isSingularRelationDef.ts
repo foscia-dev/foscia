@@ -6,7 +6,7 @@ import { ModelRelation } from '@foscia/core/model/types';
  *
  * @param def
  *
- * @category Utilities
+ * @internal
  */
 export default (
   def: ModelRelation,

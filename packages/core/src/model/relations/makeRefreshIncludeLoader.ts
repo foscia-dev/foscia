@@ -107,7 +107,7 @@ const refreshLoad = async <
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
   I extends ModelInstance,
 >(
-  action: ActionFactory<[], C>,
+  action: ActionFactory<C>,
   options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C>,
   instances: I[],
   relations: ModelRelationDotKey<I>[],
@@ -169,7 +169,7 @@ export default <
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
 >(
-  action: ActionFactory<[], C>,
+  action: ActionFactory<C>,
   options: RefreshIncludeLoaderOptions<RawData, Data, Deserialized, C> = {},
 ) => async <I extends ModelInstance>(
   instances: Arrayable<I>,

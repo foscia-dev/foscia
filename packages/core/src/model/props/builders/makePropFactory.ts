@@ -1,20 +1,28 @@
-import { ModelPropFactoryDefinition } from '@foscia/core/model/props/builders/types';
-import { ModelProp, ModelPropFactory } from '@foscia/core/model/types';
-import { SYMBOL_MODEL_PROP, SYMBOL_MODEL_PROP_FACTORY } from '@foscia/core/symbols';
+import makeComposableFactory from '@foscia/core/model/composition/makeComposableFactory';
+import { ModelPendingComposable } from '@foscia/core/model/composition/types';
+import { ModelPendingProp } from '@foscia/core/model/props/builders/types';
+import { ModelProp } from '@foscia/core/model/types';
+import { SYMBOL_MODEL_PROP } from '@foscia/core/symbols';
 
 /**
- * Make a property definition factory.
+ * Make a property factory.
  *
- * @param prop
+ * @param pendingProp
+ * @param properties
  *
  * @internal
  */
-export default <P extends ModelProp>(prop: ModelPropFactoryDefinition<P>) => ({
-  $FOSCIA_TYPE: SYMBOL_MODEL_PROP_FACTORY,
-  make: (parent, key) => ({
-    ...(prop ?? {}),
+export default <P extends ModelProp, U extends {} = {}>(
+  pendingProp: ModelPendingProp<P>,
+  properties?: U,
+) => makeComposableFactory({
+  composable: {
     $FOSCIA_TYPE: SYMBOL_MODEL_PROP,
-    parent,
-    key,
-  }),
-} as ModelPropFactory<P>);
+    ...pendingProp,
+  } as ModelPendingComposable<P>,
+  bind: (prop) => {
+    // eslint-disable-next-line no-param-reassign
+    (prop.parent.$schema[prop.key] as any) = prop;
+  },
+  properties,
+});

@@ -88,7 +88,7 @@ type safe interactions with your data source.
 To declare a model, you just need to use the
 [`makeModel`](/docs/api/@foscia/core/functions/makeModel) function.
 This function takes up to 2 arguments and returns a
-[`Model`](/docs/api/@foscia/core/type-aliases/Model) constructor:
+[`Model`](/docs/api/@foscia/core/interfaces/Model) constructor:
 
 - The model `type`, which is used by other services to identify your model or
 interact with a data source.
@@ -217,16 +217,18 @@ export default makeActionFactory({
 ### Running simple actions
 
 To run an action, you can initialize a new
-[`Action`](/docs/api/@foscia/core/type-aliases/Action) object by calling your
+[`Action`](/docs/api/@foscia/core/interfaces/Action) object by calling your
 factory. With this instance, you can provide *context enhancers* to
 modify the action context, and a *context runner* to run the action.
 
-Simplest way of running an action is to call `run`, providing *enhancers*
-as argument and providing a *runner* as last argument. This is called
-the variadic `run` calls. Documentation is generally using this call format.
+Simplest way of running an action is to call the factory, providing *enhancers*
+as arguments and providing a *runner* as the last argument. This is called
+the variadic factory calls.
+Documentation and guides are generally using this call format.
 
-You can also decompose those calls through `use` and `run` individual calls,
-which will better show how Foscia actions works.
+You can also decompose those calls through `use` and `run` individual calls
+(which are also supporting variadic arguments), which will better show
+[how Foscia actions lifecycle work](/docs/core-concepts/actions#lifecycle).
 
 ```typescript
 import { all, query } from '@foscia/core';
@@ -234,7 +236,7 @@ import Post from './models/post';
 import action from './action';
 
 // Variadic run.
-const posts = await action().run(
+const posts = await action(
   query(Post),
   all(),
 );
@@ -259,7 +261,7 @@ import { query, oneOrFail } from '@foscia/core';
 import Post from './models/post';
 import action from './action';
 
-const post = await action().run(
+const post = await action(
   query(Post, 'abc-123'),
   oneOrFail(),
 );
@@ -283,7 +285,7 @@ const post = fill(new Post(), {
   description: 'Your first post',
 });
 
-const createdPost = await action().run(
+const createdPost = await action(
   create(post),
   oneOrCurrent(),
 );
@@ -302,10 +304,10 @@ import action from './action';
 
 // This has no effect an may failed because `destroy` is not a runner!
 // highlight.deletion
-await action().run(destroy(post));
+await action(destroy(post));
 // Do this instead:
 // highlight.addition
-await action().run(destroy(post), none());
+await action(destroy(post), none());
 ```
 
 <Link
@@ -336,13 +338,13 @@ import { makePost } from '@foscia/http';
 import Comment from './comment';
 import action from './action';
 
-const comment = await action().run(
+const comment = await action(
   query(Comment, '1'),
   oneOrFail(),
 );
 
 // Make a POST call to "https://example.com/api/v1/comments/1/publish"
-const response = await action().run(
+const response = await action(
   query(comment),
   makePost('publish', {
     data: { publishedAt: new Date() },

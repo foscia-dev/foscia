@@ -1,6 +1,7 @@
 import {
   Adapter,
-  all, appendActionMiddlewares,
+  all,
+  appendActionMiddlewares,
   associate,
   attach,
   cached,
@@ -49,6 +50,11 @@ test('Actions are type safe', async () => {
     include('comments.postedBy'),
     all(),
   );
+  const postsUsingFactoryVariadic = await action(
+    query(PostMock),
+    include('comments.postedBy'),
+    all(),
+  );
   const manualPostsUsingRunVariadic = await action().run(
     all(),
   ) as PostMock[];
@@ -56,6 +62,7 @@ test('Actions are type safe', async () => {
   expectTypeOf(postsUsingFunc).toEqualTypeOf<PostMock[]>();
   expectTypeOf(postsUsingVariadic).toEqualTypeOf<PostMock[]>();
   expectTypeOf(postsUsingRunVariadic).toEqualTypeOf<PostMock[]>();
+  expectTypeOf(postsUsingFactoryVariadic).toEqualTypeOf<PostMock[]>();
   expectTypeOf(manualPostsUsingRunVariadic).toEqualTypeOf<PostMock[]>();
 
   const postNullUsingFunc = await action()

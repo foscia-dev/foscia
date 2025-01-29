@@ -14,6 +14,8 @@ import { Arrayable, using } from '@foscia/shared';
  * @param runningHooks
  * @param successHooks
  * @param exists
+ *
+ * @internal
  */
 export default <C extends {}>(
   action: Action<C>,

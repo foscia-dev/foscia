@@ -1,5 +1,5 @@
 import oneOr, { OneData } from '@foscia/core/actions/context/runners/oneOr';
-import { DeserializedDataOf } from '@foscia/core/actions/context/utilities/deserializeInstances';
+import { RetypedDeserializedData } from '@foscia/core/actions/context/utilities/deserializeInstances';
 import makeRunner from '@foscia/core/actions/makeRunner';
 import { InferQueryInstance } from '@foscia/core/actions/types';
 import { DeserializedData } from '@foscia/core/types';
@@ -27,5 +27,5 @@ export default makeRunner('one', <
   Deserialized extends DeserializedData,
   Next = I,
 >(
-  transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
+  transform?: (data: OneData<Data, RetypedDeserializedData<Deserialized, I>, I>) => Awaitable<Next>,
 ) => oneOr<C, I, RawData, Data, Deserialized, null, Next>(() => null, transform));

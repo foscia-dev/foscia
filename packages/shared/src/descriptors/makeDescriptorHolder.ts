@@ -14,7 +14,7 @@ export const SYMBOL_DESCRIPTOR_HOLDER = Symbol('foscia: descriptor holder');
  *
  * @internal
  */
-export default <T>(descriptor: PropertyDescriptor) => ({
+export default (descriptor: PropertyDescriptor) => ({
   $FOSCIA_TYPE: SYMBOL_DESCRIPTOR_HOLDER,
   descriptor,
-}) as DescriptorHolder<T>;
+}) as DescriptorHolder;

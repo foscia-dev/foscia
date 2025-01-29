@@ -2,7 +2,7 @@ import registerHook from '@foscia/core/hooks/registerHook';
 import { SyncHookCallback } from '@foscia/core/hooks/types';
 import {
   Model,
-  ModelComposable,
+  ModelComposableFactory,
   ModelFactory,
   ModelHooksDefinition,
   ModelInstance,
@@ -21,7 +21,7 @@ export default (hook: keyof ModelHooksDefinition): {
     model: M,
     callback: (model: M) => unknown,
   ): () => void;
-  <C extends ModelComposable>(
+  <C extends ModelComposableFactory>(
     composable: C,
     callback: (model: ModelUsing<C>) => unknown,
   ): () => void;

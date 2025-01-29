@@ -1,16 +1,35 @@
 /* eslint-disable no-param-reassign */
 import isPropDef from '@foscia/core/model/checks/isPropDef';
+import isRelationDef from '@foscia/core/model/checks/isRelationDef';
 import forceFill from '@foscia/core/model/forceFill';
 import mapProps from '@foscia/core/model/props/mappers/mapProps';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
 import {
   ModelInstance,
   ModelKey,
+  ModelLimitedSnapshot,
+  ModelProp,
   ModelSnapshot,
-  ModelValueProp,
   ModelValues,
 } from '@foscia/core/model/types';
-import { ArrayableVariadic, tap, wrapVariadic } from '@foscia/shared';
+import { Arrayable, ArrayableVariadic, isNil, tap, wrapVariadic } from '@foscia/shared';
+
+const restoreSnapshotRelation = (
+  value: Arrayable<ModelSnapshot | ModelLimitedSnapshot>,
+) => (
+  Array.isArray(value)
+    ? value.map((v) => v.$instance)
+    : value.$instance
+);
+
+const restoreSnapshotValue = (
+  snapshot: ModelSnapshot,
+  def: ModelProp,
+) => snapshot.$instance.$model.$config.cloneSnapshotValue(
+  isRelationDef(def) && !isNil(snapshot.$values[def.key])
+    ? restoreSnapshotRelation(snapshot.$values[def.key])
+    : snapshot.$values[def.key],
+);
 
 /**
  * Restore a specific snapshot on instance.
@@ -41,14 +60,14 @@ export default <I extends ModelInstance>(
     instance.$loaded = snapshot.$loaded;
   }
 
-  const restoreForDef = (def: ModelValueProp<ModelKey<I>>) => {
-    if (keys.length && keys.indexOf(def.key) === -1) {
+  const restoreForDef = (def: ModelProp) => {
+    if (keys.length && keys.indexOf(def.key as ModelKey<I>) === -1) {
       return;
     }
 
     if (Object.prototype.hasOwnProperty.call(snapshot.$values, def.key)) {
       forceFill(instance, {
-        [def.key]: instance.$model.$config.cloneValue(snapshot.$values[def.key]),
+        [def.key]: restoreSnapshotValue(snapshot, def),
       } as Partial<ModelValues<I>>);
     } else {
       delete instance.$values[def.key];

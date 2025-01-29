@@ -1,28 +1,40 @@
 import {
   ModelAttribute,
+  ModelComposableFactory,
   ModelId,
   ModelIdType,
   ModelProp,
-  ModelPropFactory,
   ModelPropSync,
   ModelRelation,
   ModelRelationKey,
 } from '@foscia/core/model/types';
 import { ObjectTransformer } from '@foscia/core/transformers/types';
-import { Arrayable, Constructor } from '@foscia/shared';
+import { Arrayable, Constructor, Dictionary, IfAny } from '@foscia/shared';
 
 /**
- * Default prop factory definition object type.
+ * Pending property.
  *
  * @internal
  */
-export type ModelPropFactoryDefinition<P extends ModelProp> =
-  Partial<P> & ThisType<P & { key: any; }>;
+export type ModelPendingProp<P extends ModelProp> =
+  Omit<P, '$FOSCIA_TYPE' | 'factory' | 'parent' | 'key' | '_type'> & ThisType<P>;
 
 /**
- * Model ID factory object.
+ * Model chainable property factory.
  *
  * @internal
+ */
+export type ModelPropChainableFactory<
+  P extends ModelProp,
+  M extends Dictionary<(...args: any[]) => Partial<P>>,
+> =
+  & { [K in keyof M]: (...args: Parameters<M[K]>) => ModelPropChainableFactory<P, M>; }
+  & ModelComposableFactory<P>;
+
+/**
+ * Model ID factory.
+ *
+ * @interface
  */
 export type ModelIdFactory<T extends ModelIdType | null, R extends boolean> = {
   /**
@@ -51,20 +63,22 @@ export type ModelIdFactory<T extends ModelIdType | null, R extends boolean> = {
    * Mark nullable.
    */
   nullable: () => ModelIdFactory<T | null, R>;
-} & ModelPropFactory<ModelId<string, T, R>>;
+} & ModelComposableFactory<ModelId<T, R>>;
 
 /**
  * Model ID factory object config.
  *
+ * @interface
+ *
  * @internal
  */
 export type ModelIdFactoryConfig<T extends ModelIdType | null, R extends boolean> =
-  Pick<ModelId<string, T, R>, 'transformer' | 'default' | 'readOnly'>;
+  Pick<ModelId<T, R>, 'transformer' | 'default' | 'readOnly'>;
 
 /**
- * Model attribute factory object.
+ * Model attribute factory.
  *
- * @internal
+ * @interface
  */
 export type ModelAttributeFactory<T, R extends boolean> = {
   /**
@@ -105,15 +119,17 @@ export type ModelAttributeFactory<T, R extends boolean> = {
    * @param sync
    */
   sync: (sync: boolean | ModelPropSync) => ModelAttributeFactory<T, R>;
-} & ModelPropFactory<ModelAttribute<string, T, R>>;
+} & ModelComposableFactory<ModelAttribute<T, R>>;
 
 /**
  * Model attribute factory object config.
  *
+ * @interface
+ *
  * @internal
  */
 export type ModelAttributeFactoryConfig<T, R extends boolean> =
-  Pick<ModelAttribute<string, T, R>, 'transformer' | 'default' | 'readOnly' | 'alias' | 'sync'>;
+  Pick<ModelAttribute<T, R>, 'transformer' | 'default' | 'readOnly' | 'alias' | 'sync'>;
 
 /**
  * Infer related instance types from relationship models.
@@ -130,16 +146,13 @@ export type InferModelRelationFactoryInstance<M> =
  *
  * @internal
  */
-export type InferModelRelationInverseKey<T> = 0 extends (1 & T)
-  ? string
-  : T extends (infer I)[]
-    ? ModelRelationKey<I>
-    : ModelRelationKey<T>;
+export type InferModelRelationInverseKey<T> =
+  IfAny<T, string, ModelRelationKey<T extends (infer I)[] ? I : T>>;
 
 /**
- * Model relationship factory object.
+ * Model relationship factory.
  *
- * @internal
+ * @interface
  */
 export type ModelRelationFactory<T, R extends boolean> = {
   /**
@@ -187,10 +200,12 @@ export type ModelRelationFactory<T, R extends boolean> = {
    * This is specific to HTTP implementations (REST, JSON:API).
    */
   path: (path: string) => ModelRelationFactory<T, R>;
-} & ModelPropFactory<ModelRelation<string, T, R>>;
+} & ModelComposableFactory<ModelRelation<T, R>>;
 
 /**
  * Model relation factory object options.
+ *
+ * @interface
  *
  * @internal
  */
@@ -201,4 +216,4 @@ export type ModelRelationFactoryConfig<T extends Arrayable<object> | null, R ext
      */
     inverse?: InferModelRelationInverseKey<T> | boolean;
   }
-  & Pick<ModelRelation<string, T, R>, 'type' | 'path' | 'default' | 'readOnly' | 'alias' | 'sync'>;
+  & Pick<ModelRelation<T, R>, 'type' | 'path' | 'default' | 'readOnly' | 'alias' | 'sync'>;

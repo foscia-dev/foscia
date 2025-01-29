@@ -120,7 +120,7 @@ export default function registerUser(
     acceptedTermsAt: new Date(),
   });
 
-  return action().run(create(user), oneOrCurrent());
+  return action(create(user), oneOrCurrent());
 }
 ```
 

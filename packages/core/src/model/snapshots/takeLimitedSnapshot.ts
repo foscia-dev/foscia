@@ -1,9 +1,5 @@
 import captureSnapshotValues from '@foscia/core/model/snapshots/utilities/captureSnapshotValues';
-import {
-  ModelInstance,
-  ModelLimitedSnapshot,
-  ModelLimitedSnapshotValues,
-} from '@foscia/core/model/types';
+import { ModelInstance, ModelLimitedSnapshot } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_SNAPSHOT } from '@foscia/core/symbols';
 
 /**
@@ -32,7 +28,7 @@ const takeLimitedSnapshot = <I extends ModelInstance>(
     instance,
     takeLimitedSnapshot,
     ['id', 'lid'],
-  ) as ModelLimitedSnapshotValues<I>,
+  ) as ModelLimitedSnapshot<I>['$values'],
 });
 
 export default takeLimitedSnapshot;

@@ -1,6 +1,6 @@
 import takeLimitedSnapshot from '@foscia/core/model/snapshots/takeLimitedSnapshot';
 import captureSnapshotValues from '@foscia/core/model/snapshots/utilities/captureSnapshotValues';
-import { ModelInstance, ModelSnapshot, ModelSnapshotValues } from '@foscia/core/model/types';
+import { ModelInstance, ModelSnapshot } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_SNAPSHOT } from '@foscia/core/symbols';
 
 const takeFullSnapshot = <I extends ModelInstance>(
@@ -24,7 +24,7 @@ const takeFullSnapshot = <I extends ModelInstance>(
         ? takeLimitedSnapshot(related)
         : takeFullSnapshot(related, [...parents, snapshot])
     )
-  )) as ModelSnapshotValues<I>;
+  )) as ModelSnapshot<I>['$values'];
 
   return snapshot;
 };

@@ -71,7 +71,7 @@ import action from './action';
 import searchBy from './enhancers/searchBy';
 import Post from './models/post';
 
-const posts = await action().run(
+const posts = await action(
   query(Post),
   searchBy('hello'),
   all(),

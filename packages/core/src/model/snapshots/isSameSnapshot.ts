@@ -38,7 +38,7 @@ export default <M extends Model>(
     keys.length > 0
     || Object.keys(nextSnapshot.$values).length === Object.keys(prevSnapshot.$values).length
   ) && (keys.length ? keys : Object.keys(nextSnapshot.$values) as ModelKey<M>[]).every(
-    (key) => nextSnapshot.$instance.$model.$config.compareValues(
+    (key) => nextSnapshot.$instance.$model.$config.compareSnapshotValues(
       nextSnapshot.$values[key],
       prevSnapshot.$values[key],
     ),

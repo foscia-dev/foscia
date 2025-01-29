@@ -61,9 +61,8 @@ a global search endpoint. In combination with
 
 ```typescript
 import { queryAs, all } from '@foscia/core';
-import { paginate, usingDocument } from '@foscia/jsonapi';
 
-const results = await action().run(
+const results = await action(
   // Notice the `queryAs` instead of `query`, this will
   // GET `/api/search` instead of `/api/posts/search`.
   queryAs([Post, Comment, User]),
@@ -92,11 +91,11 @@ If your REST API supports eager loading relations, you can use
 loading. This will define a query parameter such as `include=author,comments`.
 
 To define a custom query parameter, use the
-[`includeParamKey`](/docs/api/@foscia/rest/type-aliases/RestAdapterConfig#includeparamkey)
+[`includeParamKey`](/docs/api/@foscia/rest/interfaces/RestAdapterConfig#includeparamkey)
 option.
 
 ```typescript
-import { makeRestAdapter } from '@foscia/http';
+import { makeRestAdapter } from '@foscia/rest';
 
 const { adapter } = makeRestAdapter({
   includeParamKey: 'with',
@@ -126,7 +125,7 @@ makeRestAdapter({
 
 If your REST API document nest records inside the document (not at root, such as
 inside a `data` property), you can add
-[`extractData`](/docs/api/@foscia/serialization/type-aliases/DeserializerConfig#extractdata) option which will extract
+[`extractData`](/docs/api/@foscia/rest/interfaces/RestDeserializerConfig#extractdata) option which will extract
 records data using the given transformation function.
 
 ```typescript
@@ -169,7 +168,7 @@ This behavior can also be easily implemented when
 
 If your REST API document expect record data to be nested (not at root, such as
 inside a `data` property), you can add
-[`createData`](/docs/api/@foscia/serialization/type-aliases/SerializerConfig#createdata)
+[`createData`](/docs/api/@foscia/rest/interfaces/RestSerializerConfig#createdata)
 option which will wrap
 records data using the given transformation function.
 
@@ -186,9 +185,9 @@ makeRestSerializer({
 By default, JSON:API use kebab case for models and relations endpoints (e.g.
 `favorite-posts` for a `favoritePosts` relation). If you want to use another
 case for endpoints, you can use
-[`modelPathTransformer`](/docs/api/@foscia/http/type-aliases/HttpAdapterConfig#modelpathtransformer)
+[`modelPathTransformer`](/docs/api/@foscia/rest/interfaces/RestAdapterConfig#modelpathtransformer)
 and
-[`relationPathTransformer`](/docs/api/@foscia/http/type-aliases/HttpAdapterConfig#relationpathtransformer)
+[`relationPathTransformer`](/docs/api/@foscia/rest/interfaces/RestAdapterConfig#relationpathtransformer)
 options.
 
 ```typescript
@@ -207,8 +206,8 @@ By default, serialized and deserialized attributes and relations keep keys
 specified in the model. If you are using camel cased keys (e.g. `firstName`)
 but want to exchange kebab cased keys (e.g. `first-name`) with your API,
 you can use
-[`serializeKey`](/docs/api/@foscia/serialization/type-aliases/SerializerConfig#serializekey)
-and [`deserializeKey`](/docs/api/@foscia/serialization/type-aliases/DeserializerConfig#deserializekey)
+[`serializeKey`](/docs/api/@foscia/rest/interfaces/RestSerializerConfig#serializekey)
+and [`deserializeKey`](/docs/api/@foscia/rest/interfaces/RestDeserializerConfig#deserializekey)
 options.
 
 ```typescript
@@ -228,7 +227,7 @@ makeRestDeserializer({
 
 By default, REST implementation will only serialize the related IDs as the
 serialized relation's data. You can customize this behavior using
-[`serializeRelation`](/docs/api/@foscia/serialization/type-aliases/SerializerConfig#serializerelation)
+[`serializeRelation`](/docs/api/@foscia/rest/interfaces/RestSerializerConfig#serializerelation)
 option, which will provide the related instance snapshot.
 
 #### Supporting polymorphism
@@ -278,7 +277,7 @@ If you want to customize relations serialization behavior when writing
 relations (e.g. using
 [`attach`](/docs/api/@foscia/core/functions/attach),
 [`associate`](/docs/api/@foscia/core/functions/associate), etc.), you can use the
-[`serializeRelated`](/docs/api/@foscia/serialization/type-aliases/SerializerConfig#serializerelated)
+[`serializeRelated`](/docs/api/@foscia/rest/interfaces/RestSerializerConfig#serializerelated)
 option which have the same signature.
 
 :::
@@ -288,7 +287,7 @@ option which have the same signature.
 Some API implementation may serialize records IDs as URL to the record endpoint
 (such as `https://example.com/api/posts/1` for post `1`). You can customize
 the deserializer to support ID and type extraction from URL ID using the
-[`pullIdentifier`](/docs/api/@foscia/rest/type-aliases/RestDeserializerConfig#pullidentifier)
+[`pullIdentifier`](/docs/api/@foscia/rest/interfaces/RestDeserializerConfig#pullidentifier)
 option.
 
 ```typescript

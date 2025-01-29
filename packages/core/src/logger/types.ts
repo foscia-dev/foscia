@@ -1,11 +1,9 @@
-import type { LOGGER_LEVELS } from '@foscia/core/logger/constants';
-
 /**
  * Available logger levels.
  *
  * @internal
  */
-export type LoggerLevel = keyof typeof LOGGER_LEVELS;
+export type LoggerLevel = 'error' | 'warn' | 'info' | 'debug';
 
 /**
  * Output to use on a logger.

@@ -17,7 +17,7 @@ implementations to support read/write interactions with
 ### `makeJsonApiAdapter`
 
 [`makeJsonApiAdapter`](/docs/api/@foscia/jsonapi/functions/makeJsonApiAdapter)
-provides a [`Adapter`](/docs/api/@foscia/core/type-aliases/Adapter)
+provides a [`Adapter`](/docs/api/@foscia/core/interfaces/Adapter)
 implementation which will execute context through HTTP requests using the
 [`fetch` API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 
@@ -40,9 +40,7 @@ const response = await adapter.execute({
 
 #### Configuration
 
-- [`JsonApiAdapterConfig`](/docs/api/@foscia/jsonapi/type-aliases/JsonApiAdapterConfig)
-- [`RestAdapterConfig`](/docs/api/@foscia/rest/type-aliases/RestAdapterConfig)
-- [`HttpAdapterConfig`](/docs/api/@foscia/http/type-aliases/HttpAdapterConfig)
+- [`JsonApiAdapterConfig`](/docs/api/@foscia/jsonapi/interfaces/JsonApiAdapterConfig)
 
 #### Defined in
 
@@ -51,7 +49,7 @@ const response = await adapter.execute({
 ### `makeJsonApiDeserializer`
 
 [`makeJsonApiDeserializer`](/docs/api/@foscia/jsonapi/functions/makeJsonApiDeserializer)
-provides a [`Deserializer`](/docs/api/@foscia/core/type-aliases/Deserializer)
+provides a [`Deserializer`](/docs/api/@foscia/core/interfaces/Deserializer)
 implementation which will extract model instances from JSON:API documents.
 
 `makeJsonApiDeserializer` uses
@@ -146,8 +144,7 @@ const { instances } = await deserializer.deserialize(data, {
 
 #### Configuration
 
-- [`JsonApiDeserializerConfig`](/docs/api/@foscia/jsonapi/type-aliases/JsonApiDeserializerConfig)
-- [`DeserializerConfig`](/docs/api/@foscia/serialization/type-aliases/DeserializerConfig)
+- [`JsonApiDeserializerConfig`](/docs/api/@foscia/jsonapi/interfaces/JsonApiDeserializerConfig)
 
 #### Defined in
 
@@ -156,7 +153,7 @@ const { instances } = await deserializer.deserialize(data, {
 ### `makeJsonApiSerializer`
 
 [`makeJsonApiSerializer`](/docs/api/@foscia/jsonapi/functions/makeJsonApiSerializer)
-provides a [`Serializer`](/docs/api/@foscia/core/type-aliases/Serializer)
+provides a [`Serializer`](/docs/api/@foscia/core/interfaces/Serializer)
 implementation which will create JSON:API documents from model instance
 and relations.
 
@@ -220,8 +217,7 @@ const data = await serializer.serializeInstance(instance, {
 
 #### Configuration
 
-- [`JsonApiSerializerConfig`](/docs/api/@foscia/jsonapi/type-aliases/JsonApiSerializerConfig)
-- [`SerializerConfig`](/docs/api/@foscia/serialization/type-aliases/SerializerConfig)
+- [`JsonApiSerializerConfig`](/docs/api/@foscia/jsonapi/interfaces/JsonApiSerializerConfig)
 
 #### Defined in
 

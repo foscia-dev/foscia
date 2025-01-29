@@ -10,22 +10,21 @@ import {
   ConsumeRelation,
   ConsumeSerializer,
 } from '@foscia/core/actions/types';
-import isSingularRelationDef from '@foscia/core/model/checks/isSingularRelationDef';
 import {
   InferModelSchemaProp,
-  InferModelValuePropType,
   ModelInstance,
   ModelRelation,
   ModelRelationKey,
+  ModelValues,
+  ModelWritableKey,
 } from '@foscia/core/model/types';
-import { using, wrap } from '@foscia/shared';
 
-export type UpdateRelationActionName =
-  | ActionName.UPDATE_RELATION
-  | ActionName.ATTACH_RELATION
-  | ActionName.DETACH_RELATION;
-
-export type UpdateRelationValue<R> = R extends ModelRelation<any, infer T>
+/**
+ * Infer the relation update possible values.
+ *
+ * @internal
+ */
+export type InferRelationUpdateValue<R> = R extends ModelRelation<infer T>
   ? NonNullable<T> extends any[] ? T | NonNullable<T>[number] : T : never;
 
 /**
@@ -51,28 +50,25 @@ export type UpdateRelationValue<R> = R extends ModelRelation<any, infer T>
 export default /* @__PURE__ */ makeEnhancer('updateRelation', <
   C extends {},
   I extends ModelInstance,
-  K extends string,
-  R extends InferModelSchemaProp<I, K, ModelRelation>,
+  K extends ModelWritableKey<I> & ModelRelationKey<I>,
   Record,
   Related,
   Data,
 >(
   instance: I,
-  relation: K & ModelRelationKey<I>,
-  value: UpdateRelationValue<R>,
-  actionName: UpdateRelationActionName = ActionName.UPDATE_RELATION,
-) => async (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => using(
-  isSingularRelationDef(instance.$model.$schema[relation] as R) ? value : wrap(value),
-  async (wrappedValue) => action.use(
-    query(instance, relation),
-    context({
-      action: actionName,
-      data: await serializeRelation(
-        await action.useContext(),
-        instance,
-        relation,
-        wrappedValue as InferModelValuePropType<R>,
-      ),
-    }),
-  ) as unknown as Action<C & ConsumeModel<I['$model']> & ConsumeRelation<R> & ConsumeId>,
-));
+  relation: K,
+  value: ModelValues<I>[K],
+  // eslint-disable-next-line max-len
+  actionName: ActionName.UPDATE_RELATION | ActionName.ATTACH_RELATION | ActionName.DETACH_RELATION = ActionName.UPDATE_RELATION,
+) => async (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => action.use(
+  query(instance, relation),
+  context({
+    action: actionName,
+    data: await serializeRelation(
+      await action.useContext(),
+      instance,
+      relation,
+      value,
+    ),
+  }),
+) as unknown as Action<C & ConsumeModel<I['$model']> & ConsumeRelation<InferModelSchemaProp<I, K, ModelRelation>> & ConsumeId>);

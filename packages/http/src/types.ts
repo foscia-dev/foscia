@@ -38,6 +38,8 @@ export type HttpRequestInitPickKey =
 /**
  * Context value representing a HTTP request config.
  *
+ * @interface
+ *
  * @internal
  */
 export type HttpRequestConfig =
@@ -140,11 +142,15 @@ export type HttpResponseReader<Data = any> = (response: Response) => Promise<Dat
 
 /**
  * Dedicated middleware for the HTTP adapter implementation.
+ *
+ * @internal
  */
 export type HttpAdapterMiddleware = Middleware<Request, Promise<Response>>;
 
 /**
  * The configuration for the HTTP adapter implementation.
+ *
+ * @interface
  *
  * @internal
  */
@@ -222,6 +228,8 @@ export type HttpAdapterConfig<Data = any> = {
 /**
  * HTTP adapter.
  *
+ * @interface
+ *
  * @internal
  */
 export type HttpAdapter<Data = any> = Adapter<Response, Data>;
@@ -232,27 +240,6 @@ export type HttpAdapter<Data = any> = Adapter<Response, Data>;
  * @internal
  */
 export type HttpParamsSerializer = (params: Dictionary) => string | undefined;
-
-/**
- * Transforms a {@link !Request | `Request`} object.
- *
- * @internal
- */
-export type RequestTransformer = (request: Request) => Awaitable<Request>;
-
-/**
- * Transforms a {@link !Response | `Response`} object.
- *
- * @internal
- */
-export type ResponseTransformer = (response: Response) => Awaitable<Response>;
-
-/**
- * Transforms an unknown error.
- *
- * @internal
- */
-export type ErrorTransformer = (error: unknown) => Awaitable<unknown>;
 
 /**
  * Converts given body as a valid {@link !Request | `Request`} body.

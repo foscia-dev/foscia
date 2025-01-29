@@ -6,9 +6,9 @@ import makeWeakRefFactory from '@foscia/core/cache/makeWeakRefFactory';
 import AdapterError from '@foscia/core/errors/adapterError';
 import DeserializerError from '@foscia/core/errors/deserializerError';
 import ExpectedRunFailureError from '@foscia/core/errors/expectedRunFailureError';
-import isNotFoundError from '@foscia/core/errors/flags/isNotFoundError';
 import FosciaError from '@foscia/core/errors/fosciaError';
 import SerializerError from '@foscia/core/errors/serializerError';
+import { FLAG_ERROR_NOT_FOUND } from '@foscia/core/flags';
 import registerHook from '@foscia/core/hooks/registerHook';
 import runHooks from '@foscia/core/hooks/runHooks';
 import unregisterHook from '@foscia/core/hooks/unregisterHook';
@@ -24,6 +24,10 @@ import isPluralRelationDef from '@foscia/core/model/checks/isPluralRelationDef';
 import isRelationDef from '@foscia/core/model/checks/isRelationDef';
 import isSingularRelationDef from '@foscia/core/model/checks/isSingularRelationDef';
 import isSnapshot from '@foscia/core/model/checks/isSnapshot';
+import applyDefinition from '@foscia/core/model/composition/applyDefinition';
+import makeComposable from '@foscia/core/model/composition/makeComposable';
+import makeComposableFactory from '@foscia/core/model/composition/makeComposableFactory';
+import makeDefinition from '@foscia/core/model/composition/makeDefinition';
 import fill from '@foscia/core/model/fill';
 import filled from '@foscia/core/model/filled';
 import forceFill from '@foscia/core/model/forceFill';
@@ -43,7 +47,6 @@ import onPropertyReading from '@foscia/core/model/hooks/properties/onPropertyRea
 import onPropertyWrite from '@foscia/core/model/hooks/properties/onPropertyWrite';
 import onPropertyWriting from '@foscia/core/model/hooks/properties/onPropertyWriting';
 import isSame from '@foscia/core/model/isSame';
-import makeComposable from '@foscia/core/model/makeComposable';
 import makeModel from '@foscia/core/model/makeModel';
 import makeModelFactory from '@foscia/core/model/makeModelFactory';
 import attr from '@foscia/core/model/props/builders/attr';
@@ -95,8 +98,10 @@ import {
   SYMBOL_MODEL_PROP_KIND_ATTRIBUTE,
   SYMBOL_MODEL_PROP_KIND_ID,
   SYMBOL_MODEL_PROP_KIND_RELATION,
+  SYMBOL_MODEL_PROP_TRANSFORMER,
   SYMBOL_MODEL_RELATION_HAS_MANY,
   SYMBOL_MODEL_RELATION_HAS_ONE,
+  SYMBOL_MODEL_SNAPSHOT,
 } from '@foscia/core/symbols';
 import isTransformer from '@foscia/core/transformers/isTransformer';
 import makeCustomTransformer from '@foscia/core/transformers/makeCustomTransformer';
@@ -110,9 +115,9 @@ import toString from '@foscia/core/transformers/toString';
 
 export * from '@foscia/core/actions/types';
 export * from '@foscia/core/cache/types';
-export * from '@foscia/core/errors/flags/types';
 export * from '@foscia/core/hooks/types';
 export * from '@foscia/core/logger/types';
+export * from '@foscia/core/model/composition/types';
 export * from '@foscia/core/model/props/builders/types';
 export * from '@foscia/core/model/revivers/types';
 export * from '@foscia/core/model/types';
@@ -128,7 +133,6 @@ export {
   DeserializerError,
   SerializerError,
   ExpectedRunFailureError,
-  isNotFoundError,
   makeRegistry,
   makeMapRegistry,
   makeCache,
@@ -147,7 +151,10 @@ export {
   changed,
   restore,
   markSynced,
+  applyDefinition,
+  makeDefinition,
   makeComposable,
+  makeComposableFactory,
   makeModel,
   makeModelFactory,
   makeQueryModelLoader,
@@ -212,7 +219,9 @@ export {
   cloneModelValue,
   compareModelValues,
   logger,
+  FLAG_ERROR_NOT_FOUND,
   SYMBOL_MODEL_PROP_FACTORY,
+  SYMBOL_MODEL_PROP_TRANSFORMER,
   SYMBOL_MODEL_PROP,
   SYMBOL_MODEL_PROP_KIND_ID,
   SYMBOL_MODEL_PROP_KIND_ATTRIBUTE,
@@ -222,6 +231,7 @@ export {
   SYMBOL_MODEL_CLASS,
   SYMBOL_MODEL_INSTANCE,
   SYMBOL_MODEL_COMPOSABLE,
+  SYMBOL_MODEL_SNAPSHOT,
   SYMBOL_ACTION_CONTEXT_WHEN,
   SYMBOL_ACTION_CONTEXT_ENHANCER,
   SYMBOL_ACTION_CONTEXT_RUNNER,

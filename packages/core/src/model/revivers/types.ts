@@ -186,6 +186,8 @@ export type ModelCanReduceRevive<T extends ReducedModelInstanceCustomData = any>
 
 /**
  * Config for the models reviver.
+ *
+ * @internal
  */
 export type ModelsReviverConfig = {
   models: Model[];
@@ -194,6 +196,8 @@ export type ModelsReviverConfig = {
 
 /**
  * Config for the models reducer.
+ *
+ * @internal
  */
 export type ModelsReducerConfig = {
   reduce?: (value: unknown) => unknown;

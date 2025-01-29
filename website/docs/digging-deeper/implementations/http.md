@@ -20,7 +20,7 @@ the foundation of [JSON:API](/docs/digging-deeper/implementations/jsonapi) and
 
 
 [`makeHttpAdapter`](/docs/api/@foscia/http/functions/makeHttpAdapter) provides a
-[`Adapter`](/docs/api/@foscia/core/type-aliases/Adapter) implementation which
+[`Adapter`](/docs/api/@foscia/core/interfaces/Adapter) implementation which
 will execute context through HTTP requests using the
 [`fetch` API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 
@@ -55,7 +55,7 @@ const response = await adapter.execute({
 
 #### Configuration {#makehttpadapter-configuration}
 
-- [`HttpAdapterConfig`](/docs/api/@foscia/http/type-aliases/HttpAdapterConfig)
+- [`HttpAdapterConfig`](/docs/api/@foscia/http/interfaces/HttpAdapterConfig)
 
 #### Defined in
 

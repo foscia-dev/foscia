@@ -71,5 +71,5 @@ import action from './action';
 import first from './runners/first';
 import Post from './models/post';
 
-const post = await action().run(query(Post), first());
+const post = await action(query(Post), first());
 ```

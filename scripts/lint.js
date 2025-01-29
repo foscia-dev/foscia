@@ -14,6 +14,12 @@ async function run() {
       text: 'Checking code...',
       successText: 'Checks OK.',
     });
+  } catch (error) {
+    console.error(error.message);
+    process.exit(1);
+  }
+
+  try {
     await oraPromise(lint, {
       text: 'Linting code...',
       successText: 'Code style OK.',
@@ -23,16 +29,8 @@ async function run() {
   }
 }
 
-async function lint() {
-  await execa({ stdio: 'inherit' })`eslint ${[
-    '--ext',
-    '.ts',
-    'packages',
-  ]}`;
-}
-
 async function check() {
-  let containsErrors = false;
+  const errors = [];
 
   // Check for external package use with relative path imports.
   const rootDirname = useRootDirname();
@@ -40,7 +38,7 @@ async function check() {
     (await listFiles(path.resolve(rootDirname, 'packages'))).map(async (file) => {
       const [_, packageName, context] = file.match(/packages\/([a-z-]+)\/(src|tests)/) ?? [];
       if (packageName && (packageName !== 'cli' || context !== 'tests')) {
-        const errors = [];
+        const fileErrors = [];
         const fileContent = await readFile(file, { encoding: 'utf8' });
         const matches = fileContent.matchAll(/[^\n]+(from '@foscia\/[a-z-]+(\/index|.))/g);
         [...matches].forEach((match) => {
@@ -50,28 +48,34 @@ async function check() {
           }
 
           if (match[1].endsWith('/') && (context !== 'src' || packageName !== importPackageName)) {
-            console.log(packageName, context)
-            errors.push(
+            fileErrors.push(
               `import of ${c.red(`@foscia/${importPackageName}`)} must use root package export (instead of inner package export)`,
             );
           }
 
           if (context === 'src' && packageName === importPackageName && (!match[1].endsWith('/') || match[1].endsWith('/index'))) {
-            errors.push(
+            fileErrors.push(
               `import of ${c.red(`@foscia/${packageName}`)} must use inner package export (instead of root package export)`,
             );
           }
         });
 
-        if (errors.length) {
-          containsErrors = true;
-          console.error(`${c.underline(file)}\n${errors.map((e) => `  - ${e}`).join('\n')}`);
+        if (fileErrors.length) {
+          errors.push(`${c.underline(file)}\n${fileErrors.map((e) => `  - ${e}`).join('\n')}`);
         }
       }
     }),
   );
 
-  if (containsErrors) {
-    process.exit(1);
+  if (errors.length) {
+    throw new Error(errors.join('\n'));
   }
+}
+
+async function lint() {
+  await execa({ stdio: 'inherit' })`eslint ${[
+    '--ext',
+    '.ts',
+    'packages',
+  ]}`;
 }

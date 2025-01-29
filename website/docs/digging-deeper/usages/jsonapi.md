@@ -28,7 +28,7 @@ Internally, it will use the JSON:API relationships inclusion features.
 ```typescript
 import { query, all, include } from '@foscia/core';
 
-const posts = await action().run(query(Post), include('author'), all());
+const posts = await action(query(Post), include('author'), all());
 ```
 
 ### Filtering requests
@@ -41,7 +41,7 @@ both supports key-value or object parameters.
 import { query, all } from '@foscia/core';
 import { filterBy } from '@foscia/jsonapi';
 
-const posts = await action().run(
+const posts = await action(
   query(Post),
   // Key-value pair.
   filterBy('published', true),
@@ -65,7 +65,7 @@ ascending sorting by default.
 import { query, all } from '@foscia/core';
 import { sortBy, sortByAsc } from '@foscia/jsonapi';
 
-const posts = await action().run(
+const posts = await action(
   query(Post),
   // Ascending sorting.
   sortBy(['publishedAt', 'createdAt']),
@@ -93,7 +93,7 @@ for the given model.
 import { query, all, include } from '@foscia/core';
 import { sortBy, sortByDesc } from '@foscia/jsonapi';
 
-const posts = await action().run(
+const posts = await action(
   query(Post),
   include('author'),
   fields('title', 'author'),
@@ -117,7 +117,7 @@ serialize pagination metadata in it).
 import { query, all } from '@foscia/core';
 import { paginate, usingDocument } from '@foscia/jsonapi';
 
-const data = await action().run(
+const data = await action(
   query(Post),
   // A standard pagination.
   paginate({ size: 10, number: 1 }),
@@ -145,7 +145,7 @@ a global search endpoint:
 import { queryAs, all } from '@foscia/core';
 import { paginate, usingDocument } from '@foscia/jsonapi';
 
-const results = await action().run(
+const results = await action(
   // Notice the `queryAs` instead of `query`, this will
   // GET `/api/v1/search` instead of `/api/v1/posts/search`.
   queryAs([Post, Comment, User]),
@@ -172,14 +172,14 @@ the JSON:API adapter is based on HTTP adapter.
 By default, JSON:API use kebab case for models and relations endpoints (e.g.
 `favorite-posts` for a `favoritePosts` relation). If you want to use another
 case for endpoints, you can use
-[`modelPathTransformer`](/docs/api/@foscia/http/type-aliases/HttpAdapterConfig#modelpathtransformer)
+[`modelPathTransformer`](/docs/api/@foscia/jsonapi/interfaces/JsonApiAdapterConfig#modelpathtransformer)
 and
-[`relationPathTransformer`](/docs/api/@foscia/http/type-aliases/HttpAdapterConfig#relationpathtransformer)
+[`relationPathTransformer`](/docs/api/@foscia/jsonapi/interfaces/JsonApiAdapterConfig#relationpathtransformer)
 options.
 
 ```typescript
 import { camelCase } from 'lodash-es';
-import { makeJsonApiAdapter } from '@foscia/rest';
+import { makeJsonApiAdapter } from '@foscia/jsonapi';
 
 makeJsonApiAdapter({
   modelPathTransformer: (path) => camelCase(path),
@@ -193,13 +193,13 @@ By default, serialized and deserialized attributes and relations keep keys
 specified in the model. If you are using camel cased keys (e.g. `firstName`)
 but want to exchange kebab cased keys (e.g. `first-name`) with your API,
 you can use
-[`serializeKey`](/docs/api/@foscia/serialization/type-aliases/SerializerConfig#serializekey)
-and [`deserializeKey`](/docs/api/@foscia/serialization/type-aliases/DeserializerConfig#deserializekey)
+[`serializeKey`](/docs/api/@foscia/jsonapi/interfaces/JsonApiSerializerConfig#serializekey)
+and [`deserializeKey`](/docs/api/@foscia/jsonapi/interfaces/JsonApiDeserializerConfig#deserializekey)
 options.
 
 ```typescript
 import { kebabCase } from 'lodash-es';
-import { makeJsonApiSerializer, makeJsonApiDeserializer } from '@foscia/rest';
+import { makeJsonApiSerializer, makeJsonApiDeserializer } from '@foscia/jsonapi';
 
 makeJsonApiSerializer({
   serializeKey: ({ key }) => kebabCase(key),
@@ -215,11 +215,11 @@ makeJsonApiDeserializer({
 Some API implementation may serialize records IDs as URL to the record endpoint
 (such as `https://example.com/api/posts/1` for post `1`). You can customize
 the deserializer to support ID and type extraction from URL ID using the
-[`pullIdentifier`](/docs/api/@foscia/rest/type-aliases/RestDeserializerConfig#pullidentifier)
+[`pullIdentifier`](/docs/api/@foscia/jsonapi/interfaces/JsonApiDeserializerConfig#pullidentifier)
 option.
 
 ```typescript
-import { makeJsonApiDeserializer } from '@foscia/rest';
+import { makeJsonApiDeserializer } from '@foscia/jsonapi';
 
 makeJsonApiDeserializer({
   pullIdentifier: (record) => {

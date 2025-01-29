@@ -11,7 +11,7 @@ import { tap } from '@foscia/shared';
  * @param key
  * @param callback
  *
- * @category Hooks
+ * @internal
  */
 export default <D extends HooksDefinition, K extends keyof D>(
   hookable: Hookable<D>,

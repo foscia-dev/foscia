@@ -6,7 +6,6 @@ import { FosciaError } from '@foscia/core';
  * @group Errors
  *
  * @internal
- * @experimental
  */
 export default class FosciaTestError extends FosciaError {
 }

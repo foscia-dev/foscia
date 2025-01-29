@@ -132,7 +132,7 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
 
     const appendHeaders = config.appendHeaders ?? (() => ({}));
 
-    const init = {
+    const init: Pick<RequestInit, HttpRequestInitPickKey> = {
       cache: contextConfig.cache,
       credentials: contextConfig.credentials,
       integrity: contextConfig.integrity,
@@ -143,7 +143,7 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
       referrerPolicy: contextConfig.referrerPolicy,
       signal: contextConfig.signal,
       window: contextConfig.window,
-    } as { [K in HttpRequestInitPickKey]: RequestInit[K]; };
+    };
 
     return {
       body,

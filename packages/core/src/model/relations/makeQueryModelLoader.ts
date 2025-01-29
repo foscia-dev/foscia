@@ -35,8 +35,6 @@ import {
   wrap,
 } from '@foscia/shared';
 
-type ExtractedId = { id: ModelIdType; type?: string; };
-
 /**
  * Configuration for the {@link makeQueryModelLoader | `makeQueryModelLoader`} factory.
  *
@@ -87,7 +85,7 @@ export type QueryModelLoaderOptions<
   extract?: <I extends ModelInstance>(
     instance: I,
     relation: ModelRelationKey<I>,
-  ) => Arrayable<ExtractedId> | null | undefined;
+  ) => Arrayable<{ id: ModelIdType; type?: string; }> | null | undefined;
   /**
    * Prepare the action using the given context.
    * As an example, this can be used to filter the query on instances IDs.
@@ -166,7 +164,7 @@ const extractIdsMap = <
   instances: I[],
   relations: Map<ModelRelationKey<I>, string[]>,
 ) => tap(
-  new Map<I, Map<ModelRelationKey<I>, Arrayable<ExtractedId> | null>>(),
+  new Map<I, Map<ModelRelationKey<I>, Arrayable<{ id: ModelIdType; type?: string; }> | null>>(),
   (extractedIdsMap) => {
     const { exclude } = options;
     const extract = options.extract ?? makeQueryModelLoaderExtractor(
@@ -206,10 +204,10 @@ const fetchRelatedMap = async <
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
   I extends ModelInstance,
 >(
-  action: ActionFactory<[], C>,
+  action: ActionFactory<C>,
   options: QueryModelLoaderOptions<RawData, Data, Deserialized, C>,
   relations: Map<Model, { relations: ModelRelationKey<I>[]; nested: string[] }>,
-  ids: Map<I, Map<ModelRelationKey<I>, Arrayable<ExtractedId> | null>>,
+  ids: Map<I, Map<ModelRelationKey<I>, Arrayable<{ id: ModelIdType; type?: string; }> | null>>,
 ) => {
   const related = makeIdentifiersMap<string, ModelIdType, ModelInstance>();
 
@@ -224,10 +222,12 @@ const fetchRelatedMap = async <
           );
         }
       }),
-    ), [] as ExtractedId[]);
+    ), [] as { id: ModelIdType; type?: string; }[]);
 
     if (targetedIds.length) {
-      const chunk = (options.chunk ?? ((i) => [i])) as (ids: ExtractedId[]) => ExtractedId[][];
+      const chunk = (
+        options.chunk ?? ((i) => [i])
+      ) as (ids: { id: ModelIdType; type?: string; }[]) => { id: ModelIdType; type?: string; }[][];
 
       await Promise.all(chunk(targetedIds).map(async (chunkIds) => {
         const chunkRelated = await action()
@@ -260,7 +260,7 @@ const fetchRelatedMap = async <
 };
 
 const extractRelated = (
-  ids: Arrayable<ExtractedId> | null,
+  ids: Arrayable<{ id: ModelIdType; type?: string; }> | null,
   related: IdentifiersMap<string, ModelIdType, ModelInstance>,
 ) => {
   if (Array.isArray(ids)) {
@@ -273,7 +273,7 @@ const extractRelated = (
 };
 
 const remapRelated = <I extends ModelInstance>(
-  ids: Map<I, Map<ModelRelationKey<I>, Arrayable<ExtractedId> | null>>,
+  ids: Map<I, Map<ModelRelationKey<I>, Arrayable<{ id: ModelIdType; type?: string; }> | null>>,
   related: IdentifiersMap<string, ModelIdType, ModelInstance>,
 ) => ids.forEach((idsForInstance, instance) => {
   idsForInstance.forEach((extractIds, relation) => {
@@ -310,7 +310,7 @@ export default <
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
 >(
-  action: ActionFactory<[], C>,
+  action: ActionFactory<C>,
   options: QueryModelLoaderOptions<RawData, Data, Deserialized, C> = {},
 ) => async <I extends ModelInstance>(
   instances: Arrayable<I>,

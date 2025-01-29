@@ -25,8 +25,8 @@ import UnexpectedActionError from '@foscia/test/unexpectedActionError';
  *
  * @internal
  */
-export default <A extends any[], C extends {}>(
-  factory: ActionFactory<A, C>,
+export default <C extends {}>(
+  factory: ActionFactory<C>,
 ) => {
   const mocks = [] as ActionMock[];
   const history = [] as ActionFactoryMockHistoryItem[];
@@ -115,15 +115,23 @@ export default <A extends any[], C extends {}>(
     }
   };
 
-  const make = (...args: A) => new Proxy(factory(...args), {
-    get: (target, property) => (
-      property === 'run'
-        ? (
-          ...enhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[]
-        ) => run(target, enhancers)
-        : target[property as keyof Action<C>]
-    ),
-  });
+  const make = (
+    ...immediateEnhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[]
+  ) => {
+    const action = new Proxy(factory(), {
+      get: (target, property) => (
+        property === 'run'
+          ? (
+            ...enhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[]
+          ) => run(target, enhancers)
+          : target[property as keyof Action<C>]
+      ),
+    });
+
+    return immediateEnhancers.length
+      ? (action.run as any)(...immediateEnhancers)
+      : action;
+  };
 
   const mock = (result?: unknown) => {
     const newMock = makeActionMock().return(result);
@@ -138,5 +146,5 @@ export default <A extends any[], C extends {}>(
     history.length = 0;
   };
 
-  return { history, make, mock, reset } as ActionFactoryMock<A, C>;
+  return { history, make, mock, reset } as ActionFactoryMock<C>;
 };

@@ -8,8 +8,8 @@ export default class PostMock extends makeModel('posts', {
   title: attr<string>(),
   body: attr<string | null>(),
   publishedAt: attr(toDateTime()).nullable().readOnly(),
-}) {
   get published() {
     return !!this.publishedAt;
-  }
+  },
+}) {
 }

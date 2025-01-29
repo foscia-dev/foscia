@@ -1,17 +1,14 @@
-import updateRelation, {
-  UpdateRelationValue,
-} from '@foscia/core/actions/context/enhancers/crud/updateRelation';
+import updateRelation from '@foscia/core/actions/context/enhancers/crud/updateRelation';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
 import makeEnhancer from '@foscia/core/actions/makeEnhancer';
 import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
 import fill from '@foscia/core/model/fill';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
 import {
-  InferModelSchemaProp,
   ModelInstance,
-  ModelRelation,
   ModelRelationKey,
-  ModelWritableValues,
+  ModelValues,
+  ModelWritableKey,
 } from '@foscia/core/model/types';
 
 /**
@@ -33,22 +30,22 @@ import {
  * await action().run(associate(post, 'author', user), none());
  * ```
  */
+
 export default /* @__PURE__ */ makeEnhancer('associate', <
   C extends {},
   I extends ModelInstance,
-  K extends string,
-  R extends InferModelSchemaProp<I, K, ModelRelation>,
+  K extends ModelWritableKey<I> & ModelRelationKey<I>,
   Record,
   Related,
   Data,
 >(
   instance: I,
-  relation: K & ModelRelationKey<I>,
-  value: UpdateRelationValue<R>,
+  relation: K,
+  value: ModelValues<I>[K],
 ) => (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => action.use(
   updateRelation(instance, relation, value),
   onSuccess(() => {
-    fill(instance, { [relation]: value } as Partial<ModelWritableValues<I>>);
+    fill(instance, { [relation]: value } as unknown as Partial<ModelValues<I>>);
     markSynced(instance, relation);
   }),
 ));

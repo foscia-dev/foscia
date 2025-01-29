@@ -140,13 +140,11 @@ Here is an example of a type guesser using hypothetical `toKebabCase` and
 relation, this would guess the type to `blog-posts`:
 
 ```typescript title="post.ts"
-import { makeModel, isPluralRelationDef, ModelRelation } from '@foscia/core';
+import { makeModel, ModelRelation } from '@foscia/core';
 
 makeModel({
   type: 'posts',
-  guessRelationType: (def: ModelRelation) => (
-    isPluralRelationDef(def) ? def.key : pluralize(def.key)
-  ),
+  guessRelationType: (def: ModelRelation) => pluralize(def.key),
 });
 ```
 
@@ -169,7 +167,7 @@ Here is an example of an inverse guesser using hypothetical `toCamelCase` and
 relation, this would guess the inverse to `post`:
 
 ```typescript title="post.ts"
-import { makeModel, isPluralRelationDef, ModelRelation } from '@foscia/core';
+import { makeModel, ModelRelation } from '@foscia/core';
 
 makeModel({
   type: 'posts',
@@ -184,8 +182,8 @@ makeModel({
 **Default**: `true`.
 
 Enable storing related records of a snapshot as
-[`ModelLimitedSnapshot`](/docs/api/@foscia/core/type-aliases/ModelLimitedSnapshot),
-instead of [`ModelSnapshot`](/docs/api/@foscia/core/type-aliases/ModelSnapshot),
+[`ModelLimitedSnapshot`](/docs/api/@foscia/core/interfaces/ModelLimitedSnapshot),
+instead of [`ModelSnapshot`](/docs/api/@foscia/core/interfaces/ModelSnapshot),
 to improve memory footprint and performance.
 
 ##### Example

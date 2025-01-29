@@ -3,6 +3,8 @@ import { Awaitable, FosciaObject, Transformer } from '@foscia/shared';
 
 /**
  * Bi-directional object transformer.
+ *
+ * @internal
  */
 export type ObjectTransformer<T, DS = unknown, SR = unknown> =
   & {

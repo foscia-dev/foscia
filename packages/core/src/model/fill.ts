@@ -1,4 +1,4 @@
-import { ModelInstance, ModelKey, ModelWritableValues } from '@foscia/core/model/types';
+import { ModelInstance, ModelKey, ModelValues, ModelWritableKey } from '@foscia/core/model/types';
 import { tap } from '@foscia/shared';
 
 /**
@@ -18,7 +18,7 @@ import { tap } from '@foscia/shared';
  */
 export default <I extends ModelInstance>(
   instance: I,
-  values: Partial<ModelWritableValues<I>>,
+  values: Partial<Pick<ModelValues<I>, ModelWritableKey<I>>>,
 ) => tap(instance, () => {
   Object.entries(values).forEach(([key, value]) => {
     // eslint-disable-next-line no-param-reassign

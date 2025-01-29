@@ -78,7 +78,7 @@ type AllPostsQuery = {
 };
 
 export default async function fetchAllPosts(query: AllPostsQuery = {}) {
-  return action().run(
+  return action(
     query(Post),
     when(query.search, (a, s) => a.use(filterBy('search', s))),
     sortByDesc('createdAt'),
@@ -98,7 +98,7 @@ import action from './action';
 import Post from './models/post';
 
 export default async function fetchOnePost(id: string) {
-  return action().run(
+  return action(
     query(Post, id),
     include('tags'),
     oneOrFail(),
@@ -122,7 +122,7 @@ export default async function savePost(
   fill(post, values);
 
   try {
-    await action().run(
+    await action(
       save(post),
       when(!post.$exists || changed(post), oneOrCurrent(), () => instance),
     );
@@ -150,7 +150,7 @@ import { destroy, none } from '@foscia/core';
 import action from './action';
 
 export default async function deletePost(post: Post) {
-  await action().run(destroy(post), none());
+  await action(destroy(post), none());
 }
 
 await deletePost(post);
@@ -170,7 +170,7 @@ import action from './action';
 import Post from './models/post';
 
 export default function bestPosts() {
-  return action().run(
+  return action(
     query(Post),
     makeGet('actions/best-posts'),
     all(),
@@ -178,7 +178,7 @@ export default function bestPosts() {
 }
 
 export default function publishPost(post: Post) {
-  return action().run(
+  return action(
     query(post),
     makePost('actions/publish', {
       data: { publishedAt: new Date(), },

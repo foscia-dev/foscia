@@ -7,7 +7,7 @@ import { SYMBOL_MODEL_PROP_KIND_ID } from '@foscia/core/symbols';
  *
  * @param value
  *
- * @category Utilities
+ * @internal
  */
 export default (
   value: unknown,

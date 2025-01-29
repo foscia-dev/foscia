@@ -1,8 +1,22 @@
+/* eslint-disable max-classes-per-file */
+
 import {
+  applyDefinition,
   attr,
+  hasOne,
+  id,
   makeComposable,
+  makeComposableFactory,
+  makeDefinition,
   makeModel,
+  ModelAttribute,
+  ModelAttributeFactory,
+  ModelComposable,
+  ModelIdFactory,
+  ModelIdType,
+  ModelInstance,
   ModelInstanceUsing,
+  ModelRelationFactory,
   ModelUsing,
   onBoot,
   onInit,
@@ -31,7 +45,8 @@ test('Models compositions are type safe', () => {
     // @ts-expect-error property does not exist
     expectTypeOf(instance.bar).toEqualTypeOf<any>();
   });
-  onPropertyWrite(foo, 'foo', ({ instance }) => {
+  onPropertyWrite(foo, 'foo', ({ instance, def }) => {
+    expectTypeOf(def).toMatchTypeOf<ModelAttribute<string, false>>();
     expectTypeOf(instance.foo).toEqualTypeOf<string>();
     // @ts-expect-error property does not exist
     expectTypeOf(instance.bar).toEqualTypeOf<any>();
@@ -48,7 +63,8 @@ test('Models compositions are type safe', () => {
     // @ts-expect-error property does not exist
     expectTypeOf(instance.unknown).toEqualTypeOf<any>();
   });
-  onPropertyWrite(Model, 'foo', ({ instance }) => {
+  onPropertyWrite(Model, 'foo', ({ instance, def }) => {
+    expectTypeOf(def).toMatchTypeOf<ModelAttribute<string, false>>();
     expectTypeOf(instance.foo).toEqualTypeOf<string>();
     expectTypeOf(instance.baz).toEqualTypeOf<boolean>();
     // @ts-expect-error property does not exist
@@ -116,4 +132,65 @@ test('Models compositions are type safe', () => {
       }
     }
   });
+
+  class User extends makeModel('users', {
+    id: id<string>(),
+  }) {
+  }
+
+  class Image extends makeModel('images', {}) {
+  }
+
+  type ImageableDefinition<K extends string> =
+    & Record<K, ModelRelationFactory<Image, false>>
+    & Record<`${K}URL`, ModelAttributeFactory<string, true>>;
+
+  interface Imageable extends ModelComposable {
+    readonly _type: ImageableDefinition<this['key']>;
+  }
+
+  const imageable = makeComposable<Imageable>(({ key }) => ({
+    [key]: hasOne(() => Image),
+    [`${key}URL`]: attr(() => '', { readOnly: true }),
+  }));
+
+  type IdOf<T, D = ModelIdType | null> = 'id' extends keyof T
+    ? T['id'] extends ModelIdType | null ? T['id']
+      : D : D;
+
+  type BelongsTo<K extends string, T extends ModelInstance | null> =
+    & Record<K, ModelRelationFactory<T, false>>
+    & Record<`${K}Id`, ModelIdFactory<IdOf<T>, false>>;
+
+  interface BelongsToComposable<T extends ModelInstance | null>
+    extends ModelComposable {
+    readonly _type: BelongsTo<this['key'], T>;
+  }
+
+  const belongsTo = <
+    T extends ModelInstance | null,
+  >() => makeComposableFactory<BelongsToComposable<T>>({
+    bind: (composable) => {
+      applyDefinition(composable.parent, makeDefinition({
+        [composable.key]: hasOne(),
+        [`${composable.key}Id`]: attr(),
+      }));
+    },
+  });
+
+  class Post extends makeModel('posts', {
+    mainImage: belongsTo<Image>(),
+    user: belongsTo<User>(),
+    userImage: imageable,
+  }) {
+  }
+
+  const post = new Post();
+
+  expectTypeOf(post.user).toEqualTypeOf<User>();
+  expectTypeOf(post.userId).toEqualTypeOf<string>();
+  expectTypeOf(post.mainImage).toEqualTypeOf<Image>();
+  expectTypeOf(post.mainImageId).toEqualTypeOf<string | number | null>();
+  expectTypeOf(post.userImage).toEqualTypeOf<Image>();
+  expectTypeOf(post.userImageURL).toEqualTypeOf<string>();
 });

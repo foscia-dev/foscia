@@ -374,15 +374,16 @@ Example of a Foscia CLI configuration:
 
 Description of each configuration options:
 
-| Key              | Type                                                         | Description                                                                    |
-| ---------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------ |
-| `path`           | `string`                                                     | Directory to put your Foscia files in (action factory, models, etc.)           |
-| `alias`          | `string`&vert;`undefined`                                    | Alias to use when importing models in files (instead of relative import path). |
-| `packageManager` | `'npm'`&vert;`'yarn'`&vert;`'pnpm'`&vert;`'bun'`             | Package manager to use when installing Foscia dependencies                     |
-| `usage`          | `'jsonapi'`&vert;`'jsonrest'`&vert;`'http'`&vert;`undefined` | Your usage of Foscia for this configuration.                                   |
-| `language`       | `'ts'`&vert;`'js'`                                           | The language to use when generating files.                                     |
-| `modules`        | `'esm'`&vert;`'commonjs'`                                    | The modules organization to use when generating files.                         |
-| `tabSize`        | `number`                                                     | The tab size to use when generating files (defaults to 2).                     |
+| Key              | Type                                             | Description                                                                        |
+|------------------|--------------------------------------------------|------------------------------------------------------------------------------------|
+| `path`           | `string`                                         | The directory to put your Foscia files in (action factory, models, etc.)           |
+| `alias`          | `string`&vert;`undefined`                        | The alias to use when importing models in files (instead of relative import path). |
+| `packageManager` | `'npm'`&vert;`'yarn'`&vert;`'pnpm'`&vert;`'bun'` | The package manager to use when installing Foscia dependencies.                    |
+| `usage`          | `'jsonapi'`&vert;`'jsonrest'`&vert;`'http'`      | Your usage of Foscia for this configuration.                                       |
+| `framework`      | `'nuxt'`&vert;`undefined`                        | The framework you are using Foscia in.                                             |
+| `language`       | `'ts'`&vert;`'js'`                               | The language to use when generating files.                                         |
+| `modules`        | `'esm'`&vert;`'commonjs'`                        | The modules organization to use when generating files.                             |
+| `tabSize`        | `number`                                         | The tab size to use when generating files (defaults to 2).                         |
 
 ### Multiple configurations
 

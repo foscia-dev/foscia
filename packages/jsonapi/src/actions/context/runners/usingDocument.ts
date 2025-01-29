@@ -3,7 +3,7 @@ import { JsonApiDeserializedData } from '@foscia/jsonapi/types';
 
 /**
  * Append the {@link JsonApiDocument | JSON:API document object} to data object.
- * Use it as the parameter of `allUsing` and `oneUsing` runners.
+ * Use it as the parameter of `all` or `one` runners.
  *
  * @param data
  *

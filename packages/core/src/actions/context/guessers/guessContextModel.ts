@@ -3,7 +3,12 @@ import { Model, ModelRelation } from '@foscia/core/model/types';
 import { ModelsRegistry } from '@foscia/core/types';
 import { isNil, Optional, wrap } from '@foscia/shared';
 
-type GuessContextModelContext = {
+/**
+ * Context used to guess a queried model.
+ *
+ * @internal
+ */
+export type GuessContextModelContext = {
   queryAs?: Optional<Model[]>;
   model?: Optional<Model>;
   relation?: Optional<ModelRelation>;

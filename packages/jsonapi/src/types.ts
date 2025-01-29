@@ -5,15 +5,20 @@ import {
   ModelInstance,
   ModelRelation,
 } from '@foscia/core';
+import type { SortDirection } from '@foscia/jsonapi/actions/context/enhancers/sortBy';
 import { RestAdapterConfig } from '@foscia/rest';
 import {
-  DeserializerConfig,
+  RecordDeserializerConfig,
   DeserializerContext,
   DeserializerExtract,
   DeserializerRecordIdentifier,
-  SerializerConfig,
+  RecordSerializerConfig,
 } from '@foscia/serialization';
 import { Arrayable, Awaitable, Dictionary, IdentifiersMap } from '@foscia/shared';
+
+export type {
+  SortDirection,
+};
 
 /**
  * @see [JSON:API specification](https://jsonapi.org/format/#document-links)
@@ -164,12 +169,16 @@ export type JsonApiDeserializedData<I extends ModelInstance = ModelInstance> =
 /**
  * Configuration for JSON:API adapter.
  *
+ * @interface
+ *
  * @internal
  */
 export type JsonApiAdapterConfig<Data = any> = RestAdapterConfig<Data>;
 
 /**
  * Configuration for JSON:API deserializer.
+ *
+ * @interface
  *
  * @internal
  */
@@ -216,10 +225,12 @@ export type JsonApiDeserializerConfig<
       extract: Extract,
     ) => Awaitable<Arrayable<Record> | null | undefined>;
   }
-  & DeserializerConfig<Record, Data, Deserialized, Extract>;
+  & RecordDeserializerConfig<Record, Data, Deserialized, Extract>;
 
 /**
  * Configuration for JSON:API serializer.
+ *
+ * @interface
  *
  * @internal
  */
@@ -227,4 +238,4 @@ export type JsonApiSerializerConfig<
   Record extends JsonApiNewResource,
   Related extends JsonApiResourceIdentifier,
   Data,
-> = SerializerConfig<Record, Related, Data>;
+> = RecordSerializerConfig<Record, Related, Data>;

@@ -1,6 +1,21 @@
 import ActionName from '@foscia/core/actions/actionName';
-import { ActionVariadicRun } from '@foscia/core/actions/actionVariadicRun';
-import { ActionVariadicUse } from '@foscia/core/actions/actionVariadicUse';
+import type {
+  InferRelationUpdateValue,
+} from '@foscia/core/actions/context/enhancers/crud/updateRelation';
+import type {
+  GuessContextModelContext,
+} from '@foscia/core/actions/context/guessers/guessContextModel';
+import type { AllData } from '@foscia/core/actions/context/runners/all';
+import type { CachedData } from '@foscia/core/actions/context/runners/cachedOr';
+import type { OneData } from '@foscia/core/actions/context/runners/oneOr';
+import type {
+  RetypedDeserializedData,
+} from '@foscia/core/actions/context/utilities/deserializeInstances';
+import {
+  ActionFactoryVariadicRun,
+  ActionVariadicRun,
+  ActionVariadicUse,
+} from '@foscia/core/actions/variadic';
 import { Hookable, HookCallback } from '@foscia/core/hooks/types';
 import { Model, ModelIdType, ModelInstance, ModelRelation } from '@foscia/core/model/types';
 import {
@@ -19,8 +34,16 @@ import {
 } from '@foscia/core/types';
 import { Awaitable, Constructor, FosciaObject } from '@foscia/shared';
 
-export * from '@foscia/core/actions/actionVariadicUse';
-export * from '@foscia/core/actions/actionVariadicRun';
+export type {
+  AllData,
+  OneData,
+  CachedData,
+  RetypedDeserializedData,
+  GuessContextModelContext,
+  InferRelationUpdateValue,
+};
+
+export * from '@foscia/core/actions/variadic';
 
 /**
  * Action hooks definition.
@@ -38,6 +61,8 @@ export type ActionHooksDefinition = {
  * Action.
  *
  * @typeParam Context The current context of the action.
+ *
+ * @interface
  */
 export type Action<Context extends {} = {}> =
   & {
@@ -96,6 +121,15 @@ export type Action<Context extends {} = {}> =
   & Hookable<ActionHooksDefinition>;
 
 /**
+ * Action factory.
+ *
+ * @internal
+ */
+export type ActionFactory<Context extends {}> =
+  & (() => Action<Context>)
+  & ActionFactoryVariadicRun<Context>;
+
+/**
  * Middleware to impact an action result or behavior.
  *
  * @internal
@@ -104,15 +138,6 @@ export type ActionMiddleware<Context extends {}, Result> = (
   value: Action<Context>,
   next: (value: Action) => Promise<Result>,
 ) => Awaitable<Result>;
-
-/**
- * Action factory.
- *
- * @internal
- */
-export type ActionFactory<Args extends any[], Context extends {}> = (
-  ...args: Args
-) => Action<Context>;
 
 /**
  * Action call (enhancer or runner) tree node.
@@ -209,9 +234,9 @@ export type ContextFunctionFactory =
  */
 export type InferQueryInstance<C extends {}> =
   C extends { queryAs: Constructor<infer I>[] } ? I extends ModelInstance ? I : never
-    : C extends { relation: ModelRelation<any, Array<infer I>> }
+    : C extends { relation: ModelRelation<Array<infer I>> }
       ? I extends ModelInstance ? I : never
-      : C extends { relation: ModelRelation<any, infer I> } ? I extends ModelInstance ? I : never
+      : C extends { relation: ModelRelation<infer I> } ? I extends ModelInstance ? I : never
         : C extends { instance: infer I } ? I extends ModelInstance ? I : never
           : C extends { model: Constructor<infer I> } ? I extends ModelInstance ? I : never
             : never;
@@ -226,9 +251,9 @@ export type InferQueryInstance<C extends {}> =
  */
 export type InferQueryModelOrInstance<C extends {}> =
   C extends { queryAs: Constructor<infer I>[] } ? I extends ModelInstance ? I : never
-    : C extends { relation: ModelRelation<any, Array<infer I>> }
+    : C extends { relation: ModelRelation<Array<infer I>> }
       ? I extends ModelInstance ? I : never
-      : C extends { relation: ModelRelation<any, infer I> } ? I extends ModelInstance ? I : never
+      : C extends { relation: ModelRelation<infer I> } ? I extends ModelInstance ? I : never
         : C extends { instance: infer I } ? I
           : C extends { model: infer M } ? M
             : InferQueryInstance<C>;
@@ -311,7 +336,7 @@ export type ConsumeMiddlewares<C extends {}, R> = {
  *
  * @internal
  */
-type ResolvableContextDependency<T> = T | (() => Awaitable<T>);
+export type ResolvableContextDependency<T> = T | (() => Awaitable<T>);
 
 /**
  * Define the cache implementation to use.

@@ -1,11 +1,6 @@
 import associate from '@foscia/core/actions/context/enhancers/crud/associate';
 import makeEnhancer from '@foscia/core/actions/makeEnhancer';
-import {
-  InferModelSchemaProp,
-  ModelInstance,
-  ModelRelation,
-  ModelRelationKey,
-} from '@foscia/core/model/types';
+import { ModelInstance, ModelRelationKey, ModelWritableKey } from '@foscia/core/model/types';
 
 /**
  * Prepare context for a singular relation's update operation.
@@ -28,15 +23,14 @@ import {
 export default /* @__PURE__ */ makeEnhancer('dissociate', <
   C extends {},
   I extends ModelInstance,
-  K extends string,
-  R extends InferModelSchemaProp<I, K, ModelRelation>,
+  K extends ModelWritableKey<I> & ModelRelationKey<I>,
   Record,
   Related,
   Data,
 >(
   instance: I,
-  relation: K & ModelRelationKey<I>,
-) => associate<C, I, K, R, Record, Related, Data>(
+  relation: K,
+) => associate<C, I, K, Record, Related, Data>(
   instance,
   relation,
   null as any,

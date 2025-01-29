@@ -4,7 +4,12 @@ import { ModelInstance } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
 import { isNil, using } from '@foscia/shared';
 
-export type DeserializedDataOf<I extends ModelInstance, DD extends DeserializedData> = {
+/**
+ * Deserialized data with a strongly retyped instances array.
+ *
+ * @internal
+ */
+export type RetypedDeserializedData<DD extends DeserializedData, I extends ModelInstance> = {
   instances: I[];
 } & Omit<DD, 'instances'>;
 
@@ -21,7 +26,7 @@ export default async <Data, Deserialized extends DeserializedData = Deserialized
   data: Data,
 ) => (
   isNil(data)
-    ? { instances: [] }
+    ? { instances: [] } as unknown as Deserialized
     : using(
       await consumeDeserializer(context),
       (deserializer) => deserializer.deserialize(data!, context),

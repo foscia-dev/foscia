@@ -4,8 +4,10 @@ import { Arrayable, Dictionary, optionalJoin, uniqueValues, wrap } from '@foscia
 
 /**
  * Sort direction to apply.
+ *
+ * @internal
  */
-type SortDirection = 'asc' | 'desc';
+export type SortDirection = 'asc' | 'desc';
 
 /**
  * Resolve the keys and directions arrays from given sort parameters.
@@ -32,6 +34,7 @@ const serializeSort = (
   key: string,
   direction: SortDirection,
 ) => `${direction === 'desc' ? '-' : ''}${key}`;
+
 export default /* @__PURE__ */ makeEnhancer('sortBy', ((
   keys: Arrayable<string> | Dictionary<SortDirection>,
   directions: Arrayable<SortDirection> = 'asc',

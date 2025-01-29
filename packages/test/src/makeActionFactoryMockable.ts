@@ -1,4 +1,4 @@
-import type { ActionFactory } from '@foscia/core';
+import { ActionFactory, ContextEnhancer, ContextRunner } from '@foscia/core';
 import type { ActionFactoryMock, ActionMockableFactory } from '@foscia/test/types';
 
 /**
@@ -9,16 +9,18 @@ import type { ActionFactoryMock, ActionMockableFactory } from '@foscia/test/type
  * @category Factories
  * @experimental
  */
-export default <A extends any[], C extends {}>(
-  factory: ActionFactory<A, C>,
-): ActionMockableFactory<A, C> => {
-  const mockableFactory = (...args: A) => (
+export default <C extends {}>(
+  factory: ActionFactory<C>,
+): ActionMockableFactory<C> => {
+  const mockableFactory = (
+    ...immediateEnhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[]
+  ) => (
     mockableFactory.$mock
-      ? mockableFactory.$mock.make(...args)
-      : mockableFactory.$real(...args)
+      ? mockableFactory.$mock.make(...immediateEnhancers)
+      : (mockableFactory.$real as any)(...immediateEnhancers)
   );
 
-  mockableFactory.$mock = null as ActionFactoryMock<A, C> | null;
+  mockableFactory.$mock = null as ActionFactoryMock<C> | null;
   mockableFactory.$real = factory;
 
   return mockableFactory;

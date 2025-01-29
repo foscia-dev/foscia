@@ -25,7 +25,7 @@ import {
   shouldSync,
 } from '@foscia/core';
 import {
-  DeserializerConfig,
+  RecordDeserializerConfig,
   DeserializerContext,
   DeserializerExtract,
   DeserializerInstancesMap,
@@ -59,7 +59,7 @@ export default <
   Data,
   Deserialized extends DeserializedData,
   Extract extends DeserializerExtract<Record>,
->(config: DeserializerConfig<Record, Data, Deserialized, Extract>) => {
+>(config: RecordDeserializerConfig<Record, Data, Deserialized, Extract>) => {
   const NON_IDENTIFIED_LOCAL_ID = '__foscia_non_identified_local_id__';
 
   const makeModelIdentifier = async (
@@ -212,7 +212,7 @@ You should either:
     setInstanceId('id');
     setInstanceId('lid');
 
-    await Promise.all([
+    await Promise.all(Object.values({
       ...mapAttributes(instance.$model, async (def) => {
         const deserializerContext = await makeDeserializerContext(
           instance,
@@ -241,7 +241,7 @@ You should either:
           attachRelationInverse(instance, def, wrap(related));
         }
       }),
-    ]);
+    }));
 
     const action = consumeAction(context, null);
 

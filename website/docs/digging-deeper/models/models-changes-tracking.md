@@ -38,7 +38,7 @@ You can take a snapshot of an instance at any time using
 [`takeSnapshot`](/docs/api/@foscia/core/functions/takeSnapshot). This is
 done automatically every time you send/fetch an instance to/form your data
 source, and the created snapshot is saved into the
-[`$original`](/docs/api/@foscia/core/type-aliases/ModelInstance#original) properties of
+[`$original`](/docs/api/@foscia/core/interfaces/ModelInstance#original) properties of
 your instance.
 
 ```typescript

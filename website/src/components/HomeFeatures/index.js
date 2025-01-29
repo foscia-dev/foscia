@@ -29,7 +29,7 @@ function HomeActionsPresentation() {
   </>;
 
   const example = `
-const posts = await action().run(
+const posts = await action(
   query(Post),
   include('author'),
   all(),
@@ -39,7 +39,7 @@ const post = fill(new Post(), {
   title: 'Hello World!',
 });
 
-await action().run(create(post), one());
+await action(create(post), one());
   `.trim();
 
   return <HomeCard

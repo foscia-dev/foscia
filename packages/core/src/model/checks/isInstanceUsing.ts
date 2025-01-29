@@ -1,6 +1,10 @@
-import isInstance from '@foscia/core/model/checks/isInstance';
 import isModelUsing from '@foscia/core/model/checks/isModelUsing';
-import { ModelComposable, ModelInstanceUsing } from '@foscia/core/model/types';
+import {
+  ModelComposableFactory,
+  ModelInstance,
+  ModelInstanceUsing,
+  ModelComposable,
+} from '@foscia/core/model/types';
 
 /**
  * Check if value is a model instance using given composable.
@@ -20,6 +24,6 @@ import { ModelComposable, ModelInstanceUsing } from '@foscia/core/model/types';
  * ```
  */
 export default <C extends ModelComposable>(
-  value: unknown,
-  composable: C,
-): value is ModelInstanceUsing<C> => isInstance(value) && isModelUsing(value.$model, composable);
+  value: ModelInstance,
+  composable: ModelComposableFactory<C>,
+): value is ModelInstanceUsing<C> => isModelUsing(value.$model, composable);

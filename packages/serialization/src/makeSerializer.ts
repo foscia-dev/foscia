@@ -12,7 +12,7 @@ import SerializerCircularRelationError
   from '@foscia/serialization/errors/serializerCircularRelationError';
 import {
   RecordSerializer,
-  SerializerConfig,
+  RecordSerializerConfig,
   SerializerContext,
   SerializerParents,
 } from '@foscia/serialization/types';
@@ -26,7 +26,7 @@ import { Arrayable, Awaitable, mapArrayable, using } from '@foscia/shared';
  * @category Factories
  */
 export default <Record, Related, Data>(
-  config: SerializerConfig<Record, Related, Data>,
+  config: RecordSerializerConfig<Record, Related, Data>,
 ) => {
   const shouldSerialize = config.shouldSerialize
     ?? ((context) => (
@@ -87,7 +87,7 @@ export default <Record, Related, Data>(
   ) => mapArrayable(snapshots, async (snapshot) => {
     const record = await config.createRecord(snapshot, context);
 
-    await Promise.all([
+    await Promise.all(Object.values({
       ...mapAttributes(snapshot.$instance.$model, async (def) => {
         const serializerContext = makeSerializerContext(snapshot, def, context);
         if (await shouldSerialize(serializerContext)) {
@@ -129,7 +129,7 @@ export default <Record, Related, Data>(
           }
         }
       }),
-    ]);
+    }));
 
     return record.retrieve();
   });

@@ -1,5 +1,4 @@
 import isComposable from '@foscia/core/model/checks/isComposable';
-import isPropFactory from '@foscia/core/model/checks/isPropFactory';
 import { ModelParsedDefinition } from '@foscia/core/model/types';
 import { Dictionary, eachDescriptors, makeDescriptorHolder, tap } from '@foscia/shared';
 
@@ -14,7 +13,7 @@ export default <D extends {} = {}>(definition?: D) => tap({} as Dictionary, (par
   eachDescriptors(definition ?? {}, (key, descriptor) => {
     // eslint-disable-next-line no-param-reassign
     parsedDefinition[key] = (
-      descriptor.value && (isComposable(descriptor.value) || isPropFactory(descriptor.value))
+      descriptor.value && isComposable(descriptor.value)
         ? descriptor.value
         : makeDescriptorHolder(descriptor)
     );

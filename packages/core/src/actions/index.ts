@@ -41,14 +41,14 @@ import replaceActionMiddlewares
 import query from '@foscia/core/actions/context/enhancers/query';
 import queryAs from '@foscia/core/actions/context/enhancers/queryAs';
 import guessContextModel from '@foscia/core/actions/context/guessers/guessContextModel';
-import all, { AllData } from '@foscia/core/actions/context/runners/all';
+import all from '@foscia/core/actions/context/runners/all';
 import cached from '@foscia/core/actions/context/runners/cached';
-import cachedOr, { CachedData } from '@foscia/core/actions/context/runners/cachedOr';
+import cachedOr from '@foscia/core/actions/context/runners/cachedOr';
 import cachedOrFail from '@foscia/core/actions/context/runners/cachedOrFail';
-import catchIf, { CatchCallback } from '@foscia/core/actions/context/runners/catchIf';
+import catchIf from '@foscia/core/actions/context/runners/catchIf';
 import none from '@foscia/core/actions/context/runners/none';
 import one from '@foscia/core/actions/context/runners/one';
-import oneOr, { OneData } from '@foscia/core/actions/context/runners/oneOr';
+import oneOr from '@foscia/core/actions/context/runners/oneOr';
 import oneOrCurrent from '@foscia/core/actions/context/runners/oneOrCurrent';
 import oneOrFail from '@foscia/core/actions/context/runners/oneOrFail';
 import raw from '@foscia/core/actions/context/runners/raw';
@@ -56,13 +56,6 @@ import makeActionFactory from '@foscia/core/actions/makeActionFactory';
 import makeEnhancer from '@foscia/core/actions/makeEnhancer';
 import makeRunner from '@foscia/core/actions/makeRunner';
 import when from '@foscia/core/actions/when';
-
-export type {
-  AllData,
-  OneData,
-  CachedData,
-  CatchCallback,
-};
 
 export {
   none,

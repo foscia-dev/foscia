@@ -3,6 +3,7 @@ import mapWithKeys from '@foscia/shared/arrays/mapWithKeys';
 import uniqueValues from '@foscia/shared/arrays/uniqueValues';
 import wrap from '@foscia/shared/arrays/wrap';
 import wrapVariadic from '@foscia/shared/arrays/wrapVariadic';
+import isFosciaFlag from '@foscia/shared/checks/isFosciaFlag';
 import isFosciaType from '@foscia/shared/checks/isFosciaType';
 import isNil from '@foscia/shared/checks/isNil';
 import isNone from '@foscia/shared/checks/isNone';
@@ -10,7 +11,9 @@ import mergeConfig from '@foscia/shared/configs/mergeConfig';
 import removeTimezoneOffset from '@foscia/shared/dates/removeTimezoneOffset';
 import eachDescriptors from '@foscia/shared/descriptors/eachDescriptors';
 import isDescriptorHolder from '@foscia/shared/descriptors/isDescriptorHolder';
-import makeDescriptorHolder from '@foscia/shared/descriptors/makeDescriptorHolder';
+import makeDescriptorHolder, {
+  SYMBOL_DESCRIPTOR_HOLDER,
+} from '@foscia/shared/descriptors/makeDescriptorHolder';
 import { IS_DEV, IS_TEST } from '@foscia/shared/env';
 import tap from '@foscia/shared/functions/tap';
 import using from '@foscia/shared/functions/using';
@@ -32,6 +35,7 @@ export * from '@foscia/shared/types';
 export {
   IS_DEV,
   IS_TEST,
+  SYMBOL_DESCRIPTOR_HOLDER,
   mergeConfig,
   eachDescriptors,
   makeDescriptorHolder,
@@ -40,6 +44,7 @@ export {
   mapWithKeys,
   isDescriptorHolder,
   isFosciaType,
+  isFosciaFlag,
   isNil,
   isNone,
   optionalJoin,

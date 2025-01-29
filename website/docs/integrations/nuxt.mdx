@@ -113,7 +113,7 @@ import Post from '../data/models/post';
 
 const { data: posts } = useAsyncData(
   'posts',
-  () => action().run(query(Post), all()),
+  () => action(query(Post), all()),
 );
 </script>
 

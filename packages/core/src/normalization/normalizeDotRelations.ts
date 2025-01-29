@@ -1,7 +1,7 @@
 import guessContextModel from '@foscia/core/actions/context/guessers/guessContextModel';
 import logger from '@foscia/core/logger/logger';
 import isRelationDef from '@foscia/core/model/checks/isRelationDef';
-import { Model, ModelRelationDotKey } from '@foscia/core/model/types';
+import { Model, ModelKey, ModelRelationDotKey } from '@foscia/core/model/types';
 import normalizeKey from '@foscia/core/normalization/normalizeKey';
 import { ModelsRegistry } from '@foscia/core/types';
 import { isNone, Optional } from '@foscia/shared';
@@ -15,13 +15,13 @@ import { isNone, Optional } from '@foscia/shared';
  *
  * @internal
  */
-const normalizeDotRelations = <D extends {}>(
-  model: Model<D>,
-  relations: ModelRelationDotKey<Model<D>>[],
+const normalizeDotRelations = <M extends Model>(
+  model: M,
+  relations: ModelRelationDotKey<M>[],
   registry?: Optional<ModelsRegistry>,
 ): Promise<string[]> => Promise.all(relations.map(async (dotKey) => {
   const [currentKey, ...subKeys] = dotKey.split('.');
-  const def = model.$schema[currentKey as keyof typeof model['$schema']];
+  const def = model.$schema[currentKey];
   if (!def || !isRelationDef(def)) {
     logger.warn(
       `Trying to normalize non-relation \`${model.$type}.${def?.key ?? currentKey}\`. Either this is not a relation or relation is not declared.`,
@@ -30,7 +30,7 @@ const normalizeDotRelations = <D extends {}>(
     return dotKey;
   }
 
-  const normalizedKey = normalizeKey(model, def.key);
+  const normalizedKey = normalizeKey(model, def.key as ModelKey<M>);
   const subDotKey = subKeys.join('.');
   if (isNone(subDotKey)) {
     return normalizedKey;

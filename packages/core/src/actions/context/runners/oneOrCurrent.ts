@@ -1,6 +1,8 @@
 import consumeInstance from '@foscia/core/actions/context/consumers/consumeInstance';
 import oneOr, { OneData } from '@foscia/core/actions/context/runners/oneOr';
-import { DeserializedDataOf } from '@foscia/core/actions/context/utilities/deserializeInstances';
+import {
+  RetypedDeserializedData,
+} from '@foscia/core/actions/context/utilities/deserializeInstances';
 import makeRunner from '@foscia/core/actions/makeRunner';
 import { ConsumeInstance, InferQueryInstance } from '@foscia/core/actions/types';
 import { ModelInstance } from '@foscia/core/model/types';
@@ -30,7 +32,7 @@ export default makeRunner('oneOrCurrent', <
   Deserialized extends DeserializedData,
   Next = CI,
 >(
-  transform?: (data: OneData<Data, DeserializedDataOf<I, Deserialized>, I>) => Awaitable<Next>,
+  transform?: (data: OneData<Data, RetypedDeserializedData<Deserialized, I>, I>) => Awaitable<Next>,
 ) => oneOr<C & ConsumeInstance<CI>, I, RawData, Data, Deserialized, CI, Next>(
   async (action) => consumeInstance(await action.useContext()) as Promise<CI>,
   transform,

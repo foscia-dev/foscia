@@ -6,7 +6,7 @@ import { SYMBOL_MODEL_RELATION_HAS_MANY } from '@foscia/core/symbols';
  *
  * @param def
  *
- * @category Utilities
+ * @internal
  */
 export default (
   def: ModelRelation,

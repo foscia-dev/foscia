@@ -27,7 +27,7 @@ export default <I extends ModelInstance>(
   try {
     instance.$model.$config.strictReadOnly = false;
 
-    return fill(instance, values);
+    return fill(instance, values as any);
   } finally {
     instance.$model.$config.strictReadOnly = strictReadOnly;
   }

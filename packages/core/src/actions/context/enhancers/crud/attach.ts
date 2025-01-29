@@ -1,14 +1,13 @@
 import ActionName from '@foscia/core/actions/actionName';
-import updateRelation, {
-  UpdateRelationValue,
-} from '@foscia/core/actions/context/enhancers/crud/updateRelation';
+import updateRelation from '@foscia/core/actions/context/enhancers/crud/updateRelation';
 import makeEnhancer from '@foscia/core/actions/makeEnhancer';
 import {
-  InferModelSchemaProp,
   ModelInstance,
-  ModelRelation,
   ModelRelationKey,
+  ModelValues,
+  ModelWritableKey,
 } from '@foscia/core/model/types';
+import { Itemable, wrap } from '@foscia/shared';
 
 /**
  * Prepare context for a plural relation's update operation.
@@ -32,18 +31,17 @@ import {
 export default /* @__PURE__ */ makeEnhancer('attach', <
   C extends {},
   I extends ModelInstance,
-  K extends string,
-  R extends InferModelSchemaProp<I, K, ModelRelation>,
+  K extends ModelWritableKey<I> & ModelRelationKey<I>,
   Record,
   Related,
   Data,
 >(
   instance: I,
-  relation: K & ModelRelationKey<I>,
-  value: UpdateRelationValue<R>,
-) => updateRelation<C, I, K, R, Record, Related, Data>(
+  relation: K,
+  value: Itemable<ModelValues<I>[K]>,
+) => updateRelation<C, I, K, Record, Related, Data>(
   instance,
   relation,
-  value,
+  wrap(value) as ModelValues<I>[K],
   ActionName.ATTACH_RELATION,
 ));

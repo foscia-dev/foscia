@@ -2,11 +2,10 @@ import consumeSerializer from '@foscia/core/actions/context/consumers/consumeSer
 import { ConsumeSerializer } from '@foscia/core/actions/types';
 import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
 import {
-  InferModelSchemaProp,
-  InferModelValuePropType,
   ModelInstance,
   ModelRelation,
   ModelRelationKey,
+  ModelValues,
 } from '@foscia/core/model/types';
 import { mapArrayable, using } from '@foscia/shared';
 
@@ -22,20 +21,19 @@ import { mapArrayable, using } from '@foscia/shared';
  */
 export default async <
   I extends ModelInstance,
-  K extends string,
-  R extends InferModelSchemaProp<I, K, ModelRelation>,
+  K extends ModelRelationKey<I>,
   Record,
   Related,
   Data,
 >(
   context: ConsumeSerializer<Record, Related, Data>,
   instance: I,
-  relation: K & ModelRelationKey<I>,
-  value: InferModelValuePropType<R>,
+  relation: K,
+  value: ModelValues<I>[K],
 ) => using(await consumeSerializer(context), async (serializer) => serializer.serializeToData(
   await serializer.serializeToRelatedRecords(
     takeSnapshot(instance),
-    instance.$model.$schema[relation] as R,
+    instance.$model.$schema[relation] as ModelRelation,
     await mapArrayable(
       value,
       (related) => takeSnapshot(related as unknown as ModelInstance),

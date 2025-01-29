@@ -70,10 +70,10 @@ import { makeGet, makePost } from '@foscia/http';
 import action from './action';
 
 // GET https://example.com/ (and get Response object).
-const response = await action().run(makeGet('/'), raw());
+const response = await action(makeGet('/'), raw());
 
 // POST https://example.com/api/posts (and get JSON payload).
-const data = await action().run(
+const data = await action(
   makePost('/api/posts', {
     data: { title: 'Hello World!' },
   }),
@@ -84,8 +84,8 @@ const data = await action().run(
 ### Advanced usage
 
 You can pass a lot of options to each request enhancers, from
-[`headers`](/docs/api/@foscia/http/type-aliases/HttpRequestConfig#headers) and
-[`params`](/docs/api/@foscia/http/type-aliases/HttpRequestConfig#params) options
+[`headers`](/docs/api/@foscia/http/interfaces/HttpRequestConfig#headers) and
+[`params`](/docs/api/@foscia/http/interfaces/HttpRequestConfig#params) options
 to any other
 [`Request` options](https://developer.mozilla.org/docs/Web/API/Request/Request#options):
 
@@ -96,7 +96,7 @@ import action from './action';
 
 const abortController = new AbortController();
 
-const data = await action().run(
+const data = await action(
   makePost('/api/posts', {
     data: { title: 'Hello World!' },
   }, {
@@ -135,7 +135,7 @@ import { raw } from '@foscia/core';
 import { configureRequest } from '@foscia/http';
 import action from './action';
 
-const data = await action().run(
+const data = await action(
   configureRequest({
     request: new Request('https://example.com', {
       headers: {},
@@ -155,7 +155,7 @@ for more details.
 ### Defining default headers
 
 To define a default request headers, use the
-[`defaultHeaders`](/docs/api/@foscia/http/type-aliases/HttpAdapterConfig#defaultheaders)
+[`defaultHeaders`](/docs/api/@foscia/http/interfaces/HttpAdapterConfig#defaultheaders)
 option or implement a middleware (useful for dynamic headers,
 such as `Accept-Language` in an internationalized application).
 

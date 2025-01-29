@@ -12,6 +12,8 @@ import type { Arrayable, Awaitable } from '@foscia/shared';
  *
  * It will be used by other dependencies, like {@link Deserializer | `Deserializer`},
  * to deserialize raw data source records in the correct models.
+ *
+ * @interface
  */
 export type ModelsRegistry = {
   /**
@@ -31,6 +33,8 @@ export type ModelsRegistry = {
  * It will also be used by other dependencies, like {@link Deserializer | `Deserializer`},
  * to prevent multiple instance of the same record coexisting or to store an instance
  * as retrieved.
+ *
+ * @interface
  */
 export type InstancesCache = {
   /**
@@ -95,6 +99,8 @@ export type AdapterResponse<RawData, Data = unknown> = {
  * @typeParam RawData Adapter's original response (e.g. a
  * {@link !Response | `Response`} object for HTTP adapter).
  * @typeParam Data Adapter's original response data, containing records or relations data.
+ *
+ * @interface
  */
 export type Adapter<RawData, Data = any> = {
   /**
@@ -122,6 +128,8 @@ export type DeserializedData<I extends ModelInstance = ModelInstance> = {
  * @typeParam Data Adapter's original response data, containing records or relations data.
  * @typeParam Deserialized Object containing deserialized instances and other
  * relevant deserialized data (e.g. the document for a JSON:API response).
+ *
+ * @interface
  */
 export type Deserializer<Data, Deserialized extends DeserializedData = DeserializedData> = {
   /**
@@ -140,6 +148,8 @@ export type Deserializer<Data, Deserialized extends DeserializedData = Deseriali
  * @typeParam RelatedRecord Serialized value for a related instance.
  * @typeParam Data Serialized value for one/many/none instances.
  * Usually, it is a wrapper type for `Record` or `RelatedRecord` records.
+ *
+ * @interface
  */
 export type Serializer<Record, RelatedRecord, Data> = {
   /**

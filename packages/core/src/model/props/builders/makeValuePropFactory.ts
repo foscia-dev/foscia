@@ -2,23 +2,15 @@ import FosciaError from '@foscia/core/errors/fosciaError';
 import runHooksSync from '@foscia/core/hooks/runHooksSync';
 import logger from '@foscia/core/logger/logger';
 import forceFill from '@foscia/core/model/forceFill';
-import makeBuilderPropFactory from '@foscia/core/model/props/builders/makeBuilderPropFactory';
-import { ModelPropFactoryDefinition } from '@foscia/core/model/props/builders/types';
+import makePropChainableFactory from '@foscia/core/model/props/builders/makePropChainableFactory';
+import { ModelPendingProp } from '@foscia/core/model/props/builders/types';
 import { ModelPropSync, ModelValueProp } from '@foscia/core/model/types';
 import { Dictionary, value } from '@foscia/shared';
-
-const VALUE_PROP_MODIFIERS = {
-  default: (defaultValue: unknown | (() => unknown)) => ({ default: defaultValue }),
-  alias: (alias: string) => ({ alias }),
-  readOnly: (readOnly?: boolean) => ({ readOnly }),
-  sync: (sync: boolean | ModelPropSync) => ({ sync }),
-  nullable: () => ({}),
-};
 
 /**
  * Make a value property definition factory.
  *
- * @param prop
+ * @param pendingProp
  * @param modifiers
  *
  * @internal
@@ -26,9 +18,11 @@ const VALUE_PROP_MODIFIERS = {
 export default <
   P extends ModelValueProp,
   M extends Dictionary<(...args: any[]) => Partial<P>>,
->(prop: ModelPropFactoryDefinition<P>, modifiers: M) => makeBuilderPropFactory({
-  ...prop,
-  bind(instance) {
+>(
+  pendingProp: ModelPendingProp<P>,
+  modifiers: M,
+) => makePropChainableFactory({
+  init(instance) {
     Object.defineProperty(instance, this.key, {
       enumerable: true,
       get: () => {
@@ -84,4 +78,12 @@ export default <
       forceFill(instance, { [this.key]: value(this.default) });
     }
   },
-}, { ...VALUE_PROP_MODIFIERS, ...modifiers });
+  ...pendingProp,
+}, {
+  readOnly: (readOnly?: boolean) => ({ readOnly }),
+  alias: (alias: string) => ({ alias }),
+  sync: (sync: boolean | ModelPropSync) => ({ sync }),
+  default: (defaultValue: unknown | (() => unknown)) => ({ default: defaultValue }),
+  nullable: () => ({}),
+  ...modifiers,
+});

@@ -17,7 +17,7 @@ for serializer and deserializer dependencies.
 ### `makeDeserializer`
 
 [`makeDeserializer`](/docs/api/@foscia/serialization/functions/makeDeserializer)
-provides a [`Deserializer`](/docs/api/@foscia/core/type-aliases/Deserializer)
+provides a [`Deserializer`](/docs/api/@foscia/core/interfaces/Deserializer)
 implementation which will produce instances from a generic record object.
 
 It handles multiple features, such as:
@@ -54,7 +54,7 @@ const { instances } = await deserializer.deserialize(data, {
 
 #### Configuration {#makedeserializer-configuration}
 
-- [`DeserializerConfig`](/docs/api/@foscia/serialization/type-aliases/DeserializerConfig)
+- [`RecordDeserializerConfig`](/docs/api/@foscia/serialization/interfaces/RecordDeserializerConfig)
 
 #### Defined in
 
@@ -63,7 +63,7 @@ const { instances } = await deserializer.deserialize(data, {
 ### `makeSerializer`
 
 [`makeSerializer`](/docs/api/@foscia/serialization/functions/makeSerializer)
-provides a [`Serializer`](/docs/api/@foscia/core/type-aliases/Serializer)
+provides a [`Serializer`](/docs/api/@foscia/core/interfaces/Serializer)
 implementation which will produce a generic record value from a model instance.
 
 It handles multiple features, such as:
@@ -97,7 +97,7 @@ const data = await serializer.serializeInstance(instance, {
 
 #### Configuration {#makeserializer-configuration}
 
-- [`SerializerConfig`](/docs/api/@foscia/serialization/type-aliases/SerializerConfig)
+- [`RecordSerializerConfig`](/docs/api/@foscia/serialization/interfaces/RecordSerializerConfig)
 
 #### Defined in
 

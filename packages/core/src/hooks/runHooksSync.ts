@@ -8,7 +8,7 @@ import { Arrayable, wrap } from '@foscia/shared';
  * @param hooks
  * @param event
  *
- * @category Hooks
+ * @internal
  */
 export default <D extends HooksDefinition, K extends keyof D>(
   hookable: Hookable<D>,

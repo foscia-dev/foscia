@@ -105,38 +105,38 @@ describe.concurrent('unit: snapshots', () => {
   });
 
   it('should use clone and compare model options', () => {
-    const cloneValue = vi.fn((v) => (Array.isArray(v) ? [...v] : v));
-    const compareValues = vi.fn((n, p) => n !== p);
+    const cloneSnapshotValue = vi.fn((v) => (Array.isArray(v) ? [...v] : v));
+    const compareSnapshotValues = vi.fn((n, p) => n !== p);
 
     const ExtendedPostMock = PostMock.configure({
-      cloneValue,
-      compareValues,
+      cloneSnapshotValue,
+      compareSnapshotValues,
     });
 
-    expect(cloneValue).not.toHaveBeenCalled();
-    expect(compareValues).not.toHaveBeenCalled();
+    expect(cloneSnapshotValue).not.toHaveBeenCalled();
+    expect(compareSnapshotValues).not.toHaveBeenCalled();
 
     const post = new ExtendedPostMock();
 
-    expect(cloneValue).not.toHaveBeenCalled();
-    expect(compareValues).not.toHaveBeenCalled();
+    expect(cloneSnapshotValue).not.toHaveBeenCalled();
+    expect(compareSnapshotValues).not.toHaveBeenCalled();
 
     post.title = 'foo';
     post.comments = [];
 
     const snapshot = takeSnapshot(post);
 
-    expect(cloneValue).toHaveBeenCalledTimes(3);
-    expect(compareValues).not.toHaveBeenCalled();
+    expect(cloneSnapshotValue).toHaveBeenCalledTimes(3);
+    expect(compareSnapshotValues).not.toHaveBeenCalled();
 
     expect(isSameSnapshot(snapshot, post.$original, 'title')).toStrictEqual(true);
-    expect(compareValues).toHaveBeenCalledTimes(1);
+    expect(compareSnapshotValues).toHaveBeenCalledTimes(1);
     expect(isSameSnapshot(snapshot, post.$original, 'comments')).toStrictEqual(true);
-    expect(compareValues).toHaveBeenCalledTimes(2);
+    expect(compareSnapshotValues).toHaveBeenCalledTimes(2);
     expect(isSameSnapshot(snapshot, post.$original, 'commentsCount')).toStrictEqual(true);
-    expect(compareValues).toHaveBeenCalledTimes(3);
+    expect(compareSnapshotValues).toHaveBeenCalledTimes(3);
 
-    expect(cloneValue).toHaveBeenCalledTimes(3);
+    expect(cloneSnapshotValue).toHaveBeenCalledTimes(3);
   });
 
   it('should take deep and limited snapshots', () => {

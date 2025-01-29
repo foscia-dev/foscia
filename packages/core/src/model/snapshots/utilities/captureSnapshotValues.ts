@@ -24,7 +24,7 @@ const captureSnapshotValue = (
     parent: ModelInstance,
   ) => ModelSnapshot | ModelLimitedSnapshot,
 ) => using(
-  instance.$model.$config.cloneValue(value),
+  instance.$model.$config.cloneSnapshotValue(value),
   (clone) => using(instance.$model.$schema[key], (def) => (
     isRelationDef(def) && !isNil(clone)
       ? captureSnapshotRelation(instance, clone as Arrayable<ModelInstance>, takeSnapshot)

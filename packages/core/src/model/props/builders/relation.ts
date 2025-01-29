@@ -1,5 +1,6 @@
 import makeValuePropFactory from '@foscia/core/model/props/builders/makeValuePropFactory';
 import {
+  ModelPendingProp,
   ModelRelationFactory,
   ModelRelationFactoryConfig,
 } from '@foscia/core/model/props/builders/types';
@@ -31,7 +32,7 @@ export default (
       ? { model: config, ...otherConfig }
       : config;
   })(),
-} as ModelRelation, {
+} as ModelPendingProp<ModelRelation>, {
   inverse: (inverse) => ({ inverse }),
   path: (path) => ({ path }),
 }) as ModelRelationFactory<ModelInstance | ModelInstance[] | null, false>;

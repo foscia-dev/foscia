@@ -1,4 +1,4 @@
-import { Action, ActionCall, ActionFactory } from '@foscia/core';
+import { Action, ActionCall, ActionFactory, ContextEnhancer, ContextRunner } from '@foscia/core';
 import { Dictionary } from '@foscia/shared';
 
 /**
@@ -241,7 +241,7 @@ export type ActionFactoryMockHistoryItem = {
  *
  * @experimental
  */
-export type ActionFactoryMock<A extends any[], C extends {}> = {
+export type ActionFactoryMock<C extends {}> = {
   /**
    * History of action test context which were ran.
    *
@@ -251,11 +251,9 @@ export type ActionFactoryMock<A extends any[], C extends {}> = {
   /**
    * Make an action object.
    *
-   * @param args
-   *
    * @internal
    */
-  make(...args: A): Action<C>;
+  make(...immediateEnhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[]): Action<C>;
   /**
    * Make an action mock.
    *
@@ -277,17 +275,17 @@ export type ActionFactoryMock<A extends any[], C extends {}> = {
  *
  * @internal
  */
-export type ActionMockableFactory<Args extends any[], Context extends {}> = {
+export type ActionMockableFactory<Context extends {}> = {
   /**
    * Mock when mocking actions is activated.
    *
    * @internal
    */
-  $mock: ActionFactoryMock<Args, Context> | null;
+  $mock: ActionFactoryMock<Context> | null;
   /**
    * Real implementation of action factory.
    *
    * @internal
    */
-  $real: ActionFactory<Args, Context>;
-} & ActionFactory<Args, Context>;
+  $real: ActionFactory<Context>;
+} & ActionFactory<Context>;

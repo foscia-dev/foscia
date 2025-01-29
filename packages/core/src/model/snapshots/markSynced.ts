@@ -27,8 +27,10 @@ export default <I extends ModelInstance>(
   if (keys.length) {
     keys.forEach((key) => {
       if (Object.prototype.hasOwnProperty.call(snapshot.$values, key)) {
+        // @ts-ignore
         instance.$original.$values[key] = snapshot.$values[key];
       } else {
+        // @ts-ignore
         delete instance.$original.$values[key];
       }
     });

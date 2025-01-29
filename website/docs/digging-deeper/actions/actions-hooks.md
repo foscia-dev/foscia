@@ -60,7 +60,7 @@ import { query, all, withoutHooks } from '@foscia/core';
 
 // Retrieve a list of User instances without action hooks running.
 const users = await withoutHooks(action(), async (a) => {
-  return await a.use(query(User)).run(all());
+  return await a.run(query(User), all());
 });
 ```
 

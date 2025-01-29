@@ -3,7 +3,7 @@ import isRelationDef from '@foscia/core/model/checks/isRelationDef';
 import isSingularRelationDef from '@foscia/core/model/checks/isSingularRelationDef';
 import forceFill from '@foscia/core/model/forceFill';
 import guessRelationInverses from '@foscia/core/model/relations/utilities/guessRelationInverses';
-import { ModelInstance, ModelProp, ModelRelation } from '@foscia/core/model/types';
+import { ModelInstance, ModelRelation } from '@foscia/core/model/types';
 import { Arrayable, isNil, using, wrap } from '@foscia/shared';
 
 /**
@@ -39,7 +39,7 @@ export default (
     if (instances.some((instance) => {
       const inverse = (
         inverseKey ? instance.$model.$schema[inverseKey] : undefined
-      ) as ModelProp<any> | undefined;
+      );
       if (inverse && isRelationDef(inverse)) {
         if (isSingularRelationDef(inverse)) {
           return false;

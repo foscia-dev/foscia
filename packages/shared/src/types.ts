@@ -48,6 +48,11 @@ export type Arrayable<T> = T[] | T;
 export type ArrayableVariadic<T> = T[] | [T[]];
 
 /**
+ * Type which can an item of an array if the original type is an array.
+ */
+export type Itemable<T> = T extends any[] ? (T[number] | T) : T;
+
+/**
  * Type which can be null or undefined.
  *
  * @internal
@@ -76,13 +81,6 @@ export type OnlyTruthy<T> = T extends Falsy ? never : T;
 export type OnlyFalsy<T> = T extends Falsy ? T : never;
 
 /**
- * Transformer function from a type to another.
- *
- * @internal
- */
-export type Transformer<T, U = T> = (value: T) => U;
-
-/**
  * Exclude properties with types `never` from object type.
  *
  * @internal
@@ -98,6 +96,34 @@ export type OmitNever<T> = {
  */
 export type UnionToIntersection<U> =
   (U extends any ? (x: U) => void : never) extends ((x: infer I) => void) ? I : never;
+
+/**
+ * Define a type whether the original type is any or not.
+ *
+ * @internal
+ */
+export type IfAny<T, Y, N> = 0 extends (1 & T) ? Y : N;
+
+/**
+ * Define a type whether the original types are equal or not.
+ */
+export type IfEquals<X, Y, A = X, B = never> =
+  (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2)
+    ? A : B;
+
+/**
+ * Get the writable (not readonly) keys of a type.
+ */
+export type WritableKeys<T> = {
+  [P in keyof T]-?: IfEquals<{ [Q in P]: T[P]; }, { -readonly [Q in P]: T[P]; }, P>;
+}[keyof T];
+
+/**
+ * Transformer function from a type to another.
+ *
+ * @internal
+ */
+export type Transformer<T, U = T> = (value: T) => U;
 
 /**
  * Middleware next callback.
@@ -139,4 +165,18 @@ export type FosciaObject<S extends symbol> = {
    * @internal
    */
   readonly $FOSCIA_TYPE: S;
+};
+
+/**
+ * Foscia object which can be flagged using bit flags.
+ *
+ * @internal
+ */
+export type FosciaFlaggedObject = {
+  /**
+   * Flags of the Foscia object.
+   *
+   * @internal
+   */
+  readonly $FOSCIA_FLAGS: number;
 };

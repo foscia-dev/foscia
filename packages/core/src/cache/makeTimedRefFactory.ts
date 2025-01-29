@@ -3,9 +3,11 @@ import { tap } from '@foscia/shared';
 /**
  * Config for the timed ref factory.
  *
+ * @interface
+ *
  * @internal
  */
-type TimedRefFactoryConfig = {
+export type TimedRefFactoryConfig = {
   /**
    * Lifetime of a reference before expiration in seconds.
    * Defaults to `300` (5 minutes).

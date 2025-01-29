@@ -2,21 +2,22 @@ import FosciaError from '@foscia/core/errors/fosciaError';
 import mergeHooks from '@foscia/core/hooks/mergeHooks';
 import runHooksSync from '@foscia/core/hooks/runHooksSync';
 import { HooksRegistrar } from '@foscia/core/hooks/types';
-import isComposable from '@foscia/core/model/checks/isComposable';
-import isIdDef from '@foscia/core/model/checks/isIdDef';
-import isPropFactory from '@foscia/core/model/checks/isPropFactory';
-import makeDefinition from '@foscia/core/model/makeDefinition';
-import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
+import applyDefinition from '@foscia/core/model/composition/applyDefinition';
+import makeDefinition from '@foscia/core/model/composition/makeDefinition';
 import {
   ExtendableModel,
   Model,
   ModelConfig,
   ModelHooksDefinition,
   ModelInstance,
-  ModelPropFactory,
+  ModelSnapshot,
 } from '@foscia/core/model/types';
-import { SYMBOL_MODEL_CLASS, SYMBOL_MODEL_INSTANCE } from '@foscia/core/symbols';
-import { eachDescriptors, mapWithKeys, mergeConfig } from '@foscia/shared';
+import {
+  SYMBOL_MODEL_CLASS,
+  SYMBOL_MODEL_INSTANCE,
+  SYMBOL_MODEL_SNAPSHOT,
+} from '@foscia/core/symbols';
+import { mergeConfig } from '@foscia/shared';
 
 const { defineProperty } = Object;
 
@@ -42,6 +43,21 @@ const makeModelClass = (
     throw new FosciaError('Model type cannot be an empty string.');
   }
 
+  const parseModel = (currentModel: Model) => {
+    if (!currentModel.$parsed) {
+      defineProperty(currentModel, '$composables', { value: [] });
+      defineProperty(currentModel, '$schema', { value: {} });
+      defineProperty(currentModel, '$hooks', { writable: true, value: {} });
+
+      // eslint-disable-next-line no-param-reassign
+      currentModel.$hooks = mergeHooks(currentModel.$hooks!, hooks);
+      applyDefinition(currentModel, definition);
+
+      // eslint-disable-next-line no-param-reassign
+      currentModel.$parsed = true;
+    }
+  };
+
   const model = parentModel ? class extends parentModel {
   } : function ModelConstructor(this: ModelInstance) {
     defineProperty(this, '$FOSCIA_TYPE', { value: SYMBOL_MODEL_INSTANCE });
@@ -50,55 +66,49 @@ const makeModelClass = (
     defineProperty(this, '$raw', { writable: true, value: null });
     defineProperty(this, '$loaded', { writable: true, value: {} });
     defineProperty(this, '$values', { writable: true, value: {} });
-    defineProperty(this, '$original', { writable: true, value: takeSnapshot(this) });
+    defineProperty(this, '$original', {
+      writable: true,
+      value: {
+        $FOSCIA_TYPE: SYMBOL_MODEL_SNAPSHOT,
+        $original: null,
+        $instance: this,
+        $exists: false,
+        $raw: null,
+        $loaded: {},
+        $values: {},
+      } satisfies ModelSnapshot,
+    });
 
-    Object.values(this.$model.$schema).forEach((def) => def.bind?.(this));
+    parseModel(this.$model);
+
+    this.$model.$composables.forEach((composable) => composable.init?.(this));
 
     if (!this.$model.$booted) {
+      runHooksSync(this.$model, 'boot', this.$model);
       this.$model.$booted = true;
-      runHooksSync(this.$model, 'boot', this.$model as Model);
     }
 
     runHooksSync(this.$model, 'init', this);
   } as unknown as ExtendableModel;
 
-  const propFactories = new Map<string, ModelPropFactory>();
-
   defineProperty(model, '$FOSCIA_TYPE', { value: SYMBOL_MODEL_CLASS });
   defineProperty(model, '$type', { value: type });
   defineProperty(model, '$config', { value: { ...config } });
-  defineProperty(model, '$composables', { value: [] });
-  defineProperty(model, '$hooks', { writable: true, value: {} });
+  defineProperty(model, '$parsed', { writable: true, value: false });
   defineProperty(model, '$booted', { writable: true, value: false });
 
-  defineProperty(model, '$schema', {
+  const defineOverwrittenProperty = (property: string) => defineProperty(model, property, {
     configurable: true,
     get() {
-      const $schema = mapWithKeys([...propFactories.entries()], ([key, factory]) => {
-        if (key === 'type') {
-          throw new FosciaError(
-            '`type` is forbidden as a definition key because it may be used with some implementations.',
-          );
-        }
+      parseModel(this);
 
-        const def = factory.make(this, key);
-
-        if ((key === 'id' || key === 'lid') && !isIdDef(def)) {
-          throw new FosciaError(
-            `\`id\` and \`lid\` must be defined with \`id()\` factory (found \`${key}\`).`,
-          );
-        }
-
-        def.boot?.(this);
-
-        return { [key]: def };
-      });
-
-      defineProperty(this, '$schema', { get: () => $schema });
-
-      return $schema;
+      return this[property];
     },
   });
+
+  defineOverwrittenProperty('$composables');
+  defineOverwrittenProperty('$schema');
+  defineOverwrittenProperty('$hooks');
 
   model.configure = function configureModel(newConfig?: Partial<ModelConfig>, override = true) {
     return makeModelClass(
@@ -115,30 +125,10 @@ const makeModelClass = (
       this.$type,
       this.$config,
       mergeHooks(this.$hooks!),
-      { ...definition, ...(rawDefinition ?? {}) },
+      { ...definition, ...makeDefinition(rawDefinition ?? {}) },
       this,
     ) as any;
   };
-
-  const applyDefinition = (
-    currentDefinition: object,
-  ) => eachDescriptors(currentDefinition, (key, descriptor) => {
-    if (isComposable(descriptor.value)) {
-      model.$composables.push(descriptor.value);
-
-      applyDefinition(descriptor.value.def);
-
-      model.$hooks = mergeHooks(model.$hooks!, descriptor.value.$hooks!);
-    } else if (isPropFactory(descriptor.value)) {
-      propFactories.set(key, descriptor.value);
-    } else {
-      defineProperty(model.prototype, key, descriptor);
-    }
-  });
-
-  applyDefinition(makeDefinition(definition));
-
-  model.$hooks = mergeHooks(model.$hooks!, hooks);
 
   return model;
 };

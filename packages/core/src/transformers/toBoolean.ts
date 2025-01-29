@@ -1,11 +1,5 @@
 import makeTransformer from '@foscia/core/transformers/makeTransformer';
 
-type ToBooleanOptions = {
-  trueValues?: unknown[];
-};
-
-const DEFAULT_TRUE_VALUES = [true, 1, '1', 'true', 'yes'];
-
 /**
  * Create a boolean transformer.
  *
@@ -13,6 +7,8 @@ const DEFAULT_TRUE_VALUES = [true, 1, '1', 'true', 'yes'];
  *
  * @category Factories
  */
-export default (options?: ToBooleanOptions) => makeTransformer(
-  (value: unknown) => (options?.trueValues ?? DEFAULT_TRUE_VALUES).indexOf(value) !== -1,
+export default (
+  options?: { trueValues?: unknown[]; },
+) => makeTransformer(
+  (value: unknown) => (options?.trueValues ?? [true, 1, '1', 'true', 'yes']).indexOf(value) !== -1,
 );

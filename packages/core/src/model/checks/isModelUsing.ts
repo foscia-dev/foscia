@@ -1,5 +1,9 @@
-import isModel from '@foscia/core/model/checks/isModel';
-import { ModelComposable, ModelUsing } from '@foscia/core/model/types';
+import {
+  Model,
+  ModelComposableFactory,
+  ModelUsing,
+  ModelComposable,
+} from '@foscia/core/model/types';
 
 /**
  * Check if value is a model using given composable.
@@ -19,6 +23,6 @@ import { ModelComposable, ModelUsing } from '@foscia/core/model/types';
  * ```
  */
 export default <C extends ModelComposable>(
-  value: unknown,
-  composable: C,
-): value is ModelUsing<C> => isModel(value) && value.$composables.indexOf(composable) !== -1;
+  value: Model,
+  composable: ModelComposableFactory<C>,
+): value is ModelUsing<C> => value.$composables.some((c) => c.factory === composable);

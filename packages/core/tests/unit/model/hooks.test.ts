@@ -94,8 +94,8 @@ describe.concurrent('unit: hooks', () => {
     // eslint-disable-next-line no-new
     new Post();
 
-    expect(bootCalls).toStrictEqual(['composable1', 'composable2', 'factory', 'post']);
-    expect(initCalls).toStrictEqual(['composable1', 'composable2', 'factory', 'post']);
+    expect(bootCalls).toStrictEqual(['factory', 'composable1', 'composable2', 'post']);
+    expect(initCalls).toStrictEqual(['factory', 'composable1', 'composable2', 'post']);
     expect(bootFn).toHaveBeenCalledTimes(4);
     expect(bootFn.mock.calls.every(([arg]) => arg === Post)).toBeTruthy();
     expect(initFn).toHaveBeenCalledTimes(4);
@@ -113,8 +113,8 @@ describe.concurrent('unit: hooks', () => {
       initFn(instance);
     });
 
-    expect(bootCalls).toStrictEqual(['composable1', 'composable2', 'factory', 'post']);
-    expect(initCalls).toStrictEqual(['composable1', 'composable2', 'factory', 'post']);
+    expect(bootCalls).toStrictEqual(['factory', 'composable1', 'composable2', 'post']);
+    expect(initCalls).toStrictEqual(['factory', 'composable1', 'composable2', 'post']);
     expect(bootFn).toHaveBeenCalledTimes(4);
     expect(initFn).toHaveBeenCalledTimes(4);
 
@@ -122,12 +122,12 @@ describe.concurrent('unit: hooks', () => {
     new Comment();
 
     expect(bootCalls).toStrictEqual([
-      'composable1', 'composable2', 'factory', 'post',
-      'composable1', 'composable2', 'factory', 'comment',
+      'factory', 'composable1', 'composable2', 'post',
+      'factory', 'composable1', 'composable2', 'comment',
     ]);
     expect(initCalls).toStrictEqual([
-      'composable1', 'composable2', 'factory', 'post',
-      'composable1', 'composable2', 'factory', 'comment',
+      'factory', 'composable1', 'composable2', 'post',
+      'factory', 'composable1', 'composable2', 'comment',
     ]);
     expect(bootFn).toHaveBeenCalledTimes(8);
     expect(bootFn.mock.calls.slice(0, 4).every(([arg]) => arg === Post)).toBeTruthy();

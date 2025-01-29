@@ -39,7 +39,7 @@ You can generate a new model using [`@foscia/cli`](/docs/digging-deeper/usages/c
 To declare a model, you just need to use the
 [`makeModel`](/docs/api/@foscia/core/functions/makeModel) function.
 This function takes up to 2 arguments and returns a
-[`Model`](/docs/api/@foscia/core/type-aliases/Model) constructor:
+[`Model`](/docs/api/@foscia/core/interfaces/Model) constructor:
 
 - The `type` string or a
 [configuration object](/docs/digging-deeper/models/models-configuration).
@@ -65,14 +65,14 @@ export default makeModel('posts', {
 ### Extending a model class
 
 [`makeModel`](/docs/api/@foscia/core/functions/makeModel) will return a
-[`Model`](/docs/api/@foscia/core/type-aliases/Model) constructor
+[`Model`](/docs/api/@foscia/core/interfaces/Model) constructor
 which can be extended by an ES6 class.
 
 ```typescript
 export default class Post extends makeModel('posts') {}
 ```
 
-The returned [`Model`](/docs/api/@foscia/core/type-aliases/Model) constructor
+The returned [`Model`](/docs/api/@foscia/core/interfaces/Model) constructor
 also implements [`ExtendableModel`](/docs/api/@foscia/core/type-aliases/ExtendableModel)
 and provides static methods to extend the definition
 already provided to [`makeModel`](/docs/api/@foscia/core/functions/makeModel).
@@ -543,7 +543,7 @@ during deserialization process.
 ##### Configuring an inverse
 
 To enable inverse of a relation, you can define an
-[`inverse` option](/docs/api/@foscia/core/type-aliases/ModelRelationFactoryConfig#inverse)
+[`inverse` option](/docs/api/@foscia/core/interfaces/ModelRelationFactoryConfig#inverse)
 to your relation configuration, or call the
 [`inverse` chained modifier](/docs/api/@foscia/core/type-aliases/ModelRelationFactory#inverse).
 Giving a boolean value, it will enable or disable automatic inverse resolution
@@ -584,7 +584,7 @@ with included `comments` relation, each `Comment` will have its `post` relation
 filled with the parent `Post` instance.
 
 ```typescript
-const posts = await action().run(query(Post), include('comments'), all());
+const posts = await action(query(Post), include('comments'), all());
 
 posts.forEach((post) => {
   post.comments.forEach((comment) => {
@@ -681,5 +681,5 @@ export default class User extends makeModel('users', {
 Foscia models provide special properties on both the model class and its
 instances, which you can discover inside the API reference:
 
-- [`Model`](/docs/api/@foscia/core/type-aliases/Model)
-- [`ModelInstance`](/docs/api/@foscia/core/type-aliases/ModelInstance)
+- [`Model`](/docs/api/@foscia/core/interfaces/Model)
+- [`ModelInstance`](/docs/api/@foscia/core/interfaces/ModelInstance)

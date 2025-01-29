@@ -1,6 +1,11 @@
+import type { TimedRefFactoryConfig } from '@foscia/core/cache/makeTimedRefFactory';
 import { ModelIdType, ModelInstance } from '@foscia/core/model/types';
 import { InstancesCache } from '@foscia/core/types';
 import { Awaitable, Optional, Transformer } from '@foscia/shared';
+
+export type {
+  TimedRefFactoryConfig,
+};
 
 /**
  * Function which stores a reference to a value.
@@ -21,6 +26,8 @@ export type RefFactory<V> = (value: V) => Awaitable<RefValue<V>>;
 /**
  * Config for refs cache implementation.
  *
+ * @interface
+ *
  * @internal
  */
 export type RefsCacheConfig = {
@@ -40,6 +47,8 @@ export type RefsCacheConfig = {
 
 /**
  * Cache implementation using references.
+ *
+ * @interface
  *
  * @internal
  */

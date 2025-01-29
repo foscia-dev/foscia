@@ -1,5 +1,5 @@
 import deserializeInstances, {
-  DeserializedDataOf,
+  RetypedDeserializedData,
 } from '@foscia/core/actions/context/utilities/deserializeInstances';
 import executeContextThroughAdapter
   from '@foscia/core/actions/context/utilities/executeContextThroughAdapter';
@@ -14,6 +14,10 @@ import { ModelInstance } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
 
+/**
+ * Data retrieved with {@link all | `all`} which can be transformed
+ * to another return value than an instances array.
+ */
 export type AllData<
   Data,
   Deserialized extends DeserializedData,
@@ -47,7 +51,7 @@ export default /* @__PURE__ */ makeRunner('all', <
   Deserialized extends DeserializedData,
   Next = I[],
 >(transform?: (
-  data: AllData<Data, DeserializedDataOf<I, Deserialized>, I>,
+  data: AllData<Data, RetypedDeserializedData<Deserialized, I>, I>,
 ) => Awaitable<Next>) => async (
   // eslint-disable-next-line max-len
   action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>>,
@@ -58,7 +62,7 @@ export default /* @__PURE__ */ makeRunner('all', <
   const deserialized = await deserializeInstances(
     context,
     data,
-  ) as DeserializedDataOf<I, Deserialized>;
+  ) as RetypedDeserializedData<Deserialized, I>;
 
   return (
     transform

@@ -11,8 +11,8 @@ description:
 Core implementations are implementations of actions' dependencies which can be
 used when using Foscia for any purpose.
 
-Since [`ModelsRegistry`](/docs/api/@foscia/core/type-aliases/ModelsRegistry) and
-[`InstancesCache`](/docs/api/@foscia/core/type-aliases/InstancesCache) can be agnostic of
+Since [`ModelsRegistry`](/docs/api/@foscia/core/interfaces/ModelsRegistry) and
+[`InstancesCache`](/docs/api/@foscia/core/interfaces/InstancesCache) can be agnostic of
 data source you are interacting with,
 Foscia proposes core implementations of those dependencies.
 
@@ -21,7 +21,7 @@ Foscia proposes core implementations of those dependencies.
 ### `makeCache`
 
 [`makeCache`](/docs/api/@foscia/core/functions/makeCache) provides a
-[`InstancesCache`](/docs/api/@foscia/core/type-aliases/InstancesCache) implementation.
+[`InstancesCache`](/docs/api/@foscia/core/interfaces/InstancesCache) implementation.
 
 Currently, it uses [`makeRefsCache`](#makerefscache) with
 [`makeWeakRefFactory`](/docs/api/@foscia/core/functions/makeWeakRefFactory).
@@ -51,7 +51,7 @@ Since this factory is agnostic of implementation, no configuration is available.
 ### `makeRefsCache`
 
 [`makeRefsCache`](/docs/api/@foscia/core/functions/makeRefsCache) provides a
-[`InstancesCache`](/docs/api/@foscia/core/type-aliases/InstancesCache) implementation
+[`InstancesCache`](/docs/api/@foscia/core/interfaces/InstancesCache) implementation
 which stores reference to instances created by a
 [`RefFactory`](/docs/api/@foscia/core/type-aliases/RefFactory).
 
@@ -92,7 +92,7 @@ const cachedPost = cache.find('posts', '1');
 
 #### Configuration
 
-- [`RefsCacheConfig`](/docs/api/@foscia/core/type-aliases/RefsCacheConfig)
+- [`RefsCacheConfig`](/docs/api/@foscia/core/interfaces/RefsCacheConfig)
 
 #### Defined in
 
@@ -101,7 +101,7 @@ const cachedPost = cache.find('posts', '1');
 ### `makeRegistry`
 
 [`makeRegistry`](/docs/api/@foscia/core/functions/makeRegistry) provides a
-[`ModelsRegistry`](/docs/api/@foscia/core/type-aliases/ModelsRegistry) implementation.
+[`ModelsRegistry`](/docs/api/@foscia/core/interfaces/ModelsRegistry) implementation.
 
 Currently, it uses [`makeMapRegistry`](#makemapregistry). This factory is
 agnostic of this implementation, so it may change in the future if a better
@@ -129,7 +129,7 @@ Since this factory is agnostic of implementation, no configuration is available.
 ### `makeMapRegistry`
 
 [`makeRegistry`](/docs/api/@foscia/core/functions/makeRegistry) provides a
-[`ModelsRegistry`](/docs/api/@foscia/core/type-aliases/ModelsRegistry) implementation
+[`ModelsRegistry`](/docs/api/@foscia/core/interfaces/ModelsRegistry) implementation
 which stores a map of models keyed by their type.
 
 Type normalization function can be configured
@@ -151,7 +151,7 @@ const PostModel = registry.modelFor('posts');
 
 #### Configuration
 
-- [`MapRegistryConfig`](/docs/api/@foscia/core/type-aliases/MapRegistryConfig)
+- [`MapRegistryConfig`](/docs/api/@foscia/core/interfaces/MapRegistryConfig)
 
 #### Defined in
 

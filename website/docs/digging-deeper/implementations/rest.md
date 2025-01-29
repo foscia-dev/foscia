@@ -16,7 +16,7 @@ read/write interactions with JSON REST data sources.
 ### `makeRestAdapter`
 
 [`makeRestAdapter`](/docs/api/@foscia/rest/functions/makeRestAdapter)
-provides a [`Adapter`](/docs/api/@foscia/core/type-aliases/Adapter)
+provides a [`Adapter`](/docs/api/@foscia/core/interfaces/Adapter)
 implementation which will execute context through HTTP requests using the
 [`fetch` API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 
@@ -26,7 +26,6 @@ implementation which will execute context through HTTP requests using the
 #### Usage
 
 ```typescript
-import { paramsSerializer } from '@foscia/http';
 import { makeRestAdapter } from '@foscia/rest';
 
 const { adapter } = makeRestAdapter({
@@ -40,8 +39,7 @@ const response = await adapter.execute({
 
 #### Configuration {#makerestadapter-configuration}
 
-- [`RestAdapterConfig`](/docs/api/@foscia/rest/type-aliases/RestAdapterConfig)
-- [`HttpAdapterConfig`](/docs/api/@foscia/http/type-aliases/HttpAdapterConfig)
+- [`RestAdapterConfig`](/docs/api/@foscia/rest/interfaces/RestAdapterConfig)
 
 #### Defined in
 
@@ -50,7 +48,7 @@ const response = await adapter.execute({
 ### `makeRestDeserializer`
 
 [`makeRestDeserializer`](/docs/api/@foscia/rest/functions/makeRestDeserializer)
-provides a [`Deserializer`](/docs/api/@foscia/core/type-aliases/Deserializer)
+provides a [`Deserializer`](/docs/api/@foscia/core/interfaces/Deserializer)
 implementation which will extract model instances from object documents.
 
 `makeRestDeserializer` uses
@@ -114,8 +112,7 @@ const { instances } = await deserializer.deserialize(data, {
 
 #### Configuration
 
-- [`RestDeserializerConfig`](/docs/api/@foscia/rest/type-aliases/RestDeserializerConfig)
-- [`DeserializerConfig`](/docs/api/@foscia/serialization/type-aliases/DeserializerConfig)
+- [`RestDeserializerConfig`](/docs/api/@foscia/rest/interfaces/RestDeserializerConfig)
 
 #### Defined in
 
@@ -124,7 +121,7 @@ const { instances } = await deserializer.deserialize(data, {
 ### `makeRestSerializer`
 
 [`makeRestSerializer`](/docs/api/@foscia/rest/functions/makeRestSerializer)
-provides a [`Serializer`](/docs/api/@foscia/core/type-aliases/Serializer)
+provides a [`Serializer`](/docs/api/@foscia/core/interfaces/Serializer)
 implementation which will create REST object documents from
 model instance and relations.
 
@@ -170,8 +167,7 @@ const data = await serializer.serializeInstance(instance, {
 
 #### Configuration
 
-- [`RestSerializerConfig`](/docs/api/@foscia/rest/type-aliases/RestSerializerConfig)
-- [`SerializerConfig`](/docs/api/@foscia/serialization/type-aliases/SerializerConfig)
+- [`RestSerializerConfig`](/docs/api/@foscia/rest/interfaces/RestSerializerConfig)
 
 #### Defined in
 

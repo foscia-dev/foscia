@@ -1,4 +1,4 @@
-import { Model, ModelKey, ModelValueProp } from '@foscia/core/model/types';
+import { Model, ModelKey } from '@foscia/core/model/types';
 import { using } from '@foscia/shared';
 
 /**
@@ -9,9 +9,9 @@ import { using } from '@foscia/shared';
  *
  * @internal
  */
-export default <D extends {}>(
-  model: Model<D>,
-  key: ModelKey<Model<D>>,
-) => using(model.$schema[key] as unknown as ModelValueProp, (def) => def.alias ?? (
-  model.$config.guessAlias ? model.$config.guessAlias(def.key) : def.key
+export default <M extends Model>(
+  model: M,
+  key: ModelKey<M>,
+) => using(model.$schema[key], (def) => def.alias ?? (
+  model.$config.guessAlias?.(def.key) ?? def.key
 ));

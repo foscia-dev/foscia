@@ -1,6 +1,12 @@
-import { LOGGER_LEVELS_WEIGHTS } from '@foscia/core/logger/constants';
 import { Logger, LoggerLevel, LoggerOutput } from '@foscia/core/logger/types';
 import { IS_DEV, IS_TEST } from '@foscia/shared';
+
+const LOGGER_LEVELS_WEIGHTS: Record<LoggerLevel, number> = {
+  debug: 0,
+  info: 10,
+  warn: 100,
+  error: 1000,
+};
 
 const makeDefaultLevel = (): LoggerLevel | null => {
   if (IS_TEST) {

@@ -17,6 +17,10 @@ import loaded from '@foscia/core/model/relations/loaded';
 import { ModelInstance } from '@foscia/core/model/types';
 import { Awaitable, isNil } from '@foscia/shared';
 
+/**
+ * Data retrieved with {@link cachedOr | `cachedOr`} which can be transformed
+ * to another return value than an instance.
+ */
 export type CachedData<I extends ModelInstance> = {
   instance: I;
 };

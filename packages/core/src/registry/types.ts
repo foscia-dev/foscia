@@ -5,6 +5,8 @@ import { Optional, Transformer } from '@foscia/shared';
 /**
  * Config for registry map implementation.
  *
+ * @interface
+ *
  * @internal
  */
 export type MapRegistryConfig = {
@@ -14,6 +16,8 @@ export type MapRegistryConfig = {
 
 /**
  * Registry implementation using mapped models by types.
+ *
+ * @interface
  *
  * @internal
  */

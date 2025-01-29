@@ -1,10 +1,13 @@
 import registerHook from '@foscia/core/hooks/registerHook';
 import {
+  InferModelSchemaProp,
   Model,
   ModelComposable,
+  ModelComposableFactory,
   ModelFactory,
   ModelInstance,
   ModelInstancePropertyWriteHookCallback,
+  ModelInstanceUsing,
   ModelValues,
 } from '@foscia/core/model/types';
 
@@ -16,49 +19,81 @@ import {
  * @internal
  */
 export default (hook: 'write' | 'writing'): {
-  <D extends {}, I extends ModelInstance<D>, V extends ModelValues<D>, K extends keyof D & keyof V>(
+  <
+    D extends {},
+    I extends ModelInstance<D>,
+    V extends ModelValues<D>,
+    K extends keyof V,
+    P extends InferModelSchemaProp<I, K>,
+  >(
     model: Model<D, I>,
-    callback: (event: { instance: I; def: D[K]; prev?: V[K]; next: V[K] }) => unknown,
+    callback: (event: { instance: I; def: P; prev?: V[K]; next: V[K] }) => unknown,
   ): () => void;
-  <D extends {}, I extends ModelInstance<D>, V extends ModelValues<D>, K extends keyof D & keyof V>(
+  <
+    D extends {},
+    I extends ModelInstance<D>,
+    V extends ModelValues<D>,
+    K extends keyof V,
+    P extends InferModelSchemaProp<I, K>,
+  >(
     model: Model<D, I>,
     key: K,
-    callback: (event: { instance: I; def: D[K]; prev?: V[K]; next: V[K] }) => unknown,
+    callback: (event: { instance: I; def: P; prev?: V[K]; next: V[K] }) => unknown,
   ): () => void;
-  <D extends {}, V extends ModelValues<D>, K extends keyof D & keyof V>(
-    model: ModelComposable<D>,
+  <
+    C extends ModelComposable,
+    V extends ModelValues<ModelInstanceUsing<C>>,
+    K extends keyof V,
+    P extends InferModelSchemaProp<ModelInstanceUsing<C>, K>,
+  >(
+    composable: ModelComposableFactory<C>,
     callback: (event: {
-      instance: ModelInstance<D>;
-      def: D[K];
+      instance: ModelInstanceUsing<C>;
+      def: P;
       prev?: V[K];
       next: V[K]
     }) => unknown,
   ): () => void;
-  <D extends {}, V extends ModelValues<D>, K extends keyof D & keyof V>(
-    model: ModelComposable<D>,
+  <
+    C extends ModelComposable,
+    V extends ModelValues<ModelInstanceUsing<C>>,
+    K extends keyof V,
+    P extends InferModelSchemaProp<ModelInstanceUsing<C>, K>,
+  >(
+    composable: ModelComposableFactory<C>,
+    key: K,
+    callback: (event: {
+      instance: ModelInstanceUsing<C>;
+      def: P;
+      prev?: V[K];
+      next: V[K]
+    }) => unknown,
+  ): () => void;
+  <
+    D extends {},
+    V extends ModelValues<D>,
+    K extends keyof V,
+    P extends InferModelSchemaProp<D, K>,
+  >(
+    factory: ModelFactory<D>,
+    callback: (event: {
+      instance: ModelInstance<D>;
+      def: P;
+      prev?: V[K];
+      next: V[K]
+    }) => unknown,
+  ): () => void;
+  <
+    D extends {},
+    V extends ModelValues<D>,
+    K extends keyof V,
+    P extends InferModelSchemaProp<D, K>,
+  >(
+    factory: ModelFactory<D>,
     key: K,
     callback: (event: {
       instance: ModelInstance<D>;
-      def: D[K];
-      prev?: V[K];
-      next: V[K]
-    }) => unknown,
-  ): () => void;
-  <D extends {}, V extends ModelValues<D>, K extends keyof D & keyof V>(
-    model: ModelFactory<D>,
-    callback: (event: {
-      instance: ModelInstance<D>;
-      def: D[K];
-      prev?: V[K];
-      next: V[K]
-    }) => unknown,
-  ): () => void;
-  <D extends {}, V extends ModelValues<D>, K extends keyof D & keyof V>(
-    model: ModelFactory<D>,
-    key: K,
-    callback: (event: {
-      instance: ModelInstance<D>;
-      def: D[K];
+      def: P;
       prev?: V[K];
       next: V[K]
     }) => unknown,

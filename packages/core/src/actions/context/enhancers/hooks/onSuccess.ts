@@ -10,6 +10,7 @@ import { Awaitable } from '@foscia/shared';
  * @param callback
  *
  * @category Enhancers
+ * @category Hooks
  *
  * @example
  * ```typescript

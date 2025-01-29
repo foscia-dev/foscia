@@ -1,4 +1,10 @@
-import { Action, ActionCall, ContextEnhancer, ContextRunner } from '@foscia/core/actions/types';
+import {
+  Action,
+  ActionCall,
+  ActionFactory,
+  ContextEnhancer,
+  ContextRunner,
+} from '@foscia/core/actions/types';
 import FosciaError from '@foscia/core/errors/fosciaError';
 import registerHook from '@foscia/core/hooks/registerHook';
 import runHooks from '@foscia/core/hooks/runHooks';
@@ -21,7 +27,9 @@ import {
  */
 export default <Context extends {} = {}>(
   initialContext?: Context | (() => Context),
-) => () => {
+): ActionFactory<Context> => (
+  ...immediateEnhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[]
+) => {
   const currentCalls: ActionCall[] = [];
   let currentCall: ActionCall | null = null;
 
@@ -38,7 +46,7 @@ export default <Context extends {} = {}>(
     await sequentialTransform(enhancements);
   };
 
-  const action: Action<Context> = {
+  const action = {
     $hooks: {},
     async useContext() {
       await dequeueEnhancers(this);
@@ -116,5 +124,7 @@ export default <Context extends {} = {}>(
   registerHook(action, 'success', (event) => logger.debug('Action success.', [event]));
   registerHook(action, 'error', (event) => logger.debug('Action error.', [event]));
 
-  return action;
+  return immediateEnhancers.length
+    ? action.run(...immediateEnhancers)
+    : action;
 };

@@ -3,6 +3,7 @@ import parseValuePropConfig from '@foscia/core/model/props/builders/parseValuePr
 import {
   ModelAttributeFactory,
   ModelAttributeFactoryConfig,
+  ModelPendingProp,
 } from '@foscia/core/model/props/builders/types';
 import { ModelAttribute } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_PROP_KIND_ATTRIBUTE } from '@foscia/core/symbols';
@@ -47,7 +48,7 @@ const attr: {
 ) => makeValuePropFactory({
   $VALUE_PROP_TYPE: SYMBOL_MODEL_PROP_KIND_ATTRIBUTE,
   ...parseValuePropConfig(config, otherConfig),
-} as ModelAttribute, {
+} as ModelPendingProp<ModelAttribute>, {
   transform: (transformer: ObjectTransformer<unknown>) => ({ transformer }),
 }) as ModelAttributeFactory<T, boolean>;
 

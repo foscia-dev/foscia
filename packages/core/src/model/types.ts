@@ -4,7 +4,6 @@ import {
   SYMBOL_MODEL_COMPOSABLE,
   SYMBOL_MODEL_INSTANCE,
   SYMBOL_MODEL_PROP,
-  SYMBOL_MODEL_PROP_FACTORY,
   SYMBOL_MODEL_PROP_KIND_ATTRIBUTE,
   SYMBOL_MODEL_PROP_KIND_ID,
   SYMBOL_MODEL_PROP_KIND_RELATION,
@@ -17,11 +16,14 @@ import {
   Awaitable,
   Constructor,
   DescriptorHolder,
+  DescriptorHolderOf,
   Dictionary,
   FosciaObject,
+  IfAny,
   OmitNever,
   Optional,
   Prev,
+  RestoreDescriptorHolder,
   Transformer,
   UnionToIntersection,
 } from '@foscia/shared';
@@ -81,14 +83,14 @@ export type ModelConfig = {
    * @param nextValue
    * @param prevValue
    */
-  compareValues: (nextValue: unknown, prevValue: unknown) => boolean;
+  compareSnapshotValues: (nextValue: unknown, prevValue: unknown) => boolean;
   /**
    * Clone a property value when creating a snapshot.
    * Defaults to {@link cloneModelValue | `cloneModelValue`}.
    *
    * @param value
    */
-  cloneValue: <T>(value: T) => T;
+  cloneSnapshotValue: <T>(value: T) => T;
   /**
    * Tells if snapshots of related instances should be using
    * {@link ModelSnapshot | `ModelSnapshot`} or
@@ -141,87 +143,59 @@ export type ModelConfig = {
 };
 
 /**
- * Model composable which can be included on any model definition.
+ * Model composable which adds features and typings to a model.
  *
- * @typeParam D Definition of the composable.
+ * @interface
+ */
+export interface ModelComposable {
+  /**
+   * The factory which produced the composable.
+   *
+   * @internal
+   */
+  readonly factory: ModelComposableFactory<any>;
+  /**
+   * The model the composable is bind to.
+   */
+  readonly parent: Model;
+  /**
+   * The key the composable is bind to.
+   */
+  readonly key: string;
+  /**
+   * Init the composable to a parent model's instance.
+   */
+  readonly init?: (instance: ModelInstance) => void;
+  /**
+   * Stores the composable typing for type resolution.
+   *
+   * @internal
+   */
+  readonly _type: {};
+}
+
+/**
+ * Model composable factory.
+ *
+ * @typeParam C Composable which the factory binds.
+ *
+ * @interface
  *
  * @internal
  */
-export type ModelComposable<D extends {} = any> =
+export type ModelComposableFactory<C extends ModelComposable = ModelComposable> =
   & {
     /**
-     * Definition of the composable.
-     *
-     * @internal
+     * Create and bind the composable to a model.
      */
-    readonly def: D;
+    readonly bind: (ctx: { parent: Model, key: string }) => C;
   }
-  & FosciaObject<typeof SYMBOL_MODEL_COMPOSABLE>
-  & Hookable<ModelHooksDefinition>;
+  & FosciaObject<typeof SYMBOL_MODEL_COMPOSABLE>;
 
 /**
  * Model instance ID default typing.
  */
 export type ModelIdType = string | number;
-
-/**
- * Factory for a model property.
- *
- * @typeParam P Model property created by the factory.
- *
- * @internal
- */
-export type ModelPropFactory<P extends ModelProp<any> = ModelProp<any>> =
-  & {
-    /**
-     * Create the model property for a model and key.
-     */
-    readonly make: (parent: Model, key: string) => P;
-  }
-  & FosciaObject<typeof SYMBOL_MODEL_PROP_FACTORY>;
-
-/**
- * Model property appended to a model schema.
- *
- * @internal
- */
-export type ModelProp<K = string, T = any, R extends boolean = boolean> =
-  & {
-    /**
-     * Boot the property before it is appended to a model schema.
-     * At this step, the model schema is not complete and should not be accessed.
-     */
-    readonly boot?: (model: Model) => void;
-    /**
-     * Bind the property to the given instance.
-     * Usually, this will use `Object.defineProperty` to configure
-     * the property behavior.
-     */
-    readonly bind?: (instance: ModelInstance) => void;
-    /**
-     * The model the property is attached to.
-     */
-    readonly parent: Model;
-    /**
-     * The key the property uses in the model schema and instances.
-     */
-    readonly key: K;
-    /**
-     * The type the property's value is of.
-     * This is a generic type annotation only property and should not be accessed.
-     *
-     * @internal
-     */
-    readonly __type__: T;
-    /**
-     * Tells if the property is read-only.
-     * This is a generic type annotation only property and should not be accessed.
-     *
-     * @internal
-     */
-    readonly __readOnly__: R;
-  }
-  & FosciaObject<typeof SYMBOL_MODEL_PROP>;
 
 /**
  * Sync configuration for a property. `pull` means the property is only retrieved
@@ -232,39 +206,50 @@ export type ModelProp<K = string, T = any, R extends boolean = boolean> =
 export type ModelPropSync = 'pull' | 'push';
 
 /**
- * Model property which holds a value that can be exchanged with the data source.
+ * Model property.
  *
  * @internal
  */
-export type ModelValueProp<
-  K = string,
-  T = unknown,
-  R extends boolean = boolean,
-> =
+export interface ModelProp<T = any, R extends boolean = boolean>
+  extends ModelComposable, FosciaObject<typeof SYMBOL_MODEL_PROP> {
+  /**
+   * Alias of the property (might be used when (de)serializing).
+   */
+  alias?: string | undefined;
+  /**
+   * Tells if the property should be synced with the data store.
+   */
+  sync?: boolean | ModelPropSync;
+  /**
+   * Tells if the property is read-only.
+   */
+  readonly readOnly?: R;
+
+  readonly _type: R extends false ? Record<this['key'], T> : Readonly<Record<this['key'], T>>;
+}
+
+/**
+ * Model value property stored inside the instance internal values.
+ *
+ * @interface
+ *
+ * @internal
+ */
+export type ModelValueProp<T = any, R extends boolean = boolean> =
   & {
-    /**
-     * Tells if the property is read-only.
-     */
-    readonly readOnly?: R;
     /**
      * Default value for the property.
      */
     default?: T | (() => T) | undefined;
-    /**
-     * Alias of the property (might be used when (de)serializing).
-     */
-    alias?: string | undefined;
-    /**
-     * Tells if the property should be synced with the data store.
-     */
-    sync?: boolean | ModelPropSync;
   }
-  & ModelProp<K, T, R>;
+  & ModelProp<T, R>;
 
 /**
- * Model ID property definition.
+ * Model ID property.
+ *
+ * @interface
  */
-export type ModelId<K = string, T extends ModelIdType | null = any, R extends boolean = boolean> =
+export type ModelId<T extends ModelIdType | null = any, R extends boolean = boolean> =
   {
     /**
      * Type of property.
@@ -274,12 +259,14 @@ export type ModelId<K = string, T extends ModelIdType | null = any, R extends bo
     readonly $VALUE_PROP_TYPE: typeof SYMBOL_MODEL_PROP_KIND_ID;
     transformer?: ObjectTransformer<T | null>;
   }
-  & ModelValueProp<K, T, R>;
+  & ModelValueProp<T, R>;
 
 /**
- * Model attribute property definition.
+ * Model attribute property.
+ *
+ * @interface
  */
-export type ModelAttribute<K = string, T = any, R extends boolean = boolean> =
+export type ModelAttribute<T = any, R extends boolean = boolean> =
   {
     /**
      * Type of property.
@@ -289,7 +276,7 @@ export type ModelAttribute<K = string, T = any, R extends boolean = boolean> =
     readonly $VALUE_PROP_TYPE: typeof SYMBOL_MODEL_PROP_KIND_ATTRIBUTE;
     transformer?: ObjectTransformer<T | null>;
   }
-  & ModelValueProp<K, T, R>;
+  & ModelValueProp<T, R>;
 
 /**
  * Available model relation types.
@@ -301,9 +288,11 @@ export type ModelRelationType =
   | typeof SYMBOL_MODEL_RELATION_HAS_MANY;
 
 /**
- * Model sync relation property definition.
+ * Model relation property.
+ *
+ * @interface
  */
-export type ModelRelation<K = string, T = any, R extends boolean = boolean> =
+export type ModelRelation<T = any, R extends boolean = boolean> =
   {
     /**
      * Type of property.
@@ -340,57 +329,7 @@ export type ModelRelation<K = string, T = any, R extends boolean = boolean> =
      */
     path?: string;
   }
-  & ModelValueProp<K, T, R>;
-
-/**
- * Infer a model's property type from the property definition.
- *
- * @internal
- */
-export type InferModelValuePropType<P> = P extends ModelValueProp<any, infer T> ? T : never;
-
-/**
- * The parsed model definition with non composables/attributes/relations
- * properties' descriptors wrapped in holders.
- *
- * @internal
- */
-export type ModelParsedDefinition<D extends {} = {}> = {
-  [K in keyof D]: D[K] extends ModelComposable | ModelPropFactory | DescriptorHolder<any>
-    ? D[K] : DescriptorHolder<D[K]>
-};
-
-/**
- * The flatten and parsed model definition with composables properties
- * flattened to the definition root.
- *
- * @internal
- */
-export type ModelFlattenDefinition<D extends {}> =
-  & UnionToIntersection<{} | {
-    [K in keyof D]: D[K] extends ModelComposable<infer CD>
-      ? ModelFlattenDefinition<CD> : never;
-  }[keyof D]>
-  & OmitNever<{ [K in keyof D]: D[K] extends ModelComposable ? never : D[K] }>;
-
-/**
- * The flatten and parsed model definition from a composable object type.
- *
- * @internal
- */
-export type ModelDefinitionFromComposable<C extends ModelComposable<C>> = ModelFlattenDefinition<{
-  __composable__: C;
-}>;
-
-/**
- * Extract model's properties from definition factories.
- *
- * @internal
- */
-export type ModelSchema<D extends {} = {}> = {
-  readonly [K in keyof D]: D[K] extends ModelPropFactory<infer P>
-    ? P & { key: K; } : never;
-};
+  & ModelValueProp<T, R>;
 
 /**
  * Model instance read property generic hook callback function.
@@ -399,7 +338,7 @@ export type ModelSchema<D extends {} = {}> = {
  */
 export type ModelInstancePropertyReadHookCallback = SyncHookCallback<{
   readonly instance: ModelInstance;
-  readonly def: ModelValueProp;
+  readonly def: ModelProp;
   readonly value: unknown;
 }>;
 
@@ -410,13 +349,13 @@ export type ModelInstancePropertyReadHookCallback = SyncHookCallback<{
  */
 export type ModelInstancePropertyWriteHookCallback = SyncHookCallback<{
   readonly instance: ModelInstance;
-  readonly def: ModelValueProp;
+  readonly def: ModelProp;
   readonly prev: unknown;
   readonly next: unknown;
 }>;
 
 /**
- * Model's hooks definition dedicated to a model.
+ * Model hooks definition dedicated to a model.
  *
  * @internal
  */
@@ -425,7 +364,7 @@ export type ModelHooksDefinitionForModel = {
 };
 
 /**
- * Model's hooks definition dedicated to an instance.
+ * Model hooks definition dedicated to an instance.
  *
  * @internal
  */
@@ -443,7 +382,7 @@ export type ModelHooksDefinitionForInstance = {
 };
 
 /**
- * Model's hooks definition dedicated to an instance property.
+ * Model hooks definition dedicated to an instance property.
  *
  * @internal
  */
@@ -460,7 +399,7 @@ export type ModelHooksDefinitionForInstanceProperty =
   & Record<`property:write:${string}`, ModelInstancePropertyWriteHookCallback>;
 
 /**
- * Model's hooks definition.
+ * Model hooks definition.
  *
  * @internal
  */
@@ -470,10 +409,64 @@ export type ModelHooksDefinition =
   & ModelHooksDefinitionForInstanceProperty;
 
 /**
+ * Model instance.
+ *
+ * @typeParam D Flatten definition of the model.
+ *
+ * @interface
+ */
+export type ModelInstance<D extends {} = any> =
+  {
+    /**
+     * Model this instance was created from.
+     */
+    readonly $model: Model<D, ModelInstance<D>>;
+    /**
+     * Tells if instance exists in data source.
+     * This is `true` for retrieved or saved instance.
+     */
+    $exists: boolean;
+    /**
+     * Internal values of the instance's properties.
+     */
+    $values: Partial<ModelValues<D>>;
+    /**
+     * Raw value of the data source record when available.
+     */
+    $raw: any | null;
+    /**
+     * Latest sync snapshot.
+     */
+    $original: ModelSnapshot<D>;
+    /**
+     * Tells which relation is considered to be loaded.
+     *
+     * @internal
+     */
+    $loaded: Dictionary<true>;
+    /**
+     * Stores the flatten definition for type resolution.
+     *
+     * @internal
+     */
+    readonly _definition: D;
+    /**
+     * Stores the schema for type resolution.
+     *
+     * @internal
+     */
+    readonly _schema: ModelSchema<D>;
+  }
+  & ModelProperties<D>
+  & FosciaObject<typeof SYMBOL_MODEL_INSTANCE>;
+
+/**
  * Model class.
  *
- * @typeParam D Definition of the model.
+ * @typeParam D Flatten definition of the model.
  * @typeParam I Instance of the model.
+ *
+ * @interface
  */
 export type Model<D extends {} = any, I extends ModelInstance<D> = any> =
   & {
@@ -488,8 +481,8 @@ export type Model<D extends {} = any, I extends ModelInstance<D> = any> =
     readonly $config: ModelConfig;
     /**
      * Schema of the model.
-     * It is parsed once on first property get (usually on first constructor call)
-     * and will be cached afterward. It should not be updated afterward.
+     *
+     * @internal
      */
     readonly $schema: ModelSchema<D>;
     /**
@@ -499,31 +492,43 @@ export type Model<D extends {} = any, I extends ModelInstance<D> = any> =
      */
     readonly $composables: ModelComposable[];
     /**
+     * Tells if the model definition is parsed.
+     *
+     * @internal
+     */
+    $parsed: boolean;
+    /**
      * Tells if the model was already booted (constructed at least once).
      *
      * @internal
      */
     $booted: boolean;
+    /**
+     * Stores the flatten definition for type resolution.
+     *
+     * @internal
+     */
+    readonly _definition: D;
+    /**
+     * Stores the schema for type resolution.
+     *
+     * @internal
+     */
+    readonly _schema: ModelSchema<D>;
   }
   & Constructor<I>
   & Hookable<ModelHooksDefinition>
   & FosciaObject<typeof SYMBOL_MODEL_CLASS>;
 
 /**
- * Model class using a given composable.
- */
-export type ModelUsing<C extends ModelComposable> =
-  Model<ModelDefinitionFromComposable<C>, ModelInstanceUsing<C>>;
-
-/**
- * Model class which can be configured or extended.
+ * Model class which can be configured or extended to another model.
  *
  * @internal
  */
 export type ExtendableModel<D extends {} = any, I extends ModelInstance<D> = any> =
   & {
     /**
-     * Create a new model class with an extended configuration.
+     * Create a new model class with an overwritten configuration.
      *
      * @param config
      * @param override
@@ -538,10 +543,9 @@ export type ExtendableModel<D extends {} = any, I extends ModelInstance<D> = any
      * @param rawDefinition
      */
     extend<ND extends {} = {}>(
+      rawDefinition?: ND & ThisType<ModelInstance<D & ModelParsedFlattenDefinition<ND>>>,
       // eslint-disable-next-line max-len
-      rawDefinition?: ND & ThisType<ModelInstance<D & ModelFlattenDefinition<ModelParsedDefinition<ND>>>>,
-      // eslint-disable-next-line max-len
-    ): ExtendableModel<D & ModelFlattenDefinition<ModelParsedDefinition<ND>>, ModelInstance<D & ModelFlattenDefinition<ModelParsedDefinition<ND>>>>;
+    ): ExtendableModel<D & ModelParsedFlattenDefinition<ND>, ModelInstance<D & ModelParsedFlattenDefinition<ND>>>;
   }
   & Model<D, I>;
 
@@ -554,175 +558,14 @@ export type ModelFactory<
   D extends {} = {},
 > = Hookable<ModelHooksDefinition> & (<ND extends {}>(
   rawConfig: string | (Partial<ModelConfig> & { type: string; }),
+  rawDefinition?: ND & ThisType<ModelInstance<D & ModelParsedFlattenDefinition<ND>>>,
   // eslint-disable-next-line max-len
-  rawDefinition?: ND & ThisType<ModelInstance<D & ModelFlattenDefinition<ModelParsedDefinition<ND>>>>,
-  // eslint-disable-next-line max-len
-) => ExtendableModel<D & ModelFlattenDefinition<ModelParsedDefinition<ND>>, ModelInstance<D & ModelFlattenDefinition<ModelParsedDefinition<ND>>>>);
-
-/**
- * Model defaults IDs typing when not defined by definition.
- *
- * @internal
- */
-export type ModelIdsDefaults<D extends {}> =
-  & (D extends { id: any } ? {} : { id: ModelIdType | null })
-  & (D extends { lid: any } ? {} : { lid: ModelIdType | null });
-
-/**
- * Model properties map (IDs/attributes/relations/custom props).
- *
- * @internal
- */
-export type ModelDefinitionProperties<D extends {}> = ModelIdsDefaults<D> & {
-  [K in keyof D]: D[K] extends ModelPropFactory<ModelProp<any, infer T, any>>
-    ? T : D[K] extends DescriptorHolder<infer T>
-      ? T : D[K];
-};
-
-/**
- * Model properties key (only writable IDs/attributes/relations).
- *
- * @internal
- */
-export type ModelDefinitionWritableKey<D extends {}> = {
-  [K in keyof D]: D[K] extends DescriptorHolder<any>
-    ? never
-    : D[K] extends ModelPropFactory<ModelValueProp<any, any, false>> ? K : never;
-}[keyof D] | keyof ModelIdsDefaults<D>;
-
-/**
- * Model properties key (only readonly IDs/attributes/relations).
- *
- * @internal
- */
-export type ModelDefinitionReadOnlyKey<D extends {}> = {
-  [K in keyof D]: D[K] extends DescriptorHolder<any>
-    ? never
-    : D[K] extends ModelPropFactory<ModelValueProp<any, any, true>> ? K : never;
-}[keyof D];
-
-/**
- * Model descriptors key (only custom properties).
- *
- * @internal
- */
-export type ModelDefinitionDescriptorKey<D extends {}> = {
-  [K in keyof D]: D[K] extends DescriptorHolder<any> ? K : never;
-}[keyof D];
-
-/**
- * Model properties map (only writable IDs/attributes/relations).
- *
- * @internal
- */
-export type ModelDefinitionWritableValues<D extends {}> =
-  Pick<ModelDefinitionProperties<D>, ModelDefinitionWritableKey<D>>;
-
-/**
- * Model properties map (only readonly IDs/attributes/relations).
- *
- * @internal
- */
-export type ModelDefinitionReadOnlyValues<D extends {}> =
-  Readonly<Pick<ModelDefinitionProperties<D>, ModelDefinitionReadOnlyKey<D>>>;
-
-/**
- * Model properties map (IDs/attributes/relations).
- *
- * @internal
- */
-export type ModelDefinitionValues<D extends {}> =
-  & ModelDefinitionWritableValues<D>
-  & ModelDefinitionReadOnlyValues<D>;
-
-/**
- * Model values map for a snapshot (IDs/attributes/relations).
- *
- * @internal
- */
-export type ModelSnapshotDefinitionValues<D extends {}> = ModelIdsDefaults<D> & {
-  [K in keyof D]: D[K] extends ModelPropFactory<ModelRelation<any, infer T, any>>
-    ? T extends (infer I)[]
-      ? (ModelLimitedSnapshot<I> | ModelSnapshot<I>)[]
-      : (ModelLimitedSnapshot<T> | ModelSnapshot<T>)
-    : D[K] extends ModelPropFactory<ModelProp<any, infer T, any>>
-      ? T
-      : D[K] extends ModelPropFactory<ModelProp<any, any, any>> ? any : never;
-};
-
-/**
- * Model values map for a limited snapshot (IDs/attributes/relations).
- *
- * @internal
- */
-export type ModelLimitedSnapshotDefinitionValues<D extends {}> = ModelIdsDefaults<D> & {
-  [K in keyof ModelSnapshotDefinitionValues<D>]: K extends 'id' | 'lid'
-    ? ModelSnapshotDefinitionValues<D>[K] : never;
-};
-
-/**
- * Model descriptors map (only custom properties).
- *
- * @internal
- */
-export type ModelDefinitionDescriptors<D extends {}> =
-  Pick<ModelDefinitionProperties<D>, ModelDefinitionDescriptorKey<D>>;
-
-/**
- * Model instance holding state and values.
- *
- * @typeParam D Definition of the model instance.
- */
-export type ModelInstance<D extends {} = any> =
-  {
-    /**
-     * Model this instance was created from.
-     */
-    readonly $model: Model<D, ModelInstance<D>>;
-    /**
-     * Tells if instance exists in data source.
-     * This is `true` for retrieved or saved instance.
-     */
-    $exists: boolean;
-    /**
-     * Tells which relation is considered to be loaded.
-     */
-    $loaded: Dictionary<true>;
-    /**
-     * Internal values of the instance's properties.
-     */
-    $values: Partial<ModelValues<D>>;
-    /**
-     * Raw value of the data source record.
-     */
-    $raw: any;
-    /**
-     * Latest synced snapshot.
-     */
-    $original: ModelSnapshot<D>;
-  }
-  & ModelDefinitionValues<D>
-  & ModelDefinitionDescriptors<D>
-  & FosciaObject<typeof SYMBOL_MODEL_INSTANCE>;
-
-/**
- * Model instance using a given composable.
- */
-export type ModelInstanceUsing<C extends ModelComposable> =
-  ModelInstance<ModelDefinitionFromComposable<C>>;
-
-/**
- * Model instance snapshot which only contains ID and LID
- * and is used to track related records inside a snapshot.
- */
-export type ModelLimitedSnapshot<M = any> = {
-  readonly $instance: ModelInstance;
-  readonly $exists: boolean;
-  readonly $values: Partial<Readonly<ModelLimitedSnapshotValues<M>>>;
-} & FosciaObject<typeof SYMBOL_MODEL_SNAPSHOT>;
+) => ExtendableModel<D & ModelParsedFlattenDefinition<ND>, ModelInstance<D & ModelParsedFlattenDefinition<ND>>>);
 
 /**
  * Model instance snapshot.
+ *
+ * @interface
  */
 export type ModelSnapshot<M = any> = {
   readonly $instance: ModelInstance;
@@ -730,93 +573,273 @@ export type ModelSnapshot<M = any> = {
   readonly $exists: boolean;
   readonly $raw: any;
   readonly $loaded: Dictionary<true>;
-  readonly $values: Partial<Readonly<ModelSnapshotValues<M>>>;
+  readonly $values: Partial<Readonly<ModelSnapshotValues<InferModelDefinition<M>>>>;
 } & FosciaObject<typeof SYMBOL_MODEL_SNAPSHOT>;
 
 /**
- * Infer the definition from a model class or model instance.
+ * Model instance snapshot which only contains ID and LID
+ * and is used to track related records inside a snapshot.
  *
- * @internal
+ * @interface
  */
-export type InferModelDefinition<M> = M extends Model<infer D>
-  ? D : M extends ModelInstance<infer D> ? D
-    : M extends {}
-      ? M
+export type ModelLimitedSnapshot<M = any> = {
+  readonly $instance: ModelInstance;
+  readonly $exists: boolean;
+  readonly $values: Partial<Readonly<OmitNever<{
+    [K in keyof ModelSnapshotValues<InferModelDefinition<M>>]: K extends 'id' | 'lid'
+      ? ModelSnapshotValues<InferModelDefinition<M>>[K]
       : never;
+  }>>>;
+} & FosciaObject<typeof SYMBOL_MODEL_SNAPSHOT>;
 
 /**
- * Infer the schema from a model class or model instance.
+ * Model class using a given composable or composable factory.
+ */
+export type ModelUsing<C extends ModelComposableFactory | ModelComposable> =
+  Model<InferModelComposableDefinition<C>, ModelInstanceUsing<C>>;
+
+/**
+ * Model instance using a given composable or composable factory.
+ */
+export type ModelInstanceUsing<C extends ModelComposableFactory | ModelComposable> =
+  ModelInstance<InferModelComposableDefinition<C>>;
+
+/**
+ * Parsed model definition with non-composable properties stored into
+ * descriptor holders.
  *
  * @internal
  */
-export type InferModelSchema<M> = ModelSchema<InferModelDefinition<M>>;
+export type ModelParsedDefinition<D extends {}> = {
+  [K in keyof D]: D[K] extends ModelComposableFactory<any> | DescriptorHolder<any, any>
+    ? D[K] : DescriptorHolderOf<D, K>;
+};
 
 /**
- * Infer a schema property from a model class or model instance
+ * Flatten non-properties composables to the definition's root.
+ *
+ * @internal
+ */
+export type ModelFlattenComposables<D extends {}> = UnionToIntersection<{} | {
+  [K in keyof D]: D[K] extends ModelComposableFactory<infer C>
+    ? C extends ModelProp ? never : ModelFlattenDefinition<(C & { key: K })['_type']>
+    : never;
+}[keyof D]>;
+
+/**
+ * Extract root properties composables or descriptors.
+ *
+ * @internal
+ */
+export type ModelRootProperties<D extends {}> = OmitNever<{
+  [K in keyof D]: D[K] extends ModelComposableFactory<infer C>
+    ? C extends ModelProp ? (D[K] & { key: K; }) : never : D[K];
+}>;
+
+/**
+ * Flatten definition typing with non-properties composable typings resolved to
+ * the definition root.
+ *
+ * @internal
+ */
+export type ModelFlattenDefinition<D extends {}> =
+  & ModelFlattenComposables<D>
+  & ModelRootProperties<D>;
+
+/**
+ * {@link ModelParsedDefinition | `ModelParsedDefinition`} of a model
+ * {@link ModelFlattenDefinition | `ModelFlattenDefinition`}.
+ *
+ * @internal
+ */
+export type ModelParsedFlattenDefinition<D extends {}> =
+  ModelParsedDefinition<ModelFlattenDefinition<D>>;
+
+/**
+ * Model real schema from definition.
+ *
+ * @internal
+ */
+export type ModelRealSchema<D extends {}> = OmitNever<{
+  [K in keyof D]: D[K] extends ModelComposableFactory<infer C>
+    ? C extends ModelProp ? C : never : never;
+}>;
+
+/**
+ * Model default schema from definition.
+ *
+ * @internal
+ */
+export type ModelDefaultSchema<D extends {}> =
+  & (ModelRealSchema<D> extends { id: any } ? {} : { id: ModelId<ModelIdType | null, false>; })
+  & (ModelRealSchema<D> extends { lid: any } ? {} : { lid: ModelId<ModelIdType | null, false>; });
+
+/**
+ * Model schema from definition.
+ *
+ * @internal
+ */
+export type ModelSchema<D extends {}> =
+  IfAny<D, Dictionary<ModelProp>, ModelRealSchema<D> & ModelDefaultSchema<D>>;
+
+/**
+ * Model real properties from definition.
+ *
+ * @internal
+ */
+export type ModelDefinitionRealProperties<D extends {}> = UnionToIntersection<{} | {
+  [K in keyof D]: D[K] extends ModelComposableFactory<infer C> ? (C & { key: K })['_type']
+    : RestoreDescriptorHolder<D[K], K>;
+}[keyof D]>;
+
+/**
+ * Model default properties from definition.
+ *
+ * @internal
+ */
+export type ModelDefinitionDefaultProperties<D extends {}> =
+  & (ModelRealSchema<D> extends { id: any } ? {} : { id: ModelIdType | null; })
+  & (ModelRealSchema<D> extends { lid: any } ? {} : { lid: ModelIdType | null; });
+
+/**
+ * Model properties from definition.
+ *
+ * @internal
+ */
+export type ModelDefinitionProperties<D extends {}> =
+  & IfAny<D, Record<string, any>, ModelDefinitionRealProperties<D>>
+  & IfAny<D, {}, ModelDefinitionDefaultProperties<D>>;
+
+/**
+ * Model real snapshot values from definition.
+ *
+ * @internal
+ */
+export type ModelRealSnapshotValues<D extends {}> = OmitNever<{
+  [K in keyof D]: D[K] extends ModelComposableFactory<infer C>
+    ? C extends ModelRelation<infer T, any>
+      ? T extends (infer I)[]
+        ? (ModelLimitedSnapshot<I> | ModelSnapshot<I>)[]
+        : (ModelLimitedSnapshot<T> | ModelSnapshot<T>)
+      : C extends ModelProp<infer T, any>
+        ? T : never : never;
+}>;
+
+/**
+ * Model default snapshot values from definition.
+ *
+ * @internal
+ */
+export type ModelDefaultSnapshotValues<D extends {}> =
+  & (ModelRealSchema<D> extends { id: any } ? {} : { id: ModelIdType | null; })
+  & (ModelRealSchema<D> extends { lid: any } ? {} : { lid: ModelIdType | null; });
+
+/**
+ * Model snapshot values from definition.
+ *
+ * @internal
+ */
+export type ModelSnapshotValues<D extends {}> =
+  IfAny<D, any, ModelRealSnapshotValues<D> & ModelDefaultSnapshotValues<D>>;
+
+/**
+ * Infer the definition from a composable or a composable factory.
+ *
+ * @internal
+ */
+export type InferModelComposableDefinition<C extends ModelComposableFactory | ModelComposable> =
+  C extends ModelComposableFactory<infer T> ? T['_type']
+    : C extends ModelComposable ? C['_type']
+      : {};
+
+/**
+ * Infer the definition from a model class, a model instance or a definition.
+ *
+ * @internal
+ */
+export type InferModelDefinition<M> =
+  M extends FosciaObject<typeof SYMBOL_MODEL_CLASS | typeof SYMBOL_MODEL_INSTANCE> & {
+    readonly _definition: infer D
+  } ? D extends {} ? D : never : M extends {} ? M : never;
+
+/**
+ * Infer the schema from a model class, a model instance or a definition.
+ *
+ * @internal
+ */
+export type InferModelSchema<M> =
+  M extends FosciaObject<typeof SYMBOL_MODEL_CLASS | typeof SYMBOL_MODEL_INSTANCE> & {
+    readonly _schema: infer D
+  } ? D extends {} ? D : never : M extends {} ? ModelSchema<M> : never;
+
+/**
+ * Infer a schema property from a model class, a model instance or a definition
  * and ensure it extends the given `P` generic type.
  *
  * @internal
  */
 export type InferModelSchemaProp<M, K, P extends ModelProp = ModelProp> =
-  K extends keyof ModelSchema<InferModelDefinition<M>>
-    ? ModelSchema<InferModelDefinition<M>>[K] extends P
-      ? ModelSchema<InferModelDefinition<M>>[K]
+  K extends keyof InferModelSchema<M>
+    ? InferModelSchema<M>[K] extends P
+      ? InferModelSchema<M>[K]
       : never : never;
 
 /**
- * Model snapshot values map (only IDs/attributes/relations).
+ * Model class or instance properties (IDs, attributes, relations and
+ * any other custom properties or methods).
  */
-export type ModelSnapshotValues<M> = ModelSnapshotDefinitionValues<InferModelDefinition<M>>;
+export type ModelProperties<M> = ModelDefinitionProperties<InferModelDefinition<M>>;
 
 /**
- * Model limited snapshot values map (only IDs).
+ * Model class or instance values (IDs, attributes and relations).
+ *
+ * @example
+ * const values: Partial<ModelValues<Post>> = { title: 'Hello' };
  */
-export type ModelLimitedSnapshotValues<
-  M,
-> = ModelLimitedSnapshotDefinitionValues<InferModelDefinition<M>>;
+export type ModelValues<M> = Pick<ModelProperties<M>, ModelKey<M>>;
 
 /**
- * Model class or instance values map (only IDs/attributes/relations).
- */
-export type ModelValues<M> = ModelDefinitionValues<InferModelDefinition<M>>;
-
-/**
- * Model class or instance values map (only writable IDs/attributes/relations).
- */
-export type ModelWritableValues<M> = ModelDefinitionWritableValues<InferModelDefinition<M>>;
-
-/**
- * Model class or instance values map (only readonly IDs/attributes/relations).
- */
-export type ModelReadOnlyValues<M> = ModelDefinitionReadOnlyValues<InferModelDefinition<M>>;
-
-/**
- * Model class or instance IDs/attributes/relations key.
+ * Model class or instance values' possible keys
+ * (IDs, attributes and relations).
+ *
+ * @example
+ * const keys: ModelKey<Post>[] = ['title', 'body', 'publishedAt', 'comments'];
  */
 export type ModelKey<M> =
   & string
   & keyof InferModelSchema<M>
-  & keyof ModelValues<M>;
+  & keyof ModelProperties<M>;
 
 /**
- * Model class or instance relations key (only direct relations).
+ * Model class or instance values' possible keys that are not readonly
+ * (IDs, attributes and relations).
+ *
+ * @example
+ * const keys: ModelWritableKey<Post>[] = ['title', 'body', 'comments'];
+ */
+export type ModelWritableKey<M> = ModelKey<M> & {
+  [K in keyof InferModelSchema<M>]: InferModelSchema<M>[K] extends ModelProp<any, false>
+    ? K
+    : never;
+}[keyof InferModelSchema<M>];
+
+/**
+ * Model class or instance direct relations' possible keys.
  *
  * @example
  * const keys: ModelRelationKey<Post>[] = ['comments', 'tags'];
  */
-export type ModelRelationKey<M> =
-  keyof InferModelSchema<M> extends infer K
-    ? K extends ModelKey<M>
-      ? InferModelSchema<M>[K] extends never
-        ? never
-        : InferModelSchema<M>[K] extends ModelRelation<K>
-          ? K
-          : InferModelSchema<M>[K] extends ModelProp<K, infer T>
-            ? 0 extends (1 & T) ? K
-              : never : never : never : never;
+export type ModelRelationKey<M> = ModelKey<M> & {
+  [K in keyof InferModelSchema<M>]: InferModelSchema<M>[K] extends ModelRelation
+    ? K
+    : InferModelSchema<M>[K] extends ModelProp<infer T>
+      ? IfAny<T, K, never>
+      : never;
+}[keyof InferModelSchema<M>];
 
 /**
- * Model class or instance relations key (supports nested relation using dot separator).
+ * Model class or instance direct relations' possible keys, possibly chained
+ * using a dot (`.`) to their related models direct or deeper relations' keys.
  *
  * @example
  * const keys: ModelRelationDotKey<Post>[] = ['comments', 'comments.author', 'tags'];
@@ -824,14 +847,12 @@ export type ModelRelationKey<M> =
 export type ModelRelationDotKey<M, Depth extends number = 5> =
   [Depth] extends [0]
     ? never
-    : keyof InferModelSchema<M> extends infer K
+    : ModelKey<M> extends infer K
       ? K extends ModelKey<M>
         ? InferModelSchema<M>[K] extends never
           ? never
-          : InferModelSchema<M>[K] extends ModelRelation<K, infer T>
-            ? T extends any[]
-              ? K | `${K}.${ModelRelationDotKey<T[number], Prev[Depth]>}`
-              : K | `${K}.${ModelRelationDotKey<T, Prev[Depth]>}`
-            : InferModelSchema<M>[K] extends ModelProp<K, infer T>
-              ? 0 extends (1 & T) ? K : never
+          : InferModelSchema<M>[K] extends ModelRelation<infer T, any>
+            ? K | `${K}.${ModelRelationDotKey<T extends any[] ? T[number] : T, Prev[Depth]>}`
+            : InferModelSchema<M>[K] extends ModelProp<infer T, any>
+              ? IfAny<T, K, never>
               : never : never : never;

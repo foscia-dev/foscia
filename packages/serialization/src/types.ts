@@ -107,11 +107,13 @@ export type DeserializerRecordFactory<
 export type DeserializerInstancesMap = IdentifiersMap<string, ModelIdType, Promise<ModelInstance>>;
 
 /**
- * Configuration for deserializer.
+ * Configuration for generic record deserializer.
+ *
+ * @interface
  *
  * @internal
  */
-export type DeserializerConfig<
+export type RecordDeserializerConfig<
   Record,
   Data,
   Deserialized extends DeserializedData,
@@ -126,8 +128,6 @@ export type DeserializerConfig<
   extractData: (data: Data, context: {}) => Awaitable<Extract>;
   /**
    * Create a deserializer record from.
-   * You should pass a {@link makeDeserializerRecordFactory | `makeDeserializerRecordFactory`}
-   * returned value instead of implementing the factory yourself.
    */
   createRecord: DeserializerRecordFactory<Record, Data, Deserialized, Extract>;
   /**
@@ -187,6 +187,8 @@ export type DeserializerConfig<
 
 /**
  * Generic record deserializer.
+ *
+ * @interface
  *
  * @internal
  */
@@ -276,15 +278,15 @@ export type SerializerParents = { model: Model; def: ModelRelation }[];
 export type SerializerCircularRelationBehavior = 'throw' | 'skip' | 'keep';
 
 /**
- * Configuration for serializer.
+ * Configuration for generic record serializer.
+ *
+ * @interface
  *
  * @internal
  */
-export type SerializerConfig<Record, Related, Data> = {
+export type RecordSerializerConfig<Record, Related, Data> = {
   /**
    * Create a serializer record object which can be hydrated and retrieved.
-   * You should pass a {@link makeSerializerRecordFactory | `makeSerializerRecordFactory`}
-   * returned value instead of implementing the factory yourself.
    */
   createRecord: SerializerRecordFactory<Record, Related, Data>;
   /**
@@ -376,6 +378,8 @@ export type SerializerConfig<Record, Related, Data> = {
 
 /**
  * Generic record serializer.
+ *
+ * @interface
  *
  * @internal
  */

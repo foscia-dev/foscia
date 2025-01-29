@@ -78,7 +78,7 @@ export default <
   Deserialized extends DeserializedData,
   C extends ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>,
 >(
-  action: ActionFactory<[], C>,
+  action: ActionFactory<C>,
   options: QueryRelationLoaderOptions = {},
 ) => async <I extends ModelInstance>(
   instances: Arrayable<I>,

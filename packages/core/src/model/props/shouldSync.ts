@@ -1,4 +1,4 @@
-import { ModelPropSync, ModelValueProp } from '@foscia/core/model/types';
+import { ModelProp, ModelPropSync } from '@foscia/core/model/types';
 
 /**
  * Check if a value property should be synced depending on the current action.
@@ -8,7 +8,7 @@ import { ModelPropSync, ModelValueProp } from '@foscia/core/model/types';
  *
  * @internal
  */
-export default (def: ModelValueProp, actions: ModelPropSync[]) => (
+export default (def: ModelProp, actions: ModelPropSync[]) => (
   typeof def.sync === 'string'
     ? actions.indexOf(def.sync) !== -1
     : (def.sync ?? true)

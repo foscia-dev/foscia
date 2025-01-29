@@ -13,20 +13,20 @@ process.
 
 There are 5 kinds of dependency:
 
-- [`Adapter`](/docs/api/@foscia/core/type-aliases/Adapter)
+- [`Adapter`](/docs/api/@foscia/core/interfaces/Adapter)
   create the exchange between your actions' built context and your data
   source. As an example, it will _translate_ the context to an HTTP request when
   using JSON:API or REST implementations.
-- [`Deserializer`](/docs/api/@foscia/core/type-aliases/Deserializer)
+- [`Deserializer`](/docs/api/@foscia/core/interfaces/Deserializer)
   will deserialize records to instances. It might use the cache and
   registry internally.
-- [`Serializer`](/docs/api/@foscia/core/type-aliases/Serializer)
+- [`Serializer`](/docs/api/@foscia/core/interfaces/Serializer)
   will serialize instances' snapshots to the data source format.
-- [`InstancesCache`](/docs/api/@foscia/core/type-aliases/InstancesCache)
+- [`InstancesCache`](/docs/api/@foscia/core/interfaces/InstancesCache)
   will store already fetched models instances. It will avoid multiple
   instances of the same record coexisting and allows you to retrieve already
   fetched record without making further requests to your data source.
-- [`ModelsRegistry`](/docs/api/@foscia/core/type-aliases/ModelsRegistry)
+- [`ModelsRegistry`](/docs/api/@foscia/core/interfaces/ModelsRegistry)
   is a map of types and associated model. It is used by deserializer to
   identify which models should map to which types.
 

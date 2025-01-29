@@ -39,6 +39,8 @@ test('Models are type safe', () => {
   // @ts-expect-error anything is any
   expectTypeOf(anyInstance.anything).toEqualTypeOf<never>();
 
+  fill(anyInstance, { anything: 'hello world' });
+
   const anySnapshot1 = {} as unknown as ModelSnapshot;
   const anySnapshot2 = takeSnapshot(anyInstance);
 
@@ -65,6 +67,11 @@ test('Models are type safe', () => {
   expectTypeOf(anySnapshot2.$values.id).toEqualTypeOf<never>();
   // @ts-expect-error anything is any
   expectTypeOf(anySnapshot2.$values.anything).toEqualTypeOf<never>();
+
+  const anyInstanceCast: ModelInstance = new PostMock();
+  expectTypeOf(anyInstanceCast.anything).toEqualTypeOf<any>();
+
+  normalizeDotRelations(anyInstanceCast.$model, ['anything']);
 
   const post = new PostMock();
 
