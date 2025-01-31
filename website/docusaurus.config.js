@@ -44,7 +44,6 @@ const config = {
           showLastUpdateTime: true,
           exclude: ['api/index.md', 'api/packages.md'],
         },
-        blog: false,
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -147,6 +146,11 @@ const config = {
             position: 'left',
             label: 'API',
             to: '/docs/category/api',
+          },
+          {
+            position: 'left',
+            label: 'Blog',
+            to: 'blog',
           },
           {
             position: 'right',
