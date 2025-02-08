@@ -1,4 +1,5 @@
 import {
+  ModelAssembled,
   ModelAttribute,
   ModelComposableFactory,
   ModelId,
@@ -217,3 +218,42 @@ export type ModelRelationFactoryConfig<T extends Arrayable<object> | null, R ext
     inverse?: InferModelRelationInverseKey<T> | boolean;
   }
   & Pick<ModelRelation<T, R>, 'type' | 'path' | 'default' | 'readOnly' | 'alias' | 'sync'>;
+
+/**
+ * Model assembled/memoized property factory.
+ *
+ * @interface
+ *
+ * @since 0.13.0
+ * @experimental
+ */
+export type ModelAssembledFactory<T, R extends boolean> = {
+  /**
+   * Define the alias to use for data source interactions.
+   *
+   * @param alias
+   */
+  alias: (alias: string) => ModelAssembledFactory<T, R>;
+  /**
+   * Define when the property should be synced with data source.
+   *
+   * @param sync
+   */
+  sync: (sync?: boolean | ModelPropSync) => ModelAssembledFactory<T, R>;
+  /**
+   * Define if the computed value should be memoized.
+   *
+   * @param memo
+   */
+  memo: (memo?: boolean) => ModelAssembledFactory<T, R>;
+} & ModelComposableFactory<ModelAssembled<T, R>>;
+
+/**
+ * Model memoized factory object config.
+ *
+ * @interface
+ *
+ * @internal
+ */
+export type ModelAssembledFactoryConfig<T> =
+  Pick<ModelAssembled<T>, 'alias' | 'sync' | 'memo'>;
