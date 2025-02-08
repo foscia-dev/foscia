@@ -245,6 +245,23 @@ export type ModelValueProp<T = any, R extends boolean = boolean> =
   & ModelProp<T, R>;
 
 /**
+ * Model assembled/memoized property.
+ *
+ * @interface
+ *
+ * @since 0.13.0
+ * @experimental
+ */
+export type ModelAssembled<T = any, R extends boolean = boolean> =
+  & {
+    /**
+     * Tells if the assembled property getter is memoized (enabled by default).
+     */
+    memo?: boolean;
+  }
+  & ModelProp<T, R>;
+
+/**
  * Model ID property.
  *
  * @interface

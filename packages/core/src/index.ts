@@ -49,6 +49,7 @@ import onPropertyWriting from '@foscia/core/model/hooks/properties/onPropertyWri
 import isSame from '@foscia/core/model/isSame';
 import makeModel from '@foscia/core/model/makeModel';
 import makeModelFactory from '@foscia/core/model/makeModelFactory';
+import assembled from '@foscia/core/model/props/builders/assembled';
 import attr from '@foscia/core/model/props/builders/attr';
 import hasMany from '@foscia/core/model/props/builders/hasMany';
 import hasOne from '@foscia/core/model/props/builders/hasOne';
@@ -143,6 +144,7 @@ export {
   hasMany,
   hasOne,
   id,
+  assembled,
   loaded,
   fill,
   forceFill,
