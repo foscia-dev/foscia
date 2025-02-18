@@ -72,20 +72,15 @@ import { filterBy, sortByDesc, paginate, usingDocument } from '@foscia/jsonapi';
 import action from './action';
 import Post from './models/post';
 
-type AllPostsQuery = {
-  search?: string;
-  page?: number;
-};
-
-export default async function fetchAllPosts(query: AllPostsQuery = {}) {
-  return action(
-    query(Post),
-    when(query.search, (a, s) => a(filterBy('search', s))),
-    sortByDesc('createdAt'),
-    paginate({ number: query.page ?? 1 }),
-    all(usingDocument),
-  );
-}
+const fetchAllPosts = (
+  query: { search?: string; page?: number; } = {},
+) => action(
+  query(Post),
+  when(query.search, (a, s) => a(filterBy('search', s))),
+  sortByDesc('createdAt'),
+  paginate({ number: query.page ?? 1 }),
+  all(usingDocument),
+);
 
 const { instances, document } = await fetchAllPosts({ search: 'Hello' });
 ```
@@ -97,13 +92,11 @@ import { query, include, oneOrFail } from '@foscia/core';
 import action from './action';
 import Post from './models/post';
 
-export default async function fetchOnePost(id: string) {
-  return action(
-    query(Post, id),
-    include('tags'),
-    oneOrFail(),
-  );
-}
+const fetchOnePost = (id: string) => action(
+  query(Post, id),
+  include('tags'),
+  oneOrFail(),
+);
 
 const post = await fetchOnePost('123-abc');
 ```
@@ -111,23 +104,18 @@ const post = await fetchOnePost('123-abc');
 ### Create or update one
 
 ```typescript
-import { changed, fill, current, reset, save, when, ModelWritableValues } from '@foscia/core';
+import { changed, fill, current, restore, save, when } from '@foscia/core';
 import action from './action';
 import Post from './models/post';
 
-export default async function savePost(
-  post: Post,
-  values: Partial<ModelWritableValues<Post>> = {},
-) {
-  fill(post, values);
-
+const savePost = async (post: Post) => {
   try {
     await action(
       save(post),
-      when(!post.$exists || changed(post), current(), () => instance),
+      when(!post.$exists || changed(post), current(), () => post),
     );
   } catch (error) {
-    reset(post);
+    restore(post);
 
     throw error;
   }
@@ -135,12 +123,12 @@ export default async function savePost(
   return post;
 }
 
-const post = new Post();
-
-await savePost(post, {
+const post = fill(new Post(), {
   title: 'Hello World!',
   publishedAt: new Date(),
 });
+
+await savePost(post);
 ```
 
 ### Delete one
@@ -148,10 +136,9 @@ await savePost(post, {
 ```typescript
 import { destroy, none } from '@foscia/core';
 import action from './action';
+import Post from './models/post';
 
-export default async function deletePost(post: Post) {
-  await action(destroy(post), none());
-}
+const deletePost = (post: Post) => action(destroy(post), none());
 
 await deletePost(post);
 ```
@@ -164,28 +151,24 @@ Thanks to functional programming, you can easily combine non-standard action
 with classical context enhancers and runners.
 
 ```typescript
-import { query, include, when, all, oneOrFail } from '@foscia/core';
+import { query, all, oneOrFail } from '@foscia/core';
 import { makeGet, makePost } from '@foscia/http';
 import action from './action';
 import Post from './models/post';
 
-export default function bestPosts() {
-  return action(
-    query(Post),
-    makeGet('actions/best-posts'),
-    all(),
-  );
-}
+const bestPosts = () => action(
+  query(Post),
+  makeGet('actions/best-posts'),
+  all(),
+);
 
-export default function publishPost(post: Post) {
-  return action(
-    query(post),
-    makePost('actions/publish', {
-      data: { publishedAt: new Date(), },
-    }),
-    oneOrFail(),
-  );
-}
+const publishPost = (post: Post) => action(
+  query(post),
+  makePost('actions/publish', {
+    data: { publishedAt: new Date(), },
+  }),
+  oneOrFail(),
+);
 
 // Sends a GET to "<your-base-url>/posts/actions/best-posts
 // and deserialize a list of Post instances.
