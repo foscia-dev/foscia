@@ -24,7 +24,7 @@ import { ArrayableVariadic } from '@foscia/shared';
  * import { query, all } from '@foscia/core';
  * import { fields } from '@foscia/jsonapi';
  *
- * const posts = await action().run(
+ * const posts = await action(
  *   query(Post),
  *   fields(['title', 'body']),
  *   all(),
@@ -36,7 +36,7 @@ export default /* @__PURE__ */ makeEnhancer('fields', <C extends {}>(
 ) => async (action: Action<C>) => {
   const model = await guessContextModel(await action.useContext());
   if (model) {
-    return action.use(fieldsFor(model as any, ...fieldset));
+    return action(fieldsFor(model, ...fieldset));
   }
 
   throw new FosciaError(

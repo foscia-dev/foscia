@@ -1,10 +1,13 @@
+import isRunner from '@foscia/core/actions/checks/isRunner';
+import isWhen from '@foscia/core/actions/checks/isWhen';
 import {
   Action,
   ActionCall,
   ActionFactory,
-  ContextEnhancer,
-  ContextRunner,
+  AnonymousEnhancer,
+  AnonymousRunner,
 } from '@foscia/core/actions/types';
+import connections from '@foscia/core/connections/connections';
 import FosciaError from '@foscia/core/errors/fosciaError';
 import registerHook from '@foscia/core/hooks/registerHook';
 import runHooks from '@foscia/core/hooks/runHooks';
@@ -27,104 +30,124 @@ import {
  */
 export default <Context extends {} = {}>(
   initialContext?: Context | (() => Context),
-): ActionFactory<Context> => (
-  ...immediateEnhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[]
 ) => {
-  const currentCalls: ActionCall[] = [];
-  let currentCall: ActionCall | null = null;
+  const factory: ActionFactory<Context> = (
+    ...immediateEnhancers: (AnonymousEnhancer<any, any> | AnonymousRunner<any, any>)[]
+  ) => {
+    const currentCalls: ActionCall[] = [];
+    let currentCall: ActionCall | null = null;
 
-  let currentQueue: ContextEnhancer<any, any>[] = [];
-  let currentContext: Dictionary = value(initialContext) ?? {};
+    let currentQueue: AnonymousEnhancer<any, any>[] = [];
+    let currentContext: Dictionary = { ...value(initialContext) };
 
-  const dequeueEnhancers = async (action: Action<Context>) => {
-    const enhancements = currentQueue.map((enhancer) => async () => {
-      await action.track(enhancer);
-    });
-
-    currentQueue = [];
-
-    await sequentialTransform(enhancements);
-  };
-
-  const action = {
-    $hooks: {},
-    async useContext() {
-      await dequeueEnhancers(this);
-
-      return currentContext;
-    },
-    updateContext(newContext: Dictionary) {
-      currentContext = newContext;
-
-      return this;
-    },
-    use(...enhancers: ContextEnhancer<any, any>[]) {
-      currentQueue.push(...enhancers);
-
-      return this;
-    },
-    async run(...enhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[]) {
-      if (enhancers.length === 0) {
-        throw new FosciaError('`run` must be called with at least one runner function.');
+    const isRun = (enhancer: unknown): boolean => {
+      if (isWhen(enhancer)) {
+        return isRun(enhancer.meta.args[1]) || isRun(enhancer.meta.args[2]);
       }
 
-      const runner = enhancers.pop() as ContextRunner<any, any>;
+      return isRunner(enhancer);
+    };
 
-      this.use(...enhancers);
+    const dequeueEnhancers = async (action: Action<Context>) => {
+      const enhancements = currentQueue.map((enhancer) => async () => {
+        await action.track(enhancer);
+      });
 
-      const { middlewares, ...context } = await this.useContext() as Dictionary;
-      this.updateContext(context);
+      currentQueue = [];
 
-      await runHooks(this, 'running', { action: this, runner });
+      await sequentialTransform(enhancements);
+    };
 
-      try {
-        // Context runner might use other context enhancers and runners,
-        // so we must disable hooks at this point to avoid duplicated hooks runs.
-        const result = await throughMiddlewares(
-          (middlewares ?? []) as Middleware<Action, unknown>[],
-          async (a) => withoutHooks(a, async () => a.track(runner)),
-        )(this);
+    let action: Action<any>;
 
-        if (result === this) {
-          logger.warn('Action run result is the action itself, did you forget to pass a runner when calling `run`?');
+    const invokableAction = (...args: AnonymousEnhancer<any, any>[]) => (
+      args.length && isRun(args[args.length - 1])
+        ? (action.run as any)(...args)
+        : (action.use as any)(...args)
+    );
+
+    action = Object.assign(invokableAction, {
+      $hooks: {},
+      async useContext() {
+        await dequeueEnhancers(this);
+
+        return currentContext;
+      },
+      updateContext(newContext: Dictionary) {
+        currentContext = newContext;
+
+        return this;
+      },
+      use(...enhancers: AnonymousEnhancer<any, any>[]) {
+        currentQueue.push(...enhancers);
+
+        return this;
+      },
+      async run(...enhancers: (AnonymousEnhancer<any, any> | AnonymousRunner<any, any>)[]) {
+        if (enhancers.length === 0) {
+          throw new FosciaError('`run` must be called with at least one runner function.');
         }
 
-        await runHooks(this, 'success', { action: this, result });
+        const runner = enhancers.pop() as AnonymousRunner<any, any>;
+
+        (this.use as any)(...enhancers);
+
+        const { middlewares, ...context } = await this.useContext() as Dictionary;
+        this.updateContext(context);
+
+        await runHooks(this, 'running', { action: this, runner });
+
+        try {
+          // Context runner might use other context enhancers and runners,
+          // so we must disable hooks at this point to avoid duplicated hooks runs.
+          const result = await throughMiddlewares(
+            (middlewares ?? []) as Middleware<Action, unknown>[],
+            async (a) => withoutHooks(a, async () => a.track(runner)),
+          )(this);
+
+          if (result === this) {
+            logger.warn('Action run result is the action itself, did you forget to pass a runner when calling `run`?');
+          }
+
+          await runHooks(this, 'success', { action: this, result });
+
+          return result;
+        } catch (error) {
+          await runHooks(this, 'error', { action: this, error });
+
+          throw error;
+        } finally {
+          await runHooks(this, 'finally', { action: this });
+        }
+      },
+      async track(
+        callback: (action: Action<any>) => unknown,
+        call?: AnonymousEnhancer<any, any> | AnonymousRunner<any, any>,
+      ) {
+        const parentCall = currentCall;
+        currentCall = { call: call ?? callback, calls: [] };
+        (parentCall ? parentCall.calls : currentCalls).push(currentCall);
+
+        const result = await callback(this);
+        await dequeueEnhancers(this);
+
+        currentCall = parentCall;
 
         return result;
-      } catch (error) {
-        await runHooks(this, 'error', { action: this, error });
+      },
+      calls() {
+        return currentCalls;
+      },
+    } as Action<any>);
 
-        throw error;
-      } finally {
-        await runHooks(this, 'finally', { action: this });
-      }
-    },
-    async track(
-      callback: (action: Action<any>) => unknown,
-      call?: ContextEnhancer<any, any> | ContextRunner<any, any>,
-    ) {
-      const parentCall = currentCall;
-      currentCall = { call: call ?? callback, calls: [] };
-      (parentCall ? parentCall.calls : currentCalls).push(currentCall);
+    registerHook(action, 'running', (event) => logger.debug('Action running.', event));
+    registerHook(action, 'success', (event) => logger.debug('Action success.', event));
+    registerHook(action, 'error', (event) => logger.debug('Action error.', event));
 
-      const result = await callback(this);
-      await dequeueEnhancers(this);
+    return (action as any)(...immediateEnhancers);
+  };
 
-      currentCall = parentCall;
+  connections.register('default', factory);
 
-      return result;
-    },
-    calls() {
-      return currentCalls;
-    },
-  } as any;
-
-  registerHook(action, 'running', (event) => logger.debug('Action running.', [event]));
-  registerHook(action, 'success', (event) => logger.debug('Action success.', [event]));
-  registerHook(action, 'error', (event) => logger.debug('Action error.', [event]));
-
-  return immediateEnhancers.length
-    ? action.run(...immediateEnhancers)
-    : action;
+  return factory;
 };

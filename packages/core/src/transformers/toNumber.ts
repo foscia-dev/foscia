@@ -9,6 +9,6 @@ import { tap } from '@foscia/shared';
  */
 export default () => makeTransformer((value: unknown) => tap(Number(value), (number) => {
   if (Number.isNaN(number)) {
-    logger.warn('Transformer `toNumber` transform resulted in NaN value.', [{ value }]);
+    logger.warn('Transformer `toNumber` transform resulted in NaN value.', value);
   }
 }));

@@ -30,7 +30,7 @@ export default <Record, Related, Data>(
 ) => {
   const shouldSerialize = config.shouldSerialize
     ?? ((context) => (
-      shouldSync(context.def, ['push'])
+      shouldSync(context.def, 'push')
       && context.value !== undefined
       && (
         !context.snapshot.$original

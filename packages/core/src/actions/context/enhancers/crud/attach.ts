@@ -1,6 +1,6 @@
-import ActionName from '@foscia/core/actions/actionName';
+import ActionName from '@foscia/core/actions/context/actionName';
 import updateRelation from '@foscia/core/actions/context/enhancers/crud/updateRelation';
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import {
   ModelInstance,
   ModelRelationKey,
@@ -25,7 +25,7 @@ import { Itemable, wrap } from '@foscia/shared';
  * ```typescript
  * import { attach, none } from '@foscia/core';
  *
- * await action().run(attach(post, 'tags', [tag1, tag2]), none());
+ * await action(attach(post, 'tags', [tag1, tag2]), none());
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('attach', <

@@ -1,11 +1,4 @@
 /**
- * Unique symbol for a model property factory.
- *
- * @internal
- */
-export const SYMBOL_MODEL_PROP_FACTORY: unique symbol = Symbol('foscia:prop factory');
-
-/**
  * Unique symbol for a model property transformer.
  *
  * @internal
@@ -87,25 +80,18 @@ export const SYMBOL_MODEL_SNAPSHOT: unique symbol = Symbol('foscia:snapshot');
  *
  * @internal
  */
-export const SYMBOL_ACTION_CONTEXT_WHEN: unique symbol = Symbol('foscia:action:when');
+export const SYMBOL_ACTION_WHEN: unique symbol = Symbol('foscia:action:when');
 
 /**
  * Unique symbol for an action enhancer context function.
  *
  * @internal
  */
-export const SYMBOL_ACTION_CONTEXT_ENHANCER: unique symbol = Symbol('foscia:action:enhancer');
+export const SYMBOL_ACTION_ENHANCER: unique symbol = Symbol('foscia:action:enhancer');
 
 /**
  * Unique symbol for an action runner context function.
  *
  * @internal
  */
-export const SYMBOL_ACTION_CONTEXT_RUNNER: unique symbol = Symbol('foscia:action:runner');
-
-/**
- * Unique symbol for an action context function factory.
- *
- * @internal
- */
-export const SYMBOL_ACTION_CONTEXT_FUNCTION_FACTORY: unique symbol = Symbol('foscia:action:function-factory');
+export const SYMBOL_ACTION_RUNNER: unique symbol = Symbol('foscia:action:runner');

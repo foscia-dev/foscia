@@ -18,7 +18,7 @@ import { Dictionary } from '@foscia/shared';
  * import { query, all } from '@foscia/core';
  * import { filterBy } from '@foscia/jsonapi';
  *
- * const posts = await action().run(
+ * const posts = await action(
  *   query(Post),
  *   filterBy('tag', 'news'),
  *   filterBy({ published: 1 }),
@@ -29,7 +29,7 @@ import { Dictionary } from '@foscia/shared';
 export default /* @__PURE__ */ makeEnhancer('filterBy', <C extends {}>(
   key: string | Dictionary,
   value?: unknown,
-) => async (action: Action<C>) => action.use(param('filter', {
+) => async (action: Action<C>) => action(param('filter', {
   ...consumeRequestObjectParams(await action.useContext())?.filter,
   ...(typeof key === 'string' ? { [key]: value } : key),
 })));

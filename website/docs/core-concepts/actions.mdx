@@ -13,6 +13,7 @@ import FunctionInfo from '@site/src/components/FunctionInfo';
 - Running actions
 - Conditionally enhancing and running actions
 - Action lifecycle
+- Action call styles
 
 :::
 
@@ -105,7 +106,7 @@ will call [`create`](/docs/api/@foscia/core/functions/create) or
 [`update`](/docs/api/@foscia/core/functions/update) depending on the existence
 state of your record.
 
-[`oneOrCurrent`](/docs/api/@foscia/core/functions/oneOrCurrent) is a runner
+[`current`](/docs/api/@foscia/core/functions/current) is a runner
 which you can combine with those enhancers to always retrieve an instance,
 even if your data source does not return the record on
 those actions (such as a `204 No Content` on update). It will return a record if
@@ -117,12 +118,12 @@ You can also combine those functions with
 source response.
 
 ```typescript
-import { create, save, fill, oneOrCurrent, none } from '@foscia/core';
+import { create, save, fill, current, none } from '@foscia/core';
 
 const post = await action(
   create(fill(new Post(), { title: 'Hello World!' })),
   include('author'),
-  oneOrCurrent(),
+  current(),
 );
 
 post.title = 'Edited Hello World!';
@@ -299,12 +300,12 @@ This can be achieved using the
 [`create`](/docs/api/@foscia/core/functions/create) enhancer.
 
 ```typescript
-import { create } from '@foscia/core';
+import { create, current } from '@foscia/core';
 
 // Create a comment through a post.
 await action(
   create(newComment, post, 'comments'),
-  oneOrCurrent(),
+  current(),
 );
 ```
 
@@ -346,16 +347,21 @@ loaded relations if you are requesting relations
 
 Sometimes, you may need to conditionally apply an enhancer or run an action. As
 an example, you may want to sort results differently based on the user's defined
-sort's direction. This can be done easily using the
-[`when`](/docs/api/@foscia/core/functions/when) helper:
+search or sort's direction. This can be done easily using the
+[`when`](/docs/api/@foscia/core/functions/when) helper, which can receive enhancers, runners or callbacks:
 
 ```typescript
-import { query, when } from '@foscia/core';
-import { sortByDesc } from '@foscia/jsonapi';
+import { query, when, all } from '@foscia/core';
+import { filterBy, sortByDesc } from '@foscia/jsonapi';
 
 action(
   query(Post),
+  when(searchQuery, (a, s) => a(
+    filterBy('search', s),
+    sortByDesc('searchMatch'),
+  )),
   when(displayLatestFirst, sortByDesc('createdAt')),
+  all(),
 );
 ```
 
@@ -373,7 +379,8 @@ async, as any enhancers and runners.
 [`when`](/docs/api/@foscia/core/functions/when) will create a new enhancer or
 runner which will be **evaluated on run**.
 This has benefits, as the condition can be an async value or
-callback, but it also means that the condition won't be evaluated immediately.
+callback, but it also means that the condition won't be evaluated immediately
+if action is not ran immediately.
 
 :::
 
@@ -531,9 +538,10 @@ await action(
 
 ## Lifecycle
 
-When using variadic factory calls, Foscia actions lifecycle
-is "hidden" by variadic arguments. In fact, all actions execution have
-3 steps: creation, enhancements and execution (run).
+When using variadic factory calls (see [calls styles](#calls-styles)),
+Foscia actions lifecycle is "hidden" by variadic arguments.
+In fact, all actions execution have 3 steps:
+creation, enhancements and execution (run).
 
 ```typescript
 // Creation, context enhancements (`query`, `include`) and run (`all`) in one call.
@@ -577,20 +585,6 @@ action()
   .use(include('comments'));
 ```
 
-#### Variadic `use`
-
-`use` also support variadic enhancers. Number of arguments might be limited,
-check the function signature for details.
-
-```typescript
-action().use(
-  query(Post),
-  include('comments'),
-  sortByDesc('publishedAt'),
-  // etc.
-);
-```
-
 ### Runners
 
 An action can be run using the `run` method. The runner can execute
@@ -615,6 +609,82 @@ action()
   .run(all());
 ```
 
+## Calls styles
+
+Foscia provide various action call styles to make your action run expression
+shorter and simpler to write.
+
+### Variadic style
+
+This call style was introduced and improved multiple times.
+
+#### Variadic action factory `use` or `run`
+
+Action factory support variadic enhancers (that can finish with a runner)
+by passing those variadic arguments directly to the factory,
+and will immediately call `use` or `run` on the action.
+
+This is the recommended way of running action.
+
+```typescript
+const posts = await action(
+  query(Post),
+  include('comments'),
+  sortByDesc('publishedAt'),
+  all(),
+);
+```
+
+:::warning
+
+`run` variadic call must use an official runner (`all`, `oneOrFail`, etc.)
+or a custom runner created with `makeRunner`, otherwise it will handle
+the variadic call as a `use` call.
+
+:::
+
+#### Variadic action invocation `use` or `run`
+
+Action object support variadic enhancers (that can finish with a runner)
+by invoking the action object with those variadic arguments,
+and will immediately call `use` or `run` on the action.
+
+This is the recommended way of enhancing an action inside a callback (such as
+inside [`when`](/docs/api/@foscia/core/functions/when)).
+
+```typescript
+const posts = await action(
+  query(Post),
+  when(search, (a, s) => a(
+    filterBy('search', s),
+    sortBy('search'),
+  )),
+  all(),
+);
+```
+
+:::warning
+
+`run` variadic call must use an official runner (`all`, `oneOrFail`, etc.)
+or a custom runner created with `makeRunner`, otherwise it will handle
+the variadic call as a `use` call.
+
+:::
+
+#### Variadic `use`
+
+`use` also support variadic enhancers. Number of arguments might be limited,
+check the function signature for details.
+
+```typescript
+action().use(
+  query(Post),
+  include('comments'),
+  sortByDesc('publishedAt'),
+  // etc.
+);
+```
+
 #### Variadic `run`
 
 `run` also support variadic enhancers finishing with a runner, just like the
@@ -628,4 +698,17 @@ const posts = await action().run(
   sortByDesc('publishedAt'),
   all(),
 );
+```
+
+### Original style
+
+This call style was the only available way of running an action at Foscia's launch.
+It has the advantage of being clear about the action lifecycle, but is more
+verbose.
+
+```typescript
+const posts = await action()
+  .use(query(Post))
+  .use(include('comments'))
+  .run(all());
 ```

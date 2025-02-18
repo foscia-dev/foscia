@@ -1,4 +1,10 @@
-import { Action, ActionCall, ActionFactory, ContextEnhancer, ContextRunner } from '@foscia/core';
+import {
+  Action,
+  ActionCall,
+  ActionFactory,
+  AnonymousEnhancer,
+  AnonymousRunner,
+} from '@foscia/core';
 import { Dictionary } from '@foscia/shared';
 
 /**
@@ -253,7 +259,9 @@ export type ActionFactoryMock<C extends {}> = {
    *
    * @internal
    */
-  make(...immediateEnhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[]): Action<C>;
+  make(
+    ...immediateEnhancers: (AnonymousEnhancer<any, any> | AnonymousRunner<any, any>)[]
+  ): Action<C>;
   /**
    * Make an action mock.
    *

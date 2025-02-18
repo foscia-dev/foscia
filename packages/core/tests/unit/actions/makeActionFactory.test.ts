@@ -4,8 +4,9 @@ import {
   appendActionMiddlewares,
   cachedOr,
   context,
-  ContextFunctionType,
-  isContextFunction,
+  isEnhancer,
+  isRunner,
+  isWhen,
   logger,
   makeActionFactory,
   makeCache,
@@ -16,9 +17,9 @@ import {
   onSuccess,
   prependActionMiddlewares,
   query,
-  SYMBOL_ACTION_CONTEXT_ENHANCER,
-  SYMBOL_ACTION_CONTEXT_RUNNER,
-  SYMBOL_ACTION_CONTEXT_WHEN,
+  SYMBOL_ACTION_ENHANCER,
+  SYMBOL_ACTION_RUNNER,
+  SYMBOL_ACTION_WHEN,
   when,
 } from '@foscia/core';
 import { describe, expect, it, vi } from 'vitest';
@@ -45,8 +46,8 @@ describe('unit: makeActionFactory', () => {
     ).resolves.toStrictEqual('dummy');
 
     expect(loggerDebugMock.mock.calls).toStrictEqual([
-      ['Action running.', [{ action, runner }]],
-      ['Action success.', [{ action, result: 'dummy' }]],
+      ['Action running.', { action, runner }],
+      ['Action success.', { action, result: 'dummy' }],
     ]);
     expect(runningMock.mock.calls).toStrictEqual([[{ action, runner }]]);
     expect(successMock.mock.calls).toStrictEqual([[{ action, result: 'dummy' }]]);
@@ -76,8 +77,8 @@ describe('unit: makeActionFactory', () => {
     ).rejects.toThrowError(error);
 
     expect(loggerDebugMock.mock.calls).toStrictEqual([
-      ['Action running.', [{ action, runner: failingRunner }]],
-      ['Action error.', [{ action, error }]],
+      ['Action running.', { action, runner: failingRunner }],
+      ['Action error.', { action, error }],
     ]);
     expect(runningMock.mock.calls).toStrictEqual([[{ action, runner: failingRunner }]]);
     expect(successMock.mock.calls).toStrictEqual([]);
@@ -175,40 +176,42 @@ describe('unit: makeActionFactory', () => {
     const calls = action.calls();
 
     type FormattedCall = {
-      type: ContextFunctionType;
+      type: symbol;
       name: string;
       args: unknown[];
       calls: FormattedCall[];
     } | {
       calls: FormattedCall[];
     };
-    const formatCall = (call: ActionCall): FormattedCall => (isContextFunction(call.call) ? {
-      type: call.call.$FOSCIA_TYPE,
-      name: call.call.meta.factory.meta.name,
-      args: call.call.meta.args,
-      calls: call.calls.map(formatCall),
-    } : { calls: call.calls.map(formatCall) });
+    const formatCall = (call: ActionCall): FormattedCall => (
+      isEnhancer(call.call) || isRunner(call.call) || isWhen(call.call) ? {
+        type: call.call.$FOSCIA_TYPE,
+        name: call.call.meta.name,
+        args: call.call.meta.args,
+        calls: call.calls.map(formatCall),
+      } : { calls: call.calls.map(formatCall) }
+    );
 
     expect(calls.map(formatCall)).toStrictEqual([
       {
-        type: SYMBOL_ACTION_CONTEXT_ENHANCER,
+        type: SYMBOL_ACTION_ENHANCER,
         name: 'query',
         args: [Post, 1],
         calls: [],
       },
       {
-        type: SYMBOL_ACTION_CONTEXT_ENHANCER,
+        type: SYMBOL_ACTION_ENHANCER,
         name: 'context',
         args: [{ foo: 'foo' }],
         calls: [],
       },
       {
-        type: SYMBOL_ACTION_CONTEXT_WHEN,
+        type: SYMBOL_ACTION_WHEN,
         name: 'when',
         args: [firstWhenPredicate, firstWhenEnhancer],
         calls: [
           {
-            type: SYMBOL_ACTION_CONTEXT_ENHANCER,
+            type: SYMBOL_ACTION_ENHANCER,
             name: 'context',
             args: [{ baz: 'baz' }],
             calls: [],
@@ -216,20 +219,20 @@ describe('unit: makeActionFactory', () => {
         ],
       },
       {
-        type: SYMBOL_ACTION_CONTEXT_ENHANCER,
+        type: SYMBOL_ACTION_ENHANCER,
         name: 'context',
         args: [{ bar: 'bar' }],
         calls: [],
       },
       {
-        type: SYMBOL_ACTION_CONTEXT_WHEN,
+        type: SYMBOL_ACTION_WHEN,
         name: 'when',
         args: [secondWhenPredicate, secondWhenEnhancer],
         calls: [
           {
             calls: [
               {
-                type: SYMBOL_ACTION_CONTEXT_ENHANCER,
+                type: SYMBOL_ACTION_ENHANCER,
                 name: 'context',
                 args: [{ boo: 'boo' }],
                 calls: [],
@@ -239,7 +242,7 @@ describe('unit: makeActionFactory', () => {
         ],
       },
       {
-        type: SYMBOL_ACTION_CONTEXT_RUNNER,
+        type: SYMBOL_ACTION_RUNNER,
         name: 'cachedOr',
         args: [cachedOrRunner],
         calls: [

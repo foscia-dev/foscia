@@ -1,11 +1,11 @@
 import create from '@foscia/core/actions/context/enhancers/crud/create';
 import update from '@foscia/core/actions/context/enhancers/crud/update';
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import {
   ConsumeInstance,
   ConsumeModel,
   ConsumeSerializer,
-  ContextEnhancer,
+  AnonymousEnhancer,
 } from '@foscia/core/actions/types';
 import { ModelInstance } from '@foscia/core/model/types';
 
@@ -24,7 +24,7 @@ import { ModelInstance } from '@foscia/core/model/types';
  * ```typescript
  * import { save, none } from '@foscia/core';
  *
- * await action().run(save(post), none());
+ * await action(save(post), none());
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('save', (<I extends ModelInstance>(instance: I) => (
@@ -33,5 +33,5 @@ export default /* @__PURE__ */ makeEnhancer('save', (<I extends ModelInstance>(i
   <C extends {}, I extends ModelInstance, Record, Related, Data>(
     instance: I,
     // eslint-disable-next-line max-len
-  ): ContextEnhancer<C & ConsumeSerializer<Record, Related, Data>, C & ConsumeModel<I['$model']> & ConsumeInstance<I>>;
+  ): AnonymousEnhancer<C & ConsumeSerializer<Record, Related, Data>, C & ConsumeModel<I['$model']> & ConsumeInstance<I>>;
 });

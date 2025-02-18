@@ -16,7 +16,7 @@ import { HttpRequestConfig } from '@foscia/http/types';
  * import { raw } from '@foscia/core';
  * import { makePost } from '@foscia/http';
  *
- * const response = await action().run(
+ * const response = await action(
  *   makePost('posts', { title: 'Hello World' }),
  *   raw(),
  * );

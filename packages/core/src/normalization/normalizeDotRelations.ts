@@ -1,6 +1,6 @@
 import guessContextModel from '@foscia/core/actions/context/guessers/guessContextModel';
 import logger from '@foscia/core/logger/logger';
-import isRelationDef from '@foscia/core/model/checks/isRelationDef';
+import isRelationDef from '@foscia/core/model/props/checks/isRelationDef';
 import { Model, ModelKey, ModelRelationDotKey } from '@foscia/core/model/types';
 import normalizeKey from '@foscia/core/normalization/normalizeKey';
 import { ModelsRegistry } from '@foscia/core/types';

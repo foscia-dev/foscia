@@ -23,7 +23,7 @@ export default <Data = any>(
       ActionName.ATTACH_RELATION,
       ActionName.UPDATE_RELATION,
       ActionName.DETACH_RELATION,
-    ] as any[]).indexOf(consumeAction(context, null)!) !== -1 ? 'relationships' : null),
+    ] as string[]).indexOf(consumeAction(context, null)!) !== -1 ? 'relationships' : null),
     endpoint.relationPath,
     endpoint.additionalPath,
   ], '/')),

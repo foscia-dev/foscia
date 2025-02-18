@@ -1,7 +1,7 @@
 import executeContextThroughAdapter
   from '@foscia/core/actions/context/utilities/executeContextThroughAdapter';
-import makeRunner from '@foscia/core/actions/makeRunner';
 import { Action, ConsumeAdapter } from '@foscia/core/actions/types';
+import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import { Awaitable, using } from '@foscia/shared';
 
 /**
@@ -14,7 +14,7 @@ import { Awaitable, using } from '@foscia/shared';
  * ```typescript
  * import { query, raw } from '@foscia/core';
  *
- * const response = await action().run(query(post, '123'), raw());
+ * const response = await action(query(post, '123'), raw());
  * ```
  */
 export default makeRunner('raw', <C extends {}, RawData, NextData = RawData>(

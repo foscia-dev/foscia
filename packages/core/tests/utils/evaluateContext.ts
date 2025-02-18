@@ -1,7 +1,7 @@
-import { context, ContextEnhancer, makeActionFactory } from '@foscia/core';
+import { context, AnonymousEnhancer, makeActionFactory } from '@foscia/core';
 
 export default function evaluateContext(
-  callback: ContextEnhancer<any, any>,
+  callback: AnonymousEnhancer<any, any>,
   initial?: any,
 ): Promise<any> {
   return makeActionFactory()()

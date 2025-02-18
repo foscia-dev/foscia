@@ -3,13 +3,13 @@ import deserializeInstances, {
 } from '@foscia/core/actions/context/utilities/deserializeInstances';
 import executeContextThroughAdapter
   from '@foscia/core/actions/context/utilities/executeContextThroughAdapter';
-import makeRunner from '@foscia/core/actions/makeRunner';
 import {
   Action,
   ConsumeAdapter,
   ConsumeDeserializer,
   InferQueryInstance,
 } from '@foscia/core/actions/types';
+import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import { ModelInstance } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
@@ -40,7 +40,7 @@ export type AllData<
  * ```typescript
  * import { all, query } from '@foscia/core';
  *
- * const posts = await action().run(query(Post), all());
+ * const posts = await action(query(Post), all());
  * ```
  */
 export default /* @__PURE__ */ makeRunner('all', <
@@ -50,9 +50,11 @@ export default /* @__PURE__ */ makeRunner('all', <
   Data,
   Deserialized extends DeserializedData,
   Next = I[],
->(transform?: (
-  data: AllData<Data, RetypedDeserializedData<Deserialized, I>, I>,
-) => Awaitable<Next>) => async (
+>(
+  transform?: (
+    data: AllData<Data, RetypedDeserializedData<Deserialized, I>, I>,
+  ) => Awaitable<Next>,
+) => async (
   // eslint-disable-next-line max-len
   action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>>,
 ) => {

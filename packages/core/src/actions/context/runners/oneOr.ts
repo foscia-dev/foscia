@@ -2,14 +2,14 @@ import all, { AllData } from '@foscia/core/actions/context/runners/all';
 import {
   RetypedDeserializedData,
 } from '@foscia/core/actions/context/utilities/deserializeInstances';
-import makeRunner from '@foscia/core/actions/makeRunner';
 import {
   Action,
   ConsumeAdapter,
   ConsumeDeserializer,
-  ContextRunner,
+  AnonymousRunner,
   InferQueryInstance,
 } from '@foscia/core/actions/types';
+import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import { FLAG_ERROR_NOT_FOUND } from '@foscia/core/flags';
 import { ModelInstance } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
@@ -40,7 +40,7 @@ export type OneData<
  * ```typescript
  * import { query, oneOr } from '@foscia/core';
  *
- * const post = await action().run(query(post, '123'), oneOr(() => null));
+ * const post = await action(query(post, '123'), oneOr(() => null));
  * ```
  */
 export default makeRunner('oneOr', <
@@ -53,7 +53,7 @@ export default makeRunner('oneOr', <
   Next = I,
 >(
   // eslint-disable-next-line max-len
-  nilRunner: ContextRunner<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, Awaitable<NilData>>,
+  nilRunner: AnonymousRunner<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>, Awaitable<NilData>>,
   transform?: (data: OneData<Data, RetypedDeserializedData<Deserialized, I>, I>) => Awaitable<Next>,
 ) => async (
   // eslint-disable-next-line max-len

@@ -1,6 +1,7 @@
-import ActionName from '@foscia/core/actions/actionName';
-import isContextFunction from '@foscia/core/actions/checks/isContextFunction';
-import isWhenContextFunction from '@foscia/core/actions/checks/isWhenContextFunction';
+import isEnhancer from '@foscia/core/actions/checks/isEnhancer';
+import isRunner from '@foscia/core/actions/checks/isRunner';
+import isWhen from '@foscia/core/actions/checks/isWhen';
+import ActionName from '@foscia/core/actions/context/actionName';
 import consumeAction from '@foscia/core/actions/context/consumers/consumeAction';
 import consumeAdapter from '@foscia/core/actions/context/consumers/consumeAdapter';
 import consumeCache from '@foscia/core/actions/context/consumers/consumeCache';
@@ -46,24 +47,24 @@ import cached from '@foscia/core/actions/context/runners/cached';
 import cachedOr from '@foscia/core/actions/context/runners/cachedOr';
 import cachedOrFail from '@foscia/core/actions/context/runners/cachedOrFail';
 import catchIf from '@foscia/core/actions/context/runners/catchIf';
+import current from '@foscia/core/actions/context/runners/current';
 import none from '@foscia/core/actions/context/runners/none';
 import one from '@foscia/core/actions/context/runners/one';
 import oneOr from '@foscia/core/actions/context/runners/oneOr';
-import oneOrCurrent from '@foscia/core/actions/context/runners/oneOrCurrent';
 import oneOrFail from '@foscia/core/actions/context/runners/oneOrFail';
 import raw from '@foscia/core/actions/context/runners/raw';
+import when from '@foscia/core/actions/context/when';
 import makeActionFactory from '@foscia/core/actions/makeActionFactory';
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
-import makeRunner from '@foscia/core/actions/makeRunner';
-import when from '@foscia/core/actions/when';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
+import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 
 export {
   none,
   all,
   one,
   oneOrFail,
-  oneOrCurrent,
   oneOr,
+  current,
   cached,
   cachedOrFail,
   cachedOr,
@@ -110,7 +111,8 @@ export {
   makeActionFactory,
   makeEnhancer,
   makeRunner,
+  isEnhancer,
+  isRunner,
+  isWhen,
   ActionName,
-  isContextFunction,
-  isWhenContextFunction,
 };

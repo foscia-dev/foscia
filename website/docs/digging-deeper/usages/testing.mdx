@@ -103,7 +103,7 @@ export default actionMock;
 Consider the following `registerUser` function we would like to unit test.
 
 ```typescript
-import { create, fill, oneOrCurrent } from '@foscia/core';
+import { create, fill, oneOrFail } from '@foscia/core';
 import action from './action';
 import User from './models/user';
 
@@ -120,7 +120,7 @@ export default function registerUser(
     acceptedTermsAt: new Date(),
   });
 
-  return action(create(user), oneOrCurrent());
+  return action(create(user), oneOrFail());
 }
 ```
 
@@ -212,7 +212,7 @@ For this, your callback will receive an
 actionMock.mock(value).expect(({ calls }) => {
   expect(calls.args('create')[0]).toBeInstanceOf(User);
   expect(calls.args('create')[0].email).toStrictEqual('john.doe@example.com');
-  expect(calls.has('oneOrCurrent')).toStrictEqual(true);
+  expect(calls.has('oneOrFail')).toStrictEqual(true);
 });
 ```
 

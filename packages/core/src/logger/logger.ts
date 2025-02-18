@@ -17,9 +17,9 @@ const makeDefaultLevel = (): LoggerLevel | null => {
 };
 
 const makeMessageLog = (level: LoggerLevel) => function log(
-  this: { level: LoggerLevel | null; output: LoggerOutput | null; },
+  this: Logger,
   message: string,
-  args: unknown[] = [],
+  ...args: unknown[]
 ) {
   if (this.level
     && LOGGER_LEVELS_WEIGHTS[level] >= LOGGER_LEVELS_WEIGHTS[this.level]
@@ -29,11 +29,16 @@ const makeMessageLog = (level: LoggerLevel) => function log(
   }
 };
 
-export default {
+/**
+ * Logger used by Foscia for non-blocking message, such as warnings.
+ */
+const logger: Logger = {
   level: makeDefaultLevel(),
   output: (typeof console !== 'undefined' ? console : null) as LoggerOutput | null,
   error: makeMessageLog('error'),
   warn: makeMessageLog('warn'),
   info: makeMessageLog('info'),
   debug: makeMessageLog('debug'),
-} as Logger;
+};
+
+export default logger;

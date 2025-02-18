@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
-import isPropDef from '@foscia/core/model/checks/isPropDef';
-import isRelationDef from '@foscia/core/model/checks/isRelationDef';
-import forceFill from '@foscia/core/model/forceFill';
+import isPropDef from '@foscia/core/model/props/checks/isPropDef';
+import isRelationDef from '@foscia/core/model/props/checks/isRelationDef';
 import mapProps from '@foscia/core/model/props/mappers/mapProps';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
 import {
@@ -12,6 +11,7 @@ import {
   ModelSnapshot,
   ModelValues,
 } from '@foscia/core/model/types';
+import forceFill from '@foscia/core/model/utilities/forceFill';
 import { Arrayable, ArrayableVariadic, isNil, tap, wrapVariadic } from '@foscia/shared';
 
 const restoreSnapshotRelation = (

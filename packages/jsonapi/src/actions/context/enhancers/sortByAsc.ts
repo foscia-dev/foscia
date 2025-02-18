@@ -14,7 +14,7 @@ import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
  * import { query, all } from '@foscia/core';
  * import { sortByAsc } from '@foscia/jsonapi';
  *
- * const posts = await action().run(
+ * const posts = await action(
  *   query(Post),
  *   sortByAsc('title'),
  *   sortByAsc(['publishedAt', 'title']),

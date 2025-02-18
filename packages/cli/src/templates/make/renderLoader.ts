@@ -40,7 +40,7 @@ function renderRefreshIncludeLoader({ config, imports, onlyMissing }: ModelLoade
   return `
 makeRefreshIncludeLoader(action${renderLoaderConfig(config, [
     '// Customize `prepare` to filter action on queried instances IDs.',
-    '// prepare: (action, { instances }) => action.use(param(\'ids\', instances.map(({ id }) => id))),',
+    '// prepare: (action, { instances }) => action(param(\'ids\', instances.map(({ id }) => id))),',
     renderLoaderOnlyMissingExclude(imports, onlyMissing),
   ])})
 `.trim();
@@ -52,7 +52,7 @@ function renderQueryModelLoader({ config, imports, onlyMissing }: ModelLoaderTem
   return `
 makeQueryModelLoader(action${renderLoaderConfig(config, [
     '// Customize `prepare` to filter action on queried instances IDs.',
-    '// prepare: (action, { ids }) => action.use(param(\'ids\', ids)),',
+    '// prepare: (action, { ids }) => action(param(\'ids\', ids)),',
     renderLoaderOnlyMissingExclude(imports, onlyMissing),
   ])})
 `.trim();

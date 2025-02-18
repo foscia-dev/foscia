@@ -41,7 +41,7 @@ To declare a model, you just need to use the
 This function takes up to 2 arguments and returns a
 [`Model`](/docs/api/@foscia/core/interfaces/Model) constructor:
 
-- The `type` string or a
+- The `type` string, the `connection:type` string or a
 [configuration object](/docs/digging-deeper/models/models-configuration).
 - The [optional `definition` of the model](#definition): an object
 containing property definition factories, custom properties, custom
@@ -61,6 +61,16 @@ export default makeModel('posts', {
   },
 });
 ```
+
+:::info
+
+Using a `:` inside your model's type will declare both the model type and
+connection to use. For example, using `api:posts` will use the `api` connection
+and `posts` type. If you wish to explicitly declare a model with a type
+containing a `:`, you must use the model's configuration object instead of
+passing.
+
+:::
 
 ### Extending a model class
 
@@ -243,7 +253,7 @@ id<string>()
 
 [`id`](/docs/api/@foscia/core/functions/id) provides type definition
 for the factory and examples.
-[`ModelIdFactory`](/docs/api/@foscia/core/type-aliases/ModelIdFactory)
+[`ModelIdFactory`](/docs/api/@foscia/core/interfaces/ModelIdFactory)
 provides type definition of `id` chained modifiers.
 
 ### Attributes
@@ -317,7 +327,7 @@ attr<Date>()
 
 [`attr`](/docs/api/@foscia/core/functions/attr) provides type definition
 for the factory and examples.
-[`ModelAttributeFactory`](/docs/api/@foscia/core/type-aliases/ModelAttributeFactory)
+[`ModelAttributeFactory`](/docs/api/@foscia/core/interfaces/ModelAttributeFactory)
 provides type definition of `attr` chained modifiers.
 
 ### Relations
@@ -509,7 +519,7 @@ hasMany(() => Comment)
 [`hasOne`](/docs/api/@foscia/core/functions/hasOne) and
 [`hasMany`](/docs/api/@foscia/core/functions/hasMany) provide type definition
 for the factories and examples.
-[`ModelRelationFactory`](/docs/api/@foscia/core/type-aliases/ModelRelationFactory)
+[`ModelRelationFactory`](/docs/api/@foscia/core/interfaces/ModelRelationFactory)
 provides type definition of `hasOne` and `hasMany` chained modifiers.
 
 #### Polymorphism support
@@ -545,7 +555,7 @@ during deserialization process.
 To enable inverse of a relation, you can define an
 [`inverse` option](/docs/api/@foscia/core/interfaces/ModelRelationFactoryConfig#inverse)
 to your relation configuration, or call the
-[`inverse` chained modifier](/docs/api/@foscia/core/type-aliases/ModelRelationFactory#inverse).
+[`inverse` chained modifier](/docs/api/@foscia/core/interfaces/ModelRelationFactory#inverse).
 Giving a boolean value, it will enable or disable automatic inverse resolution
 (searching for a relation named by the singular camel case type of the parent
 model). Giving a string value, it will enable inverse resolution using

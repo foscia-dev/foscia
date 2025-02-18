@@ -1,20 +1,20 @@
 import consumeCache from '@foscia/core/actions/context/consumers/consumeCache';
 import consumeId from '@foscia/core/actions/context/consumers/consumeId';
 import consumeModel from '@foscia/core/actions/context/consumers/consumeModel';
-import makeRunner from '@foscia/core/actions/makeRunner';
 import {
   Action,
   ConsumeCache,
   ConsumeId,
   ConsumeInclude,
   ConsumeModel,
-  ContextRunner,
+  AnonymousRunner,
   InferQueryInstance,
 } from '@foscia/core/actions/types';
+import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import logger from '@foscia/core/logger/logger';
-import filled from '@foscia/core/model/filled';
-import loaded from '@foscia/core/model/relations/loaded';
+import loaded from '@foscia/core/model/props/relations/loaded';
 import { ModelInstance } from '@foscia/core/model/types';
+import filled from '@foscia/core/model/utilities/filled';
 import { Awaitable, isNil } from '@foscia/shared';
 
 /**
@@ -40,7 +40,7 @@ export type CachedData<I extends ModelInstance> = {
  * ```typescript
  * import { cachedOr, query } from '@foscia/core';
  *
- * const post = await action().run(query(Post, '123'), cachedOr(() => null));
+ * const post = await action(query(Post, '123'), cachedOr(() => null));
  * ```
  */
 export default /* @__PURE__ */ makeRunner('cachedOr', <
@@ -49,7 +49,7 @@ export default /* @__PURE__ */ makeRunner('cachedOr', <
   RD,
   ND = I,
 >(
-  nilRunner: ContextRunner<C & ConsumeCache & ConsumeModel, Awaitable<RD>>,
+  nilRunner: AnonymousRunner<C & ConsumeCache & ConsumeModel, Awaitable<RD>>,
   transform?: (data: CachedData<I>) => Awaitable<ND>,
 ) => async (
   action: Action<C & ConsumeCache & ConsumeModel & ConsumeInclude & ConsumeId>,

@@ -16,7 +16,7 @@ import { param } from '@foscia/http';
  * import { query, all } from '@foscia/core';
  * import { paginate } from '@foscia/jsonapi';
  *
- * const posts = await action().run(
+ * const posts = await action(
  *   query(Post),
  *   paginate({ number: 1, size: 15 }),
  *   all(),

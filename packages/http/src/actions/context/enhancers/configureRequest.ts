@@ -28,7 +28,7 @@ import { using } from '@foscia/shared';
  * import { raw } from '@foscia/core';
  * import { configureRequest } from '@foscia/http';
  *
- * const response = await action().run(configureRequest({
+ * const response = await action(configureRequest({
  *   method: 'GET',
  *   baseURL: 'https://example.com/api,
  *   path: 'posts',
@@ -56,7 +56,7 @@ import { using } from '@foscia/shared';
  * import { makeActionFactory } from '@foscia/core';
  * import { configureRequest } from '@foscia/http';
  *
- * const response = await action().run(configureRequest({
+ * const response = await action(configureRequest({
  *   request: new Request('https://example.com/special/request', {}),
  * }), raw());
  * ```
@@ -65,7 +65,7 @@ export default /* @__PURE__ */ makeEnhancer('configureRequest', (
   nextConfig: HttpRequestConfig,
 ) => async <C extends {}>(action: Action<C>) => using(
   consumeRequestConfig(await action.useContext(), {} as HttpRequestConfig),
-  (prevRequestConfig) => action.use(context({
+  (prevRequestConfig) => action(context({
     httpRequestConfig: {
       ...prevRequestConfig,
       ...nextConfig,

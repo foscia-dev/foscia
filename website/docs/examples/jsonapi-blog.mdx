@@ -80,7 +80,7 @@ type AllPostsQuery = {
 export default async function fetchAllPosts(query: AllPostsQuery = {}) {
   return action(
     query(Post),
-    when(query.search, (a, s) => a.use(filterBy('search', s))),
+    when(query.search, (a, s) => a(filterBy('search', s))),
     sortByDesc('createdAt'),
     paginate({ number: query.page ?? 1 }),
     all(usingDocument),
@@ -111,7 +111,7 @@ const post = await fetchOnePost('123-abc');
 ### Create or update one
 
 ```typescript
-import { changed, fill, oneOrCurrent, reset, save, when, ModelWritableValues } from '@foscia/core';
+import { changed, fill, current, reset, save, when, ModelWritableValues } from '@foscia/core';
 import action from './action';
 import Post from './models/post';
 
@@ -124,7 +124,7 @@ export default async function savePost(
   try {
     await action(
       save(post),
-      when(!post.$exists || changed(post), oneOrCurrent(), () => instance),
+      when(!post.$exists || changed(post), current(), () => instance),
     );
   } catch (error) {
     reset(post);

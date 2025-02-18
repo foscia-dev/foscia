@@ -1,4 +1,4 @@
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action } from '@foscia/core/actions/types';
 
 /**
@@ -13,7 +13,7 @@ import { Action } from '@foscia/core/actions/types';
  * ```typescript
  * import { context } from '@foscia/core';
  *
- * action().use(context({ /* ...additional context... *\/ }));
+ * action(context({ /* ...additional context... *\/ }));
  * ```
  *
  * @remarks

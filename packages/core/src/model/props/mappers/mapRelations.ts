@@ -1,4 +1,4 @@
-import isRelationDef from '@foscia/core/model/checks/isRelationDef';
+import isRelationDef from '@foscia/core/model/props/checks/isRelationDef';
 import mapProps from '@foscia/core/model/props/mappers/mapProps';
 import { Model, ModelRelation } from '@foscia/core/model/types';
 

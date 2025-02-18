@@ -16,7 +16,7 @@ import { HttpRequestConfig } from '@foscia/http/types';
  * import { none } from '@foscia/core';
  * import { makeDelete } from '@foscia/http';
  *
- * const response = await action().run(makeDelete('posts/1'), none());
+ * const response = await action(makeDelete('posts/1'), none());
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('makeDelete', (

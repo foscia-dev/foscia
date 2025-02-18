@@ -1,4 +1,4 @@
-import makeModelHook from '@foscia/core/model/hooks/makeModelHook';
+import makeModelHook from '@foscia/core/model/hooks/utilities/makeModelHook';
 
 /**
  * Register a "boot" hook on model.

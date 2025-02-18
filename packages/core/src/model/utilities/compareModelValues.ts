@@ -1,6 +1,6 @@
-import isSnapshot from '@foscia/core/model/checks/isSnapshot';
-import isSame from '@foscia/core/model/isSame';
-import isSameSnapshot from '@foscia/core/model/snapshots/isSameSnapshot';
+import isSnapshot from '@foscia/core/model/snapshots/checks/isSnapshot';
+import isSame from '@foscia/core/model/checks/isSame';
+import isSameSnapshot from '@foscia/core/model/snapshots/checks/isSameSnapshot';
 
 const compareValue = (next: unknown, prev: unknown) => (
   isSame(next, prev)

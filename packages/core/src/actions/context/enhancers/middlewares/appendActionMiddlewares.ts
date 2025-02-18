@@ -1,6 +1,6 @@
 import replaceActionMiddlewares
   from '@foscia/core/actions/context/enhancers/middlewares/replaceActionMiddlewares';
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { ActionMiddleware } from '@foscia/core/actions/types';
 import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
 
@@ -16,7 +16,7 @@ import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
  * ```typescript
  * import { appendActionMiddlewares } from '@foscia/core';
  *
- * const posts = await action().use(appendActionMiddlewares(
+ * const posts = await action(appendActionMiddlewares(
  *   (action, next) => {
  *     // Do something...
  *

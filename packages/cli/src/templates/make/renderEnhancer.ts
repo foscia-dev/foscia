@@ -24,7 +24,7 @@ export default function renderEnhancer(
   const enhancer = `
 makeEnhancer('${functionName}', ${functionGeneric}(
 ${toIndent(config, '// TODO Add enhancer parameters here.', 1)}
-) => async (action${paramTyping}) => action.use(
+) => async (action${paramTyping}) => action(
 ${toIndent(config, '// TODO Use other enhancers here, such as `context`.', 1)}
 ))
 `.trim();

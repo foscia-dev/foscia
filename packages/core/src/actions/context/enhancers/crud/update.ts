@@ -1,10 +1,10 @@
-import ActionName from '@foscia/core/actions/actionName';
+import ActionName from '@foscia/core/actions/context/actionName';
 import context from '@foscia/core/actions/context/enhancers/context';
 import instanceData from '@foscia/core/actions/context/enhancers/crud/instanceData';
 import query from '@foscia/core/actions/context/enhancers/query';
 import registerWriteActionHooks
   from '@foscia/core/actions/context/utilities/registerWriteActionHooks';
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
 import { ModelInstance } from '@foscia/core/model/types';
 
@@ -21,7 +21,7 @@ import { ModelInstance } from '@foscia/core/model/types';
  * ```typescript
  * import { update, none } from '@foscia/core';
  *
- * await action().run(update(post), none());
+ * await action(update(post), none());
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('update', <
@@ -34,7 +34,7 @@ export default /* @__PURE__ */ makeEnhancer('update', <
   instance: I,
 ) => (
   action: Action<C & ConsumeSerializer<Record, Related, Data>>,
-) => registerWriteActionHooks(action.use(
+) => registerWriteActionHooks(action(
   query(instance),
   context({
     action: ActionName.UPDATE,

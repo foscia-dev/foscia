@@ -1,4 +1,4 @@
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action } from '@foscia/core/actions/types';
 import registerHook from '@foscia/core/hooks/registerHook';
 import { Awaitable } from '@foscia/shared';
@@ -16,7 +16,7 @@ import { Awaitable } from '@foscia/shared';
  * ```typescript
  * import { onSuccess } from '@foscia/core';
  *
- * action().use(onSuccess((event) => {
+ * action(onSuccess((event) => {
  *   console.log(event.action, event.result);
  * }));
  * ```

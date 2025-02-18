@@ -270,13 +270,13 @@ const post = await action(
 This works the same to send write operations through actions, such as with
 [`create`](/docs/api/@foscia/core/functions/create). In the following
 example, we are retrieving the created instance:
-[`oneOrCurrent`](/docs/api/@foscia/core/functions/oneOrCurrent) is used to
+[`current`](/docs/api/@foscia/core/functions/current) is used to
 retrieve a result from the response if it is available but will also support
 empty responses by returning the context's instance (as an example,
 for *HTTP 204* responses).
 
 ```typescript
-import { create, fill, oneOrCurrent } from '@foscia/core';
+import { create, fill, current } from '@foscia/core';
 import Post from './models/post';
 import action from './action';
 
@@ -287,7 +287,7 @@ const post = fill(new Post(), {
 
 const createdPost = await action(
   create(post),
-  oneOrCurrent(),
+  current(),
 );
 ```
 

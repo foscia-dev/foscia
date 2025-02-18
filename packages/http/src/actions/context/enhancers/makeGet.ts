@@ -15,7 +15,7 @@ import { HttpRequestConfig } from '@foscia/http/types';
  * import { raw } from '@foscia/core';
  * import { makeGet } from '@foscia/http';
  *
- * const response = await action().run(
+ * const response = await action(
  *   makeGet('posts', { params: { search: 'foo' } }),
  *   raw(),
  * );

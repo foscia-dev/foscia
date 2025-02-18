@@ -1,4 +1,4 @@
-import isComposable from '@foscia/core/model/checks/isComposable';
+import isComposable from '@foscia/core/model/composition/checks/isComposable';
 import { ModelParsedDefinition } from '@foscia/core/model/types';
 import { Dictionary, eachDescriptors, makeDescriptorHolder, tap } from '@foscia/shared';
 

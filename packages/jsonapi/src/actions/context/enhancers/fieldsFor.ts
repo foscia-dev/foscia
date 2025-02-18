@@ -16,7 +16,7 @@ import { ArrayableVariadic, optionalJoin, uniqueValues, wrapVariadic } from '@fo
  * import { query, include, all } from '@foscia/core';
  * import { fieldsFor } from '@foscia/jsonapi';
  *
- * const posts = await action().run(
+ * const posts = await action(
  *   query(Post),
  *   include('comments'),
  *   fields(Comment, ['body', 'author']),
@@ -32,7 +32,7 @@ export default /* @__PURE__ */ makeEnhancer('fieldsFor', <C extends {}, M extend
   const prevFields = consumeRequestObjectParams(context)?.fields;
   const nextFields = wrapVariadic(...fieldset).map((key) => normalizeKey(model, key));
 
-  return action.use(param('fields', {
+  return action(param('fields', {
     ...prevFields,
     [model.$type]: optionalJoin(uniqueValues([
       ...((prevFields ?? {})[model.$type] ?? []),

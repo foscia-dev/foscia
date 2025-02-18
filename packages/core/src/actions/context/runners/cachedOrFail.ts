@@ -1,6 +1,6 @@
 import cachedOr, { CachedData } from '@foscia/core/actions/context/runners/cachedOr';
-import makeRunner from '@foscia/core/actions/makeRunner';
 import { InferQueryInstance } from '@foscia/core/actions/types';
+import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import ExpectedRunFailureError from '@foscia/core/errors/expectedRunFailureError';
 import { Awaitable } from '@foscia/shared';
 
@@ -16,7 +16,7 @@ import { Awaitable } from '@foscia/shared';
  * ```typescript
  * import { cachedOrFail, query } from '@foscia/core';
  *
- * const post = await action().run(query(Post, '123'), cachedOrFail());
+ * const post = await action(query(Post, '123'), cachedOrFail());
  * ```
  */
 export default /* @__PURE__ */ makeRunner('cachedOrFail', <

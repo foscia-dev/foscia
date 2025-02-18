@@ -16,7 +16,6 @@ import {
   mapAttributes,
   mapRelations,
   markSynced,
-  Model,
   ModelAttribute,
   ModelInstance,
   ModelRelation,
@@ -25,13 +24,13 @@ import {
   shouldSync,
 } from '@foscia/core';
 import {
-  RecordDeserializerConfig,
   DeserializerContext,
   DeserializerExtract,
   DeserializerInstancesMap,
   DeserializerModelIdentifier,
   DeserializerRecord,
   RecordDeserializer,
+  RecordDeserializerConfig,
 } from '@foscia/serialization/types';
 import {
   type Arrayable,
@@ -84,7 +83,7 @@ export default <
     // This will also ensure guessed model type matches deserializing record.
     const guessedModel = await guessContextModel({
       queryAs: consumeQueryAs(context, null),
-      model: (record.parent?.instance.$model ?? consumeModel(context, null)) as Model | null,
+      model: (record.parent?.instance.$model ?? consumeModel(context, null)),
       relation: record.parent?.def ?? consumeRelation(context, null),
       registry,
       ensureType: identifier.type,
@@ -132,11 +131,13 @@ You should either:
   const findOrMakeInstance = async (
     identifier: DeserializerModelIdentifier,
     context: {},
+  ): Promise<ModelInstance> => (
     // eslint-disable-next-line new-cap
-  ) => (await findInstance(identifier, context) ?? new identifier.model() as ModelInstance);
+    await findInstance(identifier, context) ?? new identifier.model()
+  );
 
   const shouldDeserialize = async (context: DeserializerContext<Record, Data, Deserialized>) => (
-    shouldSync(context.def, ['pull'])
+    shouldSync(context.def, 'pull')
     && context.value !== undefined
     && await (config.shouldDeserialize ?? (() => true))(context)
   );
@@ -169,7 +170,7 @@ You should either:
     identifier.id ?? identifier.lid ?? NON_IDENTIFIED_LOCAL_ID
   );
 
-  const makeInstancesMap = () => makeIdentifiersMap() as DeserializerInstancesMap;
+  const makeInstancesMap = (): DeserializerInstancesMap => makeIdentifiersMap();
 
   const makeDeserializerContext = async <Def extends ModelAttribute | ModelRelation, Value>(
     instance: ModelInstance,

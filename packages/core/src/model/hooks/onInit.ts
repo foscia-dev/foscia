@@ -1,4 +1,4 @@
-import makeInstanceHook from '@foscia/core/model/hooks/makeInstanceHook';
+import makeInstanceHook from '@foscia/core/model/hooks/utilities/makeInstanceHook';
 
 /**
  * Register a "init" hook on model.

@@ -1,13 +1,13 @@
-import { ActionCall, ContextRunner, isContextFunction } from '@foscia/core';
+import { ActionCall, AnonymousRunner, isEnhancer, isRunner, isWhen } from '@foscia/core';
 import { Dictionary } from '@foscia/shared';
 import { ActionTestCall, ActionTestContext } from '@foscia/test/types';
 
 export default (
   context: Dictionary<any>,
   calls: ActionCall[],
-  runners: ContextRunner<any, unknown>[],
+  runners: AnonymousRunner<any, unknown>[],
 ) => {
-  const makeRunnerCall = (r: ContextRunner<any, any>[]): ActionCall => ({
+  const makeRunnerCall = (r: AnonymousRunner<any, any>[]): ActionCall => ({
     call: r[0],
     calls: (r.length > 1 ? [makeRunnerCall(r.slice(1))] : []),
   });
@@ -15,10 +15,13 @@ export default (
   const allCalls = [...calls, makeRunnerCall(runners)];
 
   const makeTestCall = (call: ActionCall, depth = 0): ActionTestCall => ({
-    ...(isContextFunction(call.call) ? {
-      name: call.call.meta.factory.meta.name,
+    ...(isEnhancer(call.call) || isRunner(call.call) || isWhen(call.call) ? {
+      name: call.call.meta.name,
       args: call.call.meta.args,
-    } : { name: null, args: null }),
+    } : {
+      name: null,
+      args: null,
+    }),
     depth,
     calls: call.calls.map((c) => makeTestCall(c, depth + 1)),
     original: call,

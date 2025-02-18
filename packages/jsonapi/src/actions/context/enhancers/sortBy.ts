@@ -41,7 +41,7 @@ export default /* @__PURE__ */ makeEnhancer('sortBy', ((
 ) => async <C extends {}>(action: Action<C>) => {
   const [newKeys, newDirections] = resolveKeysDirections(keys, directions);
 
-  action.use(param(
+  action(param(
     'sort',
     optionalJoin(uniqueValues([
       consumeRequestObjectParams(await action.useContext())?.sort,
@@ -64,7 +64,7 @@ export default /* @__PURE__ */ makeEnhancer('sortBy', ((
    * import { query, all } from '@foscia/core';
    * import { sortBy } from '@foscia/jsonapi';
    *
-   * const posts = await action().run(
+   * const posts = await action(
    *   query(Post),
    *   sortBy({ publishedAt: 'desc', title: 'asc' }),
    *   all(),
@@ -90,7 +90,7 @@ export default /* @__PURE__ */ makeEnhancer('sortBy', ((
    * import { query, all } from '@foscia/core';
    * import { sortBy } from '@foscia/jsonapi';
    *
-   * const posts = await action().run(
+   * const posts = await action(
    *   query(Post),
    *   sortBy('title'),
    *   sortBy(['publishedAt', 'title'], ['desc', 'asc']),

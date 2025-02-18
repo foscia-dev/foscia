@@ -1,4 +1,4 @@
-import isAttributeDef from '@foscia/core/model/checks/isAttributeDef';
+import isAttributeDef from '@foscia/core/model/props/checks/isAttributeDef';
 import mapProps from '@foscia/core/model/props/mappers/mapProps';
 import { Model, ModelAttribute } from '@foscia/core/model/types';
 

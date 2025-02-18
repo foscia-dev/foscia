@@ -1,6 +1,6 @@
 import oneOr, { OneData } from '@foscia/core/actions/context/runners/oneOr';
 import { RetypedDeserializedData } from '@foscia/core/actions/context/utilities/deserializeInstances';
-import makeRunner from '@foscia/core/actions/makeRunner';
+import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import { InferQueryInstance } from '@foscia/core/actions/types';
 import { DeserializedData } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
@@ -16,7 +16,7 @@ import { Awaitable } from '@foscia/shared';
  * ```typescript
  * import { query, one } from '@foscia/core';
  *
- * const post = await action().run(query(post, '123'), one());
+ * const post = await action(query(post, '123'), one());
  * ```
  */
 export default makeRunner('one', <

@@ -1,8 +1,8 @@
-import ActionName from '@foscia/core/actions/actionName';
+import ActionName from '@foscia/core/actions/context/actionName';
 import context from '@foscia/core/actions/context/enhancers/context';
 import query from '@foscia/core/actions/context/enhancers/query';
 import serializeRelation from '@foscia/core/actions/context/utilities/serializeRelation';
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import {
   Action,
   ConsumeId,
@@ -44,7 +44,7 @@ export type InferRelationUpdateValue<R> = R extends ModelRelation<infer T>
  * ```typescript
  * import { updateRelation, none } from '@foscia/core';
  *
- * await action().run(updateRelation(post, 'tags', [tag1, tag2]), none());
+ * await action(updateRelation(post, 'tags', [tag1, tag2]), none());
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('updateRelation', <
@@ -60,7 +60,7 @@ export default /* @__PURE__ */ makeEnhancer('updateRelation', <
   value: ModelValues<I>[K],
   // eslint-disable-next-line max-len
   actionName: ActionName.UPDATE_RELATION | ActionName.ATTACH_RELATION | ActionName.DETACH_RELATION = ActionName.UPDATE_RELATION,
-) => async (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => action.use(
+) => async (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => action(
   query(instance, relation),
   context({
     action: actionName,

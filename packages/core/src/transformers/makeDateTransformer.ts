@@ -18,7 +18,7 @@ export default (
 ) => () => makeTransformer(
   (value: unknown) => tap(deserializeFn(value), (date) => {
     if (Number.isNaN(date.getTime())) {
-      logger.warn(`Transformer \`${name}\` transform resulted in NaN date value.`, [{ value }]);
+      logger.warn(`Transformer \`${name}\` transform resulted in NaN date value.`, value);
     }
   }),
   serializeFn,

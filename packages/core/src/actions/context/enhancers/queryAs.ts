@@ -1,5 +1,5 @@
 import context from '@foscia/core/actions/context/enhancers/context';
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action } from '@foscia/core/actions/types';
 import { Model } from '@foscia/core/model/types';
 import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
@@ -17,9 +17,9 @@ import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
  * ```typescript
  * import { queryAs } from '@foscia/core';
  *
- * action().use(queryAs(Post));
- * action().use(queryAs(Post, Comment));
- * action().use(queryAs([Post, Comment]));
+ * action(queryAs(Post));
+ * action(queryAs(Post, Comment));
+ * action(queryAs([Post, Comment]));
  * ```
  *
  * @remarks
@@ -36,4 +36,4 @@ export default /* @__PURE__ */ makeEnhancer('queryAs', <C extends {}, M extends 
   ...models: ArrayableVariadic<M>
 ) => async (
   action: Action<C>,
-) => action.use(context({ queryAs: wrapVariadic(...models) })));
+) => action(context({ queryAs: wrapVariadic(...models) })));

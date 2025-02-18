@@ -1,10 +1,10 @@
 import {
   Action,
   ActionFactory,
-  ContextEnhancer,
-  ContextRunner,
+  AnonymousEnhancer,
+  AnonymousRunner,
   FosciaError,
-  isWhenContextFunction,
+  isWhen,
   runHooks,
   withoutHooks,
 } from '@foscia/core';
@@ -33,10 +33,10 @@ export default <C extends {}>(
 
   const unnestRunners = async (
     action: Action<any>,
-    runners: ContextRunner<any, any>[],
-  ): Promise<ContextRunner<any, any>[]> => {
+    runners: AnonymousRunner<any, any>[],
+  ): Promise<AnonymousRunner<any, any>[]> => {
     const runner = runners[runners.length - 1];
-    if (isWhenContextFunction(runner)) {
+    if (isWhen(runner)) {
       const callback = await value(runner.meta.args[0] as Function)
         ? runner.meta.args[1]
         : runner.meta.args[2];
@@ -44,7 +44,7 @@ export default <C extends {}>(
         return [...runners, () => undefined];
       }
 
-      if (isWhenContextFunction(callback)) {
+      if (isWhen(callback)) {
         return unnestRunners(action, [...runners, callback]);
       }
 
@@ -56,13 +56,13 @@ export default <C extends {}>(
 
   const run = async (
     action: Action<any>,
-    enhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[],
+    enhancers: (AnonymousEnhancer<any, any> | AnonymousRunner<any, any>)[],
   ) => {
     if (enhancers.length === 0) {
       throw new FosciaError('`run` must be called with at least one runner function.');
     }
 
-    const rootRunner = enhancers.pop() as ContextRunner<any, any>;
+    const rootRunner = enhancers.pop() as AnonymousRunner<any, any>;
 
     (action as any).use(...enhancers);
 
@@ -116,13 +116,13 @@ export default <C extends {}>(
   };
 
   const make = (
-    ...immediateEnhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[]
+    ...immediateEnhancers: (AnonymousEnhancer<any, any> | AnonymousRunner<any, any>)[]
   ) => {
     const action = new Proxy(factory(), {
       get: (target, property) => (
         property === 'run'
           ? (
-            ...enhancers: (ContextEnhancer<any, any> | ContextRunner<any, any>)[]
+            ...enhancers: (AnonymousEnhancer<any, any> | AnonymousRunner<any, any>)[]
           ) => run(target, enhancers)
           : target[property as keyof Action<C>]
       ),

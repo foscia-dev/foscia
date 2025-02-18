@@ -10,14 +10,15 @@ sidebar_position: 5
 
 ### High impacts changes
 
-- [Main dependencies types have been renamed](#main-dependencies-types-have-been-renamed)
+- [`oneOrCurrent` has been renamed to `current`](#oneorcurrent-has-been-renamed-to-current)
 - [Builder pattern calls and actions extensions are removed](#builder-pattern-calls-and-actions-extensions-are-removed)
+- [Dependencies types and other types have been renamed](#dependencies-types-and-other-types-have-been-renamed)
 - [Dependencies factories functions signature changed](#dependencies-factories-functions-signature-changed)
+- [HTTP transformers replaced with middlewares](#http-transformers-replaced-with-middlewares)
 
 ### Medium impacts changes
 
 - [Action hooks events now provide action instead of context](#action-hooks-events-now-provide-action-instead-of-context)
-- [HTTP transformers replaced with middlewares](#http-transformers-replaced-with-middlewares)
 - [Properties definition are now defined using factories](#properties-definition-are-now-defined-using-factories)
 - [Internal APIs are now tagged and may have changed](#internal-apis-are-now-tagged-and-may-have-changed)
 - [Relation `.config()` chained modifier is removed](#relation-config-chained-modifier-is-removed)
@@ -27,19 +28,31 @@ sidebar_position: 5
 - [Custom transformers must use `makeCustomTransformer`](#custom-transformers-must-use-makecustomtransformer)
 - [`$model` property of snapshots is replaced by `$instance`](#model-property-of-snapshots-is-replaced-by-instance)
 
-### Main dependencies types have been renamed
+### `oneOrCurrent` has been renamed to `current`
 
 **Likelihood Of Impact: High**
 
-To unify Foscia types definition, main dependencies types names have changed.
-If you are using those, you must use the new names:
+`oneOrCurrent` had an incorrect behavior of returning the current instance
+on a not found error (such as 404 responses). This behavior has been corrected
+and the runner has been renamed to `current` to avoid confusion with `one` and
+other similar runners.
 
-- `RegistryI` to `ModelsRegistry`
-- `CacheI` to `InstancesCache`
-- `AdapterResponseI` to `AdapterResponse`
-- `AdapterI` to `Adapter`
-- `DeserializerI` to `Deserializer`
-- `SerializerI` to `Serializer`
+You must replace this runner's name:
+
+```typescript
+// highlight.deletion
+import { oneOrCurrent, save } from '@foscia/core';
+// highlight.addition
+import { current, save } from '@foscia/core';
+
+const post = await action(
+  save(myPost),
+// highlight.deletion
+  oneOrCurrent(),
+// highlight.addition
+  current(),
+);
+```
 
 ### Builder pattern calls and actions extensions are removed
 
@@ -72,11 +85,16 @@ const posts = await action()
   .run(query(Post), all());
 ```
 
-If you are using some special types, such as `Action`, `ContextEnhancer` or
-`ContextRunner`, you should remove the extension generic type.
+If you are using some special types, such as `Action`,
+`ContextEnhancer` (renamed `AnonymousEnhancer`) or
+`ContextRunner` (renamed `AnonymousRunner`),
+you should remove the extension generic type.
 
 ```typescript
+// highlight.deletion
 import { Action, ContextEnhancer, ConsumeModel } from '@foscia/core';
+// highlight.addition
+import { Action, AnonymousEnhancer, ConsumeModel } from '@foscia/core';
 // highlight.deletion
 type CustomAction = Action<ConsumeModel, {}>;
 // highlight.addition
@@ -84,11 +102,30 @@ type CustomAction = Action<ConsumeModel>;
 // highlight.deletion
 type CustomEnhancer = ContextEnhancer<{}, any, ConsumeModel>;
 // highlight.addition
-type CustomEnhancer = ContextEnhancer<{}, ConsumeModel>;
+type CustomEnhancer = AnonymousEnhancer<{}, ConsumeModel>;
 ```
 
 > When TypeScript will provide higher kinded types, this feature will
 > probably be restored.
+
+### Dependencies types and other types have been renamed
+
+**Likelihood Of Impact: High**
+
+To unify Foscia types definition, main dependencies types names have changed.
+If you are using those, you must use the new names:
+
+- `RegistryI` to `ModelsRegistry`
+- `CacheI` to `InstancesCache`
+- `AdapterResponseI` to `AdapterResponse`
+- `AdapterI` to `Adapter`
+- `DeserializerI` to `Deserializer`
+- `SerializerI` to `Serializer`
+
+In addition, some other types have been renamed:
+
+- `ContextEnhancer` to `AnonymousEnhancer`
+- `ContextRunner` to `AnonymousRunner`
 
 ### Dependencies factories functions signature changed
 
@@ -116,30 +153,9 @@ In addition, multiple factories functions have been renamed:
 - `makeJsonRestSerializer` to `makeRestSerializer`
 - `makeJsonRestDeserializer` to `makeRestDeserializer`
 
-### Action hooks events now provide action instead of context
-
-**Likelihood Of Impact: Medium**
-
-Action hooks events now provide an action property instead of a context
-property, because this might lead to outdated context values.
-
-If your action hooks are using the context, you can still access it using
-`useContext` on the action provided in the event:
-
-```typescript
-import { onRunning } from '@foscia/core';
-
-action.use(onRunning(async (event) => {
-// highlight.deletion
-  console.log(event.context);
-// highlight.addition
-  console.log(await event.action.useContext());
-}));
-```
-
 ### HTTP transformers replaced with middlewares
 
-**Likelihood Of Impact: Medium**
+**Likelihood Of Impact: High**
 
 To provide a simpler API and improve maintainability, HTTP adapter's and
 request's transformers have been replaced by middlewares.
@@ -197,6 +213,27 @@ makeHttpAdapter({
 // highlight.addition
   }],
 });
+```
+
+### Action hooks events now provide action instead of context
+
+**Likelihood Of Impact: Medium**
+
+Action hooks events now provide an action property instead of a context
+property, because this might lead to outdated context values.
+
+If your action hooks are using the context, you can still access it using
+`useContext` on the action provided in the event:
+
+```typescript
+import { onRunning } from '@foscia/core';
+
+action.use(onRunning(async (event) => {
+// highlight.deletion
+  console.log(event.context);
+// highlight.addition
+  console.log(await event.action.useContext());
+}));
 ```
 
 ### Properties definition are now defined using factories

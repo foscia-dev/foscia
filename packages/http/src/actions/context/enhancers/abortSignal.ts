@@ -17,7 +17,7 @@ import { Optional } from '@foscia/shared';
  *
  * const abortController = new AbortController();
  *
- * const promise = action().run(makeGet('posts'), abortSignal(abortController), raw());
+ * const promise = action(makeGet('posts'), abortSignal(abortController), raw());
  *
  * abortController.abort();
  * ```

@@ -1,6 +1,6 @@
 import raw from '@foscia/core/actions/context/runners/raw';
-import makeRunner from '@foscia/core/actions/makeRunner';
-import { Action, ConsumeAdapter } from '@foscia/core/actions/types';
+import { ConsumeAdapter, AnonymousRunner } from '@foscia/core/actions/types';
+import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 
 /**
  * Run the action and ignore the content of the result.
@@ -13,11 +13,9 @@ import { Action, ConsumeAdapter } from '@foscia/core/actions/types';
  * ```typescript
  * import { destroy, none } from '@foscia/core';
  *
- * await action().run(destroy(post), none());
+ * await action(destroy(post), none());
  * ```
  */
-export default makeRunner('none', <C extends {}>() => async (
-  action: Action<C & ConsumeAdapter>,
-) => {
-  await action.run(raw());
+export default makeRunner('none', raw as {
+  <C extends {}>(): AnonymousRunner<C & ConsumeAdapter, Promise<void>>;
 });

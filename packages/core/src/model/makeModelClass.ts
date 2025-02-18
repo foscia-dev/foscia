@@ -2,7 +2,7 @@ import FosciaError from '@foscia/core/errors/fosciaError';
 import mergeHooks from '@foscia/core/hooks/mergeHooks';
 import runHooksSync from '@foscia/core/hooks/runHooksSync';
 import { HooksRegistrar } from '@foscia/core/hooks/types';
-import applyDefinition from '@foscia/core/model/composition/applyDefinition';
+import applyDefinition from '@foscia/core/model/composition/utilities/applyDefinition';
 import makeDefinition from '@foscia/core/model/composition/makeDefinition';
 import {
   ExtendableModel,

@@ -26,7 +26,7 @@ describe('unit: toDate', () => {
     const loggerWarnMock = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
     expect((await toDate().deserialize('foo-bar'))!.getTime()).toBeNaN();
     expect(loggerWarnMock.mock.calls).toStrictEqual([
-      ['Transformer `toDate` transform resulted in NaN date value.', [{ value: 'foo-bar' }]],
+      ['Transformer `toDate` transform resulted in NaN date value.', 'foo-bar'],
     ]);
     loggerWarnMock.mockRestore();
   });

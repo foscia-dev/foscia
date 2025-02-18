@@ -1,5 +1,5 @@
 import associate from '@foscia/core/actions/context/enhancers/crud/associate';
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { ModelInstance, ModelRelationKey, ModelWritableKey } from '@foscia/core/model/types';
 
 /**
@@ -17,7 +17,7 @@ import { ModelInstance, ModelRelationKey, ModelWritableKey } from '@foscia/core/
  * ```typescript
  * import { dissociate, none } from '@foscia/core';
  *
- * await action().run(dissociate(post, 'author'), none());
+ * await action(dissociate(post, 'author'), none());
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('dissociate', <

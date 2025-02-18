@@ -16,7 +16,7 @@ import { HttpRequestConfig } from '@foscia/http/types';
  * import { raw } from '@foscia/core';
  * import { makePut } from '@foscia/http';
  *
- * const response = await action().run(
+ * const response = await action(
  *   makePut('posts/1', { title: 'Hello World V2' }),
  *   raw(),
  * );

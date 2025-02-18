@@ -18,7 +18,7 @@ import { Dictionary } from '@foscia/shared';
  * import { raw } from '@foscia/core';
  * import { makeGet, params } from '@foscia/http';
  *
- * const response = await action().run(
+ * const response = await action(
  *   makeGet('posts'),
  *   params({ search: 'foo' }),
  *   params('sort', 'title'),
@@ -33,7 +33,7 @@ import { Dictionary } from '@foscia/shared';
 export default /* @__PURE__ */ makeEnhancer('param', (
   key: string | Dictionary,
   value?: unknown,
-) => async <C extends {}>(action: Action<C>) => action.use(
+) => async <C extends {}>(action: Action<C>) => action(
   configureRequest({
     params: {
       ...consumeRequestObjectParams(await action.useContext()),

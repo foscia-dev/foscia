@@ -1,10 +1,10 @@
-import ActionName from '@foscia/core/actions/actionName';
+import ActionName from '@foscia/core/actions/context/actionName';
 import context from '@foscia/core/actions/context/enhancers/context';
 import instanceData from '@foscia/core/actions/context/enhancers/crud/instanceData';
 import query from '@foscia/core/actions/context/enhancers/query';
 import registerWriteActionHooks
   from '@foscia/core/actions/context/utilities/registerWriteActionHooks';
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import {
   Action,
   ConsumeId,
@@ -12,7 +12,7 @@ import {
   ConsumeModel,
   ConsumeRelation,
   ConsumeSerializer,
-  ContextEnhancer,
+  AnonymousEnhancer,
   InferQueryInstance,
 } from '@foscia/core/actions/types';
 import {
@@ -37,7 +37,7 @@ export default /* @__PURE__ */ makeEnhancer('create', (<
   throughRelation?: K & ModelRelationKey<I>,
 ) => (
   action: Action<C & ConsumeSerializer<Record, Related, Data>>,
-) => registerWriteActionHooks(action.use(
+) => registerWriteActionHooks(action(
   query(throughInstance ?? instance, throughRelation as any),
   context({
     action: ActionName.CREATE,
@@ -60,12 +60,12 @@ export default /* @__PURE__ */ makeEnhancer('create', (<
    * ```typescript
    * import { create, none } from '@foscia/core';
    *
-   * await action().run(create(post), none());
+   * await action(create(post), none());
    * ```
    */<C extends {}, I extends ModelInstance, Record, Related, Data>(
     instance: I,
     // eslint-disable-next-line max-len
-  ): ContextEnhancer<C & ConsumeSerializer<Record, Related, Data>, C & ConsumeModel<I['$model']> & ConsumeInstance<I>>;
+  ): AnonymousEnhancer<C & ConsumeSerializer<Record, Related, Data>, C & ConsumeModel<I['$model']> & ConsumeInstance<I>>;
   /**
    * Prepare context for an instance creation through another instance relation.
    *
@@ -79,7 +79,7 @@ export default /* @__PURE__ */ makeEnhancer('create', (<
    * ```typescript
    * import { create, none } from '@foscia/core';
    *
-   * await action().run(create(comment, post, 'comments'), none());
+   * await action(create(comment, post, 'comments'), none());
    * ```
    */<
     C extends {},
@@ -95,5 +95,5 @@ export default /* @__PURE__ */ makeEnhancer('create', (<
     throughInstance: I,
     throughRelation: K & ModelRelationKey<I>,
     // eslint-disable-next-line max-len
-  ): ContextEnhancer<C & ConsumeSerializer<Record, Related, Data>, C & ConsumeModel<I['$model']> & ConsumeRelation<R> & ConsumeInstance<RI> & ConsumeId>;
+  ): AnonymousEnhancer<C & ConsumeSerializer<Record, Related, Data>, C & ConsumeModel<I['$model']> & ConsumeRelation<R> & ConsumeInstance<RI> & ConsumeId>;
 });

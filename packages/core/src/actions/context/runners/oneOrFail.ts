@@ -2,7 +2,7 @@ import oneOr, { OneData } from '@foscia/core/actions/context/runners/oneOr';
 import {
   RetypedDeserializedData,
 } from '@foscia/core/actions/context/utilities/deserializeInstances';
-import makeRunner from '@foscia/core/actions/makeRunner';
+import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import { InferQueryInstance } from '@foscia/core/actions/types';
 import ExpectedRunFailureError from '@foscia/core/errors/expectedRunFailureError';
 import { DeserializedData } from '@foscia/core/types';
@@ -19,7 +19,7 @@ import { Awaitable } from '@foscia/shared';
  * ```typescript
  * import { query, oneOrFail } from '@foscia/core';
  *
- * const post = await action().run(query(post, '123'), oneOrFail());
+ * const post = await action(query(post, '123'), oneOrFail());
  * ```
  */
 export default makeRunner('oneOrFail', <

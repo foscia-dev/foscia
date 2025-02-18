@@ -1,8 +1,8 @@
 import updateRelation from '@foscia/core/actions/context/enhancers/crud/updateRelation';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
-import fill from '@foscia/core/model/fill';
+import fill from '@foscia/core/model/utilities/fill';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
 import {
   ModelInstance,
@@ -27,7 +27,7 @@ import {
  * ```typescript
  * import { associate, none } from '@foscia/core';
  *
- * await action().run(associate(post, 'author', user), none());
+ * await action(associate(post, 'author', user), none());
  * ```
  */
 
@@ -42,7 +42,7 @@ export default /* @__PURE__ */ makeEnhancer('associate', <
   instance: I,
   relation: K,
   value: ModelValues<I>[K],
-) => (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => action.use(
+) => (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => action(
   updateRelation(instance, relation, value),
   onSuccess(() => {
     fill(instance, { [relation]: value } as unknown as Partial<ModelValues<I>>);

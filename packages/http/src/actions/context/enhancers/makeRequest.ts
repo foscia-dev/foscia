@@ -25,7 +25,7 @@ const decomposeURL = (pathOrBaseURL: string) => (
  * import { raw } from '@foscia/core';
  * import { makeRequest } from '@foscia/http';
  *
- * const response = await action().run(
+ * const response = await action(
  *   makeRequest('posts', { params: { search: 'foo' } }),
  *   raw(),
  * );

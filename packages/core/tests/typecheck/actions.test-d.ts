@@ -8,6 +8,7 @@ import {
   cachedOr,
   context,
   create,
+  current,
   Deserializer,
   destroy,
   dissociate,
@@ -15,7 +16,6 @@ import {
   InstancesCache,
   makeActionFactory,
   one,
-  oneOrCurrent,
   oneOrFail,
   onRunning,
   query,
@@ -53,6 +53,15 @@ test('Actions are type safe', async () => {
   const postsUsingFactoryVariadic = await action(
     query(PostMock),
     include('comments.postedBy'),
+    when(true, (a) => a(include('images'))),
+    all(),
+  );
+  const postsUsingAllVariadic = await action(
+    query(PostMock),
+  )(
+    include('comments.postedBy'),
+    when(true, (a) => a(include('images'))),
+  )(
     all(),
   );
   const manualPostsUsingRunVariadic = await action().run(
@@ -63,6 +72,7 @@ test('Actions are type safe', async () => {
   expectTypeOf(postsUsingVariadic).toEqualTypeOf<PostMock[]>();
   expectTypeOf(postsUsingRunVariadic).toEqualTypeOf<PostMock[]>();
   expectTypeOf(postsUsingFactoryVariadic).toEqualTypeOf<PostMock[]>();
+  expectTypeOf(postsUsingAllVariadic).toEqualTypeOf<PostMock[]>();
   expectTypeOf(manualPostsUsingRunVariadic).toEqualTypeOf<PostMock[]>();
 
   const postNullUsingFunc = await action()
@@ -70,9 +80,9 @@ test('Actions are type safe', async () => {
     .run(cached());
   const postUsingFunc = await action()
     .use(query(new PostMock()))
-    .run(cachedOr(oneOrCurrent()));
+    .run(cachedOr(current()));
   const postUsingRunVariadic = await action()
-    .run(query(new PostMock()), cachedOr(oneOrCurrent()));
+    .run(query(new PostMock()), cachedOr(current()));
 
   expectTypeOf(postNullUsingFunc).toEqualTypeOf<PostMock | null>();
   expectTypeOf(postUsingFunc).toEqualTypeOf<PostMock>();
@@ -134,6 +144,21 @@ test('Actions are type safe', async () => {
       .use(update(new PostMock()))
       .run(one()),
   ).toEqualTypeOf<PostMock | null>();
+  expectTypeOf(
+    await action()
+      .use(create(new PostMock()))
+      .run(current()),
+  ).toEqualTypeOf<PostMock>();
+  expectTypeOf(
+    await action()
+      .use(create(new CommentMock(), new PostMock(), 'comments'))
+      .run(current()),
+  ).toEqualTypeOf<CommentMock>();
+  expectTypeOf(
+    await action()
+      .use(update(new PostMock()))
+      .run(current()),
+  ).toEqualTypeOf<PostMock>();
   expectTypeOf(
     await action()
       .use(destroy(new PostMock()))

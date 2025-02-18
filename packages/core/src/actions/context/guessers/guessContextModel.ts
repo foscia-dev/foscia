@@ -1,4 +1,4 @@
-import guessRelationType from '@foscia/core/model/relations/utilities/guessRelationType';
+import guessRelationType from '@foscia/core/model/props/utilities/guessRelationType';
 import { Model, ModelRelation } from '@foscia/core/model/types';
 import { ModelsRegistry } from '@foscia/core/types';
 import { isNil, Optional, wrap } from '@foscia/shared';

@@ -1,4 +1,4 @@
-import ActionName from '@foscia/core/actions/actionName';
+import ActionName from '@foscia/core/actions/context/actionName';
 import type {
   InferRelationUpdateValue,
 } from '@foscia/core/actions/context/enhancers/crud/updateRelation';
@@ -12,17 +12,17 @@ import type {
   RetypedDeserializedData,
 } from '@foscia/core/actions/context/utilities/deserializeInstances';
 import {
-  ActionFactoryVariadicRun,
-  ActionVariadicRun,
-  ActionVariadicUse,
+  ActionVariadicRunFunction,
+  ActionVariadicRunMethod,
+  ActionVariadicUseFunction,
+  ActionVariadicUseMethod,
 } from '@foscia/core/actions/variadic';
 import { Hookable, HookCallback } from '@foscia/core/hooks/types';
 import { Model, ModelIdType, ModelInstance, ModelRelation } from '@foscia/core/model/types';
 import {
-  SYMBOL_ACTION_CONTEXT_ENHANCER,
-  SYMBOL_ACTION_CONTEXT_FUNCTION_FACTORY,
-  SYMBOL_ACTION_CONTEXT_RUNNER,
-  SYMBOL_ACTION_CONTEXT_WHEN,
+  SYMBOL_ACTION_ENHANCER,
+  SYMBOL_ACTION_RUNNER,
+  SYMBOL_ACTION_WHEN,
 } from '@foscia/core/symbols';
 import {
   Adapter,
@@ -51,7 +51,7 @@ export * from '@foscia/core/actions/variadic';
  * @internal
  */
 export type ActionHooksDefinition = {
-  running: HookCallback<{ action: Action; runner: ContextRunner<any, any>; }>;
+  running: HookCallback<{ action: Action; runner: AnonymousRunner<any, any>; }>;
   success: HookCallback<{ action: Action; result: unknown; }>;
   error: HookCallback<{ action: Action; error: unknown; }>;
   finally: HookCallback<{ action: Action; }>;
@@ -85,7 +85,7 @@ export type Action<Context extends {} = {}> =
      * @param enhancer
      */
     use<NewContext extends {} = Context>(
-      enhancer: ContextEnhancer<Context, NewContext>,
+      enhancer: AnonymousEnhancer<Context, NewContext>,
     ): Action<NewContext>;
     /**
      * Run the action.
@@ -93,7 +93,7 @@ export type Action<Context extends {} = {}> =
      * @param runner
      */
     run<Result>(
-      runner: ContextRunner<Context, Result>,
+      runner: AnonymousRunner<Context, Result>,
     ): Promise<Awaited<Result>>;
     /**
      * Run the given callback on action and keep track for call stack.
@@ -107,7 +107,7 @@ export type Action<Context extends {} = {}> =
      */
     track<Result>(
       callback: (action: Action<Context>) => Result,
-      call?: ContextEnhancer<any, any> | ContextRunner<any, any>,
+      call?: AnonymousEnhancer<any, any> | AnonymousRunner<any, any>,
     ): Promise<Awaited<Result>>;
     /**
      * Get the tree of action calls (enhancers or runners).
@@ -116,8 +116,10 @@ export type Action<Context extends {} = {}> =
      */
     calls(): ActionCall[];
   }
-  & ActionVariadicUse<Context>
-  & ActionVariadicRun<Context>
+  & ActionVariadicUseMethod<Context>
+  & ActionVariadicRunMethod<Context>
+  & ActionVariadicUseFunction<Context>
+  & ActionVariadicRunFunction<Context>
   & Hookable<ActionHooksDefinition>;
 
 /**
@@ -127,7 +129,8 @@ export type Action<Context extends {} = {}> =
  */
 export type ActionFactory<Context extends {}> =
   & (() => Action<Context>)
-  & ActionFactoryVariadicRun<Context>;
+  & ActionVariadicUseFunction<Context>
+  & ActionVariadicRunFunction<Context>;
 
 /**
  * Middleware to impact an action result or behavior.
@@ -145,85 +148,66 @@ export type ActionMiddleware<Context extends {}, Result> = (
  * @internal
  */
 export type ActionCall = {
-  call: ContextEnhancer<any, any> | ContextRunner<any, any>;
+  call: AnonymousEnhancer<any, any> | AnonymousRunner<any, any>;
   calls: ActionCall[];
 };
 
 /**
- * Function to enhance the action context.
+ * Function to enhance an action context.
  */
-export type ContextEnhancer<C extends {}, NC extends {}> = (
+export type AnonymousEnhancer<C extends {}, NC extends {}> = (
   action: Action<C>,
 ) => Awaitable<Action<NC> | void>;
 
 /**
  * Function to create a result from a contextualized action.
  */
-export type ContextRunner<C extends {}, R> = (
+export type AnonymousRunner<C extends {}, R> = (
   action: Action<C>,
 ) => R;
 
 /**
- * Available types for a context function.
+ * {@link AnonymousEnhancer | `AnonymousEnhancer`} with metadata properties.
  *
  * @internal
  */
-export type ContextFunctionType =
-  | typeof SYMBOL_ACTION_CONTEXT_WHEN
-  | typeof SYMBOL_ACTION_CONTEXT_ENHANCER
-  | typeof SYMBOL_ACTION_CONTEXT_RUNNER;
+export type Enhancer =
+  & AnonymousEnhancer<any, any>
+  & ContextFunctionMetadata<typeof SYMBOL_ACTION_ENHANCER>;
 
 /**
- * Conditional context function.
+ * {@link AnonymousRunner | `AnonymousRunner`} with metadata properties.
  *
  * @internal
  */
-export type ContextWhenFunction = {
-  (): ContextEnhancer<any, any> | ContextRunner<any, any>;
-  readonly meta: { readonly factory: ContextFunctionFactory; readonly args: any[]; };
-} & FosciaObject<typeof SYMBOL_ACTION_CONTEXT_WHEN>;
+export type Runner =
+  & AnonymousRunner<any, any>
+  & ContextFunctionMetadata<typeof SYMBOL_ACTION_RUNNER>;
 
 /**
- * Enhancer context function.
+ * {@link when | `when`} {@link AnonymousEnhancer | `AnonymousEnhancer`}
+ * or {@link AnonymousRunner | `AnonymousRunner`} with metadata properties.
  *
  * @internal
  */
-export type ContextEnhancerFunction = {
-  (): ContextEnhancer<any, any>;
-  readonly meta: { readonly factory: ContextFunctionFactory; readonly args: any[]; };
-} & FosciaObject<typeof SYMBOL_ACTION_CONTEXT_ENHANCER>;
+export type When =
+  & (AnonymousEnhancer<any, any> | AnonymousRunner<any, any>)
+  & ContextFunctionMetadata<typeof SYMBOL_ACTION_WHEN>;
 
 /**
- * Runner context function.
+ * Metadata properties available on enhancers, runners and when.
  *
  * @internal
  */
-export type ContextRunnerFunction = {
-  (): ContextRunner<any, any>;
-  readonly meta: { readonly factory: ContextFunctionFactory; readonly args: any[]; };
-} & FosciaObject<typeof SYMBOL_ACTION_CONTEXT_RUNNER>;
-
-/**
- * Available context functions.
- *
- * @internal
- */
-export type ContextFunction =
-  | ContextWhenFunction
-  | ContextEnhancerFunction
-  | ContextRunnerFunction;
-
-/**
- * Factory to produce a context function.
- *
- * @internal
- */
-export type ContextFunctionFactory =
+export type ContextFunctionMetadata<S extends symbol> =
   & {
-    (...args: any[]): ContextFunction;
-    readonly meta: { readonly name: string; };
+    readonly meta: {
+      readonly name: string;
+      readonly args: any[];
+      readonly factory: Function;
+    };
   }
-  & FosciaObject<typeof SYMBOL_ACTION_CONTEXT_FUNCTION_FACTORY>;
+  & FosciaObject<S>;
 
 /**
  * Infer the query instance from context.
@@ -257,6 +241,15 @@ export type InferQueryModelOrInstance<C extends {}> =
         : C extends { instance: infer I } ? I
           : C extends { model: infer M } ? M
             : InferQueryInstance<C>;
+
+/**
+ * Define the middlewares to run.
+ *
+ * @internal
+ */
+export type ConsumeActionMiddlewares<C extends {}, R> = {
+  middlewares?: ActionMiddleware<C, R>[];
+};
 
 /**
  * Define action to run on data source.
@@ -323,15 +316,6 @@ export type ConsumeInclude = {
 };
 
 /**
- * Define the middlewares to run.
- *
- * @internal
- */
-export type ConsumeMiddlewares<C extends {}, R> = {
-  middlewares?: ActionMiddleware<C, R>[];
-};
-
-/**
  * Context dependency which can be lazy-loaded.
  *
  * @internal
@@ -370,7 +354,10 @@ export type ConsumeAdapter<RawData = unknown, Data = unknown> = {
  *
  * @internal
  */
-export type ConsumeDeserializer<Data, Deserialized extends DeserializedData = DeserializedData> = {
+export type ConsumeDeserializer<
+  Data = unknown,
+  Deserialized extends DeserializedData = DeserializedData,
+> = {
   deserializer: ResolvableContextDependency<Deserializer<Data, Deserialized>>;
 };
 

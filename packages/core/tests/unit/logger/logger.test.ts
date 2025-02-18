@@ -9,10 +9,10 @@ describe.concurrent('unit: logger', () => {
     const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => undefined);
 
     logger.level = null;
-    logger.error('test error', ['error event']);
-    logger.warn('test warn', ['warn event']);
-    logger.info('test info', ['info event']);
-    logger.debug('test debug', ['debug event']);
+    logger.error('test error', 'error event');
+    logger.warn('test warn', 'warn event');
+    logger.info('test info', 'info event');
+    logger.debug('test debug', 'debug event');
 
     expect(errorSpy).not.toHaveBeenCalled();
     expect(warnSpy).not.toHaveBeenCalled();
@@ -20,10 +20,10 @@ describe.concurrent('unit: logger', () => {
     expect(debugSpy).not.toHaveBeenCalled();
 
     logger.level = 'warn';
-    logger.error('test error', ['error event']);
-    logger.warn('test warn', ['warn event']);
-    logger.info('test info', ['info event']);
-    logger.debug('test debug', ['debug event']);
+    logger.error('test error', 'error event');
+    logger.warn('test warn', 'warn event');
+    logger.info('test info', 'info event');
+    logger.debug('test debug', 'debug event');
 
     expect(errorSpy.mock.calls).toStrictEqual([['[foscia] error: test error', 'error event']]);
     expect(warnSpy.mock.calls).toStrictEqual([['[foscia] warn: test warn', 'warn event']]);
@@ -31,10 +31,10 @@ describe.concurrent('unit: logger', () => {
     expect(debugSpy).not.toHaveBeenCalled();
 
     logger.level = 'debug';
-    logger.error('test error', ['error event']);
-    logger.warn('test warn', ['warn event']);
-    logger.info('test info', ['info event']);
-    logger.debug('test debug', ['debug event']);
+    logger.error('test error', 'error event');
+    logger.warn('test warn', 'warn event');
+    logger.info('test info', 'info event');
+    logger.debug('test debug', 'debug event');
 
     expect(errorSpy).toHaveBeenCalledTimes(2);
     expect(warnSpy).toHaveBeenCalledTimes(2);

@@ -1,6 +1,6 @@
 import mergeHooks from '@foscia/core/hooks/mergeHooks';
 import { Hookable } from '@foscia/core/hooks/types';
-import applyDefinition from '@foscia/core/model/composition/applyDefinition';
+import applyDefinition from '@foscia/core/model/composition/utilities/applyDefinition';
 import makeComposableFactory from '@foscia/core/model/composition/makeComposableFactory';
 import makeDefinition from '@foscia/core/model/composition/makeDefinition';
 import {

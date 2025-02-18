@@ -78,7 +78,7 @@ describe('integration: JSON:API', () => {
 
     const action = makeJsonApiActionMock();
 
-    const data = await action().run(
+    const data = await action(
       query(PostMock),
       include('comments'),
       filterBy('search', 'foo bar'),
@@ -131,26 +131,26 @@ describe('integration: JSON:API', () => {
 
     const action = makeJsonApiActionMock();
 
-    const data = await action()
-      .use(
-        query(PostMock),
-        include('comments'),
-        fields('title', 'comments'),
-        fieldsFor(CommentMock, ['body']),
-        filterBy('search', 'foo bar'),
-        filterBy({ tags: ['foo', 'bar'] }),
-        sortByDesc('search'),
-        sortBy(['title', 'createdAt'], ['asc', 'desc']),
-        sortBy({ commentsCount: 'desc' }),
-        sortByAsc('updatedAt'),
-        paginate({ size: 10, number: 1 }),
-      )
-      .run(all(usingDocument));
+    const data = await action(
+      query(PostMock),
+      include('comments'),
+      fields('title', 'comments'),
+      fieldsFor(CommentMock, ['body']),
+      filterBy('search', 'foo bar'),
+      when(true, (a) => a(filterBy('search2', 'bar foo'))),
+      filterBy({ tags: ['foo', 'bar'] }),
+      sortByDesc('search'),
+      sortBy(['title', 'createdAt'], ['asc', 'desc']),
+      sortBy({ commentsCount: 'desc' }),
+      sortByAsc('updatedAt'),
+      paginate({ size: 10, number: 1 }),
+      all(usingDocument),
+    );
     const posts = data.instances;
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const request = fetchMock.mock.calls[0][0] as Request;
-    expect(request.url).toStrictEqual('https://example.com/api/v1/posts?fields%5Bposts%5D=title%2Ccomments&fields%5Bcomments%5D=body&filter%5Bsearch%5D=foo+bar&filter%5Btags%5D%5B%5D=foo&filter%5Btags%5D%5B%5D=bar&sort=-search%2Ctitle%2C-createdAt%2C-commentsCount%2CupdatedAt&page%5Bsize%5D=10&page%5Bnumber%5D=1&include=comments');
+    expect(request.url).toStrictEqual('https://example.com/api/v1/posts?fields%5Bposts%5D=title%2Ccomments&fields%5Bcomments%5D=body&filter%5Bsearch%5D=foo+bar&filter%5Bsearch2%5D=bar+foo&filter%5Btags%5D%5B%5D=foo&filter%5Btags%5D%5B%5D=bar&sort=-search%2Ctitle%2C-createdAt%2C-commentsCount%2CupdatedAt&page%5Bsize%5D=10&page%5Bnumber%5D=1&include=comments');
     expect(request.method).toStrictEqual('GET');
     expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
     expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');

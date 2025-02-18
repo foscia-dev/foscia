@@ -1,18 +1,18 @@
-import ActionName from '@foscia/core/actions/actionName';
+import ActionName from '@foscia/core/actions/context/actionName';
 import context from '@foscia/core/actions/context/enhancers/context';
 import query from '@foscia/core/actions/context/enhancers/query';
 import registerWriteActionHooks
   from '@foscia/core/actions/context/utilities/registerWriteActionHooks';
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import {
   Action,
   ConsumeId,
   ConsumeInstance,
   ConsumeModel,
-  ContextEnhancer,
+  AnonymousEnhancer,
 } from '@foscia/core/actions/types';
 import isModel from '@foscia/core/model/checks/isModel';
-import forceFill from '@foscia/core/model/forceFill';
+import forceFill from '@foscia/core/model/utilities/forceFill';
 import { Model, ModelIdType, ModelInstance } from '@foscia/core/model/types';
 import { using } from '@foscia/shared';
 
@@ -22,7 +22,7 @@ export default /* @__PURE__ */ makeEnhancer('destroy', ((
 ) => using(
   // eslint-disable-next-line new-cap
   isModel(modelOrInstance) ? forceFill(new modelOrInstance(), { id }) : modelOrInstance,
-  (instance) => (action: Action) => registerWriteActionHooks(action.use(
+  (instance) => (action: Action) => registerWriteActionHooks(action(
     query(modelOrInstance as any, id as any),
     context({
       action: ActionName.DESTROY,
@@ -44,11 +44,11 @@ export default /* @__PURE__ */ makeEnhancer('destroy', ((
    * ```typescript
    * import { destroy, none } from '@foscia/core';
    *
-   * await action().run(destroy(post), none());
+   * await action(destroy(post), none());
    * ```
    */<C extends {}, I extends ModelInstance>(
     instance: I,
-  ): ContextEnhancer<C, C & ConsumeModel<I['$model']> & ConsumeInstance<I> & ConsumeId>;
+  ): AnonymousEnhancer<C, C & ConsumeModel<I['$model']> & ConsumeInstance<I> & ConsumeId>;
   /**
    * Prepare context for a record deletion using model and ID.
    *
@@ -63,10 +63,10 @@ export default /* @__PURE__ */ makeEnhancer('destroy', ((
    * ```typescript
    * import { destroy, none } from '@foscia/core';
    *
-   * await action().run(destroy(Post, '123'), none());
+   * await action(destroy(Post, '123'), none());
    * ```
    */<C extends {}, M extends Model>(
     model: M,
     id: ModelIdType,
-  ): ContextEnhancer<C, C & ConsumeModel<M> & ConsumeId>;
+  ): AnonymousEnhancer<C, C & ConsumeModel<M> & ConsumeId>;
 });

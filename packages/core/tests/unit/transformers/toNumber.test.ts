@@ -24,7 +24,7 @@ describe('unit: toNumber', () => {
     const loggerWarnMock = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
     expect(toNumber().deserialize('foo-bar')).toBeNaN();
     expect(loggerWarnMock.mock.calls).toStrictEqual([
-      ['Transformer `toNumber` transform resulted in NaN value.', [{ value: 'foo-bar' }]],
+      ['Transformer `toNumber` transform resulted in NaN value.', 'foo-bar'],
     ]);
     loggerWarnMock.mockRestore();
   });

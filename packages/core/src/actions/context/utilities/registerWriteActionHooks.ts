@@ -23,7 +23,7 @@ export default <C extends {}>(
   runningHooks: Arrayable<keyof ModelHooksDefinitionForInstance>,
   successHooks: Arrayable<keyof ModelHooksDefinitionForInstance>,
   exists: boolean,
-): Action<C> => using(instance.$original, (snapshot) => action.use(
+): Action<C> => using(instance.$original, (snapshot) => action(
   onRunning(() => runHooks(instance.$model, runningHooks, instance)),
   onSuccess(async () => {
     // When the original snapshot didn't change, this means the instance

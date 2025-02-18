@@ -1,5 +1,8 @@
-import { ModelPendingComposable } from '@foscia/core/model/composition/types';
-import { ModelComposable, ModelComposableFactory } from '@foscia/core/model/types';
+import {
+  ModelComposable,
+  ModelComposableFactory,
+  ModelPendingComposable,
+} from '@foscia/core/model/types';
 import { SYMBOL_MODEL_COMPOSABLE } from '@foscia/core/symbols';
 
 /**

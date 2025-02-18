@@ -1,10 +1,10 @@
-import makeRunner from '@foscia/core/actions/makeRunner';
-import { Action, ContextRunner } from '@foscia/core/actions/types';
+import { Action, AnonymousRunner } from '@foscia/core/actions/types';
+import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import { Awaitable } from '@foscia/shared';
 
 export default makeRunner('catchIf', (<C extends {}, RD, CD = null>(
-  runner: ContextRunner<C, Awaitable<RD>>,
-  catchCallback: (error: unknown) => Awaitable<ContextRunner<C, Awaitable<CD>> | boolean>,
+  runner: AnonymousRunner<C, Awaitable<RD>>,
+  catchCallback: (error: unknown) => Awaitable<AnonymousRunner<C, Awaitable<CD>> | boolean>,
 ) => async (action: Action<C>): Promise<RD | CD> => {
   try {
     return await action.run(runner);
@@ -32,14 +32,14 @@ export default makeRunner('catchIf', (<C extends {}, RD, CD = null>(
    * ```typescript
    * import { catchIf, oneOrFail, query } from '@foscia/core';
    *
-   * const postOrNull = await action().run(
+   * const postOrNull = await action(
    *   query(Post, '123'),
    *   catchIf(oneOrFail()),
    * );
    * ```
    */<C extends {}, T>(
-    runner: ContextRunner<C, Awaitable<T>>,
-  ): ContextRunner<C, T | null>;
+    runner: AnonymousRunner<C, Awaitable<T>>,
+  ): AnonymousRunner<C, T | null>;
   /**
    * Run given runner and catch errors to `null` if catch callback returns a truthy value.
    * If the catch callback returns another action runner, it will run it.
@@ -53,13 +53,13 @@ export default makeRunner('catchIf', (<C extends {}, RD, CD = null>(
    * ```typescript
    * import { catchIf, oneOrFail, query } from '@foscia/core';
    *
-   * const postOrNull = await action().run(
+   * const postOrNull = await action(
    *   query(Post, '123'),
    *   catchIf(oneOrFail(), (error) => error instanceof ErrorToCatch),
    * );
    * ```
    */<C extends {}, T, U = null>(
-    runner: ContextRunner<C, Awaitable<T>>,
-    catchCallback: (error: unknown) => Awaitable<ContextRunner<C, Awaitable<U>> | boolean>,
-  ): ContextRunner<C, T | U>;
+    runner: AnonymousRunner<C, Awaitable<T>>,
+    catchCallback: (error: unknown) => Awaitable<AnonymousRunner<C, Awaitable<U>> | boolean>,
+  ): AnonymousRunner<C, T | U>;
 });

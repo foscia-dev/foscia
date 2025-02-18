@@ -1,6 +1,6 @@
 import consumeInclude from '@foscia/core/actions/context/consumers/consumeInclude';
 import context from '@foscia/core/actions/context/enhancers/context';
-import makeEnhancer from '@foscia/core/actions/makeEnhancer';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action, InferQueryModelOrInstance } from '@foscia/core/actions/types';
 import { ModelRelationDotKey } from '@foscia/core/model/types';
 import { ArrayableVariadic, uniqueValues, wrapVariadic } from '@foscia/shared';
@@ -19,15 +19,15 @@ import { ArrayableVariadic, uniqueValues, wrapVariadic } from '@foscia/shared';
  * ```typescript
  * import { query, include } from '@foscia/core';
  *
- * action().use(query(Post), include('comments'));
- * action().use(query(Post), include('author', 'comments.author'));
+ * action(query(Post), include('comments'));
+ * action(query(Post), include('author', 'comments.author'));
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('include', <C extends {}>(
   ...relations: ArrayableVariadic<ModelRelationDotKey<InferQueryModelOrInstance<C>>>
 ) => async (
   action: Action<C>,
-) => action.use(context({
+) => action(context({
   include: uniqueValues([
     ...(consumeInclude(await action.useContext(), null) ?? []),
     ...wrapVariadic(...relations),

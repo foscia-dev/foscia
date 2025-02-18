@@ -1,3 +1,4 @@
+import type { ActionFactory } from '@foscia/core/actions/types';
 import type {
   Model,
   ModelIdType,
@@ -5,7 +6,39 @@ import type {
   ModelRelation,
   ModelSnapshot,
 } from '@foscia/core/model/types';
-import type { Arrayable, Awaitable } from '@foscia/shared';
+import { Arrayable, Awaitable } from '@foscia/shared';
+
+/**
+ * Registry containing mapping between connections names
+ * and corresponding action factories.
+ *
+ * @interface
+ *
+ * @internal
+ */
+export type ConnectionsRegistry = {
+  /**
+   * Register an action factory.
+   *
+   * @param connection
+   * @param action
+   */
+  register(connection: string, action: ActionFactory<any>): void;
+  /**
+   * Get an action factory.
+   *
+   * @param connection
+   *
+   * @internal
+   */
+  get(connection?: string | undefined): ActionFactory<any>;
+  /**
+   * Get all available action factories keyed by connection name.
+   *
+   * @internal
+   */
+  all(): Map<string, ActionFactory<any>>;
+};
 
 /**
  * Registry containing available models.

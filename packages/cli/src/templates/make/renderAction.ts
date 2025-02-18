@@ -2,11 +2,11 @@ import renderExport from '@foscia/cli/templates/concerns/renderExport';
 import renderImportsList from '@foscia/cli/templates/concerns/renderImportsList';
 import { CLIConfig } from '@foscia/cli/utils/config/config';
 import { ImportsList } from '@foscia/cli/utils/imports/makeImportsList';
+import toIndent from '@foscia/cli/utils/output/toIndent';
 import type {
   ActionFactoryDependency,
   ActionFactoryOptions,
 } from '@foscia/cli/utils/prompts/promptForActionFactoryOptions';
-import toIndent from '@foscia/cli/utils/output/toIndent';
 
 type ActionFactoryTemplateData = {
   config: CLIConfig;
@@ -72,6 +72,8 @@ ${actionFactoryDependencies.filter((d) => d).map((d) => toIndent(config, d!)).jo
 
   return `
 ${renderImportsList({ config, imports })}
-${renderExport({ config, expr: actionFactory })}
+const action = ${actionFactory};
+
+${renderExport({ config, expr: 'action' })}
 `.trim();
 }

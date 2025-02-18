@@ -1,5 +1,5 @@
 import isInstance from '@foscia/core/model/checks/isInstance';
-import isSnapshot from '@foscia/core/model/checks/isSnapshot';
+import isSnapshot from '@foscia/core/model/snapshots/checks/isSnapshot';
 import {
   ModelsReducerConfig,
   ReducedModel,

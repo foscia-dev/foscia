@@ -14,7 +14,7 @@ import { JsonApiDeserializedData } from '@foscia/jsonapi/types';
  * import { query, all } from '@foscia/core';
  * import { usingDocument } from '@foscia/jsonapi';
  *
- * const data = await action().run(
+ * const data = await action(
  *   query(Post),
  *   all(usingDocument),
  * );

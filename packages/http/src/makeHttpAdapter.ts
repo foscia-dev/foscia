@@ -95,7 +95,7 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
   const makeRequestMethod = (context: {}, contextConfig: HttpRequestConfig) => (
     contextConfig.method ?? (() => {
       const action = consumeAction(context, null);
-      const actionsMethodsMap: Dictionary = {
+      const actionsMethodsMap: Dictionary<HttpMethod> = {
         [ActionName.READ]: 'GET',
         [ActionName.CREATE]: 'POST',
         [ActionName.UPDATE]: 'PATCH',
@@ -106,7 +106,7 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
       };
 
       return action && actionsMethodsMap[action]
-        ? actionsMethodsMap[action] as HttpMethod
+        ? actionsMethodsMap[action]
         : 'GET';
     })()
   ).toUpperCase();

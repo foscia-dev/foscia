@@ -36,7 +36,7 @@ const { makeEnhancer } = require('@foscia/core');
 
 modules.export = makeEnhancer('first', (
     // TODO Add enhancer parameters here.
-) => async (action) => action.use(
+) => async (action) => action(
     // TODO Use other enhancers here, such as \`context\`.
 ));
 `.trim());
@@ -49,7 +49,7 @@ import { Action, makeEnhancer } from '@foscia/core';
 
 export default makeEnhancer('first', <C extends {}>(
   // TODO Add enhancer parameters here.
-) => async (action: Action<C>) => action.use(
+) => async (action: Action<C>) => action(
   // TODO Use other enhancers here, such as \`context\`.
 ));
 `.trim());
