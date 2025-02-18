@@ -6,7 +6,7 @@ import makeWeakRefFactory from '@foscia/core/cache/makeWeakRefFactory';
 import connections from '@foscia/core/connections/connections';
 import AdapterError from '@foscia/core/errors/adapterError';
 import DeserializerError from '@foscia/core/errors/deserializerError';
-import ExpectedRunFailureError from '@foscia/core/errors/expectedRunFailureError';
+import RecordNotFoundError from '@foscia/core/errors/recordNotFoundError';
 import FosciaError from '@foscia/core/errors/fosciaError';
 import SerializerError from '@foscia/core/errors/serializerError';
 import { FLAG_ERROR_NOT_FOUND } from '@foscia/core/flags';
@@ -129,7 +129,7 @@ export {
   FosciaError,
   DeserializerError,
   SerializerError,
-  ExpectedRunFailureError,
+  RecordNotFoundError,
   makeRegistry,
   makeMapRegistry,
   makeCache,

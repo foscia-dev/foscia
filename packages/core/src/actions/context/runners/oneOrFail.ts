@@ -2,15 +2,16 @@ import oneOr, { OneData } from '@foscia/core/actions/context/runners/oneOr';
 import {
   RetypedDeserializedData,
 } from '@foscia/core/actions/context/utilities/deserializeInstances';
-import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import { InferQueryInstance } from '@foscia/core/actions/types';
-import ExpectedRunFailureError from '@foscia/core/errors/expectedRunFailureError';
+import makeRunner from '@foscia/core/actions/utilities/makeRunner';
+import RecordNotFoundError from '@foscia/core/errors/recordNotFoundError';
 import { DeserializedData } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
 
 /**
  * Run the action and deserialize one model's instance.
- * Throw an "ExpectedRunFailureError" when not found or empty result.
+ * Throws a {@link RecordNotFoundError | `RecordNotFoundError`} when
+ * encountering a not found adapter error or an empty response.
  *
  * @category Runners
  * @requireContext adapter, deserializer, model
@@ -32,7 +33,7 @@ export default makeRunner('oneOrFail', <
 >(
   transform?: (data: OneData<Data, RetypedDeserializedData<Deserialized, I>, I>) => Awaitable<Next>,
 ) => oneOr<C, I, RawData, Data, Deserialized, never, Next>(() => {
-  throw new ExpectedRunFailureError(
-    '`oneOrFail` failed. You may handle this error globally as a "not found" record error.',
+  throw new RecordNotFoundError(
+    'No record found inside the adapter response.',
   );
 }, transform));

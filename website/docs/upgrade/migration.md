@@ -11,6 +11,7 @@ sidebar_position: 5
 ### High impacts changes
 
 - [`oneOrCurrent` has been renamed to `current`](#oneorcurrent-has-been-renamed-to-current)
+- [`ExpectedRunFailureError` has been renamed to `RecordNotFoundError`](#expectedrunfailureerror-has-been-renamed-to-recordnotfounderror)
 - [Builder pattern calls and actions extensions are removed](#builder-pattern-calls-and-actions-extensions-are-removed)
 - [Dependencies types and other types have been renamed](#dependencies-types-and-other-types-have-been-renamed)
 - [Dependencies factories functions signature changed](#dependencies-factories-functions-signature-changed)
@@ -37,7 +38,7 @@ on a not found error (such as 404 responses). This behavior has been corrected
 and the runner has been renamed to `current` to avoid confusion with `one` and
 other similar runners.
 
-You must replace this runner's name:
+You must replace this runner's name if you are using it:
 
 ```typescript
 // highlight.deletion
@@ -52,6 +53,37 @@ const post = await action(
 // highlight.addition
   current(),
 );
+```
+
+### `ExpectedRunFailureError` has been renamed to `RecordNotFoundError`
+
+**Likelihood Of Impact: High**
+
+In order to improve error names meaning, the error thrown when `oneOrFail` and
+`cachedOrFail` cannot found a record (not found response from adapter or no data
+to deserialize) has been renamed to `RecordNotFoundError`.
+
+You must replace this error's name if you are catching/throwing it:
+
+```typescript
+// highlight.deletion
+import { ExpectedRunFailureError, oneOrFail, query } from '@foscia/core';
+// highlight.addition
+import { RecordNotFoundError, oneOrFail, query } from '@foscia/core';
+
+try {
+  const post = await action(
+    query(Post, 1),
+    oneOrFail(),
+  );
+} catch (error) {
+// highlight.deletion
+  if (error instanceof ExpectedRunFailureError) {
+// highlight.addition
+  if (error instanceof RecordNotFoundError) {
+    // redirect to 404
+  }
+}
 ```
 
 ### Builder pattern calls and actions extensions are removed

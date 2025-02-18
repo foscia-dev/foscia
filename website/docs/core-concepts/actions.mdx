@@ -67,22 +67,33 @@ posts.forEach((post) => {
 In addition, [`query`](/docs/api/@foscia/core/functions/query) also provide a
 way to target a record using a model and an ID. You can use it in combination
 with [`oneOrFail`](/docs/api/@foscia/core/functions/oneOrFail) or
-[`oneOr`](/docs/api/@foscia/core/functions/oneOr) to retrieve a single record
+[`one`](/docs/api/@foscia/core/functions/one) to retrieve a single record
 and handle not found errors.
 
 ```typescript
 import { query, oneOrFail } from '@foscia/core';
 
-const postOrFail = await action(
+const post = await action(
   query(Post, '1'),
   oneOrFail(),
 );
 
 const postOrNull = await action(
   query(Post, '2'),
-  oneOr(() => null),
+  one(),
 );
 ```
+
+:::info
+
+[`oneOrFail`](/docs/api/@foscia/core/functions/oneOrFail) will throw a
+[`RecordNotFoundError`](/docs/api/@foscia/core/classes/RecordNotFoundError)
+when encountering a not found response from adapter (e.g. HTTP 404)
+or an empty list of deserialized instances (e.g. HTTP 204).
+[`oneOr`](/docs/api/@foscia/core/functions/oneOr) will use your provided
+callback and [`one`](/docs/api/@foscia/core/functions/one) will return `null`.
+
+:::
 
 Finally, [`query`](/docs/api/@foscia/core/functions/query) can also be used to
 target a record using an instance. If the instance does not exist, this will
@@ -309,7 +320,7 @@ await action(
 );
 ```
 
-### Caching
+### Retrieving from cache
 
 When having a cache enabled on your action, all fetched records are cached
 when deserializing. You can use the cache to retrieve
@@ -320,8 +331,8 @@ using [`cached`](/docs/api/@foscia/core/functions/cached) and
 ```typescript
 import { query, cached, cachedOrFail } from '@foscia/core';
 
+const post = await action(query(Post, 1), cachedOrFail());
 const postOrNull = await action(query(Post, 1), cached());
-const postOrFail = await action(query(Post, 1), cachedOrFail());
 ```
 
 Sometimes, you may want to interact with the cache if your record does not
@@ -336,10 +347,19 @@ const cachedPostOrFetch = await action(query(Post, 1), cachedOr(oneOrFail()));
 
 :::info
 
-[`cached`](/docs/api/@foscia/core/functions/cached) runners will check for
-loaded relations if you are requesting relations
-[`include`](/docs/api/@foscia/core/functions/include). If some relations
-(even deep ones) are not loaded, it will act as the record is not inside the cache.
+[`cachedOrFail`](/docs/api/@foscia/core/functions/cachedOrFail) will throw a
+[`RecordNotFoundError`](/docs/api/@foscia/core/classes/RecordNotFoundError)
+when encountering a not found response from adapter (e.g. HTTP 404)
+or an empty list of deserialized instances (e.g. HTTP 204).
+[`cachedOr`](/docs/api/@foscia/core/functions/cachedOr) will use your provided
+callback and [`cached`](/docs/api/@foscia/core/functions/cached) will return
+`null`.
+
+In addition, [`cached`](/docs/api/@foscia/core/functions/cached) runners
+will check for loaded relations if you are requesting relations using
+[`include`](/docs/api/@foscia/core/functions/include).
+If some relations (even deep ones) are not loaded, it will act as the record
+is not available the cache.
 
 :::
 
