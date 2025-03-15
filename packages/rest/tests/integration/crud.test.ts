@@ -5,8 +5,8 @@ import {
   destroy,
   fill,
   include,
-  loaded,
-  makeQueryModelLoader,
+  load,
+  loadMissing,
   markSynced,
   none,
   one,
@@ -15,7 +15,7 @@ import {
   save,
   when,
 } from '@foscia/core';
-import { makeGet, param } from '@foscia/http';
+import { makeGet } from '@foscia/http';
 import { describe, expect, it, vi } from 'vitest';
 import createFetchMock from '../../../../tests/mocks/createFetchMock.mock';
 import createFetchResponse from '../../../../tests/mocks/createFetchResponse.mock';
@@ -244,10 +244,9 @@ describe('integration: JSON REST', () => {
     expect(request.method).toStrictEqual('PATCH');
     expect(request.headers.get('Accept')).toStrictEqual('application/json');
     expect(request.headers.get('Content-Type')).toStrictEqual('application/json');
-    expect(await request.text()).toStrictEqual(JSON.stringify({
-      id: '1',
+    expect(await request.json()).toStrictEqual({
       body: 'Bar Body',
-    }));
+    });
 
     expect(notChangedMock).toHaveBeenCalledOnce();
 
@@ -330,7 +329,7 @@ describe('integration: JSON REST', () => {
 
     const [post, comment] = await action()
       .use(
-        queryAs(PostMock, CommentMock),
+        queryAs([PostMock, CommentMock]),
         makeGet('global-search', { params: { search: 'foo' } }),
       )
       .run(all());
@@ -349,7 +348,7 @@ describe('integration: JSON REST', () => {
     expect((comment as CommentMock).body).toStrictEqual('Foo bar');
   });
 
-  it('should load relations with model query', async () => {
+  it('should load lazy missing relations using raw records', async () => {
     const fetchMock = createFetchMock();
     fetchMock.mockImplementationOnce(createFetchResponse().json([
       { id: '1' },
@@ -357,28 +356,26 @@ describe('integration: JSON REST', () => {
       { id: '3' },
     ]));
 
-    const action = makeRestActionMock();
-
-    const loadWithQuery = makeQueryModelLoader(action, {
-      prepare: (a, { ids }) => a.use(param('ids', ids)),
-      exclude: loaded,
-    });
+    makeRestActionMock();
 
     const post1 = fill(new PostMock(), { id: '1' });
+    post1.$loaded.relatedContents = true;
     post1.$raw = {
       comments: ['2', '1'],
     };
     const post2 = fill(new PostMock(), { id: '2' });
+    post2.$loaded.relatedContents = true;
     post2.$raw = {
       comments: ['3'],
     };
     const post3 = fill(new PostMock(), { id: '3' });
+    post3.$loaded.relatedContents = true;
     post3.$loaded.comments = true;
     post3.$raw = {
       comments: ['4'],
     };
 
-    await loadWithQuery([post1, post2, post3], 'comments');
+    await loadMissing([post1, post2, post3], ['comments', 'relatedContents']);
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const request = fetchMock.mock.calls[0][0] as Request;
@@ -396,7 +393,7 @@ describe('integration: JSON REST', () => {
     expect(post3.comments).toBeUndefined();
   });
 
-  it('should load polymorphic relations with model query', async () => {
+  it('should load lazy polymorphic relations using raw records', async () => {
     const fetchMock = createFetchMock();
     fetchMock.mockImplementationOnce(createFetchResponse().json([
       {
@@ -425,15 +422,11 @@ describe('integration: JSON REST', () => {
 
     const action = makeRestActionMock();
 
-    const loadWithQuery = makeQueryModelLoader(action, {
-      prepare: (a, { ids }) => a.use(param('ids', ids)),
-    });
-
     const [post1, post2] = await action()
       .use(query(PostMock))
       .run(all());
 
-    await loadWithQuery([post1, post2], ['comments', 'relatedContents']);
+    await load([post1, post2], ['comments', 'relatedContents']);
 
     expect(fetchMock).toHaveBeenCalledTimes(3);
     const request1 = fetchMock.mock.calls[1][0] as Request;

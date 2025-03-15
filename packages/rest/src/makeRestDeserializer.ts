@@ -1,4 +1,4 @@
-import { DeserializedData } from '@foscia/core';
+import { DeserializedData, isRelation } from '@foscia/core';
 import { RestDeserializerConfig, RestNewResource } from '@foscia/rest/types';
 import {
   DeserializerExtract,
@@ -17,7 +17,7 @@ import { Arrayable, mapArrayable } from '@foscia/shared';
  */
 export default <
   Record extends RestNewResource = RestNewResource,
-  Data = Arrayable<RestNewResource> | null,
+  Data = Arrayable<RestNewResource> | null | undefined,
   Deserialized extends DeserializedData = DeserializedData,
   Extract extends DeserializerExtract<Record> = DeserializerExtract<Record>,
 >(
@@ -27,11 +27,23 @@ export default <
     records: data as Arrayable<RestNewResource> | null,
   } as Extract),
   createRecord: makeDeserializerRecordFactory(
-    config.pullIdentifier ?? ((record) => record),
-    config.pullAttribute ?? ((record, { key }) => record[key]),
-    config.pullRelation ?? ((record, { key }) => mapArrayable(record[key], (value) => (
-      (typeof value === 'object' ? value : { id: value }) as Record
-    ))),
+    async (record) => ({
+      type: await config.extractType?.(record) ?? record.type,
+    }),
+    async (record, context, factory) => {
+      if (context.prop.key === 'id' && config.extractId) {
+        return config.extractId(record, context);
+      }
+
+      if (isRelation(context.prop)) {
+        return mapArrayable(
+          record[context.key],
+          (value) => factory((typeof value === 'object' ? value : { id: value }) as Record),
+        );
+      }
+
+      return record[context.key];
+    },
   ),
   ...config,
 });

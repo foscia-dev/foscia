@@ -79,7 +79,8 @@ It may be used for different purpose depending on the context:
 
 To define it, you should follow your data source convention. As an example, in a
 JSON:API the resource types are defined in plural kebab case, such as
-`blog-posts` or `comments`.
+`blog-posts` or `comments`. In SQL, plural snake case is generally used,
+such as `blog_posts`.
 
 ##### Example
 
@@ -104,6 +105,8 @@ makeModel({ type: 'posts' });
 [custom model factory](/docs/digging-deeper/models/models-composition#factory).
 
 `guessAlias` transform a model's property `key` to guess its `alias`.
+The property `alias` is used instead of the default `key` to (de)serialize the
+property.
 
 ##### Example
 
@@ -112,11 +115,11 @@ If your JSON:API record properties are using kebab cased keys but your models
 are camel cased:
 
 ```typescript title="post.ts"
-import { makeModel, isManyRelationDef } from '@foscia/core';
+import { makeModel } from '@foscia/core';
 
 makeModel({
   type: 'BlogPosts',
-  guessAlias: (key: string) => toKebabCase(key),
+  guessAlias: (prop) => toKebabCase(prop.key),
 });
 ```
 
@@ -140,11 +143,11 @@ Here is an example of a type guesser using hypothetical `toKebabCase` and
 relation, this would guess the type to `blog-posts`:
 
 ```typescript title="post.ts"
-import { makeModel, ModelRelation } from '@foscia/core';
+import { makeModel } from '@foscia/core';
 
 makeModel({
   type: 'posts',
-  guessRelationType: (def: ModelRelation) => pluralize(def.key),
+  guessRelationType: (prop) => pluralize(prop.key),
 });
 ```
 
@@ -167,11 +170,11 @@ Here is an example of an inverse guesser using hypothetical `toCamelCase` and
 relation, this would guess the inverse to `post`:
 
 ```typescript title="post.ts"
-import { makeModel, ModelRelation } from '@foscia/core';
+import { makeModel } from '@foscia/core';
 
 makeModel({
   type: 'posts',
-  guessRelationInverse: (def: ModelRelation) => toCamelCase(singularize(def.parent.$type)),
+  guessRelationInverse: (prop) => toCamelCase(singularize(prop.parent.$type)),
 });
 ```
 
@@ -383,11 +386,11 @@ If your JSON:API record types are using camel cased types but your endpoint are
 kebab cased:
 
 ```typescript title="post.ts"
-import { makeModel, isManyRelationDef } from '@foscia/core';
+import { makeModel } from '@foscia/core';
 
 makeModel({
   type: 'blogPosts',
-  guessPath: (type: string) => toKebabCase(type),
+  guessPath: (type) => toKebabCase(type),
 });
 ```
 
@@ -407,7 +410,7 @@ their ID.
 ##### Example
 
 ```typescript title="post.ts"
-import { makeModel, isManyRelationDef } from '@foscia/core';
+import { makeModel } from '@foscia/core';
 
 // If `/api/posts/1` is given when querying Post, only `1` will be used
 // as ID in requested endpoint.
@@ -437,14 +440,10 @@ If your JSON:API record properties are using kebab cased keys but your models
 are camel cased:
 
 ```typescript title="post.ts"
-import {
-  makeModel,
-  isManyRelationDef,
-  ModelRelation,
-} from '@foscia/core';
+import { makeModel } from '@foscia/core';
 
 makeModel({
   type: 'posts',
-  guessRelationPath: (def: ModelRelation) => toKebabCase(def.key),
+  guessRelationPath: (prop: ModelRelation) => toKebabCase(prop.key),
 });
 ```

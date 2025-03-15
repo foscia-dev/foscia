@@ -1,4 +1,4 @@
-import ActionName from '@foscia/core/actions/context/actionName';
+import ActionKind from '@foscia/core/actions/context/actionKind';
 import context from '@foscia/core/actions/context/enhancers/context';
 import instanceData from '@foscia/core/actions/context/enhancers/crud/instanceData';
 import query from '@foscia/core/actions/context/enhancers/query';
@@ -37,7 +37,7 @@ export default /* @__PURE__ */ makeEnhancer('update', <
 ) => registerWriteActionHooks(action(
   query(instance),
   context({
-    action: ActionName.UPDATE,
+    actionKind: ActionKind.UPDATE,
     // Rewrite ID to ensure update targets the record termination point
     // even if $exists is false.
     id: (instance as ModelInstance).id,

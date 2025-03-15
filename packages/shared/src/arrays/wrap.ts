@@ -1,5 +1,5 @@
 import isNil from '@foscia/shared/checks/isNil';
-import { Arrayable, Optional } from '@foscia/shared/types';
+import { Arrayable } from '@foscia/shared/types';
 
 /**
  * Wrap value to array.
@@ -8,7 +8,7 @@ import { Arrayable, Optional } from '@foscia/shared/types';
  *
  * @internal
  */
-export default <T>(value?: Optional<Arrayable<T>>): T[] => {
+export default <T>(value?: Arrayable<T> | null | undefined): T[] => {
   if (isNil(value)) {
     return [];
   }

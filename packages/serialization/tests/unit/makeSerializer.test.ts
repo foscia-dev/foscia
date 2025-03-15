@@ -1,4 +1,11 @@
-import { fill, hasMany, hasOne, makeModelFactory, takeSnapshot } from '@foscia/core';
+import {
+  fill,
+  hasMany,
+  hasOne,
+  makeActionFactory,
+  makeModelFactory,
+  takeSnapshot,
+} from '@foscia/core';
 import { makeSerializer, makeSerializerRecordFactory } from '@foscia/serialization';
 import { Dictionary } from '@foscia/shared';
 import { describe, expect, it } from 'vitest';
@@ -13,13 +20,13 @@ describe('unit: makeSerializer', () => {
       type: 'posts',
       limitedSnapshots: false,
     }, {
-      comments: hasMany(),
+      comments: hasMany('comments'),
     });
     const CommentMock = makeModel('comments', {
-      author: hasOne(),
+      author: hasOne('users'),
     });
     const UserMock = makeModel('users', {
-      posts: hasMany(),
+      posts: hasMany('posts'),
     });
 
     const post = new PostMock();
@@ -38,12 +45,12 @@ describe('unit: makeSerializer', () => {
           record[key] = value;
         },
       ),
-      serializeRelation: ({ serializer, context }, related, parents) => serializer
-        .serializeToRecords(related, context, parents),
+      serializeRelation: ({ serializer, action }, related, parents) => serializer
+        .serializeToRecords(related, action, parents),
     });
 
     await expect(
-      deepSerializer.serializeToRecords(takeSnapshot(post), {}),
+      deepSerializer.serializeToRecords(takeSnapshot(post), makeActionFactory({})()),
     ).resolves.toStrictEqual({
       id: 1,
       comments: [{ id: 2, author: { id: 3 } }],

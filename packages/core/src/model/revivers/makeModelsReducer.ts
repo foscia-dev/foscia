@@ -1,5 +1,4 @@
 import isInstance from '@foscia/core/model/checks/isInstance';
-import isSnapshot from '@foscia/core/model/snapshots/checks/isSnapshot';
 import {
   ModelsReducerConfig,
   ReducedModel,
@@ -12,13 +11,14 @@ import {
   ReducerReferenceable,
   ReviverDereferenceable,
 } from '@foscia/core/model/revivers/types';
+import isSnapshot from '@foscia/core/model/snapshots/checks/isSnapshot';
 import {
   Model,
   ModelInstance,
   ModelLimitedSnapshot,
   ModelSnapshot,
 } from '@foscia/core/model/types';
-import { Dictionary, mapWithKeys, uniqueId, unsafeId, using } from '@foscia/shared';
+import { Dictionary, mapWithKeys, uniqueId, unsafeId } from '@foscia/shared';
 
 /**
  * Create a models reducer.
@@ -85,17 +85,18 @@ export default (config: ModelsReducerConfig = {}) => {
   ) => (
     value: T,
     parents: ReducerParentsMap,
-  ) => using(parents.get(value), (prevRef) => (
-    prevRef !== undefined
-      ? reduceCircularRef(prevRef)
-      : using(
-        generateRef([...parents.values()]),
-        (ref) => {
-          parents.set(value, ref);
-          return reducer(value, ref, parents);
-        },
-      )
-  ));
+  ) => {
+    const prevRef = parents.get(value);
+    if (prevRef) {
+      return reduceCircularRef(prevRef);
+    }
+
+    const nextRef = generateRef([...parents.values()]);
+
+    parents.set(value, nextRef);
+
+    return reducer(value, nextRef, parents);
+  };
 
   reduceSnapshot = makeReferenceableReducer(
     (snapshot: ModelSnapshot | ModelLimitedSnapshot, ref, parents): ReducedModelSnapshot => ({

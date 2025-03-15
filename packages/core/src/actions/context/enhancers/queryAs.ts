@@ -1,8 +1,8 @@
 import context from '@foscia/core/actions/context/enhancers/context';
-import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action } from '@foscia/core/actions/types';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Model } from '@foscia/core/model/types';
-import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
+import { Arrayable, wrap } from '@foscia/shared';
 
 /**
  * Define models targeted by the query without affecting its execution context.
@@ -33,7 +33,7 @@ import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
  * and without the `models` parameters.
  */
 export default /* @__PURE__ */ makeEnhancer('queryAs', <C extends {}, M extends Model>(
-  ...models: ArrayableVariadic<M>
+  models: Arrayable<M>,
 ) => async (
   action: Action<C>,
-) => action(context({ queryAs: wrapVariadic(...models) })));
+) => action(context({ queryAs: wrap(models) })));

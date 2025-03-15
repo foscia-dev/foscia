@@ -1,7 +1,6 @@
 import makeActionCommand from '@foscia/cli/commands/make/makeActionCommand';
 import makeComposableCommand from '@foscia/cli/commands/make/makeComposableCommand';
 import makeEnhancerCommand from '@foscia/cli/commands/make/makeEnhancerCommand';
-import makeLoaderCommand from '@foscia/cli/commands/make/makeLoaderCommand';
 import makeModelCommand from '@foscia/cli/commands/make/makeModelCommand';
 import makeModelFactoryCommand from '@foscia/cli/commands/make/makeModelFactoryCommand';
 import makeModelsCommand from '@foscia/cli/commands/make/makeModelsCommand';
@@ -22,7 +21,6 @@ export default function makeCommand() {
     .addCommand(makeModelCommand())
     .addCommand(makeComposableCommand())
     .addCommand(makeTransformerCommand())
-    .addCommand(makeLoaderCommand())
     .addCommand(makeReducerCommand())
     .addCommand(makeReviverCommand())
     .addCommand(makeModelFactoryCommand())

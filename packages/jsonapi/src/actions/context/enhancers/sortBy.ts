@@ -44,7 +44,7 @@ export default /* @__PURE__ */ makeEnhancer('sortBy', ((
   action(param(
     'sort',
     optionalJoin(uniqueValues([
-      consumeRequestObjectParams(await action.useContext())?.sort,
+      ...((await consumeRequestObjectParams(action))?.sort?.split(',') ?? []),
       ...newKeys.map((k, i) => serializeSort(k, newDirections[i] ?? newDirections[0])),
     ]), ','),
   ));

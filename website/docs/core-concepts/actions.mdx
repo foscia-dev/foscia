@@ -659,7 +659,8 @@ const posts = await action(
 
 `run` variadic call must use an official runner (`all`, `oneOrFail`, etc.)
 or a custom runner created with `makeRunner`, otherwise it will handle
-the variadic call as a `use` call.
+the variadic call as a `use` call, because it won't be able to detect a `run`
+is requested from an anonymous runner function.
 
 :::
 
@@ -687,7 +688,8 @@ const posts = await action(
 
 `run` variadic call must use an official runner (`all`, `oneOrFail`, etc.)
 or a custom runner created with `makeRunner`, otherwise it will handle
-the variadic call as a `use` call.
+the variadic call as a `use` call, because it won't be able to detect a `run`
+is requested from an anonymous runner function.
 
 :::
 

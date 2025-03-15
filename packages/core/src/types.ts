@@ -1,4 +1,4 @@
-import type { ActionFactory } from '@foscia/core/actions/types';
+import type { Action } from '@foscia/core/actions/types';
 import type {
   Model,
   ModelIdType,
@@ -6,39 +6,46 @@ import type {
   ModelRelation,
   ModelSnapshot,
 } from '@foscia/core/model/types';
+import { ParsedRawInclude } from '@foscia/core/relations/types';
 import { Arrayable, Awaitable } from '@foscia/shared';
 
-/**
- * Registry containing mapping between connections names
- * and corresponding action factories.
- *
- * @interface
- *
- * @internal
- */
-export type ConnectionsRegistry = {
+declare global {
   /**
-   * Register an action factory.
+   * Foscia namespace can be overloaded by end-users for better types resolution.
    *
-   * @param connection
-   * @param action
+   * @since 0.13.0
+   *
+   * @example
+   * ```typescript
+   * import type Comment from './models/comment';
+   * import type Post from './models/post';
+   * import type User from './models/user';
+   * import type FileV2 from './models/v2/file';
+   *
+   * declare global {
+   *   namespace Foscia {
+   *     interface CustomTypes {
+   *       /**
+   *        * Define mapping between type strings and models.
+   *        *\/
+   *       models: {
+   *         // If using default connection.
+   *         comments: Comment;
+   *         posts: Post;
+   *         users: User;
+   *         // If using multiple connections.
+   *         'v2:files': FileV2;
+   *       };
+   *     }
+   *   }
+   * }
+   * ```
    */
-  register(connection: string, action: ActionFactory<any>): void;
-  /**
-   * Get an action factory.
-   *
-   * @param connection
-   *
-   * @internal
-   */
-  get(connection?: string | undefined): ActionFactory<any>;
-  /**
-   * Get all available action factories keyed by connection name.
-   *
-   * @internal
-   */
-  all(): Map<string, ActionFactory<any>>;
-};
+  export namespace Foscia {
+    export interface CustomTypes {
+    }
+  }
+}
 
 /**
  * Registry containing available models.
@@ -47,15 +54,18 @@ export type ConnectionsRegistry = {
  * to deserialize raw data source records in the correct models.
  *
  * @interface
+ *
+ * @remarks
+ * `rawType` must be using the `<connection?>:<type>` format. If connection is
+ * omitted, `default` connection is used.
  */
 export type ModelsRegistry = {
   /**
-   * Resolve a registered model by its type.
-   * Type may be normalized during resolution to support multiple casing/patterns.
+   * Resolve a registered model by its raw type.
    *
    * @param rawType
    */
-  modelFor(rawType: string): Promise<Model | null>;
+  resolve(rawType: string): Awaitable<Model | null>;
 };
 
 /**
@@ -68,40 +78,57 @@ export type ModelsRegistry = {
  * as retrieved.
  *
  * @interface
+ *
+ * @remarks
+ * `rawType` must be using the `<connection?>:<type>` format. If connection is
+ * omitted, `default` connection is used.
  */
 export type InstancesCache = {
+  // TODO More map alike methods?
   /**
    * Retrieve a model instance from cache.
    *
-   * @param type
+   * @param rawType
    * @param id
    */
-  find(type: string, id: ModelIdType): Promise<ModelInstance | null>;
+  find(
+    rawType: string,
+    id: ModelIdType,
+  ): Awaitable<ModelInstance | null>;
   /**
    * Put a model instance inside cache.
    *
-   * @param type
+   * @param rawType
    * @param id
    * @param instance
    */
-  put(type: string, id: ModelIdType, instance: ModelInstance): Promise<void>;
+  put(
+    rawType: string,
+    id: ModelIdType,
+    instance: ModelInstance,
+  ): Awaitable<void>;
   /**
    * Forget a model's instance.
    *
-   * @param type
+   * @param rawType
    * @param id
    */
-  forget(type: string, id: ModelIdType): Promise<void>;
+  forget(
+    rawType: string,
+    id: ModelIdType,
+  ): Awaitable<void>;
   /**
    * Forget all model's instances.
    *
-   * @param type
+   * @param rawType
    */
-  forgetAll(type: string): Promise<void>;
+  forgetAll(
+    rawType: string,
+  ): Awaitable<void>;
   /**
    * Forget all models' instances.
    */
-  clear(): Promise<void>;
+  clear(): Awaitable<void>;
 };
 
 /**
@@ -123,7 +150,7 @@ export type AdapterResponse<RawData, Data = unknown> = {
    * This method may not support to be called multiple times,
    * prefer calling it only once and reusing returned value.
    */
-  read(): Promise<Data>;
+  read(): Awaitable<Data>;
 };
 
 /**
@@ -137,12 +164,12 @@ export type AdapterResponse<RawData, Data = unknown> = {
  */
 export type Adapter<RawData, Data = any> = {
   /**
-   * Execute a given context to retrieve a raw data response.
+   * Execute a given action to retrieve a raw data response.
    * Context data will already be serialized using serializer if available.
    *
-   * @param context
+   * @param action
    */
-  execute(context: {}): Awaitable<AdapterResponse<RawData, Data>>;
+  execute(action: Action): Awaitable<AdapterResponse<RawData, Data>>;
 };
 
 /**
@@ -169,9 +196,9 @@ export type Deserializer<Data, Deserialized extends DeserializedData = Deseriali
    * Deserialize adapter data to a deserialized array of instances.
    *
    * @param data
-   * @param context
+   * @param action
    */
-  deserialize(data: Data, context: {}): Awaitable<Deserialized>;
+  deserialize(data: Data, action: Action): Awaitable<Deserialized>;
 };
 
 /**
@@ -189,88 +216,88 @@ export type Serializer<Record, RelatedRecord, Data> = {
    * Serialize snapshots to records.
    *
    * @param snapshot
-   * @param context
+   * @param action
    */
-  serializeToRecords(snapshot: ModelSnapshot, context: {}): Awaitable<Record>;
+  serializeToRecords(snapshot: ModelSnapshot, action: Action): Awaitable<Record>;
   /**
    * Serialize snapshots to records.
    *
    * @param snapshots
-   * @param context
+   * @param action
    */
-  serializeToRecords(snapshots: ModelSnapshot[], context: {}): Awaitable<Record[]>;
+  serializeToRecords(snapshots: ModelSnapshot[], action: Action): Awaitable<Record[]>;
   /**
    * Serialize snapshots to records.
    *
    * @param snapshot
-   * @param context
+   * @param action
    */
-  serializeToRecords(snapshot: null, context: {}): Awaitable<null>;
+  serializeToRecords(snapshot: null, action: Action): Awaitable<null>;
   /**
    * Serialize snapshots to records.
    *
    * @param snapshot
-   * @param context
+   * @param action
    */
   serializeToRecords(
     snapshot: ModelSnapshot[] | ModelSnapshot | null,
-    context: {},
+    action: Action,
   ): Awaitable<Record[] | Record | null>;
   /**
    * Serialize related snapshots to related records.
    *
    * @param parent
-   * @param def
+   * @param prop
    * @param snapshot
-   * @param context
+   * @param action
    */
   serializeToRelatedRecords(
     parent: ModelSnapshot,
-    def: ModelRelation,
+    prop: ModelRelation,
     snapshot: ModelSnapshot,
-    context: {},
+    action: Action,
   ): Awaitable<RelatedRecord>;
   /**
    * Serialize related snapshots to related records.
    *
    * @param parent
-   * @param def
+   * @param prop
    * @param snapshots
-   * @param context
+   * @param action
    */
   serializeToRelatedRecords(
     parent: ModelSnapshot,
-    def: ModelRelation,
+    prop: ModelRelation,
     snapshots: ModelSnapshot[],
-    context: {},
+    action: Action,
   ): Awaitable<RelatedRecord[]>;
   /**
    * Serialize related snapshots to related records.
    *
    * @param parent
-   * @param def
+   * @param prop
    * @param snapshot
-   * @param context
+   * @param action
    */
   serializeToRelatedRecords(
     parent: ModelSnapshot,
-    def: ModelRelation,
+    prop: ModelRelation,
     snapshot: null,
-    context: {},
+    action: Action,
   ): Awaitable<null>;
   /**
    * Serialize related snapshots to related records.
    *
    * @param parent
-   * @param def
+   * @param prop
    * @param snapshot
-   * @param context
+   * @param action
    */
   serializeToRelatedRecords(
     parent: ModelSnapshot,
-    def: ModelRelation,
+    prop: ModelRelation,
     snapshot: ModelSnapshot[] | ModelSnapshot | null,
-    context: {},
+    action: Action,
   ): Awaitable<RelatedRecord[] | RelatedRecord | null>;
   /**
    * Serialize already serialized records to data.
@@ -278,7 +305,58 @@ export type Serializer<Record, RelatedRecord, Data> = {
    * in a JSON:API context).
    *
    * @param records
-   * @param context
+   * @param action
    */
-  serializeToData(records: Arrayable<Record | RelatedRecord> | null, context: {}): Awaitable<Data>;
+  serializeToData(
+    records: Arrayable<Record | RelatedRecord> | null,
+    action: Action,
+  ): Awaitable<Data>;
+};
+
+/**
+ * Relations loader to eager and/or lazy load relations.
+ *
+ * @since 0.13.0
+ *
+ * @interface
+ */
+export type RelationsLoader = {
+  /**
+   * Prepare the given action's context to request inclusion of relations
+   * through the adapter. It will usually update the action's context
+   * to request relationships eager loading to the adapter (e.g. `include`
+   * query parameter in a JSON:API context). It can also schedule a lazy
+   * eager loading if needed.
+   *
+   * @param action
+   * @param relations
+   */
+  eagerLoad?: (
+    action: Action,
+    relations: ParsedRawInclude[],
+  ) => Awaitable<void>;
+  /**
+   * Lazy load relations on multiple instances.
+   * It will usually read relations for each instance (e.g. relations endpoint
+   * in a JSON:API context) or read each related models with appropriate
+   * filters (e.g. models endpoint with specific parameters to filter related
+   * records in a REST or SQL context).
+   *
+   * @param instances
+   * @param relations
+   */
+  lazyLoad?: (
+    instances: ModelInstance[],
+    relations: ParsedRawInclude[],
+  ) => Awaitable<void>;
+  /**
+   * Lazy load missing (non-loaded) relations on multiple instances.
+   *
+   * @param instances
+   * @param relations
+   */
+  lazyLoadMissing?: (
+    instances: ModelInstance[],
+    relations: ParsedRawInclude[],
+  ) => Awaitable<void>;
 };

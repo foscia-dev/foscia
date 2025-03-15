@@ -1,13 +1,15 @@
-import normalizeInclude from '@foscia/core/actions/context/utilities/normalizeInclude';
 import makeCache from '@foscia/core/cache/makeCache';
 import makeRefsCache from '@foscia/core/cache/makeRefsCache';
 import makeTimedRefFactory from '@foscia/core/cache/makeTimedRefFactory';
 import makeWeakRefFactory from '@foscia/core/cache/makeWeakRefFactory';
-import connections from '@foscia/core/connections/connections';
+import resolveConnectionAction from '@foscia/core/connections/resolveConnectionAction';
+import resolveConnectionName from '@foscia/core/connections/resolveConnectionName';
+import resolveModelAction from '@foscia/core/connections/resolveModelAction';
+import resolveModelRelationAction from '@foscia/core/connections/resolveModelRelationAction';
 import AdapterError from '@foscia/core/errors/adapterError';
 import DeserializerError from '@foscia/core/errors/deserializerError';
-import RecordNotFoundError from '@foscia/core/errors/recordNotFoundError';
 import FosciaError from '@foscia/core/errors/fosciaError';
+import RecordNotFoundError from '@foscia/core/errors/recordNotFoundError';
 import SerializerError from '@foscia/core/errors/serializerError';
 import { FLAG_ERROR_NOT_FOUND } from '@foscia/core/flags';
 import registerHook from '@foscia/core/hooks/registerHook';
@@ -42,31 +44,20 @@ import onUpdating from '@foscia/core/model/hooks/onUpdating';
 import makeModel from '@foscia/core/model/makeModel';
 import makeModelFactory from '@foscia/core/model/makeModelFactory';
 import attr from '@foscia/core/model/props/attr';
-import isAttributeDef from '@foscia/core/model/props/checks/isAttributeDef';
-import isIdDef from '@foscia/core/model/props/checks/isIdDef';
-import isPluralRelationDef from '@foscia/core/model/props/checks/isPluralRelationDef';
-import isRelationDef from '@foscia/core/model/props/checks/isRelationDef';
-import isSingularRelationDef from '@foscia/core/model/props/checks/isSingularRelationDef';
-import hasMany from '@foscia/core/model/props/hasMany';
-import hasOne from '@foscia/core/model/props/hasOne';
+import isAttribute from '@foscia/core/model/props/checks/isAttribute';
+import isId from '@foscia/core/model/props/checks/isId';
+import isPluralRelation from '@foscia/core/model/props/checks/isPluralRelation';
+import isRelation from '@foscia/core/model/props/checks/isRelation';
+import isSingularRelation from '@foscia/core/model/props/checks/isSingularRelation';
+import hasMany from '@foscia/core/relations/props/hasMany';
+import hasOne from '@foscia/core/relations/props/hasOne';
 import id from '@foscia/core/model/props/id';
 import mapAttributes from '@foscia/core/model/props/mappers/mapAttributes';
 import mapRelations from '@foscia/core/model/props/mappers/mapRelations';
-import loaded from '@foscia/core/model/props/relations/loaded';
-import makeQueryModelLoader, {
-  QueryModelLoaderOptions,
-} from '@foscia/core/model/props/relations/makeQueryModelLoader';
-import makeQueryModelLoaderExtractor
-  from '@foscia/core/model/props/relations/makeQueryModelLoaderExtractor';
-import makeQueryRelationLoader, {
-  QueryRelationLoaderOptions,
-} from '@foscia/core/model/props/relations/makeQueryRelationLoader';
-import makeRefreshIncludeLoader, {
-  RefreshIncludeLoaderOptions,
-} from '@foscia/core/model/props/relations/makeRefreshIncludeLoader';
+import aliasPropKey from '@foscia/core/model/props/utilities/aliasPropKey';
 import attachRelationInverse from '@foscia/core/model/props/utilities/attachRelationInverse';
-import guessRelationInverses from '@foscia/core/model/props/utilities/guessRelationInverses';
-import guessRelationType from '@foscia/core/model/props/utilities/guessRelationType';
+import guessRelationInverses from '@foscia/core/relations/utilities/guessRelationInverses';
+import guessRelationType from '@foscia/core/relations/utilities/guessRelationType';
 import shouldSync from '@foscia/core/model/props/utilities/shouldSync';
 import makeModelsReducer from '@foscia/core/model/revivers/makeModelsReducer';
 import makeModelsReviver from '@foscia/core/model/revivers/makeModelsReviver';
@@ -82,11 +73,25 @@ import compareModelValues from '@foscia/core/model/utilities/compareModelValues'
 import fill from '@foscia/core/model/utilities/fill';
 import filled from '@foscia/core/model/utilities/filled';
 import forceFill from '@foscia/core/model/utilities/forceFill';
-import normalizeDotRelations from '@foscia/core/normalization/normalizeDotRelations';
-import normalizeKey from '@foscia/core/normalization/normalizeKey';
 import makeMapRegistry from '@foscia/core/registry/makeMapRegistry';
 import makeRegistry from '@foscia/core/registry/makeRegistry';
+import load from '@foscia/core/relations/load';
+import loaded from '@foscia/core/relations/loaded';
+import makeStandardizedEagerLoader
+  from '@foscia/core/relations/loaders/eager/makeStandardizedEagerLoader';
+import makeFilteredLazyLoader from '@foscia/core/relations/loaders/lazy/makeFilteredLazyLoader';
+import makePreloadedLazyLoader from '@foscia/core/relations/loaders/lazy/makePreloadedLazyLoader';
+import makeSimpleLazyLoader from '@foscia/core/relations/loaders/lazy/makeSimpleLazyLoader';
+import makeStandardizedLazyLoader
+  from '@foscia/core/relations/loaders/lazy/makeStandardizedLazyLoader';
+import makeLoader from '@foscia/core/relations/loaders/makeLoader';
+import makeSmartLoader from '@foscia/core/relations/loaders/makeSmartLoader';
+import loadMissing from '@foscia/core/relations/loadMissing';
+import parseRawInclude from '@foscia/core/relations/utilities/parseRawInclude';
+import toParsedRawInclude from '@foscia/core/relations/utilities/toParsedRawInclude';
+import walkParsedIncludeMap from '@foscia/core/relations/utilities/walkParsedIncludeMap';
 import {
+  SYMBOL_ACTION,
   SYMBOL_ACTION_ENHANCER,
   SYMBOL_ACTION_RUNNER,
   SYMBOL_ACTION_WHEN,
@@ -112,17 +117,22 @@ import toDateTime from '@foscia/core/transformers/toDateTime';
 import toNumber from '@foscia/core/transformers/toNumber';
 import toString from '@foscia/core/transformers/toString';
 
-export * from '@foscia/core/actions/types';
-export * from '@foscia/core/cache/types';
-export * from '@foscia/core/hooks/types';
-export * from '@foscia/core/logger/types';
-export * from '@foscia/core/model/revivers/types';
-export * from '@foscia/core/model/types';
-export * from '@foscia/core/registry/types';
-export * from '@foscia/core/transformers/types';
-export * from '@foscia/core/types';
+export type * from '@foscia/core/actions/types';
+export type * from '@foscia/core/cache/types';
+export type * from '@foscia/core/hooks/types';
+export type * from '@foscia/core/logger/types';
+export type * from '@foscia/core/model/revivers/types';
+export type * from '@foscia/core/model/types';
+export type * from '@foscia/core/registry/types';
+export type * from '@foscia/core/relations/types';
+export type * from '@foscia/core/transformers/types';
+export type * from '@foscia/core/types';
+
+// eslint-disable-next-line @typescript-eslint/no-use-before-define
+export type { Foscia };
 
 export * from '@foscia/core/actions';
+export * from '@foscia/core/configuration';
 
 export {
   AdapterError,
@@ -140,7 +150,6 @@ export {
   hasMany,
   hasOne,
   id,
-  loaded,
   fill,
   forceFill,
   isSame,
@@ -154,13 +163,16 @@ export {
   makeComposableFactory,
   makeModel,
   makeModelFactory,
-  makeQueryModelLoader,
-  QueryModelLoaderOptions,
-  makeQueryModelLoaderExtractor,
-  QueryRelationLoaderOptions,
-  makeQueryRelationLoader,
-  RefreshIncludeLoaderOptions,
-  makeRefreshIncludeLoader,
+  load,
+  loadMissing,
+  loaded,
+  makeLoader,
+  makeSmartLoader,
+  makeSimpleLazyLoader,
+  makeFilteredLazyLoader,
+  makePreloadedLazyLoader,
+  makeStandardizedEagerLoader,
+  makeStandardizedLazyLoader,
   toArrayOf,
   toBoolean,
   toDate,
@@ -193,11 +205,11 @@ export {
   registerHook,
   unregisterHook,
   withoutHooks,
-  isAttributeDef,
-  isRelationDef,
-  isIdDef,
-  isPluralRelationDef,
-  isSingularRelationDef,
+  isAttribute,
+  isRelation,
+  isId,
+  isPluralRelation,
+  isSingularRelation,
   isModel,
   isInstance,
   isModelUsing,
@@ -208,14 +220,18 @@ export {
   guessRelationType,
   guessRelationInverses,
   attachRelationInverse,
-  normalizeDotRelations,
-  normalizeInclude,
-  normalizeKey,
+  toParsedRawInclude,
+  parseRawInclude,
+  walkParsedIncludeMap,
+  aliasPropKey,
   makeModelsReducer,
   makeModelsReviver,
   cloneModelValue,
   compareModelValues,
-  connections,
+  resolveConnectionName,
+  resolveConnectionAction,
+  resolveModelAction,
+  resolveModelRelationAction,
   logger,
   FLAG_ERROR_NOT_FOUND,
   SYMBOL_MODEL_PROP_TRANSFORMER,
@@ -229,6 +245,7 @@ export {
   SYMBOL_MODEL_INSTANCE,
   SYMBOL_MODEL_COMPOSABLE,
   SYMBOL_MODEL_SNAPSHOT,
+  SYMBOL_ACTION,
   SYMBOL_ACTION_WHEN,
   SYMBOL_ACTION_ENHANCER,
   SYMBOL_ACTION_RUNNER,

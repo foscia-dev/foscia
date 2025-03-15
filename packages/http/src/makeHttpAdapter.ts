@@ -1,10 +1,14 @@
 import {
-  ActionName,
-  consumeAction,
+  Action,
+  ActionKind,
+  consumeActionKind,
   consumeData,
+  consumeEagerLoads,
   consumeId,
+  consumeLoader,
   consumeModel,
   consumeRelation,
+  logger,
 } from '@foscia/core';
 import consumeRequestConfig from '@foscia/http/actions/context/consumers/consumeRequestConfig';
 import HttpAbortedError from '@foscia/http/errors/httpAbortedError';
@@ -58,17 +62,17 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
     return new HttpInvalidRequestError(request, response);
   };
 
-  const makeRequestEndpoint = (context: {}, contextConfig: HttpRequestConfig) => {
-    const model = consumeModel(context, null);
-    const id = consumeId(context, null);
-    const relation = consumeRelation(context, null);
+  const makeRequestEndpoint = async (action: Action, requestConfig: HttpRequestConfig) => {
+    const model = await consumeModel(action, null);
+    const id = await consumeId(action, null);
+    const relation = await consumeRelation(action, null);
 
-    const buildURL = config.buildURL ?? ((ctx) => clearEndpoint(optionalJoin([
-      ctx.baseURL,
-      ctx.modelPath,
-      ctx.idPath,
-      ctx.relationPath,
-      ctx.additionalPath,
+    const buildURL = config.buildURL ?? ((endpoint) => clearEndpoint(optionalJoin([
+      endpoint.baseURL,
+      endpoint.modelPath,
+      endpoint.idPath,
+      endpoint.relationPath,
+      endpoint.additionalPath,
     ], '/')));
 
     const modelPathTransformer = config.modelPathTransformer ?? ((v) => v);
@@ -76,9 +80,9 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
     const relationPathTransformer = config.relationPathTransformer ?? ((v) => v);
 
     return buildURL({
-      baseURL: contextConfig.baseURL ?? model?.$config.baseURL ?? config.baseURL ?? '/',
-      additionalPath: contextConfig.path,
-      ...(contextConfig.modelPaths !== false ? {
+      baseURL: requestConfig.baseURL ?? model?.$config.baseURL ?? config.baseURL ?? '/',
+      additionalPath: requestConfig.path,
+      ...(requestConfig.modelPaths !== false ? {
         modelPath: model ? modelPathTransformer(
           model.$config.path ?? (model.$config.guessPath ?? ((t) => t))(model.$type),
         ) : undefined,
@@ -89,40 +93,40 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
           relation.path ?? (model?.$config.guessRelationPath ?? ((r) => r.key))(relation),
         ) : undefined,
       } : {}),
-    }, context);
+    }, action);
   };
 
-  const makeRequestMethod = (context: {}, contextConfig: HttpRequestConfig) => (
-    contextConfig.method ?? (() => {
-      const action = consumeAction(context, null);
+  const makeRequestMethod = async (action: Action, requestConfig: HttpRequestConfig) => (
+    requestConfig.method ?? await (async () => {
+      const actionKind = consumeActionKind(await action.useContext(), null);
       const actionsMethodsMap: Dictionary<HttpMethod> = {
-        [ActionName.READ]: 'GET',
-        [ActionName.CREATE]: 'POST',
-        [ActionName.UPDATE]: 'PATCH',
-        [ActionName.DESTROY]: 'DELETE',
-        [ActionName.ATTACH_RELATION]: 'POST',
-        [ActionName.UPDATE_RELATION]: 'PATCH',
-        [ActionName.DETACH_RELATION]: 'DELETE',
+        [ActionKind.READ]: 'GET',
+        [ActionKind.CREATE]: 'POST',
+        [ActionKind.UPDATE]: 'PATCH',
+        [ActionKind.DESTROY]: 'DELETE',
+        [ActionKind.ATTACH_RELATION]: 'POST',
+        [ActionKind.UPDATE_RELATION]: 'PATCH',
+        [ActionKind.DETACH_RELATION]: 'DELETE',
       };
 
-      return action && actionsMethodsMap[action]
-        ? actionsMethodsMap[action]
+      return actionKind && actionsMethodsMap[actionKind]
+        ? actionsMethodsMap[actionKind]
         : 'GET';
     })()
   ).toUpperCase();
 
-  const makeRequestInit = async (context: {}, contextConfig: HttpRequestConfig) => {
+  const makeRequestInit = async (action: Action, requestConfig: HttpRequestConfig) => {
     const headers: Dictionary<string> = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       ...config.defaultHeaders,
     };
 
-    let body = contextConfig.body ?? consumeData(context, null) ?? undefined;
+    let body = requestConfig.body ?? await consumeData(action, null) ?? undefined;
     if (body instanceof FormData || body instanceof URLSearchParams) {
       delete headers['Content-Type'];
     } else {
-      const bodyAs = contextConfig.bodyAs
+      const bodyAs = requestConfig.bodyAs
         ?? config.defaultBodyAs
         ?? ((b) => JSON.stringify(b));
       if (bodyAs && body !== undefined) {
@@ -133,22 +137,22 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
     const appendHeaders = config.appendHeaders ?? (() => ({}));
 
     const init: Pick<RequestInit, HttpRequestInitPickKey> = {
-      cache: contextConfig.cache,
-      credentials: contextConfig.credentials,
-      integrity: contextConfig.integrity,
-      keepalive: contextConfig.keepalive,
-      mode: contextConfig.mode,
-      redirect: contextConfig.redirect,
-      referrer: contextConfig.referrer,
-      referrerPolicy: contextConfig.referrerPolicy,
-      signal: contextConfig.signal,
-      window: contextConfig.window,
+      cache: requestConfig.cache,
+      credentials: requestConfig.credentials,
+      integrity: requestConfig.integrity,
+      keepalive: requestConfig.keepalive,
+      mode: requestConfig.mode,
+      redirect: requestConfig.redirect,
+      referrer: requestConfig.referrer,
+      referrerPolicy: requestConfig.referrerPolicy,
+      signal: requestConfig.signal,
+      window: requestConfig.window,
     };
 
     return {
       body,
-      headers: { ...headers, ...await appendHeaders(context), ...contextConfig.headers },
-      method: makeRequestMethod(context, contextConfig),
+      headers: { ...headers, ...await appendHeaders(action), ...requestConfig.headers },
+      method: await makeRequestMethod(action, requestConfig),
       ...init,
     } as RequestInit;
   };
@@ -159,20 +163,23 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
     )(params) : undefined
   );
 
-  const makeRequestQuery = async (context: {}, contextConfig: HttpRequestConfig) => optionalJoin([
-    typeof contextConfig.params === 'object'
-      ? makeRequestQueryFromObject(contextConfig.params)
-      : contextConfig.params,
-    makeRequestQueryFromObject(await (config.appendParams ?? (() => ({})))(context)),
+  const makeRequestQuery = async (
+    action: Action,
+    requestConfig: HttpRequestConfig,
+  ) => optionalJoin([
+    typeof requestConfig.params === 'object'
+      ? makeRequestQueryFromObject(requestConfig.params)
+      : requestConfig.params,
+    makeRequestQueryFromObject(await (config.appendParams ?? (() => ({})))(action)),
   ], '&');
 
-  const makeRequest = async (context: {}, contextConfig: HttpRequestConfig) => (
-    contextConfig.request ?? new Request(
+  const makeRequest = async (action: Action, requestConfig: HttpRequestConfig) => (
+    requestConfig.request ?? new Request(
       optionalJoin([
-        makeRequestEndpoint(context, contextConfig),
-        await makeRequestQuery(context, contextConfig),
+        await makeRequestEndpoint(action, requestConfig),
+        await makeRequestQuery(action, requestConfig),
       ], '?'),
-      await makeRequestInit(context, contextConfig),
+      await makeRequestInit(action, requestConfig),
     )
   );
 
@@ -184,14 +191,25 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
     return (fetch ?? globalThis.fetch)(request);
   };
 
-  const execute = async (context: {}) => {
-    const contextConfig = consumeRequestConfig(context, null) ?? {};
+  const execute = async (action: Action) => {
+    const relations = await consumeEagerLoads(action, []);
+    if (relations.length) {
+      const loader = await consumeLoader(action, null);
+      if (loader?.eagerLoad) {
+        await loader.eagerLoad(action, relations);
+      } else {
+        logger.warn('Action missing eager loader implementation.');
+      }
+    }
+
+    const requestConfig = await consumeRequestConfig(action, {} as HttpRequestConfig);
+
     const middlewares = [...config.middlewares ?? []];
 
     return makeHttpAdapterResponse(await throughMiddlewares(
-      typeof contextConfig.middlewares === 'function'
-        ? await contextConfig.middlewares(middlewares)
-        : [...middlewares, ...(contextConfig.middlewares ?? [])],
+      typeof requestConfig.middlewares === 'function'
+        ? await requestConfig.middlewares(middlewares)
+        : [...middlewares, ...(requestConfig.middlewares ?? [])],
       async (request) => {
         let response: Response;
         try {
@@ -206,8 +224,8 @@ export default <Data = any>(config: HttpAdapterConfig<Data>) => {
 
         throw makeResponseError(request, response);
       },
-    )(await makeRequest(context, contextConfig)), {
-      reader: contextConfig.responseReader ?? config.defaultResponseReader ?? ((r) => r.json()),
+    )(await makeRequest(action, requestConfig)), {
+      reader: requestConfig.responseReader ?? config.defaultResponseReader ?? ((r) => r.json()),
     });
   };
 

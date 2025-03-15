@@ -93,24 +93,19 @@ test('Actions are type safe', async () => {
     .use(include('comments.postedBy'))
     .run(all());
   const asPostsOrCommentsUsingFunc = await action()
-    .use(queryAs(PostMock, CommentMock))
-    .use(include('images'))
-    .run(all());
-  const asPostsOrCommentsArrayUsingFunc = await action()
     .use(queryAs([PostMock, CommentMock]))
     .use(include('images'))
     .run(all());
 
   expectTypeOf(asPostsUsingFunc).toEqualTypeOf<PostMock[]>();
   expectTypeOf(asPostsOrCommentsUsingFunc).toEqualTypeOf<(PostMock | CommentMock)[]>();
-  expectTypeOf(asPostsOrCommentsArrayUsingFunc).toEqualTypeOf<(PostMock | CommentMock)[]>();
 
   // @ts-expect-error title is not a post relation
   await action().use(queryAs(PostMock), include('title'));
   // @ts-expect-error title is not a post and comment relation
-  await action().use(queryAs(PostMock, CommentMock), include('title'));
+  await action().use(queryAs([PostMock, CommentMock]), include('title'));
   // @ts-expect-error comments is not a post and comment relation
-  await action().use(queryAs(PostMock, CommentMock), include('comments'));
+  await action().use(queryAs([PostMock, CommentMock]), include('comments'));
 
   const createdPostUsingFunc = await action()
     .use(query(new PostMock()))

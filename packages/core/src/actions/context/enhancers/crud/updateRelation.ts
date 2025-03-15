@@ -1,8 +1,7 @@
-import ActionName from '@foscia/core/actions/context/actionName';
+import ActionKind from '@foscia/core/actions/context/actionKind';
 import context from '@foscia/core/actions/context/enhancers/context';
 import query from '@foscia/core/actions/context/enhancers/query';
 import serializeRelation from '@foscia/core/actions/context/utilities/serializeRelation';
-import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import {
   Action,
   ConsumeId,
@@ -10,6 +9,7 @@ import {
   ConsumeRelation,
   ConsumeSerializer,
 } from '@foscia/core/actions/types';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import {
   InferModelSchemaProp,
   ModelInstance,
@@ -34,7 +34,7 @@ export type InferRelationUpdateValue<R> = R extends ModelRelation<infer T>
  * @param instance
  * @param relation
  * @param value
- * @param actionName
+ * @param actionKind
  *
  * @category Enhancers
  * @provideContext model, instance, id, relation
@@ -59,13 +59,13 @@ export default /* @__PURE__ */ makeEnhancer('updateRelation', <
   relation: K,
   value: ModelValues<I>[K],
   // eslint-disable-next-line max-len
-  actionName: ActionName.UPDATE_RELATION | ActionName.ATTACH_RELATION | ActionName.DETACH_RELATION = ActionName.UPDATE_RELATION,
+  actionKind: ActionKind.UPDATE_RELATION | ActionKind.ATTACH_RELATION | ActionKind.DETACH_RELATION = ActionKind.UPDATE_RELATION,
 ) => async (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => action(
   query(instance, relation),
   context({
-    action: actionName,
+    actionKind,
     data: await serializeRelation(
-      await action.useContext(),
+      action,
       instance,
       relation,
       value,

@@ -1,8 +1,8 @@
 import replaceActionMiddlewares
   from '@foscia/core/actions/context/enhancers/middlewares/replaceActionMiddlewares';
-import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { ActionMiddleware } from '@foscia/core/actions/types';
-import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
+import { Arrayable, wrap } from '@foscia/shared';
 
 /**
  * Append one or many middlewares.
@@ -26,5 +26,5 @@ import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('appendActionMiddlewares', (<C extends {}, R>(
-  ...middlewares: ArrayableVariadic<ActionMiddleware<C, R>>
-) => replaceActionMiddlewares<C, R>((prev) => [...prev, ...wrapVariadic(...middlewares)])));
+  middlewares: Arrayable<ActionMiddleware<C, R>>,
+) => replaceActionMiddlewares<C, R>((prev) => [...prev, ...wrap(middlewares)])));

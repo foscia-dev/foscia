@@ -62,6 +62,9 @@ export default function renderAction(
       '// Adapter exchanges data with your data source.\n// This is mandatory when using Foscia.',
       options.adapter,
     ),
+    options.loader
+      ? `// Loader provides relations eager and lazy loading.\n// If you don't need this, you can safely remove it.\n${options.loader}`
+      : undefined,
   ];
 
   const actionFactory = `
@@ -72,8 +75,6 @@ ${actionFactoryDependencies.filter((d) => d).map((d) => toIndent(config, d!)).jo
 
   return `
 ${renderImportsList({ config, imports })}
-const action = ${actionFactory};
-
-${renderExport({ config, expr: 'action' })}
+${renderExport({ config, expr: actionFactory })}
 `.trim();
 }

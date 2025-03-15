@@ -1,6 +1,5 @@
 import { Model } from '@foscia/core/model/types';
 import { ModelsRegistry } from '@foscia/core/types';
-import { Optional, Transformer } from '@foscia/shared';
 
 /**
  * Config for registry map implementation.
@@ -11,7 +10,7 @@ import { Optional, Transformer } from '@foscia/shared';
  */
 export type MapRegistryConfig = {
   models?: Model[];
-  normalizeType?: Optional<Transformer<string>>;
+  normalizeType?: (type: string) => string;
 };
 
 /**

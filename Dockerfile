@@ -1,4 +1,4 @@
-FROM node:20-alpine as dependencies
+FROM node:22-alpine as dependencies
 
 RUN apk update && apk add --no-cache zip git curl
 
@@ -19,4 +19,3 @@ FROM node as docs
 CMD ["pnpm", "start"]
 
 HEALTHCHECK --retries=60 --interval=5s --timeout=5s CMD ["curl", "-f", "http://localhost:3000"]
-

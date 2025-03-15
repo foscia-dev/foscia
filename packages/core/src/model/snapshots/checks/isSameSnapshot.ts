@@ -1,5 +1,5 @@
 import { Model, ModelKey, ModelLimitedSnapshot, ModelSnapshot } from '@foscia/core/model/types';
-import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
+import { Arrayable, wrap } from '@foscia/shared';
 
 /**
  * Check if two snapshots are similar (same model, same existence state
@@ -23,13 +23,13 @@ import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
 export default <M extends Model>(
   nextSnapshot: ModelSnapshot<M> | ModelLimitedSnapshot<M>,
   prevSnapshot: ModelSnapshot<M> | ModelLimitedSnapshot<M>,
-  ...only: ArrayableVariadic<ModelKey<M>>
+  only?: Arrayable<ModelKey<M>>,
 ) => {
   if (nextSnapshot.$instance.$model !== prevSnapshot.$instance.$model) {
     return false;
   }
 
-  const keys = wrapVariadic(...only);
+  const keys = wrap(only);
   if (!keys.length && nextSnapshot.$exists !== prevSnapshot.$exists) {
     return false;
   }

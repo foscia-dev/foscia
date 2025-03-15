@@ -6,6 +6,8 @@ import {
   fill,
   hasMany,
   hasOne,
+  include,
+  loaded,
   makeComposable,
   makeModel,
   Model,
@@ -13,7 +15,6 @@ import {
   ModelInstance,
   ModelLimitedSnapshot,
   ModelSnapshot,
-  normalizeDotRelations,
   takeSnapshot,
   toString,
 } from '@foscia/core';
@@ -71,7 +72,7 @@ test('Models are type safe', () => {
   const anyInstanceCast: ModelInstance = new PostMock();
   expectTypeOf(anyInstanceCast.anything).toEqualTypeOf<any>();
 
-  normalizeDotRelations(anyInstanceCast.$model, ['anything']);
+  loaded(anyInstanceCast, ['anything']);
 
   const post = new PostMock();
 
@@ -148,12 +149,14 @@ test('Models are type safe', () => {
   expectTypeOf(commentSnapshot.$values.postedBy)
     .toEqualTypeOf<(ModelSnapshot<UserMock> | ModelLimitedSnapshot<UserMock>) | undefined>();
 
-  normalizeDotRelations(PostMock, ['comments']);
-  normalizeDotRelations(PostMock, ['comments.postedBy']);
+  loaded(new PostMock(), ['comments']);
+  loaded(new PostMock(), ['comments.postedBy']);
+  // @ts-expect-error title is not a Post relation
+  loaded(new PostMock(), ['title']);
   // @ts-expect-error unknown is not a Post relation
-  normalizeDotRelations(PostMock, ['unknown']);
+  loaded(new PostMock(), ['unknown']);
   // @ts-expect-error unknown is not a Comment relation
-  normalizeDotRelations(PostMock, ['comments.unknown']);
+  loaded(new PostMock(), ['comments.unknown']);
 
   const tag = new TagMock();
   expectTypeOf(tag.taggables).toEqualTypeOf<(PostMock | UserMock)[]>();
@@ -162,24 +165,31 @@ test('Models are type safe', () => {
   expectTypeOf(file.parent).toEqualTypeOf<FileMock>();
   expectTypeOf(file.children).toEqualTypeOf<FileMock[]>();
 
-  class ChainedModel extends makeModel('chained', { name: attr<string | null>() })
-    .configure({ strict: true })
-    .extend({ email: attr<string>() })
-    .extend({ age: attr<number>() })
-    .configure({ path: 'chained' }) {
+  class ConfiguredModel extends makeModel({
+    type: 'apiv1:configured',
+    strict: true,
+    path: 'configured',
+  }, {
+    name: attr<string | null>(),
+    email: attr<string>(),
+    age: attr<number>(),
+  }) {
   }
 
-  const chained = new ChainedModel();
-  expectTypeOf(chained.name).toEqualTypeOf<string | null>();
-  expectTypeOf(chained.email).toEqualTypeOf<string>();
-  expectTypeOf(chained.age).toEqualTypeOf<number>();
+  const configuredModel = new ConfiguredModel();
+  expectTypeOf(configuredModel.name).toEqualTypeOf<string | null>();
+  expectTypeOf(configuredModel.email).toEqualTypeOf<string>();
+  expectTypeOf(configuredModel.age).toEqualTypeOf<number>();
 
   class ModelProps extends makeModel('model-props', {
     attr1: attr('', { readOnly: true }),
     attr2: attr(toString(), { default: null }),
     attr3: attr(toString(), { readOnly: true }),
+    attr4: attr<string>({ readOnly: true }),
+    attr5: attr<string>({ nullable: true, readOnly: true }),
+    attr6: attr<string>({ nullable: true }),
     rel1: hasOne<PostMock>('posts'),
-    rel2: hasOne<PostMock | CommentMock, true>({ readOnly: true }),
+    rel2: hasOne<PostMock | CommentMock, true>(['posts', 'comments'], { readOnly: true }),
     rel3: hasOne(() => PostMock, { readOnly: true }),
   }) {
   }
@@ -194,6 +204,14 @@ test('Models are type safe', () => {
   expectTypeOf(modelProps.attr3).toEqualTypeOf<string>();
   // @ts-expect-error attr3 is readonly
   modelProps.attr3 = 'hello';
+  expectTypeOf(modelProps.attr4).toEqualTypeOf<string>();
+  // @ts-expect-error attr4 is readonly
+  modelProps.attr4 = 'hello';
+  expectTypeOf(modelProps.attr5).toEqualTypeOf<string | null>();
+  // @ts-expect-error attr5 is readonly
+  modelProps.attr5 = 'hello';
+  expectTypeOf(modelProps.attr6).toEqualTypeOf<string | null>();
+  modelProps.attr6 = 'hello';
 
   expectTypeOf(modelProps.rel1).toEqualTypeOf<PostMock>();
   modelProps.rel1 = new PostMock();
@@ -206,7 +224,7 @@ test('Models are type safe', () => {
 
   class ModelComposite extends makeModel('model-composite', {
     user: makeComposable({
-      user: hasOne<UserMock>(),
+      user: hasOne<UserMock>('users'),
       userId: attr<ModelIdType>(),
     }),
   }) {
@@ -218,14 +236,21 @@ test('Models are type safe', () => {
   expectTypeOf(modelComposite.userId).toEqualTypeOf<ModelIdType>();
 
   class ModelInverse extends makeModel('model-inverse', {
-    comments1: hasMany(() => CommentMock, { inverse: 'postedBy' }),
-    comments2: hasMany(() => CommentMock).inverse('postedBy'),
-    comments3: hasMany<CommentMock[]>().inverse('postedBy'),
+    file1: hasMany('files', { inverse: 'parent' }),
+    file2: hasMany('files').inverse('parent'),
+    comments1: hasMany(() => CommentMock, {
+      inverse: 'postedBy',
+      query: (a) => a(include('images')),
+    }),
+    comments2: hasMany(() => CommentMock)
+      .inverse('postedBy'),
+    comments3: hasMany<CommentMock[]>('comments')
+      .inverse('postedBy'),
 
     any1: hasMany(() => CommentMock as Model, { inverse: 'postedBy' }),
     any2: hasMany(() => CommentMock as Model).inverse('postedBy'),
-    any3: hasMany<any[]>().inverse('postedBy'),
-    any4: hasMany<ModelInstance[]>().inverse('postedBy'),
+    any3: hasMany<any[]>('anything').inverse('postedBy'),
+    any4: hasMany<ModelInstance[]>('anything').inverse('postedBy'),
 
     // @ts-expect-error postedAt is not a relation
     attrInvalid1: hasMany(() => CommentMock, { inverse: 'postedAt' }),
@@ -236,7 +261,7 @@ test('Models are type safe', () => {
 
     relShouldFail1: hasOne(() => UserMock, { inverse: 'comments' }),
     relShouldFail2: hasOne(() => UserMock).inverse('comments'),
-    relShouldFail3: hasOne<UserMock[]>().inverse('comments'),
+    relShouldFail3: hasOne<UserMock[]>('users').inverse('comments'),
   }) {
   }
 

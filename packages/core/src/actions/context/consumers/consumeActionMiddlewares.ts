@@ -1,5 +1,5 @@
-import consumeContext from '@foscia/core/actions/context/consumers/consumeContext';
-import { ActionMiddleware, ConsumeActionMiddlewares } from '@foscia/core/actions/types';
+import makeContextConsumer from '@foscia/core/actions/context/consumers/makeContextConsumer';
+import { ConsumeActionMiddlewares } from '@foscia/core/actions/types';
 
 /**
  * Retrieve the action's middlewares from a context.
@@ -9,11 +9,4 @@ import { ActionMiddleware, ConsumeActionMiddlewares } from '@foscia/core/actions
  *
  * @internal
  */
-export default <C extends {}, R, D = never>(
-  context: C & Partial<ConsumeActionMiddlewares<C, R>>,
-  defaultValue?: D,
-) => consumeContext(context, 'middlewares', [
-  'appendActionMiddlewares',
-  'prependActionMiddlewares',
-  'replaceActionMiddlewares',
-], defaultValue) as ActionMiddleware<C, R>[] | D;
+export default /* @__PURE__ */ makeContextConsumer<'middlewares', ConsumeActionMiddlewares>('middlewares');

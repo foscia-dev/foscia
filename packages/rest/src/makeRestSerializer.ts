@@ -18,7 +18,7 @@ export default <
   config?: Partial<RestSerializerConfig<Record, Related, Data>>,
 ) => makeSerializer({
   createRecord: makeSerializerRecordFactory(
-    (snapshot) => tap({ id: snapshot.$values.id } as Record, (record) => {
+    (snapshot) => tap({} as Record, (record) => {
       if (config?.serializeType) {
         // eslint-disable-next-line no-param-reassign
         record.type = snapshot.$instance.$model.$type;

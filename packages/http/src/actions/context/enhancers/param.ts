@@ -36,7 +36,7 @@ export default /* @__PURE__ */ makeEnhancer('param', (
 ) => async <C extends {}>(action: Action<C>) => action(
   configureRequest({
     params: {
-      ...consumeRequestObjectParams(await action.useContext()),
+      ...await consumeRequestObjectParams(action),
       ...(typeof key === 'string' ? { [key]: value } : key),
     },
   }),

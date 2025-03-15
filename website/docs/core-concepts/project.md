@@ -45,9 +45,6 @@ root-path/
         │   └── withCount.ts
         ├── runners/
         │   └── firstOrFail.ts
-        ├── loaders/
-        │   ├── loadUsingRelation.ts
-        │   └── loadMissingUsingRefresh.ts
         ├── transformers/
         │   └── toMomentDatetime.ts
         ├── utils/
@@ -64,7 +61,6 @@ root-path/
 |-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `composables/`  | [Composables](/docs/digging-deeper/models/models-composition#composition).                                                                                              |
 | `models/`       | [Models](/docs/getting-started#defining-a-model).                                                                                                                       |
-| `loaders/`      | [Relationship loaders](/docs/digging-deeper/models/models-relations#loading-relations).                                                                                 |
 | `enhancers/`    | [Action enhancers](/docs/digging-deeper/actions/custom-action-enhancers).                                                                                               |
 | `runners/`      | [Action runners](/docs/digging-deeper/actions/custom-action-runners).                                                                                                   |
 | `transformers/` | [Transformers](/docs/digging-deeper/models/models-transformers).                                                                                                        |

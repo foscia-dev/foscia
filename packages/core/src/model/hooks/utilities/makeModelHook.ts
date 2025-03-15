@@ -8,6 +8,7 @@ import {
   ModelInstance,
   ModelUsing,
 } from '@foscia/core/model/types';
+import { AwaitableVoid } from '@foscia/shared';
 
 /**
  * Create a model hook registration function.
@@ -19,17 +20,17 @@ import {
 export default (hook: keyof ModelHooksDefinition): {
   <M extends Model>(
     model: M,
-    callback: (model: M) => unknown,
+    callback: (model: M) => void,
   ): () => void;
   <C extends ModelComposableFactory>(
     composable: C,
-    callback: (model: ModelUsing<C>) => unknown,
+    callback: (model: ModelUsing<C>) => void,
   ): () => void;
   <D extends {}>(
     factory: ModelFactory<D>,
-    callback: (model: Model<D, ModelInstance<D>>) => unknown,
+    callback: (model: Model<D, ModelInstance<D>>) => void,
   ): () => void;
 } => (
   model: any,
-  callback: (model: any) => unknown,
+  callback: (model: any) => AwaitableVoid,
 ) => registerHook(model, hook, callback as SyncHookCallback<Model>);

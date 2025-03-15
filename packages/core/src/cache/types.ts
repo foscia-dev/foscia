@@ -1,7 +1,7 @@
 import type { TimedRefFactoryConfig } from '@foscia/core/cache/makeTimedRefFactory';
 import { ModelIdType, ModelInstance } from '@foscia/core/model/types';
 import { InstancesCache } from '@foscia/core/types';
-import { Awaitable, Optional, Transformer } from '@foscia/shared';
+import { Awaitable } from '@foscia/shared';
 
 export type {
   TimedRefFactoryConfig,
@@ -38,11 +38,11 @@ export type RefsCacheConfig = {
   /**
    * Normalize the type before storing and resolving instances.
    */
-  normalizeType?: Optional<Transformer<string>>;
+  normalizeType?: (type: string) => string;
   /**
    * Normalize the ID before storing and resolving instances.
    */
-  normalizeId?: Optional<Transformer<ModelIdType>>;
+  normalizeId?: (id: ModelIdType) => ModelIdType;
 };
 
 /**

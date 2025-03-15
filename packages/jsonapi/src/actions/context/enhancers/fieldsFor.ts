@@ -1,6 +1,6 @@
-import { Action, makeEnhancer, Model, ModelKey, normalizeKey } from '@foscia/core';
+import { Action, aliasPropKey, makeEnhancer, Model, ModelKey } from '@foscia/core';
 import { consumeRequestObjectParams, param } from '@foscia/http';
-import { ArrayableVariadic, optionalJoin, uniqueValues, wrapVariadic } from '@foscia/shared';
+import { Arrayable, optionalJoin, uniqueValues, wrap } from '@foscia/shared';
 
 /**
  * [Select the given JSON:API fieldsets](https://jsonapi.org/format/#fetching-sparse-fieldsets)
@@ -26,16 +26,15 @@ import { ArrayableVariadic, optionalJoin, uniqueValues, wrapVariadic } from '@fo
  */
 export default /* @__PURE__ */ makeEnhancer('fieldsFor', <C extends {}, M extends Model>(
   model: M,
-  ...fieldset: ArrayableVariadic<ModelKey<M>>
+  fieldset: Arrayable<ModelKey<M>>,
 ) => async (action: Action<C>) => {
-  const context = await action.useContext();
-  const prevFields = consumeRequestObjectParams(context)?.fields;
-  const nextFields = wrapVariadic(...fieldset).map((key) => normalizeKey(model, key));
+  const prevFields = (await consumeRequestObjectParams(action))?.fields;
+  const nextFields = wrap(fieldset).map((key) => aliasPropKey(model.$schema[key]));
 
   return action(param('fields', {
     ...prevFields,
     [model.$type]: optionalJoin(uniqueValues([
-      ...((prevFields ?? {})[model.$type] ?? []),
+      ...((prevFields ?? {})[model.$type]?.split(',') ?? []),
       ...nextFields,
     ]), ','),
   }));

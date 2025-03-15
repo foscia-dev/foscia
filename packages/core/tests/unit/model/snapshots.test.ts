@@ -12,6 +12,7 @@ import {
   takeSnapshot,
 } from '@foscia/core';
 import { describe, expect, it, vi } from 'vitest';
+import commentable from '../../mocks/composables/commentable.mock';
 import CommentMock from '../../mocks/models/comment.mock';
 import PostMock from '../../mocks/models/post.mock';
 
@@ -108,15 +109,19 @@ describe.concurrent('unit: snapshots', () => {
     const cloneSnapshotValue = vi.fn((v) => (Array.isArray(v) ? [...v] : v));
     const compareSnapshotValues = vi.fn((n, p) => n !== p);
 
-    const ExtendedPostMock = PostMock.configure({
+    const ConfiguredPost = makeModel({
+      type: 'posts',
       cloneSnapshotValue,
       compareSnapshotValues,
+    }, {
+      commentable,
+      title: attr<string>(),
     });
 
     expect(cloneSnapshotValue).not.toHaveBeenCalled();
     expect(compareSnapshotValues).not.toHaveBeenCalled();
 
-    const post = new ExtendedPostMock();
+    const post = new ConfiguredPost();
 
     expect(cloneSnapshotValue).not.toHaveBeenCalled();
     expect(compareSnapshotValues).not.toHaveBeenCalled();
@@ -142,12 +147,12 @@ describe.concurrent('unit: snapshots', () => {
   it('should take deep and limited snapshots', () => {
     const FooModel = makeModel({ type: 'foo', limitedSnapshots: false }, {
       foo: attr<any>(),
-      bar: hasOne<any>(),
+      bar: hasOne<any>('dummy'),
     });
 
     const BarModel = makeModel({ type: 'bar', limitedSnapshots: true }, {
       bar: attr<any>(),
-      baz: hasOne<any>(),
+      baz: hasOne<any>('dummy'),
     });
 
     const BazModel = makeModel({ type: 'baz' }, {

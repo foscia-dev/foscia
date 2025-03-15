@@ -1,25 +1,24 @@
-import ActionName from '@foscia/core/actions/context/actionName';
+import ActionKind from '@foscia/core/actions/context/actionKind';
 import type {
   InferRelationUpdateValue,
 } from '@foscia/core/actions/context/enhancers/crud/updateRelation';
-import type {
-  GuessContextModelContext,
-} from '@foscia/core/actions/context/guessers/guessContextModel';
-import type { AllData } from '@foscia/core/actions/context/runners/all';
+import type { AllData, RetypedDeserializedData } from '@foscia/core/actions/context/runners/all';
 import type { CachedData } from '@foscia/core/actions/context/runners/cachedOr';
 import type { OneData } from '@foscia/core/actions/context/runners/oneOr';
 import type {
-  RetypedDeserializedData,
-} from '@foscia/core/actions/context/utilities/deserializeInstances';
-import {
+  ResolveModelContext,
+} from '@foscia/core/actions/context/utilities/resolveContextModels';
+import type {
   ActionVariadicRunFunction,
   ActionVariadicRunMethod,
   ActionVariadicUseFunction,
   ActionVariadicUseMethod,
 } from '@foscia/core/actions/variadic';
-import { Hookable, HookCallback } from '@foscia/core/hooks/types';
-import { Model, ModelIdType, ModelInstance, ModelRelation } from '@foscia/core/model/types';
+import type { Hookable, HookCallback } from '@foscia/core/hooks/types';
+import type { Model, ModelIdType, ModelInstance, ModelRelation } from '@foscia/core/model/types';
+import { ParsedRawInclude, ParsedIncludeMap } from '@foscia/core/relations/types';
 import {
+  SYMBOL_ACTION,
   SYMBOL_ACTION_ENHANCER,
   SYMBOL_ACTION_RUNNER,
   SYMBOL_ACTION_WHEN,
@@ -30,16 +29,17 @@ import {
   Deserializer,
   InstancesCache,
   ModelsRegistry,
+  RelationsLoader,
   Serializer,
 } from '@foscia/core/types';
-import { Awaitable, Constructor, FosciaObject } from '@foscia/shared';
+import { Awaitable, Constructor, FosciaObject, IfAny } from '@foscia/shared';
 
 export type {
   AllData,
   OneData,
   CachedData,
   RetypedDeserializedData,
-  GuessContextModelContext,
+  ResolveModelContext,
   InferRelationUpdateValue,
 };
 
@@ -68,12 +68,16 @@ export type Action<Context extends {} = {}> =
   & {
     /**
      * Retrieve the current context after applying all queued enhancers.
+     *
+     * TODO Rename to `context` or `ctx`.
      */
     useContext(): Promise<Context>;
     /**
      * Update the current context.
      *
      * @param newContext
+     *
+     * TODO Rename to `updateCtx`?
      */
     updateContext<NewContext extends {}>(
       newContext: NewContext,
@@ -120,15 +124,19 @@ export type Action<Context extends {} = {}> =
   & ActionVariadicRunMethod<Context>
   & ActionVariadicUseFunction<Context>
   & ActionVariadicRunFunction<Context>
-  & Hookable<ActionHooksDefinition>;
+  & Hookable<ActionHooksDefinition>
+  & FosciaObject<typeof SYMBOL_ACTION>;
 
 /**
  * Action factory.
  *
  * @internal
+ *
+ * TODO Default context to {}.
  */
 export type ActionFactory<Context extends {}> =
   & (() => Action<Context>)
+  & { connectionId: string; }
   & ActionVariadicUseFunction<Context>
   & ActionVariadicRunFunction<Context>;
 
@@ -243,11 +251,24 @@ export type InferQueryModelOrInstance<C extends {}> =
             : InferQueryInstance<C>;
 
 /**
+ * Consumed context from an action or context object.
+ *
+ * @internal
+ */
+export type ConsumedContextFrom<
+  Key extends string & keyof Relevant,
+  Relevant extends {},
+  Context extends {},
+  Default,
+// eslint-disable-next-line max-len
+> = Exclude<(Context extends Relevant ? IfAny<Context, Relevant, Context>[Key] : Relevant[Key]) | Default, undefined>;
+
+/**
  * Define the middlewares to run.
  *
  * @internal
  */
-export type ConsumeActionMiddlewares<C extends {}, R> = {
+export type ConsumeActionMiddlewares<C extends {} = {}, R = unknown> = {
   middlewares?: ActionMiddleware<C, R>[];
 };
 
@@ -256,8 +277,17 @@ export type ConsumeActionMiddlewares<C extends {}, R> = {
  *
  * @internal
  */
-export type ConsumeAction = {
-  action: ActionName | string;
+export type ConsumeActionKind = {
+  actionKind: ActionKind | string;
+};
+
+/**
+ * Define action connection ID to compare it with other actions.
+ *
+ * @internal
+ */
+export type ConsumeActionConnectionId = {
+  actionConnectionId: string;
 };
 
 /**
@@ -303,24 +333,26 @@ export type ConsumeRelation<R extends ModelRelation = ModelRelation> = {
  * Define the ID to query.
  */
 export type ConsumeId = {
-  id?: ModelIdType;
+  id: ModelIdType;
 };
 
 /**
- * Define the relations to include.
+ * Define the relations to eager load.
  *
  * @internal
  */
-export type ConsumeInclude = {
-  include?: string[];
+export type ConsumeEagerLoads = {
+  eagerLoads: (ParsedRawInclude | ParsedIncludeMap)[];
 };
 
 /**
- * Context dependency which can be lazy-loaded.
+ * Define the callback to finish relations eager loading.
  *
  * @internal
  */
-export type ResolvableContextDependency<T> = T | (() => Awaitable<T>);
+export type ConsumeLazyEagerLoadCallback = {
+  lazyEagerLoadCallback: (instances: ModelInstance[]) => Awaitable<void>;
+};
 
 /**
  * Define the cache implementation to use.
@@ -328,7 +360,7 @@ export type ResolvableContextDependency<T> = T | (() => Awaitable<T>);
  * @internal
  */
 export type ConsumeCache = {
-  cache: ResolvableContextDependency<InstancesCache>;
+  cache: InstancesCache;
 };
 
 /**
@@ -337,7 +369,7 @@ export type ConsumeCache = {
  * @internal
  */
 export type ConsumeRegistry = {
-  registry: ResolvableContextDependency<ModelsRegistry>;
+  registry: ModelsRegistry;
 };
 
 /**
@@ -345,8 +377,8 @@ export type ConsumeRegistry = {
  *
  * @internal
  */
-export type ConsumeAdapter<RawData = unknown, Data = unknown> = {
-  adapter: ResolvableContextDependency<Adapter<RawData, Data>>;
+export type ConsumeAdapter<RawData = any, Data = any> = {
+  adapter: Adapter<RawData, Data>;
 };
 
 /**
@@ -355,10 +387,10 @@ export type ConsumeAdapter<RawData = unknown, Data = unknown> = {
  * @internal
  */
 export type ConsumeDeserializer<
-  Data = unknown,
-  Deserialized extends DeserializedData = DeserializedData,
+  Data = any,
+  Deserialized extends DeserializedData = any,
 > = {
-  deserializer: ResolvableContextDependency<Deserializer<Data, Deserialized>>;
+  deserializer: Deserializer<Data, Deserialized>;
 };
 
 /**
@@ -366,6 +398,15 @@ export type ConsumeDeserializer<
  *
  * @internal
  */
-export type ConsumeSerializer<Record = unknown, Related = unknown, Data = unknown> = {
-  serializer: ResolvableContextDependency<Serializer<Record, Related, Data>>;
+export type ConsumeSerializer<Record = any, Related = any, Data = any> = {
+  serializer: Serializer<Record, Related, Data>;
+};
+
+/**
+ * Define the relations loader implementation to use.
+ *
+ * @internal
+ */
+export type ConsumeLoader = {
+  loader: RelationsLoader;
 };

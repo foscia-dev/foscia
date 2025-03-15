@@ -1,20 +1,13 @@
-import {
-  DeserializedData,
-  ModelAttribute,
-  ModelIdType,
-  ModelInstance,
-  ModelRelation,
-} from '@foscia/core';
+import { DeserializedData, ModelIdType, ModelInstance } from '@foscia/core';
 import type { SortDirection } from '@foscia/jsonapi/actions/context/enhancers/sortBy';
 import { RestAdapterConfig } from '@foscia/rest';
 import {
-  RecordDeserializerConfig,
   DeserializerContext,
   DeserializerExtract,
-  DeserializerRecordIdentifier,
+  RecordDeserializerConfig,
   RecordSerializerConfig,
 } from '@foscia/serialization';
-import { Arrayable, Awaitable, Dictionary, IdentifiersMap } from '@foscia/shared';
+import { Awaitable, Dictionary, Multimap } from '@foscia/shared';
 
 export type {
   SortDirection,
@@ -154,7 +147,7 @@ export type JsonApiDocument = {
  */
 export type JsonApiExtractedData<Record extends JsonApiNewResource = JsonApiNewResource> =
   & {
-    included: IdentifiersMap<string, ModelIdType, Record>;
+    included: Multimap<[string, ModelIdType], Record>;
     document: JsonApiDocument;
   }
   & DeserializerExtract<Record>;
@@ -184,46 +177,26 @@ export type JsonApiAdapterConfig<Data = any> = RestAdapterConfig<Data>;
  */
 export type JsonApiDeserializerConfig<
   Record extends JsonApiNewResource,
-  Data extends JsonApiDocument | undefined,
+  Data extends JsonApiDocument | null | undefined,
   Deserialized extends JsonApiDeserializedData,
   Extract extends JsonApiExtractedData<Record>,
 > =
   & {
     /**
-     * Extract identifier (type, ID and LID) from a JSON:API record.
-     * Defaults to the record `type`, `id` and `lid` root fields.
+     * Extract and parse an ID from a JSON:API record.
      *
      * @param record
-     * @param context
      */
-    pullIdentifier: (record: Record, context: {}) => Awaitable<DeserializerRecordIdentifier>;
-    /**
-     * Extract an attribute's value from a JSON:API record.
-     * Defaults to the record attribute's value from `attributes` fields.
-     *
-     * @param record
-     * @param deserializerContext
-     * @param extract
-     */
-    pullAttribute: (
+    extractId: (
       record: Record,
-      deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelAttribute>,
-      extract: Extract,
-    ) => Awaitable<unknown>;
+      deserializerContext: DeserializerContext<Record, Data, Deserialized, Extract>,
+    ) => Awaitable<ModelIdType | null | undefined>;
     /**
-     * Extract a relation's value from a JSON:API record.
-     * Defaults to the record relation's value(s) from `relationships` fields
-     * mapped with their record found in `included` document key.
+     * Extract and parse type from a JSON:API record.
      *
      * @param record
-     * @param deserializerContext
-     * @param extract
      */
-    pullRelation: (
-      record: Record,
-      deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelRelation>,
-      extract: Extract,
-    ) => Awaitable<Arrayable<Record> | null | undefined>;
+    extractType: (record: Record) => Awaitable<string | undefined>;
   }
   & RecordDeserializerConfig<Record, Data, Deserialized, Extract>;
 

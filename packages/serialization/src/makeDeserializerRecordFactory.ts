@@ -1,19 +1,18 @@
-import { DeserializedData, ModelAttribute, ModelRelation } from '@foscia/core';
+import { DeserializedData, ModelRelation } from '@foscia/core';
 import {
   DeserializerContext,
   DeserializerExtract,
+  DeserializerRecord,
   DeserializerRecordFactory,
-  DeserializerRecordIdentifier,
   DeserializerRecordParent,
 } from '@foscia/serialization/types';
-import { Arrayable, Awaitable, mapArrayable } from '@foscia/shared';
+import { Awaitable } from '@foscia/shared';
 
 /**
  * Make a {@link DeserializerRecordFactory | `DeserializerRecordFactory`} implementation.
  *
- * @param pullIdentifier
- * @param pullAttribute
- * @param pullRelation
+ * @param initialize
+ * @param pull
  *
  * @category Factories
  */
@@ -23,39 +22,33 @@ export default <
   Deserialized extends DeserializedData = DeserializedData,
   Extract extends DeserializerExtract<Record> = DeserializerExtract<Record>,
 >(
-  pullIdentifier: (record: Record, context: {}) => Awaitable<DeserializerRecordIdentifier>,
-  pullAttribute: (
+  initialize: (
     record: Record,
-    deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelAttribute>,
     extract: Extract,
+  ) => Awaitable<{ type?: string; }>,
+  pull: (
+    record: Record,
+    deserializerContext: DeserializerContext<Record, Data, Deserialized, Extract>,
+    factory: (
+      relatedRecord: Record,
+    ) => Promise<DeserializerRecord<Record, Data, Deserialized, Extract>>,
   ) => Awaitable<unknown>,
-  pullRelation: (
-    record: Record,
-    deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelRelation>,
-    extract: Extract,
-  ) => Awaitable<Arrayable<Record> | null | undefined>,
-): DeserializerRecordFactory<Record, Data, Deserialized, Extract> => {
-  const factory = async (
+) => {
+  const factory: DeserializerRecordFactory<Record, Data, Deserialized, Extract> = async (
     extract: Extract,
     record: Record,
-    context: {},
     parent?: DeserializerRecordParent,
   ) => ({
+    extract,
     raw: record,
-    identifier: await pullIdentifier(record, context),
+    ...await initialize(record, extract),
     parent,
-    pullAttribute: (
-      deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelAttribute>,
-    ) => pullAttribute(record, deserializerContext, extract),
-    pullRelation: async (
-      deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelRelation>,
-    ) => mapArrayable(
-      await pullRelation(record, deserializerContext, extract),
-      (value) => factory(extract, value as Record, context, {
-        instance: deserializerContext.instance,
-        def: deserializerContext.def,
-      }),
-    ),
+    pull: (
+      deserializerContext: DeserializerContext<Record, Data, Deserialized, Extract>,
+    ) => pull(record, deserializerContext, (relatedRecord) => factory(extract, relatedRecord, {
+      instance: deserializerContext.instance,
+      prop: deserializerContext.prop as ModelRelation,
+    })),
   });
 
   return factory;

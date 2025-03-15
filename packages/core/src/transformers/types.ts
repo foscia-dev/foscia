@@ -1,5 +1,5 @@
 import { SYMBOL_MODEL_PROP_TRANSFORMER } from '@foscia/core/symbols';
-import { Awaitable, FosciaObject, Transformer } from '@foscia/shared';
+import { Awaitable, FosciaObject } from '@foscia/shared';
 
 /**
  * Bi-directional object transformer.
@@ -8,7 +8,7 @@ import { Awaitable, FosciaObject, Transformer } from '@foscia/shared';
  */
 export type ObjectTransformer<T, DS = unknown, SR = unknown> =
   & {
-    deserialize: Transformer<DS, Awaitable<T>>;
-    serialize: Transformer<T, Awaitable<SR>>;
+    deserialize: (value: DS) => Awaitable<T>;
+    serialize: (value: T) => Awaitable<SR>;
   }
   & FosciaObject<typeof SYMBOL_MODEL_PROP_TRANSFORMER>;

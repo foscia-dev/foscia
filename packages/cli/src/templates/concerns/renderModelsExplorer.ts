@@ -1,7 +1,7 @@
 import { CLIConfig } from '@foscia/cli/utils/config/config';
 import { ImportItem, ImportsList } from '@foscia/cli/utils/imports/makeImportsList';
-import type { ModelsExplorer } from '@foscia/cli/utils/prompts/promptForModelsExplorer';
 import toIndent from '@foscia/cli/utils/output/toIndent';
+import type { ModelsExplorer } from '@foscia/cli/utils/prompts/promptForModelsExplorer';
 import { camelCase, sortBy, upperFirst } from 'lodash-es';
 
 type ModelsExplorerTemplateData = {
@@ -45,6 +45,11 @@ ${toIndent(config, `(key${anyTyping}) => context(key).default${typeAssertion}`)}
 `.trim();
   }
 
+  let constAssertion = '';
+  if (config.language === 'ts') {
+    constAssertion = ' as const';
+  }
+
   const modelsNames = sortBy(models, 'name').map((model) => {
     const className = upperFirst(camelCase(model.name));
     imports.add(className, model.from, { isDefault: true });
@@ -56,7 +61,7 @@ ${toIndent(config, `(key${anyTyping}) => context(key).default${typeAssertion}`)}
     return `
 [
 ${modelsNames.map((m) => toIndent(config, m)).join(',\n')},
-]`.trim();
+]${constAssertion}`.trim();
   }
 
   return '[]';

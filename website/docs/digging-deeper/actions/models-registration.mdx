@@ -24,8 +24,8 @@ from their `type` string.
 As stated in the
 [models guide](/docs/core-concepts/models#explicit-type-when-having-circular-references),
 you may need this object when your models contains circular references, because
-you won't be able to import models when strictly following some code style (e.g.
-ESLint AirBnB disallow dependency cycle).
+you won't be able to import models in some environments (CommonJS) or when
+strictly following some code style (e.g. ESLint AirBnB disallow dependency cycle).
 
 ## Adding registry
 

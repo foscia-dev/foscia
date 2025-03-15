@@ -1,4 +1,4 @@
-import { ActionFactory, connections, AnonymousEnhancer, AnonymousRunner } from '@foscia/core';
+import { ActionFactory, AnonymousEnhancer, AnonymousRunner, configuration } from '@foscia/core';
 import type { ActionFactoryMock, ActionMockableFactory } from '@foscia/test/types';
 
 /**
@@ -20,11 +20,12 @@ export default <C extends {}>(
       : (mockableFactory.$real as any)(...immediateEnhancers)
   );
 
+  mockableFactory.connectionId = factory.connectionId;
   mockableFactory.$mock = null as ActionFactoryMock<C> | null;
   mockableFactory.$real = factory;
 
-  if (connections.get() === factory) {
-    connections.register('default', mockableFactory);
+  if (factory.connectionId === configuration.connections?.default?.connectionId) {
+    configuration.connections.default = mockableFactory;
   }
 
   return mockableFactory;

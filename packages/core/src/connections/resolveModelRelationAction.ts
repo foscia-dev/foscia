@@ -1,31 +1,24 @@
 import consumeRegistry from '@foscia/core/actions/context/consumers/consumeRegistry';
-import guessContextModel from '@foscia/core/actions/context/guessers/guessContextModel';
-import connections from '@foscia/core/connections/connections';
 import resolveModelAction from '@foscia/core/connections/resolveModelAction';
 import FosciaError from '@foscia/core/errors/fosciaError';
-import { Model, ModelRelation } from '@foscia/core/model/types';
-import { sequentialTransform } from '@foscia/shared';
+import { ModelRelation } from '@foscia/core/model/types';
+import resolveRelatedModels from '@foscia/core/relations/utilities/resolveRelatedModels';
 
 /**
  * Resolve the action factory for a relation targeted model.
  *
  * @param relation
  *
+ * @category Utilities
  * @internal
  */
 export default async (relation: ModelRelation) => {
-  const foundModel = await sequentialTransform(
-    [...connections.all().values()].map((factory) => async (model: Model | null) => (
-      model ?? await guessContextModel({
-        registry: consumeRegistry(await factory().useContext(), null),
-        model: relation.parent,
-        relation,
-      })
-    )),
-    null,
+  const models = await resolveRelatedModels(
+    relation,
+    await consumeRegistry(resolveModelAction(relation.parent)(), null),
   );
-  if (foundModel) {
-    return resolveModelAction(foundModel);
+  if (models.length) {
+    return resolveModelAction(models[0]);
   }
 
   throw new FosciaError(

@@ -1,7 +1,5 @@
+import { RetypedDeserializedData } from '@foscia/core/actions/context/runners/all';
 import oneOr, { OneData } from '@foscia/core/actions/context/runners/oneOr';
-import {
-  RetypedDeserializedData,
-} from '@foscia/core/actions/context/utilities/deserializeInstances';
 import { InferQueryInstance } from '@foscia/core/actions/types';
 import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import RecordNotFoundError from '@foscia/core/errors/recordNotFoundError';

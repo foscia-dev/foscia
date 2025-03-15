@@ -1,7 +1,14 @@
-import { makeActionFactory, makeCache, makeRegistry } from '@foscia/core';
+import {
+  makeActionFactory,
+  makeCache,
+  makeLoader,
+  makeRegistry,
+  makeSimpleLazyLoader,
+} from '@foscia/core';
 import {
   makeJsonApiAdapter,
   makeJsonApiDeserializer,
+  makeJsonApiEagerLoader,
   makeJsonApiSerializer,
 } from '@foscia/jsonapi';
 import CommentMock from './models/comment.mock';
@@ -20,6 +27,10 @@ export default function makeJsonApiActionMock() {
 
         return next(request);
       }],
+    }),
+    ...makeLoader({
+      eagerLoader: makeJsonApiEagerLoader(),
+      lazyLoader: makeSimpleLazyLoader(),
     }),
   });
 }

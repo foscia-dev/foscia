@@ -1,7 +1,7 @@
 import isSameSnapshot from '@foscia/core/model/snapshots/checks/isSameSnapshot';
 import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
 import { ModelInstance, ModelKey } from '@foscia/core/model/types';
-import { ArrayableVariadic } from '@foscia/shared';
+import { Arrayable } from '@foscia/shared';
 
 /**
  * Check if instance changed since last original snapshot capture.
@@ -22,9 +22,9 @@ import { ArrayableVariadic } from '@foscia/shared';
  */
 export default <I extends ModelInstance>(
   instance: I,
-  ...only: ArrayableVariadic<ModelKey<I>>
+  only?: Arrayable<ModelKey<I>>,
 ) => !isSameSnapshot(
   takeSnapshot(instance),
   instance.$original,
-  ...only,
+  only,
 );

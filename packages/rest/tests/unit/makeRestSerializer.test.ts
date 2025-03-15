@@ -3,6 +3,7 @@ import {
   forceFill,
   hasMany,
   hasOne,
+  makeActionFactory,
   makeComposable,
   makeModelFactory,
   makeTransformer,
@@ -18,21 +19,21 @@ describe.concurrent('unit: makeRestSerializer', () => {
   });
 
   const authored = makeComposable({
-    author: hasOne(),
+    author: hasOne('users'),
   });
 
   const Comment = makeModel('comments', {
     authored,
     body: attr(),
-    pushOnly: attr().sync('push'),
+    pushOnly: attr().alias('push-only').sync('push'),
   });
 
   const Post = makeModel('posts', {
     authored,
     title: attr(),
     body: attr(),
-    comments: hasMany(),
-    pullOnly: attr().readOnly().sync('pull'),
+    comments: hasMany('comments'),
+    pullOnly: attr().alias('pull-only').readOnly().sync('pull'),
   });
 
   const User = makeModel('users', {
@@ -40,7 +41,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
       (value: string) => value.toLowerCase(),
       (value: string) => value.toUpperCase(),
     )).alias('userName'),
-    posts: hasMany().alias('myPosts'),
+    posts: hasMany('users').alias('myPosts'),
   });
 
   const user1 = forceFill(new User(), {
@@ -137,7 +138,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
       post1,
       {
         serializeRelation: (context, related, parents) => context.serializer
-          .serializeToRecords(related, context, parents),
+          .serializeToRecords(related, context.action, parents),
       },
       {},
       (assertion: Assertion) => assertion.resolves.toStrictEqual({
@@ -152,7 +153,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
           {
             id: '1',
             body: 'comment from john',
-            pushOnly: 'foo',
+            'push-only': 'foo',
             author: {
               id: '1',
               userName: 'JOHN',
@@ -174,7 +175,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
       {
         serializeType: true,
         serializeRelation: (context, related, parents) => context.serializer
-          .serializeToRecords(related, context, parents),
+          .serializeToRecords(related, context.action, parents),
         circularRelationBehavior: () => 'keep',
       },
       {},
@@ -198,7 +199,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
                   id: '1',
                   type: 'comments',
                   body: 'comment from john',
-                  pushOnly: 'foo',
+                  'push-only': 'foo',
                   author: {
                     id: '1',
                     type: 'users',
@@ -224,7 +225,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
             id: '1',
             type: 'comments',
             body: 'comment from john',
-            pushOnly: 'foo',
+            'push-only': 'foo',
             author: {
               id: '1',
               type: 'users',
@@ -275,7 +276,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
       {
         circularRelationBehavior: () => 'throw',
         serializeRelation: (context, related, parents) => context.serializer
-          .serializeToRecords(related, context, parents),
+          .serializeToRecords(related, context.action, parents),
       },
       {},
       (assertion: Assertion) => assertion.rejects.toThrowError(
@@ -286,9 +287,10 @@ describe.concurrent('unit: makeRestSerializer', () => {
     'should serialize instance with configuration',
     async (instance, config, context, expectation) => {
       const { serializer } = makeRestSerializer(config);
+      const action = makeActionFactory(context)();
       const serialize = async () => serializer.serializeToData(
-        await serializer.serializeToRecords(takeSnapshot(instance), context),
-        context,
+        await serializer.serializeToRecords(takeSnapshot(instance), action),
+        action,
       );
 
       await expectation(expect(serialize()));
@@ -320,7 +322,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
       post1,
       {
         serializeRelated: (context, related, parents) => context.serializer
-          .serializeToRecords(related, context, parents),
+          .serializeToRecords(related, context.action, parents),
       },
       {},
       (assertion: Assertion) => assertion.resolves.toStrictEqual({
@@ -333,14 +335,15 @@ describe.concurrent('unit: makeRestSerializer', () => {
     'should serialize relation with configuration',
     async (instance, config, context, expectation) => {
       const { serializer } = makeRestSerializer(config);
+      const action = makeActionFactory(context)();
       const serialize = async () => serializer.serializeToData(
         await serializer.serializeToRelatedRecords(
           takeSnapshot(instance),
           instance.$model.$schema.author,
           takeSnapshot(instance.author),
-          context,
+          action,
         ),
-        context,
+        action,
       );
 
       await expectation(expect(serialize()));
@@ -361,8 +364,9 @@ describe.concurrent('unit: makeRestSerializer', () => {
       serializeAttribute: ({ value }) => String(value).toUpperCase(),
     });
 
-    await expect(serializer.serializeToRecords(takeSnapshot(instance), {})).resolves.toStrictEqual({
-      id: undefined,
+    await expect(
+      serializer.serializeToRecords(takeSnapshot(instance), makeActionFactory({})()),
+    ).resolves.toStrictEqual({
       BAR: 'BAR',
     });
   });

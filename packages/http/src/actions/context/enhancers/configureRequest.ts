@@ -1,7 +1,6 @@
 import { Action, context, makeEnhancer } from '@foscia/core';
 import consumeRequestConfig from '@foscia/http/actions/context/consumers/consumeRequestConfig';
 import { HttpRequestConfig } from '@foscia/http/types';
-import { using } from '@foscia/shared';
 
 /**
  * Configure an HTTP request used by the HTTP adapter.
@@ -63,9 +62,10 @@ import { using } from '@foscia/shared';
  */
 export default /* @__PURE__ */ makeEnhancer('configureRequest', (
   nextConfig: HttpRequestConfig,
-) => async <C extends {}>(action: Action<C>) => using(
-  consumeRequestConfig(await action.useContext(), {} as HttpRequestConfig),
-  (prevRequestConfig) => action(context({
+) => async <C extends {}>(action: Action<C>) => {
+  const prevRequestConfig = await consumeRequestConfig(action, {} as HttpRequestConfig);
+
+  return action(context({
     httpRequestConfig: {
       ...prevRequestConfig,
       ...nextConfig,
@@ -75,5 +75,5 @@ export default /* @__PURE__ */ makeEnhancer('configureRequest', (
         ...nextConfig.params,
       },
     } as HttpRequestConfig,
-  })),
-));
+  }));
+});

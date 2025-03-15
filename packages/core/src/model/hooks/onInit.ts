@@ -5,4 +5,4 @@ import makeInstanceHook from '@foscia/core/model/hooks/utilities/makeInstanceHoo
  *
  * @category Hooks
  */
-export default /* @__PURE__ */ makeInstanceHook('init');
+export default /* @__PURE__ */ makeInstanceHook<void>('init');

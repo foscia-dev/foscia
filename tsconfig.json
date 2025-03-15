@@ -12,7 +12,6 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": false,
-    "outDir": "dist",
     "baseUrl": ".",
     "rootDir": ".",
     "newLine": "lf",

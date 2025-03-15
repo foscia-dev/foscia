@@ -3,7 +3,7 @@
  *
  * @param endpoint
  *
- * @category Utilities
+ * @internal
  */
 export default (endpoint: string) => endpoint
   // Remove multiple slashes at start.

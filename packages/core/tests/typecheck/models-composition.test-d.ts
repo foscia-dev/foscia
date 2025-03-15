@@ -12,13 +12,14 @@ import {
   ModelAttribute,
   ModelAttributeFactory,
   ModelComposable,
+  ModelHasOneFactory,
   ModelIdFactory,
   ModelIdType,
   ModelInstance,
   ModelInstanceUsing,
-  ModelRelationFactory,
   ModelUsing,
   onBoot,
+  onCreated,
   onInit,
   onPropertyWrite,
   onSaving,
@@ -40,13 +41,16 @@ test('Models compositions are type safe', () => {
   });
 
   onBoot(foo, () => undefined);
+  onBoot(foo, () => true);
+  onCreated(foo, () => true);
+  onCreated(foo, async () => true);
   onInit(foo, (instance) => {
     expectTypeOf(instance.foo).toEqualTypeOf<string>();
     // @ts-expect-error property does not exist
     expectTypeOf(instance.bar).toEqualTypeOf<any>();
   });
-  onPropertyWrite(foo, 'foo', ({ instance, def }) => {
-    expectTypeOf(def).toMatchTypeOf<ModelAttribute<string, false>>();
+  onPropertyWrite(foo, 'foo', ({ instance, prop }) => {
+    expectTypeOf(prop).toEqualTypeOf<ModelAttribute<string, false>>();
     expectTypeOf(instance.foo).toEqualTypeOf<string>();
     // @ts-expect-error property does not exist
     expectTypeOf(instance.bar).toEqualTypeOf<any>();
@@ -63,8 +67,8 @@ test('Models compositions are type safe', () => {
     // @ts-expect-error property does not exist
     expectTypeOf(instance.unknown).toEqualTypeOf<any>();
   });
-  onPropertyWrite(Model, 'foo', ({ instance, def }) => {
-    expectTypeOf(def).toMatchTypeOf<ModelAttribute<string, false>>();
+  onPropertyWrite(Model, 'foo', ({ instance, prop }) => {
+    expectTypeOf(prop).toEqualTypeOf<ModelAttribute<string, false>>();
     expectTypeOf(instance.foo).toEqualTypeOf<string>();
     expectTypeOf(instance.baz).toEqualTypeOf<boolean>();
     // @ts-expect-error property does not exist
@@ -74,15 +78,15 @@ test('Models compositions are type safe', () => {
   // @ts-expect-error property does not exist
   onPropertyWrite(Model, 'unknown', () => undefined);
 
-  expectTypeOf(Model).toMatchTypeOf<ModelUsing<typeof foo>>();
-  expectTypeOf(Model).toMatchTypeOf<ModelUsing<typeof bar>>();
-  expectTypeOf(Model).toMatchTypeOf<ModelUsing<typeof baz>>();
+  expectTypeOf(Model).toExtend<ModelUsing<typeof foo>>();
+  expectTypeOf(Model).toExtend<ModelUsing<typeof bar>>();
+  expectTypeOf(Model).toExtend<ModelUsing<typeof baz>>();
 
   const model = new Model();
 
-  expectTypeOf(model).toMatchTypeOf<ModelInstanceUsing<typeof foo>>();
-  expectTypeOf(model).toMatchTypeOf<ModelInstanceUsing<typeof bar>>();
-  expectTypeOf(model).toMatchTypeOf<ModelInstanceUsing<typeof baz>>();
+  expectTypeOf(model).toExtend<ModelInstanceUsing<typeof foo>>();
+  expectTypeOf(model).toExtend<ModelInstanceUsing<typeof bar>>();
+  expectTypeOf(model).toExtend<ModelInstanceUsing<typeof baz>>();
   expectTypeOf(model.foo).toEqualTypeOf<string>();
   expectTypeOf(model.bar).toEqualTypeOf<number>();
   expectTypeOf(model.baz).toEqualTypeOf<boolean>();
@@ -142,7 +146,7 @@ test('Models compositions are type safe', () => {
   }
 
   type ImageableDefinition<K extends string> =
-    & Record<K, ModelRelationFactory<Image, false>>
+    & Record<K, ModelHasOneFactory<Image, false>>
     & Record<`${K}URL`, ModelAttributeFactory<string, true>>;
 
   interface Imageable extends ModelComposable {
@@ -159,7 +163,7 @@ test('Models compositions are type safe', () => {
       : D : D;
 
   type BelongsTo<K extends string, T extends ModelInstance | null> =
-    & Record<K, ModelRelationFactory<T, false>>
+    & Record<K, ModelHasOneFactory<T, false>>
     & Record<`${K}Id`, ModelIdFactory<IdOf<T>, false>>;
 
   interface BelongsToComposable<T extends ModelInstance | null>
@@ -172,7 +176,7 @@ test('Models compositions are type safe', () => {
   >() => makeComposableFactory<BelongsToComposable<T>>({
     bind: (composable) => {
       applyDefinition(composable.parent, makeDefinition({
-        [composable.key]: hasOne(),
+        [composable.key]: hasOne('dummy'),
         [`${composable.key}Id`]: attr(),
       }));
     },

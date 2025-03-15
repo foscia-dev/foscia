@@ -1,5 +1,3 @@
-import using from '@foscia/shared/functions/using';
-
 /**
  * Generate a unique ID using generator.
  *
@@ -11,8 +9,10 @@ import using from '@foscia/shared/functions/using';
 const uniqueId = (
   generator: () => string,
   notIds: string[],
-): string => using(generator(), (id) => (
-  notIds.indexOf(id) !== -1 ? uniqueId(generator, notIds) : id
-));
+): string => {
+  const newId = generator();
+
+  return notIds.indexOf(newId) !== -1 ? uniqueId(generator, notIds) : newId;
+};
 
 export default uniqueId;

@@ -23,7 +23,7 @@ export const MODELS_EXPLORERS = [
   {
     value: 'manual',
     name: 'manually',
-    hint: 'can be maintained with `foscia make models`',
+    hint: 'maintained with `foscia make models`',
     disabled: () => false,
   },
 ] as const;

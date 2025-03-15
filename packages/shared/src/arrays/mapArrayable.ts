@@ -9,8 +9,8 @@ import { Awaitable } from '@foscia/shared/types';
  *
  * @internal
  */
-export default async <T, U>(
-  value: T[] | T,
+export default async <T, N extends null | undefined | never, U>(
+  value: T[] | T | N,
   callback: (value: NonNullable<T>) => Awaitable<U>,
 ) => {
   if (Array.isArray(value)) {

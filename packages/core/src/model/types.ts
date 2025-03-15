@@ -1,4 +1,6 @@
+import { AnonymousEnhancer, ConsumeModel } from '@foscia/core/actions/types';
 import { Hookable, HookCallback, SyncHookCallback } from '@foscia/core/hooks/types';
+import { RawInclude } from '@foscia/core/relations/types';
 import {
   SYMBOL_MODEL_CLASS,
   SYMBOL_MODEL_COMPOSABLE,
@@ -22,10 +24,8 @@ import {
   FosciaObject,
   IfAny,
   OmitNever,
-  Optional,
   Prev,
   RestoreDescriptorHolder,
-  Transformer,
   UnionToIntersection,
 } from '@foscia/shared';
 
@@ -34,13 +34,7 @@ import {
  *
  * @internal
  */
-export type ModelConfig = {
-  /**
-   * The connection this model interacts with.
-   * Leaving this `undefined` will use the default connection, which is the
-   * first declared action factory.
-   */
-  connection?: string | undefined;
+export type ModelConfig<M extends Model = Model> = {
   /**
    * Enable all strict policies on models.
    * Defaults as `undefined`.
@@ -67,22 +61,22 @@ export type ModelConfig = {
    */
   strictReadOnly?: boolean;
   /**
-   * Guess a related type from a relation definition.
+   * Guess a related type from a relation.
    * Defaults is to use the relation name (and pluralize it if it is a "to one"
    * relation).
    */
-  guessRelationType?: Transformer<ModelRelation, string>;
+  guessRelationType?: (relation: ModelRelation) => string;
   /**
    * Guess a relation inverse.
    * Defaults is to use the model type (and singularize it if it is a "to many"
    * relation).
    */
-  guessRelationInverse?: Transformer<ModelRelation, string[] | string>;
+  guessRelationInverse?: (relation: ModelRelation) => string | string[];
   /**
    * Guess alias from a property's name.
    * Defaults is to keep the property's name.
    */
-  guessAlias?: Transformer<string>;
+  guessAlias?: (prop: ModelProp) => string;
   /**
    * Compare two properties values when comparing snapshots.
    * Defaults to {@link compareModelValues | `compareModelValues`}.
@@ -107,6 +101,17 @@ export type ModelConfig = {
    */
   limitedSnapshots?: boolean;
 
+  /**
+   * Sub-relations to always include.
+   */
+  include?: RawInclude<M>;
+  /**
+   * Callback to customize the query.
+   * Defining it can prevent requests merging and degrade performance.
+   * If your goal is to only include relations, use `include`.
+   */
+  query?: AnonymousEnhancer<ConsumeModel<M>, any>;
+
   // Specific HTTP config.
 
   /**
@@ -115,14 +120,14 @@ export type ModelConfig = {
    * @remarks
    * This is specific to HTTP implementations (REST, JSON:API).
    */
-  baseURL?: Optional<string>;
+  baseURL?: string;
   /**
    * Define the path to use.
    *
    * @remarks
    * This is specific to HTTP implementations (REST, JSON:API).
    */
-  path?: Optional<string>;
+  path?: string;
   /**
    * Guess the path from the model type.
    * Defaults to the model type.
@@ -130,7 +135,7 @@ export type ModelConfig = {
    * @remarks
    * This is specific to HTTP implementations (REST, JSON:API).
    */
-  guessPath?: Transformer<string>;
+  guessPath?: (type: string) => string;
   /**
    * Guess the ID path from the model ID.
    * Defaults to converting the ID to string.
@@ -138,21 +143,23 @@ export type ModelConfig = {
    * @remarks
    * This is specific to HTTP implementations (REST, JSON:API).
    */
-  guessIdPath?: Transformer<ModelIdType>;
+  guessIdPath?: (id: ModelIdType) => ModelIdType;
   /**
-   * Guess the relation path from the relation definition.
+   * Guess the relation path from the relation.
    * Defaults to the relation name.
    *
    * @remarks
    * This is specific to HTTP implementations (REST, JSON:API).
    */
-  guessRelationPath?: Transformer<ModelRelation, string>;
+  guessRelationPath?: (relation: ModelRelation) => string;
 };
 
 /**
  * Model composable which adds features and typings to a model.
  *
  * @interface
+ *
+ * @internal
  */
 export interface ModelComposable {
   /**
@@ -163,20 +170,26 @@ export interface ModelComposable {
   readonly factory: ModelComposableFactory<any>;
   /**
    * The model the composable is bind to.
+   *
+   * @internal
    */
   readonly parent: Model;
   /**
    * The key the composable is bind to.
+   *
+   * @internal
    */
   readonly key: string;
   /**
    * Init the composable to a parent model's instance.
+   *
+   * @internal
    */
   readonly init?: (instance: ModelInstance) => void;
   /**
    * Stores the composable typing for type resolution.
    *
-   * @internal
+   * @ignore
    */
   readonly _type: {};
 }
@@ -204,6 +217,10 @@ export type ModelComposableFactory<C extends ModelComposable = ModelComposable> 
      * Create and bind the composable to a model.
      */
     readonly bind: (ctx: { parent: Model, key: string }) => C;
+    /**
+     * Pending composable built by the factory.
+     */
+    composable: ModelPendingComposable<C>;
   }
   & FosciaObject<typeof SYMBOL_MODEL_COMPOSABLE>;
 
@@ -228,6 +245,12 @@ export type ModelPropSync = 'pull' | 'push';
 export interface ModelProp<T = any, R extends boolean = boolean>
   extends ModelComposable, FosciaObject<typeof SYMBOL_MODEL_PROP> {
   /**
+   * Type produced by the property.
+   *
+   * @ignore
+   */
+  readonly _type: R extends false ? Record<this['key'], T> : Readonly<Record<this['key'], T>>;
+  /**
    * Alias of the property (might be used when (de)serializing).
    */
   alias?: string | undefined;
@@ -238,9 +261,11 @@ export interface ModelProp<T = any, R extends boolean = boolean>
   /**
    * Tells if the property is read-only.
    */
-  readonly readOnly?: R;
-
-  readonly _type: R extends false ? Record<this['key'], T> : Readonly<Record<this['key'], T>>;
+  readOnly?: R;
+  /**
+   * Transformer for the property.
+   */
+  transformer?: ObjectTransformer<T | null>;
 }
 
 /**
@@ -252,16 +277,70 @@ export type ModelPendingProp<P extends ModelProp> =
   Omit<P, '$FOSCIA_TYPE' | 'factory' | 'parent' | 'key' | '_type'> & ThisType<P>;
 
 /**
- * Model chainable property factory.
+ * Pending property factory.
  *
  * @internal
  */
-export type ModelPropChainableFactory<
-  P extends ModelProp,
-  M extends Dictionary<(...args: any[]) => Partial<P>>,
-> =
-  & { [K in keyof M]: (...args: Parameters<M[K]>) => ModelPropChainableFactory<P, M>; }
-  & ModelComposableFactory<P>;
+export type ModelPendingPropFactory<F extends ModelComposableFactory<ModelProp>> =
+  Omit<F, '$FOSCIA_TYPE' | 'bind' | 'composable' | '_type' | '_readOnly' | '_factory'>;
+
+/**
+ * Model property factory with modified type and read-only state.
+ *
+ * @internal
+ */
+export type ModelPropModifiedFactory<
+  F extends ModelPropFactory<any, any>,
+  T,
+  R extends boolean,
+> = (F & { readonly _type: T | null; readonly _readOnly: R; })['_factory'];
+
+/**
+ * Model property factory.
+ *
+ * @internal
+ */
+export interface ModelPropFactory<T = any, R extends boolean = boolean> {
+  /**
+   * The final factory implementation.
+   *
+   * @ignore
+   */
+  readonly _factory: unknown;
+  /**
+   * The final type of the property created by the factory implementation.
+   *
+   * @ignore
+   */
+  readonly _type: unknown;
+  /**
+   The final read-only state of the property created by the factory implementation.
+   *
+   * @ignore
+   */
+  readonly _readOnly: boolean;
+
+  /**
+   * Define the alias to use for data source interactions.
+   *
+   * @param alias
+   */
+  alias: (alias: string) => ModelPropModifiedFactory<this, T, R>;
+  /**
+   * Define when the property should be synced with data source.
+   *
+   * @param sync
+   */
+  sync: (sync: boolean | ModelPropSync) => ModelPropModifiedFactory<this, T, R>;
+  /**
+   * Define a transformer.
+   *
+   * @param transformer
+   */
+  transform: <NT extends T>(
+    transformer: ObjectTransformer<NT | null, any, any>,
+  ) => ModelPropModifiedFactory<this, NT, R>;
+}
 
 /**
  * Model value property stored inside the instance internal values.
@@ -270,8 +349,18 @@ export type ModelPropChainableFactory<
  *
  * @internal
  */
-export type ModelValueProp<T = any, R extends boolean = boolean> =
+export type ModelValueProp<
+  T = any,
+  R extends boolean = boolean,
+  K extends symbol = any,
+> =
   & {
+    /**
+     * Kind of value property.
+     *
+     * @internal
+     */
+    readonly $VALUE_PROP_KIND: K;
     /**
      * Default value for the property.
      */
@@ -280,36 +369,18 @@ export type ModelValueProp<T = any, R extends boolean = boolean> =
   & ModelProp<T, R>;
 
 /**
- * Model ID property.
+ * Model value property factory.
  *
- * @interface
+ * @internal
  */
-export type ModelId<T extends ModelIdType | null = any, R extends boolean = boolean> =
-  {
-    /**
-     * Type of property.
-     *
-     * @internal
-     */
-    readonly $VALUE_PROP_TYPE: typeof SYMBOL_MODEL_PROP_KIND_ID;
-    transformer?: ObjectTransformer<T | null>;
-  }
-  & ModelValueProp<T, R>;
-
-/**
- * Model ID factory.
- *
- * @interface
- */
-export type ModelIdFactory<T extends ModelIdType | null, R extends boolean> = {
+export interface ModelValuePropFactory<T = any, R extends boolean = boolean>
+  extends ModelPropFactory<T, R> {
   /**
-   * Define a transformer.
+   * Define read-only state.
    *
-   * @param transformer
+   * @param readOnly
    */
-  transform: <NT extends T>(
-    transformer: ObjectTransformer<NT | null, any, any>,
-  ) => ModelIdFactory<NT, R>;
+  readOnly: <NR extends boolean = true>(readOnly?: NR) => ModelPropModifiedFactory<this, T, NR>;
   /**
    * Define default value.
    * Object values should be provided with a factory function to avoid
@@ -317,18 +388,36 @@ export type ModelIdFactory<T extends ModelIdType | null, R extends boolean> = {
    *
    * @param value
    */
-  default: <NT extends T>(value: T | (() => T)) => ModelIdFactory<NT, R>;
-  /**
-   * Mark read-only.
-   *
-   * @param readOnly
-   */
-  readOnly: <NR extends boolean = true>(readOnly?: NR) => ModelIdFactory<T, NR>;
+  default: <NT extends T>(value: NT | (() => NT)) => ModelPropModifiedFactory<this, NT, R>;
   /**
    * Mark nullable.
    */
-  nullable: () => ModelIdFactory<T | null, R>;
-} & ModelComposableFactory<ModelId<T, R>>;
+  nullable: () => ModelPropModifiedFactory<this, T | null, R>;
+}
+
+/**
+ * Model ID property.
+ *
+ * @interface
+ */
+export type ModelId<T = any, R extends boolean = boolean> =
+  & ModelValueProp<T, R, typeof SYMBOL_MODEL_PROP_KIND_ID>;
+
+/**
+ * Model ID factory.
+ */
+export interface ModelIdFactory<T, R extends boolean>
+  extends ModelComposableFactory<ModelId<T, R>>, ModelValuePropFactory<T, R> {
+  readonly _factory: ModelIdFactory<this['_type'], this['_readOnly']>;
+  /**
+   * @ignore
+   */
+  alias: (alias: string) => ModelPropModifiedFactory<this, T, R>;
+  /**
+   * @ignore
+   */
+  sync: (sync: boolean | ModelPropSync) => ModelPropModifiedFactory<this, T, R>;
+}
 
 /**
  * Model ID factory object config.
@@ -346,62 +435,15 @@ export type ModelIdFactoryConfig<T extends ModelIdType | null, R extends boolean
  * @interface
  */
 export type ModelAttribute<T = any, R extends boolean = boolean> =
-  {
-    /**
-     * Type of property.
-     *
-     * @internal
-     */
-    readonly $VALUE_PROP_TYPE: typeof SYMBOL_MODEL_PROP_KIND_ATTRIBUTE;
-    transformer?: ObjectTransformer<T | null>;
-  }
-  & ModelValueProp<T, R>;
+  & ModelValueProp<T, R, typeof SYMBOL_MODEL_PROP_KIND_ATTRIBUTE>;
 
 /**
  * Model attribute factory.
- *
- * @interface
  */
-export type ModelAttributeFactory<T, R extends boolean> = {
-  /**
-   * Define a transformer.
-   *
-   * @param transformer
-   */
-  transform: <NT extends T>(
-    transformer: ObjectTransformer<NT | null, any, any>,
-  ) => ModelAttributeFactory<NT, R>;
-  /**
-   * Define default value.
-   * Object values should be provided with a factory function to avoid
-   * defining the same reference on multiple instance.
-   *
-   * @param value
-   */
-  default: <NT extends T>(value: T | (() => T)) => ModelAttributeFactory<NT, R>;
-  /**
-   * Mark read-only.
-   *
-   * @param readOnly
-   */
-  readOnly: <NR extends boolean = true>(readOnly?: NR) => ModelAttributeFactory<T, NR>;
-  /**
-   * Mark nullable.
-   */
-  nullable: () => ModelAttributeFactory<T | null, R>;
-  /**
-   * Define the alias to use for data source interactions.
-   *
-   * @param alias
-   */
-  alias: (alias: string) => ModelAttributeFactory<T, R>;
-  /**
-   * Define when the property should be synced with data source.
-   *
-   * @param sync
-   */
-  sync: (sync: boolean | ModelPropSync) => ModelAttributeFactory<T, R>;
-} & ModelComposableFactory<ModelAttribute<T, R>>;
+export interface ModelAttributeFactory<T, R extends boolean>
+  extends ModelComposableFactory<ModelAttribute<T, R>>, ModelValuePropFactory<T, R> {
+  readonly _factory: ModelAttributeFactory<this['_type'], this['_readOnly']>;
+}
 
 /**
  * Model attribute factory object config.
@@ -414,33 +456,24 @@ export type ModelAttributeFactoryConfig<T, R extends boolean> =
   Pick<ModelAttribute<T, R>, 'transformer' | 'default' | 'readOnly' | 'alias' | 'sync'>;
 
 /**
- * Available model relation types.
- *
- * @internal
- */
-export type ModelRelationType =
-  | typeof SYMBOL_MODEL_RELATION_HAS_ONE
-  | typeof SYMBOL_MODEL_RELATION_HAS_MANY;
-
-/**
  * Model relation property.
  *
  * @interface
+ *
+ * @internal
  */
-export type ModelRelation<T = any, R extends boolean = boolean> =
+export type ModelRelation<
+  T = any,
+  R extends boolean = boolean,
+  K extends symbol = any,
+> =
   {
     /**
-     * Type of property.
+     * Kind of relation.
      *
      * @internal
      */
-    readonly $VALUE_PROP_TYPE: typeof SYMBOL_MODEL_PROP_KIND_RELATION;
-    /**
-     * Type of relation.
-     *
-     * @internal
-     */
-    readonly $RELATION_TYPE: ModelRelationType;
+    readonly $RELATION_KIND: K;
     /**
      * Resolve the related model(s).
      */
@@ -453,6 +486,15 @@ export type ModelRelation<T = any, R extends boolean = boolean> =
      * The inverse relation key on related instances.
      */
     inverse?: string | boolean;
+    /**
+     * Sub-relations to always include.
+     */
+    include?: RawInclude;
+    /**
+     * Callback to customize the relation query.
+     * Defining it can prevent requests merging and degrade performance.
+     */
+    query?: AnonymousEnhancer<ConsumeModel, any>;
 
     // Specific HTTP config.
 
@@ -464,17 +506,61 @@ export type ModelRelation<T = any, R extends boolean = boolean> =
      */
     path?: string;
   }
-  & ModelValueProp<T, R>;
+  & ModelValueProp<T, R, typeof SYMBOL_MODEL_PROP_KIND_RELATION>;
+
+/**
+ * Model has one relation property.
+ *
+ * @interface
+ */
+export type ModelHasOne<T = any, R extends boolean = boolean> =
+  & ModelRelation<T, R, typeof SYMBOL_MODEL_RELATION_HAS_ONE>;
+
+/**
+ * Model has many relation property.
+ *
+ * @interface
+ */
+export type ModelHasMany<T = any, R extends boolean = boolean> =
+  & ModelRelation<T, R, typeof SYMBOL_MODEL_RELATION_HAS_MANY>;
+
+/**
+ * Infer related instance types from relationship types strings.
+ *
+ * @internal
+ */
+export type InferModelRelationInstanceFromTypes<T> =
+  Foscia.CustomTypes extends { models: infer M; }
+    ? M extends {} ? T extends string & keyof M ? M[T]
+      : T extends (infer ST)[] ? InferModelRelationInstanceFromTypes<ST>
+        : never : never : never;
 
 /**
  * Infer related instance types from relationship models.
  *
  * @internal
  */
-export type InferModelRelationFactoryInstance<M> =
+export type InferModelRelationInstanceFromModels<M> =
   M extends Constructor<infer I>[] ? I extends object ? I : never
     : M extends Constructor<infer I> ? I extends object ? I : never
       : never;
+
+/**
+ * Infer related instance types from relation type.
+ *
+ * @internal
+ */
+export type InferModelRelationInstanceFromValue<T> = T extends (infer I)[] ? I : T;
+
+/**
+ * Infer related instance types from relation type.
+ *
+ * @internal
+ */
+export type InferModelRelationModelFromValue<T> =
+  InferModelRelationInstanceFromValue<T> extends infer I
+    ? I extends ModelInstance ? Model<I['_definition'], I>
+      : never : never;
 
 /**
  * Infer a model's relation possible inverse key.
@@ -482,50 +568,45 @@ export type InferModelRelationFactoryInstance<M> =
  * @internal
  */
 export type InferModelRelationInverseKey<T> =
-  IfAny<T, string, ModelRelationKey<T extends (infer I)[] ? I : T>>;
+  IfAny<T, string, ModelRelationKey<InferModelRelationInstanceFromValue<T>>>;
 
 /**
- * Model relationship factory.
+ * Model relation abstract factory.
  *
- * @interface
+ * @internal
  */
-export type ModelRelationFactory<T, R extends boolean> = {
+export interface ModelRelationFactory<T, R extends boolean>
+  extends ModelValuePropFactory<T, R> {
   /**
-   * Define default value.
-   * Object values should be provided with a factory function to avoid
-   * defining the same reference on multiple instance.
-   *
-   * @param value
+   * @ignore
+   * @internal
    */
-  default: <NT extends T>(value: T | (() => T)) => ModelRelationFactory<NT, R>;
-  /**
-   * Mark read-only.
-   *
-   * @param readOnly
-   */
-  readOnly: <NR extends boolean = true>(readOnly?: NR) => ModelRelationFactory<T, NR>;
-  /**
-   * Mark nullable.
-   */
-  nullable: () => ModelRelationFactory<T | null, R>;
-  /**
-   * Define the alias to use for data source interactions.
-   *
-   * @param alias
-   */
-  alias: (alias: string) => ModelRelationFactory<T, R>;
-  /**
-   * Define when the property should be synced with data source.
-   *
-   * @param sync
-   */
-  sync: (sync: boolean | ModelPropSync) => ModelRelationFactory<T, R>;
+  transform: <NT extends T>(
+    transformer: ObjectTransformer<NT | null, any, any>,
+  ) => ModelPropModifiedFactory<this, NT, R>;
   /**
    * Define the inverse of the relation.
    *
    * @param inverse
    */
-  inverse: (inverse?: InferModelRelationInverseKey<T> | boolean) => ModelRelationFactory<T, R>;
+  inverse: (
+    inverse?: InferModelRelationInverseKey<T> | boolean,
+  ) => ModelPropModifiedFactory<this, T, R>;
+  /**
+   * Define sub-relations to always include.
+   */
+  include: (
+    include: RawInclude<InferModelRelationModelFromValue<T>>,
+  ) => ModelPropModifiedFactory<this, T, R>;
+  /**
+   * Define the callback to customize the relation query.
+   * Defining it can prevent requests merging and degrade performance.
+   * If your goal is to only include relations, use `include`.
+   */
+  query: (
+    callback: AnonymousEnhancer<ConsumeModel<InferModelRelationModelFromValue<T>>, any>,
+  ) => ModelPropModifiedFactory<this, T, R>;
+
   /**
    * Define the path to use when requesting relation's endpoint.
    *
@@ -534,8 +615,28 @@ export type ModelRelationFactory<T, R extends boolean> = {
    * @remarks
    * This is specific to HTTP implementations (REST, JSON:API).
    */
-  path: (path: string) => ModelRelationFactory<T, R>;
-} & ModelComposableFactory<ModelRelation<T, R>>;
+  path: (path: string) => ModelPropModifiedFactory<this, T, R>;
+}
+
+/**
+ * Model has one relationship factory.
+ */
+export interface ModelHasOneFactory<T, R extends boolean>
+  extends ModelComposableFactory<ModelHasOne<T, R>>, ModelRelationFactory<T, R> {
+  readonly _factory: ModelHasOneFactory<this['_type'], this['_readOnly']>;
+}
+
+/**
+ * Model has many relationship factory.
+ */
+export interface ModelHasManyFactory<T, R extends boolean>
+  extends ModelComposableFactory<ModelHasMany<T, R>>, ModelRelationFactory<T, R> {
+  readonly _factory: ModelHasManyFactory<this['_type'], this['_readOnly']>;
+  /**
+   * @deprecated Has many relations cannot be nullable.
+   */
+  nullable: never;
+}
 
 /**
  * Model relation factory object options.
@@ -550,8 +651,38 @@ export type ModelRelationFactoryConfig<T extends Arrayable<object> | null, R ext
      * The inverse relation key on related instances.
      */
     inverse?: InferModelRelationInverseKey<T> | boolean;
+    /**
+     * Sub-relations to always include.
+     */
+    include?: RawInclude<InferModelRelationModelFromValue<T>>;
+    /**
+     * Callback to customize the relation query.
+     * Defining it can prevent requests merging and degrade performance.
+     * If your goal is to only include relations, use `include`.
+     */
+    query?: AnonymousEnhancer<ConsumeModel<InferModelRelationModelFromValue<T>>, any>;
   }
-  & Pick<ModelRelation<T, R>, 'type' | 'path' | 'default' | 'readOnly' | 'alias' | 'sync'>;
+  & Pick<ModelRelation<T, R>, 'path' | 'default' | 'readOnly' | 'alias' | 'sync'>;
+
+/**
+ * Model has one relation factory object options.
+ *
+ * @interface
+ *
+ * @internal
+ */
+export type ModelHasOneFactoryConfig<T extends object | null, R extends boolean> =
+  & ModelRelationFactoryConfig<T, R>;
+
+/**
+ * Model has many relation factory object options.
+ *
+ * @interface
+ *
+ * @internal
+ */
+export type ModelHasManyFactoryConfig<T extends object[], R extends boolean> =
+  & ModelRelationFactoryConfig<T, R>;
 
 /**
  * Model instance read property generic hook callback function.
@@ -560,7 +691,7 @@ export type ModelRelationFactoryConfig<T extends Arrayable<object> | null, R ext
  */
 export type ModelInstancePropertyReadHookCallback = SyncHookCallback<{
   readonly instance: ModelInstance;
-  readonly def: ModelProp;
+  readonly prop: ModelProp;
   readonly value: unknown;
 }>;
 
@@ -571,7 +702,7 @@ export type ModelInstancePropertyReadHookCallback = SyncHookCallback<{
  */
 export type ModelInstancePropertyWriteHookCallback = SyncHookCallback<{
   readonly instance: ModelInstance;
-  readonly def: ModelProp;
+  readonly prop: ModelProp;
   readonly prev: unknown;
   readonly next: unknown;
 }>;
@@ -669,13 +800,13 @@ export type ModelInstance<D extends {} = any> =
     /**
      * Stores the flatten definition for type resolution.
      *
-     * @internal
+     * @ignore
      */
     readonly _definition: D;
     /**
      * Stores the schema for type resolution.
      *
-     * @internal
+     * @ignore
      */
     readonly _schema: ModelSchema<D>;
   }
@@ -687,15 +818,26 @@ export type ModelInstance<D extends {} = any> =
  *
  * @typeParam D Flatten definition of the model.
  * @typeParam I Instance of the model.
+ * @typeParam C Connection for the model.
+ * @typeParam T Type of the model.
  *
  * @interface
  */
-export type Model<D extends {} = any, I extends ModelInstance<D> = any> =
+export type Model<
+  D extends {} = any,
+  I extends ModelInstance = any,
+  T extends string = string,
+  C extends string = string,
+> =
   & {
+    /**
+     * Connection to use for the model.
+     */
+    readonly $connection: C;
     /**
      * Unique type of the model.
      */
-    readonly $type: string;
+    readonly $type: T;
     /**
      * Configuration of the model.
      * Its properties can change during the model lifecycle.
@@ -728,13 +870,13 @@ export type Model<D extends {} = any, I extends ModelInstance<D> = any> =
     /**
      * Stores the flatten definition for type resolution.
      *
-     * @internal
+     * @ignore
      */
     readonly _definition: D;
     /**
      * Stores the schema for type resolution.
      *
-     * @internal
+     * @ignore
      */
     readonly _schema: ModelSchema<D>;
   }
@@ -743,33 +885,18 @@ export type Model<D extends {} = any, I extends ModelInstance<D> = any> =
   & FosciaObject<typeof SYMBOL_MODEL_CLASS>;
 
 /**
- * Model class which can be configured or extended to another model.
+ * Model class raw config passed to the factory.
  *
  * @internal
  */
-export type ExtendableModel<D extends {} = any, I extends ModelInstance<D> = any> =
-  & {
-    /**
-     * Create a new model class with an overwritten configuration.
-     *
-     * @param config
-     * @param override
-     */
-    configure(
-      config: Partial<ModelConfig>,
-      override?: boolean,
-    ): ExtendableModel<D, ModelInstance<D>>;
-    /**
-     * Create a new model class with an extended definition.
-     *
-     * @param rawDefinition
-     */
-    extend<ND extends {} = {}>(
-      rawDefinition?: ND & ThisType<ModelInstance<D & ModelParsedFlattenDefinition<ND>>>,
-      // eslint-disable-next-line max-len
-    ): ExtendableModel<D & ModelParsedFlattenDefinition<ND>, ModelInstance<D & ModelParsedFlattenDefinition<ND>>>;
-  }
-  & Model<D, I>;
+export type ModelFactoryRawConfig<
+  M extends Model = Model,
+  T extends string = string,
+  C extends string = 'default',
+> =
+  | (Partial<ModelConfig<M>> & { connection?: C; type: T; })
+  | `${C}:${T}`
+  | T;
 
 /**
  * Model class factory.
@@ -778,11 +905,16 @@ export type ExtendableModel<D extends {} = any, I extends ModelInstance<D> = any
  */
 export type ModelFactory<
   D extends {} = {},
-> = Hookable<ModelHooksDefinition> & (<ND extends {}>(
-  rawConfig: string | (Partial<ModelConfig> & { type: string; }),
+> = Hookable<ModelHooksDefinition> & (<
+  ND extends {},
+  T extends string = string,
+  C extends string = 'default',
+>(
+  // eslint-disable-next-line max-len
+  rawConfig: ModelFactoryRawConfig<Model<D & ModelParsedFlattenDefinition<ND>, ModelInstance<D & ModelParsedFlattenDefinition<ND>>, T, C>, T, C>,
   rawDefinition?: ND & ThisType<ModelInstance<D & ModelParsedFlattenDefinition<ND>>>,
   // eslint-disable-next-line max-len
-) => ExtendableModel<D & ModelParsedFlattenDefinition<ND>, ModelInstance<D & ModelParsedFlattenDefinition<ND>>>);
+) => Model<D & ModelParsedFlattenDefinition<ND>, ModelInstance<D & ModelParsedFlattenDefinition<ND>>, T, C>);
 
 /**
  * Model instance snapshot.

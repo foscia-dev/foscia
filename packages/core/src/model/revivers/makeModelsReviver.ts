@@ -12,7 +12,7 @@ import {
 } from '@foscia/core/model/revivers/types';
 import { ModelInstance, ModelLimitedSnapshot, ModelSnapshot } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_SNAPSHOT } from '@foscia/core/symbols';
-import { Dictionary, mapWithKeys, tap, using } from '@foscia/shared';
+import { Dictionary, mapWithKeys, tap } from '@foscia/shared';
 
 /**
  * Create a models reviver.
@@ -142,10 +142,11 @@ export default (config: ModelsReviverConfig) => {
   );
 
   reviveInstance = makeReferenceableReviver(
-    (value: ReducedModelInstance) => using(
-      reviveModel(value.$model),
-      (RevivedModel) => new RevivedModel(),
-    ),
+    (value: ReducedModelInstance) => {
+      const RevivedModel = reviveModel(value.$model);
+
+      return new RevivedModel();
+    },
     (value: ReducedModelInstance, instance: ModelInstance, parents) => {
       if (value.$data) {
         reviveInstanceData(instance, value.$data, parents);

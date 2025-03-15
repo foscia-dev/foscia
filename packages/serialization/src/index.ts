@@ -2,6 +2,7 @@ import makeDeserializerRecordFactory from '@foscia/serialization/makeDeserialize
 import makeDeserializer from '@foscia/serialization/makeDeserializer';
 import makeSerializerRecordFactory from '@foscia/serialization/makeSerializerRecordFactory';
 import makeSerializer from '@foscia/serialization/makeSerializer';
+import shouldSerialize from '@foscia/serialization/utilities/shouldSerialize';
 
 export * from '@foscia/serialization/types';
 
@@ -10,4 +11,5 @@ export {
   makeDeserializer,
   makeSerializerRecordFactory,
   makeSerializer,
+  shouldSerialize,
 };

@@ -30,6 +30,6 @@ export default /* @__PURE__ */ makeEnhancer('filterBy', <C extends {}>(
   key: string | Dictionary,
   value?: unknown,
 ) => async (action: Action<C>) => action(param('filter', {
-  ...consumeRequestObjectParams(await action.useContext())?.filter,
+  ...(await consumeRequestObjectParams(action))?.filter,
   ...(typeof key === 'string' ? { [key]: value } : key),
 })));

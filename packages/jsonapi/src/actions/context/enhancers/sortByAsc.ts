@@ -1,6 +1,6 @@
 import { makeEnhancer } from '@foscia/core';
 import sortBy from '@foscia/jsonapi/actions/context/enhancers/sortBy';
-import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
+import { Arrayable } from '@foscia/shared';
 
 /**
  * Shortcut for the {@link sortBy | `sortBy`} function with an ascending direction.
@@ -23,5 +23,5 @@ import { ArrayableVariadic, wrapVariadic } from '@foscia/shared';
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('sortByAsc', (
-  ...keys: ArrayableVariadic<string>
-) => sortBy(wrapVariadic(...keys), 'asc'));
+  keys: Arrayable<string>,
+) => sortBy(keys, 'asc'));

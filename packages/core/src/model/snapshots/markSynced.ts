@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
 import { ModelInstance, ModelKey } from '@foscia/core/model/types';
-import { ArrayableVariadic, tap, wrapVariadic } from '@foscia/shared';
+import { Arrayable, tap, wrap } from '@foscia/shared';
 
 /**
  * Take a snapshot and define it as the last original state of instance.
@@ -20,10 +20,10 @@ import { ArrayableVariadic, tap, wrapVariadic } from '@foscia/shared';
  */
 export default <I extends ModelInstance>(
   instance: I,
-  ...only: ArrayableVariadic<ModelKey<I>>
+  only?: Arrayable<ModelKey<I>>,
 ) => tap(instance, () => {
   const snapshot = takeSnapshot(instance);
-  const keys = wrapVariadic(...only);
+  const keys = wrap(only);
   if (keys.length) {
     keys.forEach((key) => {
       if (Object.prototype.hasOwnProperty.call(snapshot.$values, key)) {

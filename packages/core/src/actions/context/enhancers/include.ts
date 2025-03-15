@@ -1,16 +1,22 @@
-import consumeInclude from '@foscia/core/actions/context/consumers/consumeInclude';
+import consumeEagerLoads from '@foscia/core/actions/context/consumers/consumeEagerLoads';
 import context from '@foscia/core/actions/context/enhancers/context';
-import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action, InferQueryModelOrInstance } from '@foscia/core/actions/types';
-import { ModelRelationDotKey } from '@foscia/core/model/types';
-import { ArrayableVariadic, uniqueValues, wrapVariadic } from '@foscia/shared';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
+import {
+  ParsedIncludeMap,
+  ParsedRawInclude,
+  RawInclude,
+  RawIncludeOptions,
+} from '@foscia/core/relations/types';
+import toParsedRawInclude from '@foscia/core/relations/utilities/toParsedRawInclude';
 
 /**
- * Eager load the given relations for the current model definition. It accepts
+ * Eager load the given relations for the current queried models. It accepts
  * deep relations through dot notation. The new relations will be merged with
  * the previous ones.
  *
  * @param relations
+ * @param options
  *
  * @category Enhancers
  * @requireContext model
@@ -24,12 +30,13 @@ import { ArrayableVariadic, uniqueValues, wrapVariadic } from '@foscia/shared';
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('include', <C extends {}>(
-  ...relations: ArrayableVariadic<ModelRelationDotKey<InferQueryModelOrInstance<C>>>
+  relations: RawInclude<InferQueryModelOrInstance<C>>,
+  options?: RawIncludeOptions,
 ) => async (
   action: Action<C>,
 ) => action(context({
-  include: uniqueValues([
-    ...(consumeInclude(await action.useContext(), null) ?? []),
-    ...wrapVariadic(...relations),
-  ]),
+  eagerLoads: [
+    ...(await consumeEagerLoads(action, [])),
+    toParsedRawInclude(relations, options),
+  ] as (ParsedRawInclude | ParsedIncludeMap)[],
 })));

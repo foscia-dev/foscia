@@ -1,8 +1,0 @@
-{
-  "name": "FosciaUtils",
-  "formats": [
-    "esm",
-    "cjs",
-    "global"
-  ]
-}

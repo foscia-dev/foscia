@@ -1,4 +1,4 @@
-import ActionName from '@foscia/core/actions/context/actionName';
+import ActionKind from '@foscia/core/actions/context/actionKind';
 import context from '@foscia/core/actions/context/enhancers/context';
 import instanceData from '@foscia/core/actions/context/enhancers/crud/instanceData';
 import query from '@foscia/core/actions/context/enhancers/query';
@@ -40,7 +40,7 @@ export default /* @__PURE__ */ makeEnhancer('create', (<
 ) => registerWriteActionHooks(action(
   query(throughInstance ?? instance, throughRelation as any),
   context({
-    action: ActionName.CREATE,
+    actionKind: ActionKind.CREATE,
     instance,
     // Rewrite ID when creating through another record.
     id: throughInstance ? throughInstance.id : undefined,

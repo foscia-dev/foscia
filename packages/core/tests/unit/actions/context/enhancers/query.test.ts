@@ -7,7 +7,7 @@ describe.concurrent('unit: query', () => {
   it('should query model without ID', async () => {
     const Model = makeModel('BlogPosts');
 
-    expect(await evaluateContext(query(Model))).toStrictEqual({
+    expect(await evaluateContext(query(Model))).toMatchObject({
       model: Model,
       id: undefined,
     });
@@ -16,7 +16,7 @@ describe.concurrent('unit: query', () => {
   it('should query model with ID', async () => {
     const Model = makeModel('BlogPosts');
 
-    expect(await evaluateContext(query(Model, '123'))).toStrictEqual({
+    expect(await evaluateContext(query(Model, '123'))).toMatchObject({
       model: Model,
       id: '123',
     });
@@ -25,7 +25,7 @@ describe.concurrent('unit: query', () => {
   it('should query instance without ID', async () => {
     const post = new PostMock();
 
-    expect(await evaluateContext(query(post))).toStrictEqual({
+    expect(await evaluateContext(query(post))).toMatchObject({
       model: PostMock,
       instance: post,
       id: undefined,
@@ -34,7 +34,7 @@ describe.concurrent('unit: query', () => {
 
     post.$exists = true;
 
-    expect(await evaluateContext(query(post))).toStrictEqual({
+    expect(await evaluateContext(query(post))).toMatchObject({
       model: PostMock,
       instance: post,
       id: undefined,
@@ -45,7 +45,7 @@ describe.concurrent('unit: query', () => {
   it('should query instance with ID', async () => {
     const post = fill(new PostMock(), { id: '123' });
 
-    expect(await evaluateContext(query(post))).toStrictEqual({
+    expect(await evaluateContext(query(post))).toMatchObject({
       model: PostMock,
       instance: post,
       id: undefined,
@@ -54,7 +54,7 @@ describe.concurrent('unit: query', () => {
 
     post.$exists = true;
 
-    expect(await evaluateContext(query(post))).toStrictEqual({
+    expect(await evaluateContext(query(post))).toMatchObject({
       model: PostMock,
       instance: post,
       id: '123',
@@ -67,7 +67,7 @@ describe.concurrent('unit: query', () => {
 
     post.$exists = true;
 
-    expect(await evaluateContext(query(post, 'comments'))).toStrictEqual({
+    expect(await evaluateContext(query(post, 'comments'))).toMatchObject({
       model: PostMock,
       instance: undefined,
       id: '123',

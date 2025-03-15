@@ -112,10 +112,21 @@ describe('unit: makeActionFactory', () => {
       .run(() => 'bar');
 
     expect(result).toEqual('bar123');
-    expect(await action.useContext()).toEqual({ value: 'foo12' });
+    expect(await action.useContext()).toMatchObject({ value: 'foo12' });
   });
 
-  it.concurrent('should dequeue enhancers sequentially', async () => {
+  it('should keep actionConnectionId', async () => {
+    const action = makeActionFactory();
+
+    expect(action.connectionId).toBeTypeOf('string');
+    expect(await action().useContext()).toStrictEqual({ actionConnectionId: action.connectionId });
+    expect(await action().useContext()).toStrictEqual({ actionConnectionId: action.connectionId });
+
+    const otherAction = makeActionFactory();
+    expect(action.connectionId).not.toStrictEqual(otherAction.connectionId);
+  });
+
+  it('should dequeue enhancers sequentially', async () => {
     const concatFoo = (value: string) => async (
       action: Action<{ foo: string; }>,
     ) => action.use(context({
@@ -124,11 +135,11 @@ describe('unit: makeActionFactory', () => {
 
     const action = makeActionFactory({ foo: 'foo' })();
 
-    expect(await action.useContext()).toStrictEqual({ foo: 'foo' });
+    expect(await action.useContext()).toMatchObject({ foo: 'foo' });
 
     action.use(concatFoo('1'));
 
-    expect(await action.useContext()).toStrictEqual({ foo: 'foo1' });
+    expect(await action.useContext()).toMatchObject({ foo: 'foo1' });
 
     action.use(concatFoo('2'));
     action.use((a) => {
@@ -136,10 +147,10 @@ describe('unit: makeActionFactory', () => {
     });
     action.use(concatFoo('4'));
 
-    expect(await action.useContext()).toStrictEqual({ foo: 'foo1234' });
+    expect(await action.useContext()).toMatchObject({ foo: 'foo1234' });
   });
 
-  it.concurrent('should store calls correctly', async () => {
+  it('should store calls correctly', async () => {
     const Post = makeModel('posts');
 
     const firstWhenPredicate = async () => true;
@@ -163,7 +174,7 @@ describe('unit: makeActionFactory', () => {
       );
 
     expect(result).toBeNull();
-    expect(await action.useContext()).toStrictEqual({
+    expect(await action.useContext()).toMatchObject({
       cache,
       model: Post,
       id: 1,
@@ -192,12 +203,19 @@ describe('unit: makeActionFactory', () => {
       } : { calls: call.calls.map(formatCall) }
     );
 
-    expect(calls.map(formatCall)).toStrictEqual([
+    expect(calls.map(formatCall)).toMatchObject([
       {
         type: SYMBOL_ACTION_ENHANCER,
         name: 'query',
         args: [Post, 1],
-        calls: [],
+        calls: [
+          {
+            type: SYMBOL_ACTION_ENHANCER,
+            name: 'context',
+            args: [{ model: Post, id: 1 }],
+            calls: [],
+          },
+        ],
       },
       {
         type: SYMBOL_ACTION_ENHANCER,

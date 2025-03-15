@@ -12,8 +12,8 @@ import { mapWithKeys } from '@foscia/shared';
  */
 export default <M extends Model, R, P extends ModelProp = ModelProp>(
   model: M,
-  callback: (def: P) => R,
-  predicate?: (def: ModelProp) => def is P,
-) => mapWithKeys(model.$schema, (def, key) => (
-  !predicate || predicate(def) ? { [key]: callback(def as P) } : {}
+  callback: (prop: P) => R,
+  predicate?: (prop: ModelProp) => prop is P,
+) => mapWithKeys(model.$schema, (prop, key) => (
+  !predicate || predicate(prop) ? { [key]: callback(prop as P) } : {}
 ));

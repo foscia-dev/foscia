@@ -1,4 +1,4 @@
-import { ModelIdType } from '@foscia/core';
+import { isId, isRelation, ModelIdType } from '@foscia/core';
 import {
   JsonApiDeserializedData,
   JsonApiDeserializerConfig,
@@ -7,7 +7,7 @@ import {
   JsonApiNewResource,
 } from '@foscia/jsonapi/types';
 import { makeDeserializer, makeDeserializerRecordFactory } from '@foscia/serialization';
-import { isNil, makeIdentifiersMap, mapArrayable, wrap } from '@foscia/shared';
+import { isNil, mapArrayable, Multimap, multimapGet, multimapSet, wrap } from '@foscia/shared';
 
 /**
  * Make a JSON:API deserializer object.
@@ -18,35 +18,49 @@ import { isNil, makeIdentifiersMap, mapArrayable, wrap } from '@foscia/shared';
  */
 export default <
   Record extends JsonApiNewResource = JsonApiNewResource,
-  Data extends JsonApiDocument = JsonApiDocument,
+  Data extends JsonApiDocument | null | undefined = JsonApiDocument | null | undefined,
   Deserialized extends JsonApiDeserializedData = JsonApiDeserializedData,
   Extract extends JsonApiExtractedData<Record> = JsonApiExtractedData<Record>,
 >(
   config: Partial<JsonApiDeserializerConfig<Record, Data, Deserialized, Extract>> = {},
 ) => makeDeserializer({
   extractData: (data: Data) => {
-    const included = makeIdentifiersMap<string, ModelIdType, Record>();
+    const included: Multimap<[string, ModelIdType], Record> = new Map();
 
-    [...wrap(data.data), ...wrap(data.included)].forEach(
-      (record) => !isNil(record.id) && included.put(record.type, record.id, record as Record),
+    [...wrap(data?.data), ...wrap(data?.included)].forEach(
+      (record) => !isNil(record.id)
+        && multimapSet(included, [record.type, record.id], record),
     );
 
     return {
-      records: data.data,
+      records: data?.data,
       document: data as JsonApiDocument,
       included,
     } as Extract;
   },
   createData: (instances, extract) => ({
-    instances, document: extract.document,
+    instances, document: extract.document ?? {},
   } as Deserialized),
   createRecord: makeDeserializerRecordFactory(
-    config.pullIdentifier ?? ((record) => record),
-    config.pullAttribute ?? ((record, { key }) => record.attributes?.[key]),
-    config.pullRelation ?? ((record, { key }, extract) => mapArrayable(
-      record.relationships?.[key]?.data,
-      (value) => extract.included.find(value.type, value.id) as Record,
-    )),
+    async (record) => ({
+      type: await config.extractType?.(record) ?? record.type,
+    }),
+    async (record, context, factory) => {
+      if (isId(context.prop)) {
+        return context.prop.key === 'id'
+          ? (config.extractId ?? (() => record.id))(record, context)
+          : record.lid;
+      }
+
+      if (isRelation(context.prop)) {
+        return mapArrayable(
+          record.relationships?.[context.key]?.data,
+          (value) => factory(multimapGet(context.extract.included, [value.type, value.id])!),
+        );
+      }
+
+      return record.attributes?.[context.key];
+    },
   ),
   ...config,
 });

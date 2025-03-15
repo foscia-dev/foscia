@@ -102,7 +102,7 @@ import Comment from './comment';
 export default class Post extends makeModel('posts', {
   title: attr<string>(),
   description: attr<string>(),
-  publishedAt: attr(toDateTime()).nullable(),
+  publishedAt: attr(toDateTime(), { nullable: true }),
   comments: hasMany(() => Comment),
   get published() {
     return !!this.publishedAt;
@@ -170,12 +170,8 @@ look like:
 >
 
 ```typescript
-import { makeActionFactory, makeCache } from '@foscia/core';
-import {
-  makeJsonApiAdapter,
-  makeJsonApiDeserializer,
-  makeJsonApiSerializer,
-} from '@foscia/jsonapi';
+import { makeActionFactory, makeCache, makeLoader, makeSimpleLazyLoader } from '@foscia/core';
+import { makeJsonApiAdapter, makeJsonApiDeserializer, makeJsonApiSerializer, makeJsonApiEagerLoader } from '@foscia/jsonapi';
 
 export default makeActionFactory({
   ...makeCache(),
@@ -183,6 +179,10 @@ export default makeActionFactory({
   ...makeJsonApiSerializer(),
   ...makeJsonApiAdapter({
     baseURL: '/api/v1',
+  }),
+  ...makeLoader({
+    eagerLoader: makeJsonApiEagerLoader(),
+    lazyLoader: makeSimpleLazyLoader(),
   }),
 });
 ```
@@ -194,12 +194,8 @@ export default makeActionFactory({
   >
 
 ```typescript
-import { makeActionFactory, makeCache } from '@foscia/core';
-import {
-  makeRestAdapter,
-  makeRestDeserializer,
-  makeRestSerializer,
-} from '@foscia/rest';
+import { makeActionFactory, makeCache, makeLoader, makeSimpleLazyLoader } from '@foscia/core';
+import { makeRestAdapter, makeRestDeserializer, makeRestSerializer, makeRestEagerLoader } from '@foscia/rest';
 
 export default makeActionFactory({
   ...makeCache(),
@@ -207,6 +203,10 @@ export default makeActionFactory({
   ...makeRestSerializer(),
   ...makeRestAdapter({
     baseURL: '/api',
+  }),
+  ...makeLoader({
+    eagerLoader: makeRestEagerLoader({ param: 'include' }),
+    lazyLoader: makeSimpleLazyLoader(),
   }),
 });
 ```
@@ -240,6 +240,7 @@ const posts = await action(
   query(Post),
   all(),
 );
+
 // Equivalent: individual calls.
 const posts = await action()
   .use(query(Post))
@@ -302,10 +303,10 @@ the data source response.
 import { destroy, none } from '@foscia/core';
 import action from './action';
 
-// This has no effect an may failed because `destroy` is not a runner!
+// This has no effect and will throw an error because `destroy` is not a runner!
 // highlight.deletion
 await action(destroy(post));
-// Do this instead:
+// Do this instead: finish with a runner, such as `none`, `raw`, etc.
 // highlight.addition
 await action(destroy(post), none());
 ```

@@ -1,3 +1,4 @@
+// TODO Improve this.
 export default function createFetchResponse(options: Partial<Response> = {}) {
   return {
     noContent: () => () => Promise.resolve({

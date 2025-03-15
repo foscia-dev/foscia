@@ -1,8 +1,8 @@
 import consumeActionMiddlewares
   from '@foscia/core/actions/context/consumers/consumeActionMiddlewares';
 import context from '@foscia/core/actions/context/enhancers/context';
-import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action, ActionMiddleware } from '@foscia/core/actions/types';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Awaitable } from '@foscia/shared';
 
 /**
@@ -31,6 +31,6 @@ export default /* @__PURE__ */ makeEnhancer('replaceActionMiddlewares', (<C exte
   middlewares: (prev: ActionMiddleware<C, R>[]) => Awaitable<ActionMiddleware<C, R>[]>,
 ) => async (action: Action<C>) => action(context({
   middlewares: await middlewares(
-    consumeActionMiddlewares(await action.useContext(), []) as ActionMiddleware<C, R>[],
+    await consumeActionMiddlewares(action, []) as ActionMiddleware<C, R>[],
   ),
 }))));

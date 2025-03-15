@@ -1,10 +1,12 @@
 import { Adapter, context, makeActionFactory, makeModel, query, raw, when } from '@foscia/core';
 import { makeActionFactoryMockable, mockAction, unmockAction } from '@foscia/test';
 import { describe, expect, it, vi } from 'vitest';
+import createFetchMock from '../../../../tests/mocks/createFetchMock.mock';
+import createFetchResponse from '../../../../tests/mocks/createFetchResponse.mock';
 
 describe.concurrent('unit: mocking', () => {
   const makeAction = () => {
-    const fetch = vi.fn();
+    const fetch = createFetchMock();
 
     return {
       fetch,
@@ -126,8 +128,7 @@ describe.concurrent('unit: mocking', () => {
 
   it('should support history, reset and stop', async () => {
     const { action, fetch } = makeAction();
-    const responseMock = { status: 204 };
-    fetch.mockImplementation(() => responseMock);
+    fetch.mockImplementationOnce(createFetchResponse().noContent());
 
     const mock = mockAction(action);
     mock.mock('foo');
@@ -151,7 +152,7 @@ describe.concurrent('unit: mocking', () => {
 
     const fetchValue = await action().run(raw());
 
-    expect(fetchValue).toStrictEqual(responseMock);
+    expect(fetchValue.status).toStrictEqual(204);
     expect(fetch).toHaveBeenCalledOnce();
   });
 
@@ -176,9 +177,9 @@ describe.concurrent('unit: mocking', () => {
         .toStrictEqual(ctx.calls.find('query'));
 
       expect(ctx.calls.has('context')).toStrictEqual(true);
-      expect(ctx.calls.findAll('context').length).toStrictEqual(1);
-      expect(ctx.calls.find('context')!.depth).toStrictEqual(3);
-      expect(ctx.calls.args('context')).toStrictEqual([{ bar: 'bar' }]);
+      expect(ctx.calls.findAll('context').length).toStrictEqual(2);
+      expect(ctx.calls.find('context')!.depth).toStrictEqual(1);
+      expect(ctx.calls.args('context')).toStrictEqual([{ model: Post, id: 1 }]);
 
       expect(ctx.calls.findAll('when').length).toStrictEqual(5);
       expect(ctx.calls.findAll('when')[0].depth).toStrictEqual(0);
@@ -191,7 +192,7 @@ describe.concurrent('unit: mocking', () => {
       expect(ctx.calls.find('raw')!.depth).toStrictEqual(2);
 
       expect(ctx.calls.tree().length).toStrictEqual(4);
-      expect(ctx.calls.all().length).toStrictEqual(9);
+      expect(ctx.calls.all().length).toStrictEqual(10);
       expect(ctx.calls.originals().length).toStrictEqual(4);
 
       expectContext = ctx.context;
@@ -207,7 +208,7 @@ describe.concurrent('unit: mocking', () => {
     ).toStrictEqual('foo');
 
     expect(fetch).not.toHaveBeenCalled();
-    expect(expectContext).toStrictEqual({
+    expect(expectContext).toMatchObject({
       adapter: expectContext.adapter,
       bar: 'bar',
       model: Post,

@@ -1,4 +1,4 @@
-import connections from '@foscia/core/connections/connections';
+import resolveConnectionAction from '@foscia/core/connections/resolveConnectionAction';
 import { Model } from '@foscia/core/model/types';
 
 /**
@@ -6,6 +6,7 @@ import { Model } from '@foscia/core/model/types';
  *
  * @param model
  *
+ * @category Utilities
  * @internal
  */
-export default async (model: Model) => connections.get(model.$config.connection);
+export default (model: Model) => resolveConnectionAction(model.$connection);

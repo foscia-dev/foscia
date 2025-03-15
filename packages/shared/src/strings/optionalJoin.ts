@@ -1,6 +1,3 @@
-import isNone from '@foscia/shared/checks/isNone';
-import { Optional } from '@foscia/shared/types';
-
 /**
  * Join strings which are not "none" with separator.
  *
@@ -10,8 +7,8 @@ import { Optional } from '@foscia/shared/types';
  * @internal
  */
 export default (
-  strings: Optional<string>[],
+  strings: (string | null | undefined)[],
   separator: string,
 ) => strings
-  .filter((s) => !isNone(s))
+  .filter((s) => s)
   .join(separator);

@@ -72,53 +72,6 @@ passing.
 
 :::
 
-### Extending a model class
-
-[`makeModel`](/docs/api/@foscia/core/functions/makeModel) will return a
-[`Model`](/docs/api/@foscia/core/interfaces/Model) constructor
-which can be extended by an ES6 class.
-
-```typescript
-export default class Post extends makeModel('posts') {}
-```
-
-The returned [`Model`](/docs/api/@foscia/core/interfaces/Model) constructor
-also implements [`ExtendableModel`](/docs/api/@foscia/core/type-aliases/ExtendableModel)
-and provides static methods to extend the definition
-already provided to [`makeModel`](/docs/api/@foscia/core/functions/makeModel).
-
-```typescript
-/* Initial model creation without definition */
-export default makeModel('posts')
-  .extend({
-    title: attr<string>(),
-    description: attr<string>(),
-  })
-  .extend({
-    publishedAt: attr(toDateTime()),
-    get published() {
-      return !!this.publishedAt;
-    },
-  })
-  .configure({
-    /* ...configuration */
-  });
-```
-
-This can be useful when sharing common features across models: creation
-timestamps, client side ID generation, etc.
-
-If you wish to learn more about the composition capabilities of models, you
-should read the
-[advanced guide about models composition](/docs/digging-deeper/models/models-composition).
-
-:::info
-
-Each call to `extend` or `configure` will return a child class of the
-original model class.
-
-:::
-
 #### Note on exported value
 
 In many Foscia guides and examples, you will see that the ES6 class returned by
@@ -135,6 +88,12 @@ This has two benefits:
   methods in the future
 
 However, both syntax are valid. Use the one you prefer! 🦄
+
+### Composing a model class
+
+If you need to share common features between multiple models, such as an ID
+generation creation hook, you can use
+[models composition](/docs/digging-deeper/models/models-composition).
 
 ### Using models classes
 
@@ -187,13 +146,12 @@ You can pass a transformer or a default value to this factory.
   [Read more on the transformers guide](/docs/digging-deeper/models/models-transformers).
 - `id` definition factory supports [chained modifiers](#ids-chained-modifiers).
 
-:::warning
+:::info
 
 `id` cannot use another type than `number`, `string` or `null` and can only be
-used on `id` and `lid` keyed model's properties. There is currently no way of
-aliasing an ID in Foscia.
-
-[**Please fill an issue if this is something you need.**](https://github.com/foscia-dev/foscia/issues/new/choose)
+used on `id` and `lid` keyed model's properties. However, IDs can still be
+transformed and aliased for data sources interaction. This convention
+helps Foscia quickly resolving IDs for cache, etc.
 
 :::
 
@@ -378,8 +336,8 @@ hasOne(() => User, { readOnly: true });
 >
 
 ```typescript
-hasOne<User>();
 hasOne<User>('users');
+hasOne<User, true>('users', { readOnly: true });
 ```
 
 </TabItem>
@@ -458,8 +416,8 @@ hasMany(() => Comment, { readOnly: true });
 >
 
 ```typescript
-hasMany<Comment[]>();
 hasMany<Comment[]>('comments');
+hasMany<Comment[], true>('comments', { readOnly: true });
 ```
 
 </TabItem>
@@ -632,7 +590,7 @@ define your relations with a TypeScript type as follow:
 import { hasOne } from '@foscia/core';
 import type User from './user';
 
-hasOne<User>();
+hasOne<User>('users');
 ```
 
 Notice the `import type` for type definition when using TypeScript. This will

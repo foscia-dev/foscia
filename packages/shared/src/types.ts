@@ -31,7 +31,33 @@ export type Value<T> = T extends (...args: any[]) => any ? ReturnType<T> : T;
  *
  * @internal
  */
-export type Awaitable<T> = T | Promise<T>;
+export type Awaitable<T> = T | PromiseLike<T>;
+
+/**
+ * Type alias for awaitable void functions return values.
+ *
+ * @internal
+ */
+// TODO Use this inside callback where return value is ignored.
+export type AwaitableVoid = Awaitable<unknown>;
+
+/**
+ * Multidimensional map.
+ *
+ * @internal
+ */
+export type Multimap<K extends unknown[], V> = K extends [infer F, ...infer R]
+  ? Map<F, Multimap<R, V>>
+  : V;
+
+/**
+ * Make all property of .
+ *
+ * @internal
+ */
+export type Nullable<T> = {
+  [P in keyof T]: T[P] | null;
+};
 
 /**
  * Type which can be an array or not.
@@ -41,23 +67,9 @@ export type Awaitable<T> = T | Promise<T>;
 export type Arrayable<T> = T[] | T;
 
 /**
- * Type which can be an array or not, as a variadic parameter.
- *
- * @internal
- */
-export type ArrayableVariadic<T> = T[] | [T[]];
-
-/**
- * Type which can an item of an array if the original type is an array.
+ * Type which can be an item of an array if the original type is an array.
  */
 export type Itemable<T> = T extends any[] ? (T[number] | T) : T;
-
-/**
- * Type which can be null or undefined.
- *
- * @internal
- */
-export type Optional<T> = T | null | undefined;
 
 /**
  * Types considered `false` by JavaScript.
@@ -98,6 +110,24 @@ export type UnionToIntersection<U> =
   (U extends any ? (x: U) => void : never) extends ((x: infer I) => void) ? I : never;
 
 /**
+ * Prefix an object keys with given prefix.
+ *
+ * @internal
+ */
+export type PrefixRecordKeys<T, P extends string> = {
+  [K in keyof T as K extends string ? `${P}${K}` : never]: T[K];
+};
+
+/**
+ * Extract possible entry from an object.
+ *
+ * @internal
+ */
+export type RecordEntry<T> = {
+  [K in keyof T]: [K, T[K]];
+}[keyof T];
+
+/**
  * Define a type whether the original type is any or not.
  *
  * @internal
@@ -119,13 +149,6 @@ export type WritableKeys<T> = {
 }[keyof T];
 
 /**
- * Transformer function from a type to another.
- *
- * @internal
- */
-export type Transformer<T, U = T> = (value: T) => U;
-
-/**
  * Middleware next callback.
  *
  * @internal
@@ -138,20 +161,6 @@ export type MiddlewareNext<V, R> = (value: V) => R;
  * @internal
  */
 export type Middleware<V, R> = (value: V, next: MiddlewareNext<V, R>) => R;
-
-/**
- * Map identifier with type.
- *
- * @internal
- */
-export type IdentifiersMap<Type, Id, T> = {
-  all: () => T[];
-  find: (type: Type, id: Id) => T | null;
-  put: (type: Type, id: Id, value: T) => void;
-  forget: (type: Type, id: Id) => void;
-  forgetAll: (type: Type) => void;
-  clear: () => void;
-};
 
 /**
  * Foscia object which can be identified by a unique symbol.

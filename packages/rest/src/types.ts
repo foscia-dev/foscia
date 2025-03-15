@@ -1,13 +1,12 @@
-import { DeserializedData, ModelAttribute, ModelIdType, ModelRelation } from '@foscia/core';
+import { DeserializedData, ModelIdType } from '@foscia/core';
 import { HttpAdapterConfig } from '@foscia/http';
 import {
-  RecordDeserializerConfig,
   DeserializerContext,
   DeserializerExtract,
-  DeserializerRecordIdentifier,
+  RecordDeserializerConfig,
   RecordSerializerConfig,
 } from '@foscia/serialization';
-import { Arrayable, Awaitable, Dictionary } from '@foscia/shared';
+import { Awaitable, Dictionary } from '@foscia/shared';
 
 /**
  * Abstract definition of a REST record.
@@ -34,14 +33,7 @@ export type RestNewResource = RestAbstractResource & {
  *
  * @internal
  */
-export type RestAdapterConfig<Data = any> = HttpAdapterConfig<Data> & {
-  /**
-   * Change the `include` query parameter key to append on the request.
-   * Defaults to `include`. If `null`, it will not append included relations
-   * on the request.
-   */
-  includeParamKey?: string | null;
-};
+export type RestAdapterConfig<Data = any> = HttpAdapterConfig<Data>;
 
 /**
  * Configuration for REST deserializer.
@@ -58,40 +50,20 @@ export type RestDeserializerConfig<
 > =
   & {
     /**
-     * Extract identifier (type, ID and LID) from a REST record.
-     * Defaults to the record `type`, `id` and `lid` root fields.
+     * Extract and parse ID from a REST record.
      *
      * @param record
-     * @param context
      */
-    pullIdentifier: (record: Record, context: {}) => Awaitable<DeserializerRecordIdentifier>;
-    /**
-     * Extract an attribute's value from a REST record.
-     * Defaults to the record attribute's value from root fields.
-     *
-     * @param record
-     * @param deserializerContext
-     * @param extract
-     */
-    pullAttribute: (
+    extractId: (
       record: Record,
-      deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelAttribute>,
-      extract: Extract,
-    ) => Awaitable<unknown>;
+      deserializerContext: DeserializerContext<Record, Data, Deserialized, Extract>,
+    ) => Awaitable<ModelIdType | null | undefined>;
     /**
-     * Extract a relation's value from a REST record.
-     * Defaults to the record relation's value(s) from root fields.
-     * When value is an object, it will be deserialized as a normal record.
+     * Extract and parse type from a REST record.
      *
      * @param record
-     * @param deserializerContext
-     * @param extract
      */
-    pullRelation: (
-      record: Record,
-      deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelRelation>,
-      extract: Extract,
-    ) => Awaitable<Arrayable<Record> | null | undefined>;
+    extractType: (record: Record) => Awaitable<string | undefined>;
   }
   & RecordDeserializerConfig<Record, Data, Deserialized, Extract>;
 
@@ -115,3 +87,17 @@ export type RestSerializerConfig<
     serializeType?: boolean;
   }
   & RecordSerializerConfig<Record, Related, Data>;
+
+/**
+ * Configuration for REST eager loader.
+ *
+ * @interface
+ *
+ * @internal
+ */
+export type RestEagerLoaderConfig = {
+  /**
+   * Query parameter key for included relations string.
+   */
+  param: string;
+};

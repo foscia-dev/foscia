@@ -5,13 +5,12 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { themes } from 'prism-react-renderer';
 import packageJson from '../package.json';
+import { entries } from '../scripts/utils';
 
 const require = createRequire(import.meta.url);
 
 const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
-
-const packages = require('../scripts/entries.cjs')();
 
 dotenv.config();
 
@@ -60,9 +59,9 @@ const config = {
         name: 'API reference',
         out: 'docs/api',
         entryPointStrategy: 'packages',
-        entryPoints: packages
-          .filter((pkg) => pkg.name !== 'cli')
-          .map((pkg) => `../packages/${pkg.name}`),
+        entryPoints: entries
+          .filter((entry) => entry !== 'cli')
+          .map((entry) => `../packages/${entry}`),
         tsconfig: path.resolve(__dirname, '../tsconfig.json'),
         plugin: [
           'typedoc-plugin-mdn-links',
@@ -125,8 +124,8 @@ const config = {
         items: [
           {
             position: 'left',
-            label: 'Installation',
-            to: '/docs/installation',
+            label: 'Installing',
+            to: '/docs/installing',
           },
           {
             position: 'left',
@@ -153,7 +152,7 @@ const config = {
             label: process.env.VERSION
               ? `${process.env.VERSION} v${packageJson.version}`
               : `v${packageJson.version}`,
-            to: '/docs/upgrade/changelog',
+            to: '/docs/upgrading/changelog',
             className: 'header-version-link button',
           },
           {
@@ -170,8 +169,8 @@ const config = {
             title: 'Documentation',
             items: [
               {
-                label: 'Installation',
-                to: '/docs/installation',
+                label: 'Installing',
+                to: '/docs/installing',
               },
               {
                 label: 'Getting started',

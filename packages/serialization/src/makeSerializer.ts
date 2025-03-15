@@ -1,11 +1,10 @@
 import {
-  isSameSnapshot,
-  mapAttributes,
-  mapRelations,
-  ModelAttribute,
+  Action,
+  aliasPropKey,
+  isRelation,
+  ModelProp,
   ModelRelation,
   ModelSnapshot,
-  normalizeKey,
   shouldSync,
 } from '@foscia/core';
 import SerializerCircularRelationError
@@ -16,7 +15,8 @@ import {
   SerializerContext,
   SerializerParents,
 } from '@foscia/serialization/types';
-import { Arrayable, Awaitable, mapArrayable, using } from '@foscia/shared';
+import defaultShouldSerialize from '@foscia/serialization/utilities/shouldSerialize';
+import { Arrayable, Awaitable, mapArrayable } from '@foscia/shared';
 
 /**
  * Make a {@link RecordSerializer | `RecordSerializer`} using the given config.
@@ -28,21 +28,18 @@ import { Arrayable, Awaitable, mapArrayable, using } from '@foscia/shared';
 export default <Record, Related, Data>(
   config: RecordSerializerConfig<Record, Related, Data>,
 ) => {
-  const shouldSerialize = config.shouldSerialize
-    ?? ((context) => (
-      shouldSync(context.def, 'push')
-      && context.value !== undefined
-      && (
-        !context.snapshot.$original
-        || !isSameSnapshot(context.snapshot, context.snapshot.$original, context.def.key)
-      )
-    ));
+  let serializer: RecordSerializer<Record, Related, Data>;
+
+  const shouldSerialize = async (context: SerializerContext<Record, Related, Data>) => (
+    shouldSync(context.prop, 'push')
+    && await (config.shouldSerialize ?? defaultShouldSerialize)(context)
+  );
 
   const serializeKey = config.serializeKey
-    ?? ((context) => normalizeKey(context.snapshot.$instance.$model, context.def.key));
+    ?? ((context) => aliasPropKey(context.prop));
 
   const serializeAttributeValue = config.serializeAttribute
-    ?? ((context) => (context.def.transformer?.serialize ?? ((v) => v))(context.value));
+    ?? ((context) => (context.prop.transformer?.serialize ?? ((v) => v))(context.value));
 
   const serializeRelation = config.serializeRelation
     ?? ((_, related) => related.$values.id);
@@ -66,56 +63,55 @@ export default <Record, Related, Data>(
 
   const isCircularRelation = config.isCircularRelation
     ?? ((context, parents) => parents.some((parent) => (
-      parent.model === context.snapshot.$instance.$model && parent.def === context.def
+      parent.model === context.snapshot.$instance.$model && parent.prop === context.prop
     )));
 
   const circularRelationBehavior = config.circularRelationBehavior
     ?? (() => 'skip');
 
-  let serializer: RecordSerializer<Record, Related, Data>;
-
-  const makeSerializerContext = <Def extends ModelAttribute | ModelRelation>(
+  const makeSerializerContext = <Prop extends ModelProp | ModelRelation>(
     snapshot: ModelSnapshot,
-    def: Def,
-    context: {},
-  ) => ({ snapshot, def, key: def.key, value: snapshot.$values[def.key], context, serializer });
+    prop: Prop,
+    action: Action,
+  ) => ({ snapshot, prop, key: prop.key, value: snapshot.$values[prop.key], action, serializer });
 
   const serializeToRecords = async (
     snapshots: ModelSnapshot[] | ModelSnapshot | null,
-    context: {},
+    action: Action,
     parents: SerializerParents = [],
   ) => mapArrayable(snapshots, async (snapshot) => {
-    const record = await config.createRecord(snapshot, context);
+    const record = await config.createRecord(snapshot, action);
 
-    await Promise.all(Object.values({
-      ...mapAttributes(snapshot.$instance.$model, async (def) => {
-        const serializerContext = makeSerializerContext(snapshot, def, context);
-        if (await shouldSerialize(serializerContext)) {
-          const key = await serializeKey(serializerContext);
-          const value = await serializeAttributeValue(serializerContext);
+    await Promise.all(Object.values(snapshot.$instance.$model.$schema).map(async (prop) => {
+      const isRelationProp = isRelation(prop);
+      const serializerContext = makeSerializerContext(snapshot, prop, action);
 
-          await record.put({ ...serializerContext, key, value });
-        }
-      }),
-      ...mapRelations(snapshot.$instance.$model, async (def) => {
-        const serializerContext = makeSerializerContext(snapshot, def, context);
-        const isCircular = await isCircularRelation(serializerContext, parents);
-        if (isCircular) {
-          const circularBehavior = await circularRelationBehavior(serializerContext, parents);
-          if (circularBehavior === 'keep') {
-            return;
-          }
-
-          throw new SerializerCircularRelationError(snapshot, def, circularBehavior);
+      if (isRelationProp && await isCircularRelation(
+        serializerContext as SerializerContext<Record, Related, Data, ModelRelation>,
+        parents,
+      )) {
+        const circularBehavior = await circularRelationBehavior(
+          serializerContext as SerializerContext<Record, Related, Data, ModelRelation>,
+          parents,
+        );
+        if (circularBehavior === 'keep') {
+          return;
         }
 
-        if (await shouldSerialize(serializerContext)) {
-          const key = await serializeKey(serializerContext);
+        throw new SerializerCircularRelationError(snapshot, prop, circularBehavior);
+      }
+
+      if (await shouldSerialize(serializerContext)) {
+        const key = await serializeKey(serializerContext);
+
+        let value: unknown;
+        if (isRelationProp) {
           try {
-            const value = await serializeRelationWith(serializerContext, serializeRelation, [
-              ...parents,
-              { model: snapshot.$instance.$model, def },
-            ]);
+            value = await serializeRelationWith(
+              serializerContext as SerializerContext<Record, Related, Data, ModelRelation>,
+              serializeRelation,
+              [...parents, { model: snapshot.$instance.$model, prop: prop as ModelRelation }],
+            );
 
             await record.put({ ...serializerContext, key, value });
           } catch (error) {
@@ -127,8 +123,12 @@ export default <Record, Related, Data>(
 
             throw error;
           }
+        } else {
+          value = await serializeAttributeValue(serializerContext);
         }
-      }),
+
+        await record.put({ ...serializerContext, key, value });
+      }
     }));
 
     return record.retrieve();
@@ -137,22 +137,23 @@ export default <Record, Related, Data>(
   serializer = {
     serializeToRelatedRecords: async (
       parent: ModelSnapshot,
-      def: ModelRelation,
+      prop: ModelRelation,
       value: ModelSnapshot[] | ModelSnapshot | null,
-      context: {},
-    ) => using(
-      makeSerializerContext(parent, def, context),
-      (serializerContext) => serializeRelationWith(
+      action: Action,
+    ) => {
+      const serializerContext = makeSerializerContext(parent, prop, action);
+
+      return serializeRelationWith(
         { ...serializerContext, value },
         serializeRelated,
-        [{ model: parent.$instance.$model, def }],
-      ),
-    ),
+        [{ model: parent.$instance.$model, prop }],
+      );
+    },
     serializeToRecords,
     serializeToData: async (
       records: Arrayable<Record> | null,
-      context: {},
-    ) => (config.createData ? config.createData(records, context) : records) as Data,
+      action: Action,
+    ) => (config.createData ? config.createData(records, action) : records) as Data,
   } as RecordSerializer<Record, Related, Data>;
 
   return { serializer };

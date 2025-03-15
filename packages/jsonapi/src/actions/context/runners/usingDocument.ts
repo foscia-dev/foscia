@@ -1,5 +1,5 @@
-import { AllData, ModelInstance, OneData } from '@foscia/core';
-import { JsonApiDeserializedData } from '@foscia/jsonapi/types';
+import { AllData, OneData } from '@foscia/core';
+import { JsonApiDeserializedData, JsonApiDocument } from '@foscia/jsonapi/types';
 
 /**
  * Append the {@link JsonApiDocument | JSON:API document object} to data object.
@@ -24,7 +24,9 @@ import { JsonApiDeserializedData } from '@foscia/jsonapi/types';
  * ```
  */
 export default <
-  I extends ModelInstance,
-  Deserialized extends JsonApiDeserializedData<I>,
-  Data extends OneData<any, Deserialized, I> | AllData<any, Deserialized, I>,
->(data: Data) => ({ ...data, document: data.deserialized.document });
+  Deserialized extends JsonApiDeserializedData<any>,
+  Data extends OneData<any, Deserialized, any> | AllData<any, Deserialized, any>,
+>(data: Data): Data & { document: JsonApiDocument; } => ({
+  ...data,
+  document: data.deserialized.document,
+});

@@ -11,11 +11,13 @@ export type DescriptorHolder<T = unknown, R extends boolean = boolean> = {
   /**
    * Stores the value typing for type resolution.
    *
-   * @internal
+   * @ignore
    */
   _type: T;
   /**
    * Stores the readonly state for type resolution.
+   *
+   * @ignore
    */
   _readOnly: R;
 } & FosciaObject<typeof SYMBOL_DESCRIPTOR_HOLDER>;

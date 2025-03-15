@@ -7,7 +7,7 @@ import makeHttpActionMock from '../mocks/makeHttpAction.mock';
 
 describe('integration: HTTP', () => {
   const PostMock = makeModel('posts', {
-    comments: hasMany(),
+    comments: hasMany('comments'),
   });
 
   it('should run fetch: slash path', async () => {
@@ -18,7 +18,7 @@ describe('integration: HTTP', () => {
 
     // On Node, "/" request will fail, but this is accepted on a browser
     // and should remain unchanged.
-    expect(action().use(makeGet('/')).run(raw())).rejects.toThrow('Failed to parse URL from /');
+    await expect(action().use(makeGet('/')).run(raw())).rejects.toThrow('Failed to parse URL from /');
   });
 
   it.each([

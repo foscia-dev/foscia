@@ -1,15 +1,16 @@
 import {
+  Action,
   DeserializedData,
   Deserializer,
   Model,
-  ModelAttribute,
   ModelIdType,
   ModelInstance,
+  ModelProp,
   ModelRelation,
   ModelSnapshot,
   Serializer,
 } from '@foscia/core';
-import { type Arrayable, Awaitable, IdentifiersMap } from '@foscia/shared';
+import { type Arrayable, Awaitable, Multimap } from '@foscia/shared';
 
 /**
  * Context given for an instance property deserialization.
@@ -18,14 +19,16 @@ export type DeserializerContext<
   Record,
   Data = unknown,
   Deserialized extends DeserializedData = DeserializedData,
-  Def = ModelAttribute | ModelRelation,
+  Extract extends DeserializerExtract<Record> = DeserializerExtract<Record>,
+  Def = ModelProp | ModelRelation,
 > = {
   instance: ModelInstance;
-  def: Def;
+  prop: Def;
   key: string;
   value: unknown;
-  context: {};
-  deserializer: RecordDeserializer<Record, Data, Deserialized>;
+  action: Action;
+  extract: Extract;
+  deserializer: RecordDeserializer<Record, Data, Deserialized, Extract>;
 };
 
 /**
@@ -42,7 +45,6 @@ export type DeserializerRecordIdentifier = {
  */
 export type DeserializerModelIdentifier = {
   model: Model;
-  type: string;
   id?: ModelIdType;
   lid?: ModelIdType;
 };
@@ -51,7 +53,7 @@ export type DeserializerModelIdentifier = {
  * Data extracted from adapter data.
  */
 export type DeserializerExtract<Record> = {
-  records: Arrayable<Record> | null;
+  records: Arrayable<Record> | null | undefined;
 };
 
 /**
@@ -61,7 +63,7 @@ export type DeserializerExtract<Record> = {
  */
 export type DeserializerRecordParent = {
   instance: ModelInstance;
-  def: ModelRelation;
+  prop: ModelRelation;
 };
 
 /**
@@ -70,16 +72,19 @@ export type DeserializerRecordParent = {
  *
  * @internal
  */
-export type DeserializerRecord<Record, Data, Deserialized extends DeserializedData> = {
+export type DeserializerRecord<
+  Record,
+  Data,
+  Deserialized extends DeserializedData,
+  Extract extends DeserializerExtract<Record>,
+> = {
+  readonly extract: Extract;
   readonly raw: Record;
-  readonly identifier: DeserializerRecordIdentifier;
   readonly parent?: DeserializerRecordParent;
-  pullAttribute(
-    deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelAttribute>,
+  readonly type?: string;
+  pull(
+    deserializerContext: DeserializerContext<Record, Data, Deserialized, Extract>,
   ): Awaitable<unknown>;
-  pullRelation(
-    deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelRelation>,
-  ): Awaitable<Arrayable<DeserializerRecord<Record, Data, Deserialized>> | null | undefined>;
 };
 
 /**
@@ -95,16 +100,15 @@ export type DeserializerRecordFactory<
 > = (
   extract: Extract,
   record: Record,
-  context: {},
   parent?: DeserializerRecordParent,
-) => Promise<DeserializerRecord<Record, Data, Deserialized>>;
+) => Promise<DeserializerRecord<Record, Data, Deserialized, Extract>>;
 
 /**
  * Deserializer map of instance promises by type and ID.
  *
  * @internal
  */
-export type DeserializerInstancesMap = IdentifiersMap<string, ModelIdType, Promise<ModelInstance>>;
+export type DeserializerInstancesMap = Multimap<[string, ModelIdType], Promise<ModelInstance>>;
 
 /**
  * Configuration for generic record deserializer.
@@ -123,9 +127,9 @@ export type RecordDeserializerConfig<
    * Extract a records set from adapter's response data.
    *
    * @param data
-   * @param context
+   * @param action
    */
-  extractData: (data: Data, context: {}) => Awaitable<Extract>;
+  extractData: (data: Data, action: Action) => Awaitable<Extract>;
   /**
    * Create a deserializer record from.
    */
@@ -136,12 +140,12 @@ export type RecordDeserializerConfig<
    *
    * @param instances
    * @param extract
-   * @param context
+   * @param action
    */
   createData?: (
     instances: ModelInstance[],
     extract: Extract,
-    context: {},
+    action: Action,
   ) => Awaitable<Deserialized>;
   /**
    * Check if an instance attribute or relation should be deserialized or not.
@@ -150,7 +154,7 @@ export type RecordDeserializerConfig<
    * @param deserializerContext
    */
   shouldDeserialize?: (
-    deserializerContext: DeserializerContext<Record, Data, Deserialized>,
+    deserializerContext: DeserializerContext<Record, Data, Deserialized, Extract>,
   ) => Awaitable<boolean>;
   /**
    * Deserialize an instance attribute or relation key.
@@ -159,7 +163,7 @@ export type RecordDeserializerConfig<
    * @param deserializerContext
    */
   deserializeKey?: (
-    deserializerContext: DeserializerContext<Record, Data, Deserialized>,
+    deserializerContext: DeserializerContext<Record, Data, Deserialized, Extract>,
   ) => Awaitable<string>;
   /**
    * Deserialize an instance attribute value.
@@ -168,7 +172,7 @@ export type RecordDeserializerConfig<
    * @param deserializerContext
    */
   deserializeAttribute?: (
-    deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelAttribute>,
+    deserializerContext: DeserializerContext<Record, Data, Deserialized, Extract, ModelProp>,
   ) => Awaitable<unknown>;
   /**
    * Deserialize an instance relation's related instance(s).
@@ -179,8 +183,8 @@ export type RecordDeserializerConfig<
    * @param instancesMap
    */
   deserializeRelated?: (
-    deserializerContext: DeserializerContext<Record, Data, Deserialized, ModelRelation>,
-    related: DeserializerRecord<Record, Data, Deserialized>,
+    deserializerContext: DeserializerContext<Record, Data, Deserialized, Extract, ModelRelation>,
+    related: DeserializerRecord<Record, Data, Deserialized, Extract>,
     instancesMap: DeserializerInstancesMap,
   ) => Awaitable<ModelInstance>;
 };
@@ -192,20 +196,25 @@ export type RecordDeserializerConfig<
  *
  * @internal
  */
-export type RecordDeserializer<Record, Data, Deserialized extends DeserializedData> =
+export type RecordDeserializer<
+  Record,
+  Data,
+  Deserialized extends DeserializedData,
+  Extract extends DeserializerExtract<Record>,
+> =
   & {
     /**
      * Deserialize one record.
      *
      * @param record
-     * @param context
+     * @param action
      * @param instancesMap
      *
      * @internal
      */
     deserializeRecord(
-      record: DeserializerRecord<Record, Data, Deserialized>,
-      context: {},
+      record: DeserializerRecord<Record, Data, Deserialized, Extract>,
+      action: Action,
       instancesMap?: DeserializerInstancesMap,
     ): Awaitable<ModelInstance>;
   }
@@ -218,13 +227,13 @@ export type SerializerContext<
   Record = unknown,
   Related = unknown,
   Data = unknown,
-  Def = ModelAttribute | ModelRelation,
+  Def = ModelProp | ModelRelation,
 > = {
   snapshot: ModelSnapshot;
-  def: Def;
+  prop: Def;
   key: string;
   value: unknown;
-  context: {};
+  action: Action;
   serializer: RecordSerializer<Record, Related, Data>;
 };
 
@@ -241,7 +250,6 @@ export type SerializerRecord<Record, Related, Data> = {
    * @param serializerContext
    */
   put(serializerContext: SerializerContext<Record, Related, Data>): Awaitable<void>;
-
   /**
    * Retrieve the finally serialized record.
    */
@@ -255,7 +263,7 @@ export type SerializerRecord<Record, Related, Data> = {
  */
 export type SerializerRecordFactory<Record, Related, Data> = (
   snapshot: ModelSnapshot,
-  context: {},
+  action: Action,
 ) => Awaitable<SerializerRecord<Record, Related, Data>>;
 
 /**
@@ -264,7 +272,7 @@ export type SerializerRecordFactory<Record, Related, Data> = (
  *
  * @internal
  */
-export type SerializerParents = { model: Model; def: ModelRelation }[];
+export type SerializerParents = { model: Model; prop: ModelRelation }[];
 
 /**
  * Available behaviors to apply when encountering a circular relation:
@@ -294,9 +302,9 @@ export type RecordSerializerConfig<Record, Related, Data> = {
    * Defaults to records without any wrapper object or anything.
    *
    * @param records
-   * @param context
+   * @param action
    */
-  createData?: (records: Arrayable<Record> | null, context: {}) => Awaitable<Data>;
+  createData?: (records: Arrayable<Record> | null, action: Action) => Awaitable<Data>;
   /**
    * Check if an instance attribute or relation should be serialized or not.
    * Defaults to checking if value did not change since last sync and is not `undefined`.
@@ -322,7 +330,7 @@ export type RecordSerializerConfig<Record, Related, Data> = {
    * @param serializerContext
    */
   serializeAttribute?: (
-    serializerContext: SerializerContext<Record, Related, Data, ModelAttribute>,
+    serializerContext: SerializerContext<Record, Related, Data, ModelProp>,
   ) => Awaitable<unknown>;
   /**
    * Serialize an instance relation's related instance(s).
@@ -390,14 +398,14 @@ export type RecordSerializer<Record, Related, Data> =
      * This overload handles circular relations using the parents of the instance.
      *
      * @param value
-     * @param context
+     * @param action
      * @param parents
      *
      * @internal
      */
     serializeToRecords(
       value: ModelSnapshot,
-      context: {},
+      action: Action,
       parents: SerializerParents,
     ): Awaitable<Record>;
   }

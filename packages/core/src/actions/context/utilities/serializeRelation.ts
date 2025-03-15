@@ -1,5 +1,5 @@
 import consumeSerializer from '@foscia/core/actions/context/consumers/consumeSerializer';
-import { ConsumeSerializer } from '@foscia/core/actions/types';
+import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
 import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
 import {
   ModelInstance,
@@ -7,12 +7,12 @@ import {
   ModelRelationKey,
   ModelValues,
 } from '@foscia/core/model/types';
-import { mapArrayable, using } from '@foscia/shared';
+import { mapArrayable } from '@foscia/shared';
 
 /**
  * Serialize the given relation's value to a serialized dataset.
  *
- * @param context
+ * @param action
  * @param instance
  * @param relation
  * @param value
@@ -26,19 +26,23 @@ export default async <
   Related,
   Data,
 >(
-  context: ConsumeSerializer<Record, Related, Data>,
+  action: Action<ConsumeSerializer<Record, Related, Data>>,
   instance: I,
   relation: K,
   value: ModelValues<I>[K],
-) => using(await consumeSerializer(context), async (serializer) => serializer.serializeToData(
-  await serializer.serializeToRelatedRecords(
-    takeSnapshot(instance),
-    instance.$model.$schema[relation] as ModelRelation,
-    await mapArrayable(
-      value,
-      (related) => takeSnapshot(related as unknown as ModelInstance),
+) => {
+  const serializer = await consumeSerializer(action);
+
+  return serializer.serializeToData(
+    await serializer.serializeToRelatedRecords(
+      takeSnapshot(instance),
+      instance.$model.$schema[relation] as ModelRelation,
+      await mapArrayable(
+        value,
+        (related) => takeSnapshot(related as unknown as ModelInstance),
+      ),
+      action,
     ),
-    context,
-  ),
-  context,
-));
+    action,
+  );
+};

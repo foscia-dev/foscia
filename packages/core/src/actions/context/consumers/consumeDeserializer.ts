@@ -1,7 +1,5 @@
-import consumeContext from '@foscia/core/actions/context/consumers/consumeContext';
+import makeContextConsumer from '@foscia/core/actions/context/consumers/makeContextConsumer';
 import { ConsumeDeserializer } from '@foscia/core/actions/types';
-import { DeserializedData } from '@foscia/core/types';
-import { value } from '@foscia/shared';
 
 /**
  * Retrieve the deserializer from a context.
@@ -9,12 +7,4 @@ import { value } from '@foscia/shared';
  * @param context
  * @param defaultValue
  */
-export default <
-  C extends {},
-  Data,
-  Deserialized extends DeserializedData = DeserializedData,
-  D = never,
->(
-  context: C & Partial<ConsumeDeserializer<Data, Deserialized>>,
-  defaultValue?: D,
-) => value(consumeContext(context, 'deserializer', ['context'], defaultValue));
+export default /* @__PURE__ */ makeContextConsumer<'deserializer', ConsumeDeserializer>('deserializer');

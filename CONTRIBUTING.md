@@ -66,12 +66,9 @@ You must also define multiple files
 
 - `src/index.ts`: contains all exported modules
 - `.release-it.json` manage release and dependencies update.
-- `buildOptions.json` contains the build options to use when building the
-  package for release.
 - `LICENSE`
 - `package.json`
 - `README.md`
 - `typedoc.json`
 
-You must also add an entry to the `tsconfig.json` and
-`website/docs/tsconfig.json` `paths` compiler option.
+You must also add an entry to the `tsconfig.json` `paths` compiler option.

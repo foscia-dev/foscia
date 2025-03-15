@@ -5,16 +5,29 @@ import {
   isModelUsing,
   makeComposable,
   makeModel,
-  onBoot,
   onCreating,
-  onDestroying,
-  onUpdating,
   runHooks,
   toDate,
 } from '@foscia/core';
 import { describe, expect, it } from 'vitest';
 
 describe.concurrent('unit: composition', () => {
+  it('should apply composables to models', () => {
+    const ModelWithConnectionDefault = makeModel('posts');
+    const ModelWithConnectionV1 = makeModel('apiV1:posts');
+    const ModelWithConnectionV2 = makeModel({
+      connection: 'apiV2',
+      type: 'posts',
+    });
+
+    expect(ModelWithConnectionDefault.$connection).toStrictEqual('default');
+    expect(ModelWithConnectionDefault.$type).toStrictEqual('posts');
+    expect(ModelWithConnectionV1.$connection).toStrictEqual('apiV1');
+    expect(ModelWithConnectionV1.$type).toStrictEqual('posts');
+    expect(ModelWithConnectionV2.$connection).toStrictEqual('apiV2');
+    expect(ModelWithConnectionV2.$type).toStrictEqual('posts');
+  });
+
   it('should apply composables to models', () => {
     const foo = makeComposable({
       foob: false,
@@ -56,95 +69,6 @@ describe.concurrent('unit: composition', () => {
     expect(isInstanceUsing(model, bar)).toBeTruthy();
     expect(isInstanceUsing(model, baz)).toBeTruthy();
     expect(isInstanceUsing(model, boo)).toBeFalsy();
-  });
-
-  it('should extend models', () => {
-    const BaseModel = makeModel('base');
-
-    class FooModel extends BaseModel.extend({
-      foo: attr(() => 'foo'),
-      get getSomething() {
-        return this.foo;
-      },
-    }) {
-    }
-
-    onBoot(FooModel, () => undefined);
-    onCreating(FooModel, () => 'foo');
-
-    const BarModel = FooModel.extend({
-      bar: attr(() => 'bar'),
-      get getSomething() {
-        return this.bar;
-      },
-    });
-
-    onBoot(BarModel, () => undefined);
-    onUpdating(BarModel, () => undefined);
-
-    class BazModel extends BarModel.extend({
-      baz: attr(() => 'baz'),
-      get getSomething() {
-        return this.baz;
-      },
-    }) {
-    }
-
-    onBoot(BazModel, () => undefined);
-    onDestroying(BazModel, () => undefined);
-
-    expect(Object.values(FooModel.$hooks!).length).toStrictEqual(2);
-    expect(FooModel.$hooks!.boot!.length).toStrictEqual(1);
-    expect(FooModel.$hooks!.creating!.length).toStrictEqual(1);
-    expect(Object.values(BarModel.$hooks!).length).toStrictEqual(3);
-    expect(BarModel.$hooks!.boot!.length).toStrictEqual(2);
-    expect(BarModel.$hooks!.updating!.length).toStrictEqual(1);
-    expect(Object.values(BazModel.$hooks!).length).toStrictEqual(4);
-    expect(BazModel.$hooks!.boot!.length).toStrictEqual(3);
-    expect(FooModel.$hooks!.creating!.length).toStrictEqual(1);
-    expect(BarModel.$hooks!.updating!.length).toStrictEqual(1);
-    expect(BazModel.$hooks!.destroying!.length).toStrictEqual(1);
-
-    const base = new BaseModel();
-    // @ts-expect-error property does not exist
-    expect(base.foo).toBeUndefined();
-    // @ts-expect-error property does not exist
-    expect(base.bar).toBeUndefined();
-    // @ts-expect-error property does not exist
-    expect(base.baz).toBeUndefined();
-    // @ts-expect-error property does not exist
-    expect(base.getSomething).toBeUndefined();
-    expect(base).toBeInstanceOf(BaseModel);
-
-    const foo = new FooModel();
-    expect(foo.foo).toStrictEqual('foo');
-    // @ts-expect-error property does not exist
-    expect(foo.bar).toBeUndefined();
-    // @ts-expect-error property does not exist
-    expect(foo.baz).toBeUndefined();
-    expect(foo.getSomething).toStrictEqual('foo');
-    expect(foo).toBeInstanceOf(BaseModel);
-    expect(foo).toBeInstanceOf(FooModel);
-
-    const bar = new BarModel();
-    expect(bar.foo).toStrictEqual('foo');
-    expect(bar.bar).toStrictEqual('bar');
-    // @ts-expect-error property does not exist
-    expect(bar.baz).toBeUndefined();
-    expect(bar.getSomething).toStrictEqual('bar');
-    expect(bar).toBeInstanceOf(BaseModel);
-    expect(bar).toBeInstanceOf(FooModel);
-    expect(bar).toBeInstanceOf(BarModel);
-
-    const baz = new BazModel();
-    expect(baz.foo).toStrictEqual('foo');
-    expect(baz.bar).toStrictEqual('bar');
-    expect(baz.baz).toStrictEqual('baz');
-    expect(baz.getSomething).toStrictEqual('baz');
-    expect(baz).toBeInstanceOf(BaseModel);
-    expect(baz).toBeInstanceOf(FooModel);
-    expect(baz).toBeInstanceOf(BarModel);
-    expect(baz).toBeInstanceOf(BazModel);
   });
 
   it('should have common hooks', async () => {

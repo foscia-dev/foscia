@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
-import isPropDef from '@foscia/core/model/props/checks/isPropDef';
-import isRelationDef from '@foscia/core/model/props/checks/isRelationDef';
-import mapProps from '@foscia/core/model/props/mappers/mapProps';
+import isRelation from '@foscia/core/model/props/checks/isRelation';
+import isValueProp from '@foscia/core/model/props/checks/isValueProp';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
 import {
   ModelInstance,
@@ -12,7 +11,7 @@ import {
   ModelValues,
 } from '@foscia/core/model/types';
 import forceFill from '@foscia/core/model/utilities/forceFill';
-import { Arrayable, ArrayableVariadic, isNil, tap, wrapVariadic } from '@foscia/shared';
+import { Arrayable, isNil, tap, wrap } from '@foscia/shared';
 
 const restoreSnapshotRelation = (
   value: Arrayable<ModelSnapshot | ModelLimitedSnapshot>,
@@ -24,11 +23,11 @@ const restoreSnapshotRelation = (
 
 const restoreSnapshotValue = (
   snapshot: ModelSnapshot,
-  def: ModelProp,
+  prop: ModelProp,
 ) => snapshot.$instance.$model.$config.cloneSnapshotValue(
-  isRelationDef(def) && !isNil(snapshot.$values[def.key])
-    ? restoreSnapshotRelation(snapshot.$values[def.key])
-    : snapshot.$values[def.key],
+  isRelation(prop) && !isNil(snapshot.$values[prop.key])
+    ? restoreSnapshotRelation(snapshot.$values[prop.key])
+    : snapshot.$values[prop.key],
 );
 
 /**
@@ -50,9 +49,9 @@ const restoreSnapshotValue = (
 export default <I extends ModelInstance>(
   instance: I,
   snapshot: ModelSnapshot<I>,
-  ...only: ArrayableVariadic<ModelKey<I>>
+  only?: Arrayable<ModelKey<I>>,
 ) => tap(instance, () => {
-  const keys = wrapVariadic(...only);
+  const keys = wrap(only);
 
   if (!keys.length) {
     instance.$exists = snapshot.$exists;
@@ -60,20 +59,22 @@ export default <I extends ModelInstance>(
     instance.$loaded = snapshot.$loaded;
   }
 
-  const restoreForDef = (def: ModelProp) => {
-    if (keys.length && keys.indexOf(def.key as ModelKey<I>) === -1) {
+  Object.values(instance.$model.$schema).forEach((prop) => {
+    if (
+      !isValueProp(prop)
+      || (keys.length && keys.indexOf(prop.key as ModelKey<I>) === -1)
+    ) {
       return;
     }
 
-    if (Object.prototype.hasOwnProperty.call(snapshot.$values, def.key)) {
+    if (Object.prototype.hasOwnProperty.call(snapshot.$values, prop.key)) {
       forceFill(instance, {
-        [def.key]: restoreSnapshotValue(snapshot, def),
+        [prop.key]: restoreSnapshotValue(snapshot, prop),
       } as Partial<ModelValues<I>>);
     } else {
-      delete instance.$values[def.key];
+      delete instance.$values[prop.key];
     }
-  };
+  });
 
-  mapProps(instance.$model, restoreForDef, isPropDef as any);
-  markSynced(instance, ...only);
+  markSynced(instance, only);
 });

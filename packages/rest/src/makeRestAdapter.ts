@@ -1,5 +1,4 @@
 import { makeHttpAdapter } from '@foscia/http';
-import makeIncludeParam from '@foscia/rest/makeIncludeParam';
 import { RestAdapterConfig } from '@foscia/rest/types';
 import { kebabCase } from '@foscia/shared';
 
@@ -17,9 +16,5 @@ export default <Data = any>(
   baseURL: '/api',
   modelPathTransformer: kebabCase,
   relationPathTransformer: kebabCase,
-  appendParams: async (context) => ({
-    ...await makeIncludeParam(context, config.includeParamKey),
-    ...(await config.appendParams?.(context)),
-  }),
   ...config,
 });

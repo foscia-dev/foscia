@@ -4,6 +4,7 @@ import hasModelsList from '@foscia/cli/utils/context/hasModelsList';
 import installDependencies from '@foscia/cli/utils/dependencies/installDependencies';
 import usePkg from '@foscia/cli/utils/dependencies/usePkg';
 import { ImportsList } from '@foscia/cli/utils/imports/makeImportsList';
+import toIndent from '@foscia/cli/utils/output/toIndent';
 import promptConfirm from '@foscia/cli/utils/prompts/promptConfirm';
 import promptText from '@foscia/cli/utils/prompts/promptText';
 
@@ -26,6 +27,7 @@ export type ActionFactoryOptions = {
   deserializer?: ActionFactoryDependency;
   serializer?: ActionFactoryDependency;
   adapter?: ActionFactoryDependency;
+  loader?: string;
 };
 
 async function promptForHttpAdapterConfig(
@@ -113,9 +115,12 @@ export default async function promptForActionFactoryOptions(
 
   if (options.usage === 'jsonapi') {
     imports.add('makeCache', '@foscia/core');
+    imports.add('makeLoader', '@foscia/core');
+    imports.add('makeSimpleLazyLoader', '@foscia/core');
     imports.add('makeJsonApiDeserializer', '@foscia/jsonapi');
     imports.add('makeJsonApiSerializer', '@foscia/jsonapi');
     imports.add('makeJsonApiAdapter', '@foscia/jsonapi');
+    imports.add('makeJsonApiEagerLoader', '@foscia/jsonapi');
 
     return {
       test,
@@ -127,25 +132,30 @@ export default async function promptForActionFactoryOptions(
         name: 'makeJsonApiAdapter',
         options: await promptForHttpAdapterConfig(imports, options.usage, options.framework),
       },
+      loader: `...makeLoader({\n${toIndent(config, 'eagerLoader: makeJsonApiEagerLoader(),')}\n${toIndent(config, 'lazyLoader: makeSimpleLazyLoader(),')}\n}),`,
     };
   }
 
   if (options.usage === 'jsonrest') {
     imports.add('makeCache', '@foscia/core');
-    imports.add('makeJsonRestDeserializer', '@foscia/rest');
-    imports.add('makeJsonRestSerializer', '@foscia/rest');
-    imports.add('makeJsonRestAdapter', '@foscia/rest');
+    imports.add('makeLoader', '@foscia/core');
+    imports.add('makeSimpleLazyLoader', '@foscia/core');
+    imports.add('makeRestDeserializer', '@foscia/rest');
+    imports.add('makeRestSerializer', '@foscia/rest');
+    imports.add('makeRestAdapter', '@foscia/rest');
+    imports.add('makeRestEagerLoader', '@foscia/rest');
 
     return {
       test,
       cache: true,
       registry: await promptForRegistry(config, imports, options),
-      deserializer: { name: 'makeJsonRestDeserializer' },
-      serializer: { name: 'makeJsonRestSerializer' },
+      deserializer: { name: 'makeRestDeserializer' },
+      serializer: { name: 'makeRestSerializer' },
       adapter: {
-        name: 'makeJsonRestAdapter',
+        name: 'makeRestAdapter',
         options: await promptForHttpAdapterConfig(imports, options.usage, options.framework),
       },
+      loader: `...makeLoader({\n${toIndent(config, 'eagerLoader: makeRestEagerLoader({ param: \'include\' }),')}\n${toIndent(config, 'lazyLoader: makeSimpleLazyLoader(),')}\n}),`,
     };
   }
 

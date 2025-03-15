@@ -7,17 +7,20 @@ import {
   AnonymousEnhancer,
   AnonymousRunner,
 } from '@foscia/core/actions/types';
-import connections from '@foscia/core/connections/connections';
+import { configuration } from '@foscia/core/configuration';
 import FosciaError from '@foscia/core/errors/fosciaError';
 import registerHook from '@foscia/core/hooks/registerHook';
 import runHooks from '@foscia/core/hooks/runHooks';
 import withoutHooks from '@foscia/core/hooks/withoutHooks';
 import logger from '@foscia/core/logger/logger';
+import { SYMBOL_ACTION } from '@foscia/core/symbols';
 import {
   Dictionary,
   Middleware,
   sequentialTransform,
   throughMiddlewares,
+  uniqueId,
+  unsafeId,
   value,
 } from '@foscia/shared';
 
@@ -31,6 +34,11 @@ import {
 export default <Context extends {} = {}>(
   initialContext?: Context | (() => Context),
 ) => {
+  const connectionId = uniqueId(
+    unsafeId,
+    Object.values(configuration.connections ?? {}).map((a) => a?.connectionId ?? ''),
+  );
+
   const factory: ActionFactory<Context> = (
     ...immediateEnhancers: (AnonymousEnhancer<any, any> | AnonymousRunner<any, any>)[]
   ) => {
@@ -38,7 +46,10 @@ export default <Context extends {} = {}>(
     let currentCall: ActionCall | null = null;
 
     let currentQueue: AnonymousEnhancer<any, any>[] = [];
-    let currentContext: Dictionary = { ...value(initialContext) };
+    let currentContext: Dictionary = {
+      actionConnectionId: connectionId,
+      ...value(initialContext),
+    };
 
     const isRun = (enhancer: unknown): boolean => {
       if (isWhen(enhancer)) {
@@ -67,6 +78,7 @@ export default <Context extends {} = {}>(
     );
 
     action = Object.assign(invokableAction, {
+      $FOSCIA_TYPE: SYMBOL_ACTION,
       $hooks: {},
       async useContext() {
         await dequeueEnhancers(this);
@@ -147,7 +159,14 @@ export default <Context extends {} = {}>(
     return (action as any)(...immediateEnhancers);
   };
 
-  connections.register('default', factory);
+  factory.connectionId = connectionId;
+
+  if (!configuration.connections || !configuration.connections.default) {
+    configuration.connections = {
+      ...configuration.connections,
+      default: factory,
+    };
+  }
 
   return factory;
 };

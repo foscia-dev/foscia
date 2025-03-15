@@ -1,6 +1,5 @@
 import { makeEnhancer } from '@foscia/core';
 import configureRequest from '@foscia/http/actions/context/enhancers/configureRequest';
-import { Optional } from '@foscia/shared';
 
 /**
  * Configure an abort controller or signal on the request to support calling
@@ -23,7 +22,7 @@ import { Optional } from '@foscia/shared';
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('abortSignal', (
-  controllerOrSignal?: Optional<AbortController | AbortSignal>,
+  controllerOrSignal?: AbortController | AbortSignal | null,
 ) => configureRequest({
   signal: controllerOrSignal instanceof AbortController
     ? controllerOrSignal.signal

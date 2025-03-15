@@ -1,4 +1,4 @@
-import consumeContext from '@foscia/core/actions/context/consumers/consumeContext';
+import makeContextConsumer from '@foscia/core/actions/context/consumers/makeContextConsumer';
 import { ConsumeRelation } from '@foscia/core/actions/types';
 
 /**
@@ -7,7 +7,4 @@ import { ConsumeRelation } from '@foscia/core/actions/types';
  * @param context
  * @param defaultValue
  */
-export default <C extends {}, D = never>(
-  context: C & Partial<ConsumeRelation>,
-  defaultValue?: D,
-) => consumeContext(context, 'relation', ['query'], defaultValue);
+export default /* @__PURE__ */ makeContextConsumer<'relation', ConsumeRelation>('relation');

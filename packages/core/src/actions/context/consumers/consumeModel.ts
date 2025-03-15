@@ -1,6 +1,5 @@
-import consumeContext from '@foscia/core/actions/context/consumers/consumeContext';
+import makeContextConsumer from '@foscia/core/actions/context/consumers/makeContextConsumer';
 import { ConsumeModel } from '@foscia/core/actions/types';
-import { Model } from '@foscia/core/model/types';
 
 /**
  * Retrieve the model from a context.
@@ -8,13 +7,4 @@ import { Model } from '@foscia/core/model/types';
  * @param context
  * @param defaultValue
  */
-export default <C extends {}, M extends Model, D = never>(
-  context: C & Partial<ConsumeModel<M>>,
-  defaultValue?: D,
-) => consumeContext(context, 'model', [
-  'query',
-  'create',
-  'update',
-  'save',
-  'destroy',
-], defaultValue);
+export default /* @__PURE__ */ makeContextConsumer<'model', ConsumeModel>('model');

@@ -3,9 +3,7 @@ import mergeHooks from '@foscia/core/hooks/mergeHooks';
 import runHooksSync from '@foscia/core/hooks/runHooksSync';
 import { HooksRegistrar } from '@foscia/core/hooks/types';
 import applyDefinition from '@foscia/core/model/composition/utilities/applyDefinition';
-import makeDefinition from '@foscia/core/model/composition/makeDefinition';
 import {
-  ExtendableModel,
   Model,
   ModelConfig,
   ModelHooksDefinition,
@@ -17,31 +15,30 @@ import {
   SYMBOL_MODEL_INSTANCE,
   SYMBOL_MODEL_SNAPSHOT,
 } from '@foscia/core/symbols';
-import { mergeConfig } from '@foscia/shared';
-
-const { defineProperty } = Object;
 
 /**
  * Create a model class.
  *
+ * @param connection
  * @param type
  * @param config
  * @param hooks
  * @param definition
- * @param parentModel
  *
  * @internal
  */
-const makeModelClass = (
+export default (
+  connection: string,
   type: string,
   config: ModelConfig,
   hooks: HooksRegistrar<ModelHooksDefinition>,
   definition: object,
-  parentModel?: ExtendableModel,
 ) => {
   if (type.length === 0) {
     throw new FosciaError('Model type cannot be an empty string.');
   }
+
+  const { defineProperty } = Object;
 
   const parseModel = (currentModel: Model) => {
     if (!currentModel.$parsed) {
@@ -58,8 +55,7 @@ const makeModelClass = (
     }
   };
 
-  const model = parentModel ? class extends parentModel {
-  } : function ModelConstructor(this: ModelInstance) {
+  const model = function ModelConstructor(this: ModelInstance) {
     defineProperty(this, '$FOSCIA_TYPE', { value: SYMBOL_MODEL_INSTANCE });
     defineProperty(this, '$model', { value: this.constructor });
     defineProperty(this, '$exists', { writable: true, value: false });
@@ -89,9 +85,10 @@ const makeModelClass = (
     }
 
     runHooksSync(this.$model, 'init', this);
-  } as unknown as ExtendableModel;
+  } as unknown as Model;
 
   defineProperty(model, '$FOSCIA_TYPE', { value: SYMBOL_MODEL_CLASS });
+  defineProperty(model, '$connection', { value: connection });
   defineProperty(model, '$type', { value: type });
   defineProperty(model, '$config', { value: { ...config } });
   defineProperty(model, '$parsed', { writable: true, value: false });
@@ -110,27 +107,5 @@ const makeModelClass = (
   defineOverwrittenProperty('$schema');
   defineOverwrittenProperty('$hooks');
 
-  model.configure = function configureModel(newConfig?: Partial<ModelConfig>, override = true) {
-    return makeModelClass(
-      this.$type,
-      mergeConfig(this.$config, newConfig ?? {}, override),
-      mergeHooks(this.$hooks!),
-      definition,
-      this,
-    );
-  };
-
-  model.extend = function extendModel(rawDefinition?: object) {
-    return makeModelClass(
-      this.$type,
-      this.$config,
-      mergeHooks(this.$hooks!),
-      { ...definition, ...makeDefinition(rawDefinition ?? {}) },
-      this,
-    ) as any;
-  };
-
   return model;
 };
-
-export default makeModelClass;

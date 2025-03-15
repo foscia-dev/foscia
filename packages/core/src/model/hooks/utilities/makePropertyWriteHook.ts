@@ -27,7 +27,7 @@ export default (hook: 'write' | 'writing'): {
     P extends InferModelSchemaProp<I, K>,
   >(
     model: Model<D, I>,
-    callback: (event: { instance: I; def: P; prev?: V[K]; next: V[K] }) => unknown,
+    callback: (event: { instance: I; prop: P; prev?: V[K]; next: V[K] }) => void,
   ): () => void;
   <
     D extends {},
@@ -38,7 +38,7 @@ export default (hook: 'write' | 'writing'): {
   >(
     model: Model<D, I>,
     key: K,
-    callback: (event: { instance: I; def: P; prev?: V[K]; next: V[K] }) => unknown,
+    callback: (event: { instance: I; prop: P; prev?: V[K]; next: V[K] }) => void,
   ): () => void;
   <
     C extends ModelComposable,
@@ -49,10 +49,10 @@ export default (hook: 'write' | 'writing'): {
     composable: ModelComposableFactory<C>,
     callback: (event: {
       instance: ModelInstanceUsing<C>;
-      def: P;
+      prop: P;
       prev?: V[K];
       next: V[K]
-    }) => unknown,
+    }) => void,
   ): () => void;
   <
     C extends ModelComposable,
@@ -64,10 +64,10 @@ export default (hook: 'write' | 'writing'): {
     key: K,
     callback: (event: {
       instance: ModelInstanceUsing<C>;
-      def: P;
+      prop: P;
       prev?: V[K];
       next: V[K]
-    }) => unknown,
+    }) => void,
   ): () => void;
   <
     D extends {},
@@ -78,10 +78,10 @@ export default (hook: 'write' | 'writing'): {
     factory: ModelFactory<D>,
     callback: (event: {
       instance: ModelInstance<D>;
-      def: P;
+      prop: P;
       prev?: V[K];
       next: V[K]
-    }) => unknown,
+    }) => void,
   ): () => void;
   <
     D extends {},
@@ -93,10 +93,10 @@ export default (hook: 'write' | 'writing'): {
     key: K,
     callback: (event: {
       instance: ModelInstance<D>;
-      def: P;
+      prop: P;
       prev?: V[K];
       next: V[K]
-    }) => unknown,
+    }) => void,
   ): () => void;
 } => (
   model: any,

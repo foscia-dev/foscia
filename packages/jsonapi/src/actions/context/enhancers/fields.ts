@@ -1,13 +1,13 @@
 import {
   Action,
   FosciaError,
-  guessContextModel,
   InferQueryModelOrInstance,
   makeEnhancer,
   ModelKey,
+  resolveContextModels,
 } from '@foscia/core';
 import fieldsFor from '@foscia/jsonapi/actions/context/enhancers/fieldsFor';
-import { ArrayableVariadic } from '@foscia/shared';
+import { Arrayable } from '@foscia/shared';
 
 /**
  * [Select the given JSON:API fieldsets](https://jsonapi.org/format/#fetching-sparse-fieldsets)
@@ -32,11 +32,11 @@ import { ArrayableVariadic } from '@foscia/shared';
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('fields', <C extends {}>(
-  ...fieldset: ArrayableVariadic<ModelKey<InferQueryModelOrInstance<C>>>
+  fieldset: Arrayable<ModelKey<InferQueryModelOrInstance<C>>>,
 ) => async (action: Action<C>) => {
-  const model = await guessContextModel(await action.useContext());
-  if (model) {
-    return action(fieldsFor(model, ...fieldset));
+  const models = await resolveContextModels(action);
+  if (models.length === 1) {
+    return action(fieldsFor(models[0], fieldset));
   }
 
   throw new FosciaError(

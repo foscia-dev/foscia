@@ -1,5 +1,4 @@
 const path = require('node:path');
-const { rules: baseStyleRules } = require('eslint-config-airbnb-base/rules/style');
 const entries = require('./scripts/entries.cjs');
 
 module.exports = {
@@ -15,6 +14,7 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: path.resolve(__dirname, 'tsconfig.json'),
+    warnOnUnsupportedTypeScriptVersion: false,
   },
   plugins: ['import'],
   rules: {
@@ -38,7 +38,7 @@ module.exports = {
         ],
         packageDir: [
           '.',
-          ...entries().map((e) => path.resolve('.', 'packages', e.name)),
+          ...entries.map((e) => path.resolve('.', 'packages', e)),
         ],
       },
     ],

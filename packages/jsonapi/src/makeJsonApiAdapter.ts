@@ -1,4 +1,4 @@
-import { ActionName, consumeAction } from '@foscia/core';
+import { ActionKind, isActionKind } from '@foscia/core';
 import { clearEndpoint, deepParamsSerializer } from '@foscia/http';
 import { JsonApiAdapterConfig } from '@foscia/jsonapi/types';
 import { makeRestAdapter } from '@foscia/rest';
@@ -15,15 +15,15 @@ export default <Data = any>(
   config: Partial<JsonApiAdapterConfig<Data>> = {},
 ) => makeRestAdapter({
   baseURL: '/api/v1',
-  buildURL: (endpoint, context) => clearEndpoint(optionalJoin([
+  buildURL: async (endpoint, action) => clearEndpoint(optionalJoin([
     endpoint.baseURL,
     endpoint.modelPath,
     endpoint.idPath,
-    (([
-      ActionName.ATTACH_RELATION,
-      ActionName.UPDATE_RELATION,
-      ActionName.DETACH_RELATION,
-    ] as string[]).indexOf(consumeAction(context, null)!) !== -1 ? 'relationships' : null),
+    await isActionKind(action, [
+      ActionKind.ATTACH_RELATION,
+      ActionKind.UPDATE_RELATION,
+      ActionKind.DETACH_RELATION,
+    ]) ? 'relationships' : null,
     endpoint.relationPath,
     endpoint.additionalPath,
   ], '/')),

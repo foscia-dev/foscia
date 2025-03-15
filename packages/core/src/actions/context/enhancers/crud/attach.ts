@@ -1,4 +1,4 @@
-import ActionName from '@foscia/core/actions/context/actionName';
+import ActionKind from '@foscia/core/actions/context/actionKind';
 import updateRelation from '@foscia/core/actions/context/enhancers/crud/updateRelation';
 import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import {
@@ -43,5 +43,5 @@ export default /* @__PURE__ */ makeEnhancer('attach', <
   instance,
   relation,
   wrap(value) as ModelValues<I>[K],
-  ActionName.ATTACH_RELATION,
+  ActionKind.ATTACH_RELATION,
 ));

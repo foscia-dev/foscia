@@ -210,26 +210,40 @@ makeJsonApiDeserializer({
 });
 ```
 
+:::tip
+
+You can also change the key serialization globally using model's
+[`guessAlias`](/docs/digging-deeper/models/models-configuration#guessalias)
+configuration option.
+
+:::
+
 ### Parsing URL IDs
 
-Some API implementation may serialize records IDs as URL to the record endpoint
+Some API implementation may serialize records IDs as the record endpoint's URL
 (such as `https://example.com/api/posts/1` for post `1`). You can customize
-the deserializer to support ID and type extraction from URL ID using the
-[`pullIdentifier`](/docs/api/@foscia/jsonapi/interfaces/JsonApiDeserializerConfig#pullidentifier)
-option.
+the deserializer to support ID and type extraction from URL ID using
+[`extractId`](/docs/api/@foscia/jsonapi/interfaces/JsonApiDeserializerConfig#extractid)
+and [`extractType`](/docs/api/@foscia/jsonapi/interfaces/JsonApiDeserializerConfig#extracttype)
+options.
 
 ```typescript
 import { makeJsonApiDeserializer } from '@foscia/jsonapi';
 
 makeJsonApiDeserializer({
-  pullIdentifier: (record) => {
-    // This will support IDs like `https://example.com/api/posts/1`, `/api/posts/1`, etc.
-    const [id, type] = String(record.id).split('/').reverse();
-
-    return { id, type };
-  },
+  // This will support IDs like `https://example.com/api/posts/1`, `/api/posts/1`, etc.
+  extractId: (record) => String(record.id).split('/').reverse()[0],
+  extractType: (record) => String(record.id).split('/').reverse()[1],
 });
 ```
+
+:::tip
+
+Notice that if your API follow JSON:API specification, `type` should already be
+present in each record, so you do not need to use
+[`extractType`](/docs/api/@foscia/jsonapi/interfaces/JsonApiDeserializerConfig#extracttype).
+
+:::
 
 ## Reference
 

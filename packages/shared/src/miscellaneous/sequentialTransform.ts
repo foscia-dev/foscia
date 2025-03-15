@@ -1,4 +1,4 @@
-import { Awaitable, Transformer } from '@foscia/shared/types';
+import { Awaitable } from '@foscia/shared/types';
 
 const sequentialTransform: {
   /**
@@ -8,7 +8,7 @@ const sequentialTransform: {
    *
    * @internal
    */
-  (transformers: Transformer<void, Awaitable<void>>[]): Promise<void>;
+  (transformers: ((prev: void) => Awaitable<void>)[]): Promise<void>;
   /**
    * Transform value with async functions sequentially.
    *
@@ -16,9 +16,9 @@ const sequentialTransform: {
    * @param value
    *
    * @internal
-   */<T>(transformers: Transformer<T, Awaitable<T>>[], value: T): Promise<T>;
+   */<T>(transformers: ((prev: T) => Awaitable<T>)[], value: T): Promise<T>;
 } = <T>(
-  transformers: Transformer<T, Awaitable<T>>[],
+  transformers: ((prev: T) => Awaitable<T>)[],
   value?: T,
 ) => transformers.reduce(
   async (prevValue, transformer) => transformer(await prevValue),

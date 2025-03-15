@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import kernel from '@foscia/cli/kernel';
 import c from 'ansi-colors';
 import process from 'node:process';

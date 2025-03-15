@@ -1,21 +1,26 @@
+import isAction from '@foscia/core/actions/checks/isAction';
+import isActionKind from '@foscia/core/actions/checks/isActionKind';
 import isEnhancer from '@foscia/core/actions/checks/isEnhancer';
 import isRunner from '@foscia/core/actions/checks/isRunner';
 import isWhen from '@foscia/core/actions/checks/isWhen';
-import ActionName from '@foscia/core/actions/context/actionName';
-import consumeAction from '@foscia/core/actions/context/consumers/consumeAction';
+import ActionKind from '@foscia/core/actions/context/actionKind';
+import consumeActionKind from '@foscia/core/actions/context/consumers/consumeActionKind';
 import consumeAdapter from '@foscia/core/actions/context/consumers/consumeAdapter';
 import consumeCache from '@foscia/core/actions/context/consumers/consumeCache';
-import consumeContext from '@foscia/core/actions/context/consumers/consumeContext';
 import consumeData from '@foscia/core/actions/context/consumers/consumeData';
 import consumeDeserializer from '@foscia/core/actions/context/consumers/consumeDeserializer';
+import consumeEagerLoads from '@foscia/core/actions/context/consumers/consumeEagerLoads';
 import consumeId from '@foscia/core/actions/context/consumers/consumeId';
-import consumeInclude from '@foscia/core/actions/context/consumers/consumeInclude';
 import consumeInstance from '@foscia/core/actions/context/consumers/consumeInstance';
+import consumeLazyEagerLoadCallback
+  from '@foscia/core/actions/context/consumers/consumeLazyEagerLoadCallback';
+import consumeLoader from '@foscia/core/actions/context/consumers/consumeLoader';
 import consumeModel from '@foscia/core/actions/context/consumers/consumeModel';
 import consumeQueryAs from '@foscia/core/actions/context/consumers/consumeQueryAs';
 import consumeRegistry from '@foscia/core/actions/context/consumers/consumeRegistry';
 import consumeRelation from '@foscia/core/actions/context/consumers/consumeRelation';
 import consumeSerializer from '@foscia/core/actions/context/consumers/consumeSerializer';
+import makeContextConsumer from '@foscia/core/actions/context/consumers/makeContextConsumer';
 import context from '@foscia/core/actions/context/enhancers/context';
 import associate from '@foscia/core/actions/context/enhancers/crud/associate';
 import attach from '@foscia/core/actions/context/enhancers/crud/attach';
@@ -41,7 +46,6 @@ import replaceActionMiddlewares
   from '@foscia/core/actions/context/enhancers/middlewares/replaceActionMiddlewares';
 import query from '@foscia/core/actions/context/enhancers/query';
 import queryAs from '@foscia/core/actions/context/enhancers/queryAs';
-import guessContextModel from '@foscia/core/actions/context/guessers/guessContextModel';
 import all from '@foscia/core/actions/context/runners/all';
 import cached from '@foscia/core/actions/context/runners/cached';
 import cachedOr from '@foscia/core/actions/context/runners/cachedOr';
@@ -53,6 +57,7 @@ import one from '@foscia/core/actions/context/runners/one';
 import oneOr from '@foscia/core/actions/context/runners/oneOr';
 import oneOrFail from '@foscia/core/actions/context/runners/oneOrFail';
 import raw from '@foscia/core/actions/context/runners/raw';
+import resolveContextModels from '@foscia/core/actions/context/utilities/resolveContextModels';
 import when from '@foscia/core/actions/context/when';
 import makeActionFactory from '@foscia/core/actions/makeActionFactory';
 import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
@@ -93,26 +98,30 @@ export {
   appendActionMiddlewares,
   prependActionMiddlewares,
   replaceActionMiddlewares,
-  consumeAction,
+  consumeActionKind,
   consumeAdapter,
   consumeCache,
-  consumeContext,
   consumeData,
   consumeDeserializer,
   consumeId,
-  consumeInclude,
+  consumeEagerLoads,
+  consumeLazyEagerLoadCallback,
   consumeInstance,
   consumeModel,
   consumeQueryAs,
   consumeRegistry,
   consumeRelation,
   consumeSerializer,
-  guessContextModel,
+  consumeLoader,
+  makeContextConsumer,
   makeActionFactory,
   makeEnhancer,
   makeRunner,
+  resolveContextModels,
   isEnhancer,
   isRunner,
   isWhen,
-  ActionName,
+  isAction,
+  isActionKind,
+  ActionKind,
 };

@@ -8,6 +8,7 @@ import sortByDesc from '@foscia/jsonapi/actions/context/enhancers/sortByDesc';
 import usingDocument from '@foscia/jsonapi/actions/context/runners/usingDocument';
 import makeJsonApiAdapter from '@foscia/jsonapi/makeJsonApiAdapter';
 import makeJsonApiDeserializer from '@foscia/jsonapi/makeJsonApiDeserializer';
+import makeJsonApiEagerLoader from '@foscia/jsonapi/makeJsonApiEagerLoader';
 import makeJsonApiSerializer from '@foscia/jsonapi/makeJsonApiSerializer';
 
 export * from '@foscia/jsonapi/types';
@@ -24,4 +25,5 @@ export {
   makeJsonApiAdapter,
   makeJsonApiDeserializer,
   makeJsonApiSerializer,
+  makeJsonApiEagerLoader,
 };

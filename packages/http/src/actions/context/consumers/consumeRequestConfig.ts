@@ -1,4 +1,4 @@
-import { consumeContext } from '@foscia/core';
+import { makeContextConsumer } from '@foscia/core';
 import { ConsumeHttpRequestConfig } from '@foscia/http/types';
 
 /**
@@ -6,8 +6,7 @@ import { ConsumeHttpRequestConfig } from '@foscia/http/types';
  *
  * @param context
  * @param defaultValue
+ *
+ * @internal
  */
-export default <C extends {}, D = never>(
-  context: C & Partial<ConsumeHttpRequestConfig>,
-  defaultValue?: D,
-) => consumeContext(context, 'httpRequestConfig', ['configureRequest'], defaultValue);
+export default /* @__PURE__ */ makeContextConsumer<'httpRequestConfig', ConsumeHttpRequestConfig>('httpRequestConfig');

@@ -20,7 +20,7 @@ describe('integration: endpoint IDs', () => {
 
   const PostMock = makeModel('posts', {
     title: attr(),
-    comments: hasMany(),
+    comments: hasMany('comments'),
   });
 
   const CommentMock = makeModel('comments', {
@@ -30,11 +30,8 @@ describe('integration: endpoint IDs', () => {
   const action = makeActionFactory({
     ...makeRegistry([PostMock, CommentMock]),
     ...makeRestDeserializer({
-      pullIdentifier: (record) => {
-        const [id, type] = String(record.id).split('/').reverse();
-
-        return { id, type };
-      },
+      extractId: (record) => String(record.id).split('/').reverse()[0],
+      extractType: (record) => String(record.id).split('/').reverse()[1],
     }),
     ...makeRestSerializer(),
     ...makeRestAdapter({

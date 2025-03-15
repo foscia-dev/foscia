@@ -27,7 +27,7 @@ export default (hook: 'read' | 'reading'): {
     P extends InferModelSchemaProp<I, K>,
   >(
     model: Model<D, I>,
-    callback: (event: { instance: I; def: P; value?: V[K] }) => unknown,
+    callback: (event: { instance: I; prop: P; value?: V[K] }) => void,
   ): () => void;
   <
     D extends {},
@@ -38,7 +38,7 @@ export default (hook: 'read' | 'reading'): {
   >(
     model: Model<D, I>,
     key: K,
-    callback: (event: { instance: I; def: P; value?: V[K] }) => unknown,
+    callback: (event: { instance: I; prop: P; value?: V[K] }) => void,
   ): () => void;
   <
     C extends ModelComposable,
@@ -47,7 +47,7 @@ export default (hook: 'read' | 'reading'): {
     P extends InferModelSchemaProp<ModelInstanceUsing<C>, K>,
   >(
     composable: ModelComposableFactory<C>,
-    callback: (event: { instance: ModelInstanceUsing<C>; def: P; value?: V[K] }) => unknown,
+    callback: (event: { instance: ModelInstanceUsing<C>; prop: P; value?: V[K] }) => void,
   ): () => void;
   <
     C extends ModelComposable,
@@ -57,7 +57,7 @@ export default (hook: 'read' | 'reading'): {
   >(
     composable: ModelComposableFactory<C>,
     key: K,
-    callback: (event: { instance: ModelInstanceUsing<C>; def: P; value?: V[K] }) => unknown,
+    callback: (event: { instance: ModelInstanceUsing<C>; prop: P; value?: V[K] }) => void,
   ): () => void;
   <
     D extends {},
@@ -66,7 +66,7 @@ export default (hook: 'read' | 'reading'): {
     P extends InferModelSchemaProp<D, K>,
   >(
     factory: ModelFactory<D>,
-    callback: (event: { instance: ModelInstance<D>; def: P; value?: V[K] }) => unknown,
+    callback: (event: { instance: ModelInstance<D>; prop: P; value?: V[K] }) => void,
   ): () => void;
   <
     D extends {},
@@ -76,7 +76,7 @@ export default (hook: 'read' | 'reading'): {
   >(
     factory: ModelFactory<D>,
     key: K,
-    callback: (event: { instance: ModelInstance<D>; def: P; value?: V[K] }) => unknown,
+    callback: (event: { instance: ModelInstance<D>; prop: P; value?: V[K] }) => void,
   ): () => void;
 } => (
   model: any,

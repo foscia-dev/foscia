@@ -1,5 +1,5 @@
-import { Adapter } from '@foscia/core';
-import { Awaitable, Dictionary, Middleware, Transformer } from '@foscia/shared';
+import { Action, Adapter } from '@foscia/core';
+import { Awaitable, Dictionary, Middleware } from '@foscia/shared';
 
 /**
  * The HTTP method to use in request.
@@ -110,7 +110,7 @@ export type ConsumeHttpRequestConfig = {
  *
  * @internal
  */
-export type HttpURLContext = {
+export type HttpEndpointContext = {
   /**
    * Request base URL.
    */
@@ -168,10 +168,10 @@ export type HttpAdapterConfig<Data = any> = {
    * Build the URL using the given contexts.
    * Defaults to `<baseURL><modelPath><idPath><relationPath><additionalPath>` joined with `/`.
    *
-   * @param urlContext
-   * @param context
+   * @param endpoint
+   * @param action
    */
-  buildURL?: (urlContext: HttpURLContext, context: {}) => string;
+  buildURL?: (endpoint: HttpEndpointContext, action: Action) => Awaitable<string>;
   /**
    * Serialize a query params object to a string.
    */
@@ -193,32 +193,32 @@ export type HttpAdapterConfig<Data = any> = {
    */
   defaultResponseReader?: HttpResponseReader<Data>;
   /**
-   * Append query params to request based on context.
+   * Append query params to request based on action.
    * Returned params are **not** merged with other query
    * params, because request params might be a query string.
    *
-   * @param context
+   * @param action
    */
-  appendParams?: (context: {}) => Awaitable<Dictionary<any>>;
+  appendParams?: (action: Action) => Awaitable<Dictionary<any>>;
   /**
-   * Append headers to request based on context.
+   * Append headers to request based on action.
    * Returned headers are merged with other headers.
    *
-   * @param context
+   * @param action
    */
-  appendHeaders?: (context: {}) => Awaitable<Dictionary<string>>;
+  appendHeaders?: (action: Action) => Awaitable<Dictionary<string>>;
   /**
    * Transforms the model path.
    */
-  modelPathTransformer?: Transformer<string>;
+  modelPathTransformer?: (path: string) => string;
   /**
    * Transforms the ID path.
    */
-  idPathTransformer?: Transformer<string>;
+  idPathTransformer?: (path: string) => string;
   /**
    * Transforms the relation path.
    */
-  relationPathTransformer?: Transformer<string>;
+  relationPathTransformer?: (path: string) => string;
   /**
    * Middlewares to affect requests, responses, and errors.
    */

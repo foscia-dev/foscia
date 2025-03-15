@@ -12,29 +12,30 @@ import { SYMBOL_MODEL_COMPOSABLE } from '@foscia/core/symbols';
  *
  * @internal
  */
-export default <C extends ModelComposable, U extends {} = {}>(
+export default <C extends ModelComposable, F extends {} = {}>(
   config: {
-    bind: (composable: C & { factory: ModelComposableFactory<C> & U; }) => void,
+    bind: (composable: C & { factory: ModelComposableFactory<C> & F; }) => void,
     composable?: ModelPendingComposable<C>,
-    properties?: U,
+    factory?: F,
   },
-) => {
+): ModelComposableFactory<C> & F => {
   const factory = {
-    ...config.properties,
+    ...config.factory,
     $FOSCIA_TYPE: SYMBOL_MODEL_COMPOSABLE,
-    bind: ({ parent, key }) => {
+    composable: config.composable ?? {},
+    bind({ parent, key }) {
       const composable: any = {
         factory,
         parent,
         key,
-        ...config.composable,
+        ...this.composable,
       };
 
       config.bind(composable);
 
       return composable;
     },
-  } as ModelComposableFactory<C> & U;
+  } as ModelComposableFactory<C> & F;
 
   return factory;
 };

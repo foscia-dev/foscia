@@ -1,8 +1,8 @@
 import mergeHooks from '@foscia/core/hooks/mergeHooks';
 import { Hookable } from '@foscia/core/hooks/types';
-import applyDefinition from '@foscia/core/model/composition/utilities/applyDefinition';
 import makeComposableFactory from '@foscia/core/model/composition/makeComposableFactory';
 import makeDefinition from '@foscia/core/model/composition/makeDefinition';
+import applyDefinition from '@foscia/core/model/composition/utilities/applyDefinition';
 import {
   ModelComposable,
   ModelComposableFactory,
@@ -81,7 +81,7 @@ const makeComposable: {
     // eslint-disable-next-line no-param-reassign
     composable.parent.$hooks = mergeHooks(composable.parent.$hooks!, composable.factory.$hooks!);
   },
-  properties: {
+  factory: {
     $hooks: {},
   },
 });

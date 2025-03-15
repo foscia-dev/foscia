@@ -1,6 +1,6 @@
 import FosciaError from '@foscia/core/errors/fosciaError';
 import isComposable from '@foscia/core/model/composition/checks/isComposable';
-import isIdDef from '@foscia/core/model/props/checks/isIdDef';
+import isId from '@foscia/core/model/props/checks/isId';
 import { Model, ModelComposable } from '@foscia/core/model/types';
 import { eachDescriptors } from '@foscia/shared';
 
@@ -21,7 +21,7 @@ export default (
     composable = descriptor.value.bind({ parent, key });
   }
 
-  if ((key === 'id' || key === 'lid') && !isIdDef(composable)) {
+  if ((key === 'id' || key === 'lid') && !isId(composable)) {
     throw new FosciaError(
       `\`id\` and \`lid\` must be defined with \`id()\` factory (found \`${key}\`).`,
     );

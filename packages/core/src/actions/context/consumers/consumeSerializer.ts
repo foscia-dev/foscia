@@ -1,6 +1,5 @@
-import consumeContext from '@foscia/core/actions/context/consumers/consumeContext';
+import makeContextConsumer from '@foscia/core/actions/context/consumers/makeContextConsumer';
 import { ConsumeSerializer } from '@foscia/core/actions/types';
-import { value } from '@foscia/shared';
 
 /**
  * Retrieve the serializer from a context.
@@ -8,7 +7,4 @@ import { value } from '@foscia/shared';
  * @param context
  * @param defaultValue
  */
-export default <C extends {}, Record, Related, Data, D = never>(
-  context: C & Partial<ConsumeSerializer<Record, Related, Data>>,
-  defaultValue?: D,
-) => value(consumeContext(context, 'serializer', ['context'], defaultValue));
+export default /* @__PURE__ */ makeContextConsumer<'serializer', ConsumeSerializer>('serializer');

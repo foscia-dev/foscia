@@ -9,9 +9,7 @@ import {
   dissociate,
   fill,
   include,
-  loaded,
-  makeQueryRelationLoader,
-  makeRefreshIncludeLoader,
+  load,
   markSynced,
   none,
   one,
@@ -134,7 +132,7 @@ describe('integration: JSON:API', () => {
     const data = await action(
       query(PostMock),
       include('comments'),
-      fields('title', 'comments'),
+      fields(['title', 'comments']),
       fieldsFor(CommentMock, ['body']),
       filterBy('search', 'foo bar'),
       when(true, (a) => a(filterBy('search2', 'bar foo'))),
@@ -565,14 +563,14 @@ describe('integration: JSON:API', () => {
     expect(request.method).toStrictEqual('PATCH');
     expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
     expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
-    expect(await request.text()).toStrictEqual(JSON.stringify({
+    expect(await request.json()).toStrictEqual({
       data: {
         type: 'posts',
         id: '1',
         attributes: { body: 'Bar Body' },
         relationships: {},
       },
-    }));
+    });
 
     expect(notChangedMock).toHaveBeenCalledOnce();
 
@@ -723,7 +721,7 @@ describe('integration: JSON:API', () => {
 
     const [post, comment] = await action()
       .use(
-        queryAs(PostMock, CommentMock),
+        queryAs([PostMock, CommentMock]),
         makeGet('global-search', { params: { search: 'foo' } }),
       )
       .run(all());
@@ -740,108 +738,6 @@ describe('integration: JSON:API', () => {
     expect((post as PostMock).title).toStrictEqual('Foo');
     expect(comment).toBeInstanceOf(CommentMock);
     expect((comment as CommentMock).body).toStrictEqual('Foo bar');
-  });
-
-  it('should load relations with refresh', async () => {
-    const fetchMock = createFetchMock();
-    fetchMock.mockImplementationOnce(createFetchResponse().json({
-      data: [
-        {
-          type: 'posts',
-          id: '2',
-          relationships: {
-            comments: { data: [{ type: 'comments', id: '1' }, { type: 'comments', id: '2' }] },
-          },
-        },
-        {
-          type: 'posts',
-          id: '1',
-          relationships: {
-            comments: { data: [{ type: 'comments', id: '3' }] },
-          },
-        },
-      ],
-      included: [
-        {
-          type: 'comments',
-          id: '1',
-          attributes: { body: 'Foo Comment' },
-        },
-        {
-          type: 'comments',
-          id: '2',
-          attributes: { body: 'Bar Comment' },
-        },
-        {
-          type: 'comments',
-          id: '3',
-          attributes: { body: 'Baz Comment' },
-        },
-      ],
-    }));
-
-    const action = makeJsonApiActionMock();
-    const loadWithRefresh = makeRefreshIncludeLoader(action, {
-      prepare: (a, { instances }) => a.use(filterBy('ids', instances.map((i) => i.id))),
-    });
-
-    const post1 = fill(new PostMock(), { id: '1' });
-    const post2 = fill(new PostMock(), { id: '2' });
-
-    await loadWithRefresh([post1, post2], 'comments');
-
-    expect(fetchMock).toHaveBeenCalledOnce();
-    const request = fetchMock.mock.calls[0][0] as Request;
-    expect(request.url).toStrictEqual('https://example.com/api/v1/posts?filter%5Bids%5D%5B%5D=1&filter%5Bids%5D%5B%5D=2&include=comments');
-    expect(request.method).toStrictEqual('GET');
-    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
-    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
-    expect(request.body).toBeNull();
-
-    expect(post1.comments.length).toStrictEqual(1);
-    expect(post1.comments[0].id).toStrictEqual('3');
-    expect(post2.comments.length).toStrictEqual(2);
-    expect(post2.comments[0].id).toStrictEqual('1');
-    expect(post2.comments[1].id).toStrictEqual('2');
-  });
-
-  it('should load relations with refresh exclude loaded', async () => {
-    const fetchMock = createFetchMock();
-    fetchMock.mockImplementationOnce(createFetchResponse().json({
-      data: [
-        {
-          type: 'posts',
-          id: '1',
-          relationships: {
-            comments: { data: [] },
-          },
-        },
-      ],
-      included: [],
-    }));
-
-    const action = makeJsonApiActionMock();
-    const loadWithRefresh = makeRefreshIncludeLoader(action, {
-      prepare: (a, { instances }) => a.use(filterBy('ids', instances.map((i) => i.id))),
-      exclude: loaded,
-    });
-
-    const post1 = fill(new PostMock(), { id: '1' });
-    const post2 = fill(new PostMock(), { id: '2', comments: [] });
-    post2.$loaded.comments = true;
-
-    await loadWithRefresh([post1, post2], 'comments');
-
-    expect(fetchMock).toHaveBeenCalledOnce();
-    const request = fetchMock.mock.calls[0][0] as Request;
-    expect(request.url).toStrictEqual('https://example.com/api/v1/posts?filter%5Bids%5D%5B%5D=1&include=comments');
-    expect(request.method).toStrictEqual('GET');
-    expect(request.headers.get('Accept')).toStrictEqual('application/vnd.api+json');
-    expect(request.headers.get('Content-Type')).toStrictEqual('application/vnd.api+json');
-    expect(request.body).toBeNull();
-
-    expect(post1.comments.length).toStrictEqual(0);
-    expect(post2.comments.length).toStrictEqual(0);
   });
 
   it('should load relations with relation query', async () => {
@@ -861,13 +757,12 @@ describe('integration: JSON:API', () => {
       ],
     }));
 
-    const action = makeJsonApiActionMock();
-    const loadWithQuery = makeQueryRelationLoader(action);
+    makeJsonApiActionMock();
 
     const post = fill(new PostMock(), { id: '1' });
     post.$exists = true;
 
-    await loadWithQuery(post, 'comments');
+    await load(post, 'comments');
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const request = fetchMock.mock.calls[0][0] as Request;

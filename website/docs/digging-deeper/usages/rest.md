@@ -57,7 +57,9 @@ to map types and models, and support circular models relations.
 Just like with the HTTP adapter, you can run custom HTTP requests when your
 data source provides non-standard features.
 This provides many possibilities, such as retrieving models instances from
-a global search endpoint. In combination with 
+a global search endpoint. In combination with polymorphism implementation
+on your data source, [`queryAs`](/docs/api/@foscia/core/functions/queryAs)
+will help Foscia resolves your models.
 
 ```typescript
 import { queryAs, all } from '@foscia/core';
@@ -223,6 +225,14 @@ makeRestDeserializer({
 });
 ```
 
+:::tip
+
+You can also change the key serialization globally using model's
+[`guessAlias`](/docs/digging-deeper/models/models-configuration#guessalias)
+configuration option.
+
+:::
+
 ### Customizing relation serialized data
 
 By default, REST implementation will only serialize the related IDs as the
@@ -284,22 +294,20 @@ option which have the same signature.
 
 ### Parsing URL IDs
 
-Some API implementation may serialize records IDs as URL to the record endpoint
+Some API implementation may serialize records IDs as the record endpoint's URL
 (such as `https://example.com/api/posts/1` for post `1`). You can customize
-the deserializer to support ID and type extraction from URL ID using the
-[`pullIdentifier`](/docs/api/@foscia/rest/interfaces/RestDeserializerConfig#pullidentifier)
-option.
+the deserializer to support ID and type extraction from URL ID using
+[`extractId`](/docs/api/@foscia/rest/interfaces/RestDeserializerConfig#extractid)
+and [`extractType`](/docs/api/@foscia/rest/interfaces/RestDeserializerConfig#extracttype)
+options.
 
 ```typescript
 import { makeRestDeserializer } from '@foscia/rest';
 
 makeRestDeserializer({
-  pullIdentifier: (record) => {
-    // This will support IDs like `https://example.com/api/posts/1`, `/api/posts/1`, etc.
-    const [id, type] = String(record.id).split('/').reverse();
-
-    return { id, type };
-  },
+  // This will support IDs like `https://example.com/api/posts/1`, `/api/posts/1`, etc.
+  extractId: (record) => String(record.id).split('/').reverse()[0],
+  extractType: (record) => String(record.id).split('/').reverse()[1],
 });
 ```
 

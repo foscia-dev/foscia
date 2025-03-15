@@ -1,8 +1,5 @@
-import deserializeInstances, {
-  RetypedDeserializedData,
-} from '@foscia/core/actions/context/utilities/deserializeInstances';
-import executeContextThroughAdapter
-  from '@foscia/core/actions/context/utilities/executeContextThroughAdapter';
+import consumeAdapter from '@foscia/core/actions/context/consumers/consumeAdapter';
+import consumeDeserializer from '@foscia/core/actions/context/consumers/consumeDeserializer';
 import {
   Action,
   ConsumeAdapter,
@@ -13,6 +10,15 @@ import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import { ModelInstance } from '@foscia/core/model/types';
 import { DeserializedData } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
+
+/**
+ * Deserialized data with a strongly retyped instances array.
+ *
+ * @internal
+ */
+export type RetypedDeserializedData<DD extends DeserializedData, I extends ModelInstance> = {
+  instances: I[];
+} & Omit<DD, 'instances'>;
 
 /**
  * Data retrieved with {@link all | `all`} which can be transformed
@@ -55,15 +61,13 @@ export default /* @__PURE__ */ makeRunner('all', <
     data: AllData<Data, RetypedDeserializedData<Deserialized, I>, I>,
   ) => Awaitable<Next>,
 ) => async (
-  // eslint-disable-next-line max-len
-  action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<NonNullable<Data>, Deserialized>>,
+  action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>>,
 ) => {
-  const context = await action.useContext();
-  const response = await executeContextThroughAdapter(context);
+  const response = await (await consumeAdapter(action)).execute(action);
   const data = await response.read();
-  const deserialized = await deserializeInstances(
-    context,
+  const deserialized = await (await consumeDeserializer(action)).deserialize(
     data,
+    action,
   ) as RetypedDeserializedData<Deserialized, I>;
 
   return (

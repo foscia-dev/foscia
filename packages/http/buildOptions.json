@@ -1,8 +1,0 @@
-{
-  "name": "FosciaHttp",
-  "formats": [
-    "esm",
-    "cjs",
-    "global"
-  ]
-}

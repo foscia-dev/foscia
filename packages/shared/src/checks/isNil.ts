@@ -5,5 +5,4 @@
  *
  * @internal
  */
-export default (value: unknown): value is undefined | null => value === undefined
-  || value === null;
+export default (value: unknown): value is undefined | null => value === undefined || value === null;

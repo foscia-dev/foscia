@@ -1,15 +1,18 @@
+import mergeEnhancers from '@foscia/core/actions/context/utilities/mergeEnhancers';
+import parseConnectionType from '@foscia/core/connections/parseConnectionType';
 import makeDefinition from '@foscia/core/model/composition/makeDefinition';
 import makeModelClass from '@foscia/core/model/makeModelClass';
 import id from '@foscia/core/model/props/id';
 import {
+  Model,
   ModelConfig,
   ModelFactory,
+  ModelFactoryRawConfig,
   ModelInstance,
   ModelParsedFlattenDefinition,
 } from '@foscia/core/model/types';
 import cloneModelValue from '@foscia/core/model/utilities/cloneModelValue';
 import compareModelValues from '@foscia/core/model/utilities/compareModelValues';
-import { using } from '@foscia/shared';
 
 /**
  * Create a model factory.
@@ -31,35 +34,41 @@ import { using } from '@foscia/shared';
  * ```
  */
 export default <D extends {} = {}>(
-  baseConfig?: Partial<ModelConfig>,
+  // eslint-disable-next-line max-len
+  baseConfig?: Partial<ModelConfig<Model<ModelParsedFlattenDefinition<D>, ModelInstance<ModelParsedFlattenDefinition<D>>>>>,
   baseRawDefinition?: D & ThisType<ModelInstance<ModelParsedFlattenDefinition<D>>>,
 ) => {
-  const parseConfig = (rawConfig: string | (Partial<ModelConfig> & { type: string; })) => (
-    typeof rawConfig === 'string'
-      ? using(
-        rawConfig.split(':').reverse(),
-        ([type, connection]) => ({ type, connection }),
-      )
-      : rawConfig
-  );
+  const parseConfig = (
+    rawConfig: ModelFactoryRawConfig,
+  ): Partial<ModelConfig> & { type: string; connection?: string; } => {
+    if (typeof rawConfig === 'string') {
+      const [connection, type] = parseConnectionType(rawConfig);
+
+      return { type, connection };
+    }
+
+    return rawConfig;
+  };
 
   const factory = (
-    rawConfig: string | (Partial<ModelConfig> & { type: string; }),
+    rawConfig: ModelFactoryRawConfig,
     rawDefinition?: object,
-  ) => using(
-    parseConfig(rawConfig),
-    ({ type, ...config }) => makeModelClass(type, {
+  ) => {
+    const { connection, type, ...config } = parseConfig(rawConfig);
+
+    return makeModelClass(connection ?? 'default', type, {
       compareSnapshotValues: compareModelValues,
       cloneSnapshotValue: cloneModelValue,
       ...baseConfig,
       ...config,
-    }, factory.$hooks, {
+      query: mergeEnhancers(baseConfig?.query, config.query) ?? undefined,
+    } as ModelConfig, factory.$hooks, {
       id: id(),
       lid: id(),
       ...makeDefinition(baseRawDefinition),
       ...makeDefinition(rawDefinition),
-    }),
-  );
+    });
+  };
 
   factory.$hooks = {};
 

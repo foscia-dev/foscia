@@ -1,14 +1,18 @@
-import { FosciaError } from '@foscia/core';
+import { Action, FosciaError } from '@foscia/core';
 import consumeRequestConfig from '@foscia/http/actions/context/consumers/consumeRequestConfig';
-import { Dictionary, tap } from '@foscia/shared';
 
 /**
  * Consume object params. Will throw an exception if string params are configured.
  *
- * @param context
+ * @param action
+ *
+ * @internal
  */
-export default (context: {}) => tap(consumeRequestConfig(context, null)?.params, (params) => {
-  if (typeof params === 'string') {
-    throw new FosciaError('Object and string URL params cannot be merged in action context.');
+export default async (action: Action) => {
+  const params = (await consumeRequestConfig(action, null))?.params;
+  if (typeof params !== 'string') {
+    return params;
   }
-}) as Dictionary<any> | undefined;
+
+  throw new FosciaError('Object and string URL params cannot be merged in action context.');
+};

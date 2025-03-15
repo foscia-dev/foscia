@@ -3,6 +3,7 @@
  *
  * @group Errors
  */
+// TODO Introduce an error `code` with a reference?
 export default class FosciaError extends Error {
   /**
    * Construct a new FosciaError. Prefix the given message with "[foscia]".

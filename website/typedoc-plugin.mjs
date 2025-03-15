@@ -3,11 +3,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { MarkdownPageEvent } from 'typedoc-plugin-markdown';
-import { useRootDirname } from '../scripts/utils.js';
 
-const rootDirname = useRootDirname();
-const lockSvg = fs.readFileSync(path.resolve(rootDirname, './website/src/icons/lock.svg'));
-const flaskSvg = fs.readFileSync(path.resolve(rootDirname, './website/src/icons/flask.svg'));
+const lockSvg = fs.readFileSync(path.resolve('./src/icons/lock.svg'));
+const flaskSvg = fs.readFileSync(path.resolve('./src/icons/flask.svg'));
 
 /**
  * @param {import('typedoc-plugin-markdown').MarkdownApplication} app

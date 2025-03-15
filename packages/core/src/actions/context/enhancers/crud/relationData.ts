@@ -1,7 +1,7 @@
 import context from '@foscia/core/actions/context/enhancers/context';
 import serializeRelation from '@foscia/core/actions/context/utilities/serializeRelation';
-import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { ModelInstance, ModelRelationKey } from '@foscia/core/model/types';
 
 /**
@@ -26,7 +26,7 @@ export default /* @__PURE__ */ makeEnhancer('relationData', <
   action: Action<C & ConsumeSerializer<Record, Related, Data>>,
 ) => action(context({
   data: await serializeRelation(
-    await action.useContext(),
+    action,
     instance,
     key,
     instance[key],

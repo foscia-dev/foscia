@@ -1,13 +1,17 @@
-import { isAttributeDef, ModelIdType } from '@foscia/core';
+import { isId, isRelation } from '@foscia/core';
 import {
   JsonApiNewResource,
   JsonApiResourceIdentifier,
   JsonApiSerializerConfig,
 } from '@foscia/jsonapi/types';
-import { makeSerializer, makeSerializerRecordFactory } from '@foscia/serialization';
-import { Arrayable, isNil, Optional } from '@foscia/shared';
+import {
+  makeSerializer,
+  makeSerializerRecordFactory,
+  shouldSerialize,
+} from '@foscia/serialization';
+import { Arrayable, isNil } from '@foscia/shared';
 
-const serializeId = (id: Optional<ModelIdType>) => (isNil(id) ? undefined : String(id));
+const serializeId = (id: unknown) => (isNil(id) ? undefined : String(id));
 
 /**
  * Make a JSON:API serializer object.
@@ -27,20 +31,25 @@ export default <
   createRecord: makeSerializerRecordFactory(
     (snapshot) => ({
       type: snapshot.$instance.$model.$type,
-      id: serializeId(snapshot.$values.id),
-      lid: serializeId(snapshot.$values.lid),
       attributes: {},
       relationships: {},
     } as Record),
-    (record, { def, key, value }) => {
-      if (isAttributeDef(def)) {
+    (record, { prop, key, value }) => {
+      if (isId(prop)) {
         // eslint-disable-next-line no-param-reassign
-        record.attributes![key] = value;
-      } else {
+        record[prop.key as 'id' | 'lid'] = serializeId(value);
+      } else if (isRelation(prop)) {
         // eslint-disable-next-line no-param-reassign
         record.relationships![key] = { data: value as any };
+      } else {
+        // eslint-disable-next-line no-param-reassign
+        record.attributes![key] = value;
       }
     },
+  ),
+  shouldSerialize: async (context) => (
+    isId(context.prop)
+    || await shouldSerialize(context)
   ),
   serializeRelation: (_, related) => ({
     type: related.$instance.$model.$type,

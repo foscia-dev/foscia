@@ -1,4 +1,4 @@
-import isRelationDef from '@foscia/core/model/props/checks/isRelationDef';
+import isRelation from '@foscia/core/model/props/checks/isRelation';
 import mapProps from '@foscia/core/model/props/mappers/mapProps';
 import { Model, ModelRelation } from '@foscia/core/model/types';
 
@@ -12,9 +12,9 @@ import { Model, ModelRelation } from '@foscia/core/model/types';
  */
 export default <M extends Model, R>(
   model: M,
-  callback: (def: ModelRelation) => R,
+  callback: (prop: ModelRelation) => R,
 ) => mapProps(
   model,
   callback as any,
-  isRelationDef,
+  isRelation,
 );

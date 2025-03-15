@@ -1,15 +1,9 @@
-import makeValuePropFactory from '@foscia/core/model/props/utilities/makeValuePropFactory';
-import parseValuePropConfig from '@foscia/core/model/props/utilities/parseValuePropConfig';
-import {
-  ModelAttribute,
-  ModelAttributeFactory,
-  ModelAttributeFactoryConfig,
-  ModelPendingProp,
-} from '@foscia/core/model/types';
+import makeAttributeFactory from '@foscia/core/model/props/utilities/makeAttributeFactory';
+import { ModelAttributeFactory, ModelAttributeFactoryConfig } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_PROP_KIND_ATTRIBUTE } from '@foscia/core/symbols';
 import { ObjectTransformer } from '@foscia/core/transformers/types';
 
-const attr: {
+export default /* @__PURE__ */ makeAttributeFactory(SYMBOL_MODEL_PROP_KIND_ATTRIBUTE) as {
   /**
    * Create an attribute property factory.
    *
@@ -20,12 +14,86 @@ const attr: {
    * import { attr } from '@foscia/core';
    *
    * attr<string>();
+   * attr({ default: '' });
+   * ```
+   */<T>(
+    config?: Omit<ModelAttributeFactoryConfig<T, boolean>, 'readOnly'>,
+  ): ModelAttributeFactory<T, false>;
+  /**
+   * Create an attribute property factory.
+   *
+   * @category Factories
+   *
+   * @example
+   * ```typescript
+   * import { attr } from '@foscia/core';
+   *
+   * attr<string>({ readOnly: true });
+   * attr({ default: '', readOnly: true });
+   * ```
+   */<T>(
+    config: Omit<ModelAttributeFactoryConfig<T, boolean>, 'readOnly'> & { readOnly: true; },
+  ): ModelAttributeFactory<T, true>;
+  /**
+   * Create an attribute property factory.
+   *
+   * @category Factories
+   *
+   * @example
+   * ```typescript
+   * import { attr } from '@foscia/core';
+   *
+   * attr({ default: '', nullable: true });
+   * ```
+   */<T>(
+    config: Omit<ModelAttributeFactoryConfig<T, boolean>, 'readOnly'> & { nullable: true; },
+  ): ModelAttributeFactory<T | null, false>;
+  /**
+   * Create an attribute property factory.
+   *
+   * @category Factories
+   *
+   * @example
+   * ```typescript
+   * import { attr } from '@foscia/core';
+   *
+   * attr<string>({ nullable: true, readOnly: true });
+   * ```
+   */<T>(
+    config: Omit<ModelAttributeFactoryConfig<T, boolean>, 'readOnly'> & {
+      readOnly: true; nullable: true;
+    },
+  ): ModelAttributeFactory<T | null, true>;
+  /**
+   * Create an attribute property factory.
+   *
+   * @category Factories
+   *
+   * @example
+   * ```typescript
+   * import { attr } from '@foscia/core';
+   *
    * attr('', { readOnly: true });
    * ```
    */<T, R extends boolean = false>(
-    defaultValue?: (T extends object ? never : T) | (() => T),
+    defaultValue: (T extends object ? never : T) | (() => T),
     config?: Omit<ModelAttributeFactoryConfig<T, R>, 'default'>,
   ): ModelAttributeFactory<T, R>;
+  /**
+   * Create an attribute property factory.
+   *
+   * @category Factories
+   *
+   * @example
+   * ```typescript
+   * import { attr } from '@foscia/core';
+   *
+   * attr('', { nullable: true, readOnly: true });
+   * ```
+   */<T, R extends boolean = false>(
+    defaultValue: (T extends object ? never : T) | (() => T),
+    config: Omit<ModelAttributeFactoryConfig<T, R>, 'default'> & { nullable: true; },
+  ): ModelAttributeFactory<T | null, R>;
   /**
    * Create an attribute property factory.
    *
@@ -42,14 +110,20 @@ const attr: {
     transformer: ObjectTransformer<T | null, any, any>,
     config?: Omit<ModelAttributeFactoryConfig<T, R>, 'transformer'>,
   ): ModelAttributeFactory<T, R>;
-} = <T>(
-  config?: ObjectTransformer<T | null> | T | (() => T),
-  otherConfig?: ModelAttributeFactoryConfig<T, boolean>,
-) => makeValuePropFactory({
-  $VALUE_PROP_TYPE: SYMBOL_MODEL_PROP_KIND_ATTRIBUTE,
-  ...parseValuePropConfig(config, otherConfig),
-} as ModelPendingProp<ModelAttribute>, {
-  transform: (transformer: ObjectTransformer<unknown>) => ({ transformer }),
-}) as ModelAttributeFactory<T, boolean>;
-
-export default attr;
+  /**
+   * Create an attribute property factory.
+   *
+   * @category Factories
+   *
+   * @example
+   * ```typescript
+   * import { attr, toString, toDateTime } from '@foscia/core';
+   *
+   * attr(toString(), { nullable: true });
+   * attr(toDateTime(), { nullable: true, readOnly: true });
+   * ```
+   */<T, R extends boolean = false>(
+    transformer: ObjectTransformer<T | null, any, any>,
+    config: Omit<ModelAttributeFactoryConfig<T, R>, 'transformer'> & { nullable: true },
+  ): ModelAttributeFactory<T | null, R>;
+};

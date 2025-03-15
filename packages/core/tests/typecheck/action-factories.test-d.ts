@@ -10,6 +10,6 @@ test('Action factories are type safe', async () => {
   const action = actionFactory();
   const context = await action.useContext();
 
-  expectTypeOf(context.registry).toMatchTypeOf<ModelsRegistry>();
-  expectTypeOf(context.cache).toMatchTypeOf<InstancesCache>();
+  expectTypeOf(context.registry).toEqualTypeOf<ModelsRegistry>();
+  expectTypeOf(context.cache).toEqualTypeOf<InstancesCache>();
 });

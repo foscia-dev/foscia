@@ -1,4 +1,4 @@
-import { Arrayable, Awaitable, Dictionary } from '@foscia/shared';
+import { Arrayable, AwaitableVoid, Dictionary } from '@foscia/shared';
 
 /**
  * Synchronous hook callback.
@@ -12,7 +12,7 @@ export type SyncHookCallback<E> = (event: E) => void;
  *
  * @internal
  */
-export type HookCallback<E> = (event: E) => Awaitable<void>;
+export type HookCallback<E> = (event: E) => AwaitableVoid;
 
 /**
  * Hooks definition object.

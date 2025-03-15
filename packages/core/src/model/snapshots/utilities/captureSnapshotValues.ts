@@ -1,6 +1,6 @@
-import isRelationDef from '@foscia/core/model/props/checks/isRelationDef';
+import isRelation from '@foscia/core/model/props/checks/isRelation';
 import { ModelInstance, ModelLimitedSnapshot, ModelSnapshot } from '@foscia/core/model/types';
-import { Arrayable, isNil, mapWithKeys, using } from '@foscia/shared';
+import { Arrayable, isNil, mapWithKeys } from '@foscia/shared';
 
 const captureSnapshotRelation = (
   instance: ModelInstance,
@@ -23,14 +23,14 @@ const captureSnapshotValue = (
     related: ModelInstance,
     parent: ModelInstance,
   ) => ModelSnapshot | ModelLimitedSnapshot,
-) => using(
-  instance.$model.$config.cloneSnapshotValue(value),
-  (clone) => using(instance.$model.$schema[key], (def) => (
-    isRelationDef(def) && !isNil(clone)
-      ? captureSnapshotRelation(instance, clone as Arrayable<ModelInstance>, takeSnapshot)
-      : clone
-  )),
-);
+) => {
+  const clonedValue = instance.$model.$config.cloneSnapshotValue(value);
+  const prop = instance.$model.$schema[key];
+
+  return isRelation(prop) && !isNil(clonedValue)
+    ? captureSnapshotRelation(instance, clonedValue as Arrayable<ModelInstance>, takeSnapshot)
+    : clonedValue;
+};
 
 export default (
   instance: ModelInstance,
@@ -41,10 +41,11 @@ export default (
   only?: string[],
 ) => mapWithKeys(
   instance.$values,
-  (value, key) => (
-    !only || only.indexOf(key) !== -1 ? using(
-      captureSnapshotValue(instance, key, value, takeSnapshot),
-      (snapshot) => (snapshot !== undefined ? { [key]: snapshot } : {}),
-    ) : {}
-  ),
+  (value, key) => {
+    const snapshotValue = !only || only.indexOf(key) !== -1
+      ? captureSnapshotValue(instance, key, value, takeSnapshot)
+      : undefined;
+
+    return snapshotValue !== undefined ? { [key]: snapshotValue } : {};
+  },
 );

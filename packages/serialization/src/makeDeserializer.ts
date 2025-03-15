@@ -1,9 +1,12 @@
 import {
+  Action,
+  aliasPropKey,
   attachRelationInverse,
-  consumeAction,
+  consumeActionKind,
   consumeCache,
   consumeId,
   consumeInstance,
+  consumeLazyEagerLoadCallback,
   consumeModel,
   consumeQueryAs,
   consumeRegistry,
@@ -11,15 +14,15 @@ import {
   DeserializedData,
   DeserializerError,
   forceFill,
-  guessContextModel,
+  isRelation,
   isSame,
-  mapAttributes,
-  mapRelations,
   markSynced,
-  ModelAttribute,
+  Model,
   ModelInstance,
+  ModelProp,
   ModelRelation,
-  normalizeKey,
+  resolveConnectionName,
+  resolveContextModels,
   runHooks,
   shouldSync,
 } from '@foscia/core';
@@ -34,12 +37,10 @@ import {
 } from '@foscia/serialization/types';
 import {
   type Arrayable,
-  Awaitable,
   isNil,
-  isNone,
-  makeIdentifiersMap,
   mapArrayable,
-  using,
+  multimapGet,
+  multimapSet,
   wrap,
 } from '@foscia/shared';
 
@@ -61,129 +62,50 @@ export default <
 >(config: RecordDeserializerConfig<Record, Data, Deserialized, Extract>) => {
   const NON_IDENTIFIED_LOCAL_ID = '__foscia_non_identified_local_id__';
 
-  const makeModelIdentifier = async (
-    record: DeserializerRecord<Record, Data, Deserialized>,
-    context: {},
-  ): Promise<DeserializerModelIdentifier> => {
-    const identifier = { ...record.identifier };
+  let deserializer: RecordDeserializer<Record, Data, Deserialized, Extract>;
 
-    // Try to resolve the model directly from the type when possible.
-    // This will provide support for polymorphism and registry based
-    // actions.
-    const registry = await consumeRegistry(context, null);
-    if (registry && !isNil(identifier.type)) {
-      const model = await registry.modelFor(identifier.type);
-      if (model) {
-        return { ...identifier, type: model.$type, model };
-      }
-    }
-
-    // When no registry is configured or identifier type was not retrieved,
-    // we'll try to resolve the model from the context.
-    // This will also ensure guessed model type matches deserializing record.
-    const guessedModel = await guessContextModel({
-      queryAs: consumeQueryAs(context, null),
-      model: (record.parent?.instance.$model ?? consumeModel(context, null)),
-      relation: record.parent?.def ?? consumeRelation(context, null),
-      registry,
-      ensureType: identifier.type,
-    });
-
-    if (!guessedModel) {
-      if (isNil(identifier.type)) {
-        throw new DeserializerError(`
-No alternative found to resolve model of resource with ID \`${identifier.id}\`.
-You should either:
-  - Query a model/instance/relation using \`query\` enhancer.
-  - Define explicit related model/type on your relations.
-  - Define a registry to hold types to models mapping.
-  - Manage type extraction in the deserialization process.
-`.trim());
-      }
-
-      throw new DeserializerError(`
-No alternative found to resolve model of resource with ID \`${identifier.id}\` and type \`${identifier.type}\`.
-You should either:
-  - Query a model/instance/relation using \`query\` enhancer.
-  - Define explicit related model/type on your relations.
-  - Define a registry to hold types to models mapping.
-`.trim());
-    }
-
-    return { ...identifier, type: identifier.type ?? guessedModel.$type, model: guessedModel };
-  };
-
-  const findInstance = async (
-    identifier: DeserializerModelIdentifier,
-    context: {},
-  ) => using(await consumeCache(context, null), (cache) => (
-    cache && !isNil(identifier.id)
-      ? cache.find(identifier.model.$type, identifier.id)
-      : using(consumeInstance(context, null), (instance) => (
-        instance
-        && identifier.id === instance.id
-        && identifier.model.$type === instance.$model.$type
-          ? instance
-          : null
-      ))
-  ));
-
-  const findOrMakeInstance = async (
-    identifier: DeserializerModelIdentifier,
-    context: {},
-  ): Promise<ModelInstance> => (
-    // eslint-disable-next-line new-cap
-    await findInstance(identifier, context) ?? new identifier.model()
-  );
-
-  const shouldDeserialize = async (context: DeserializerContext<Record, Data, Deserialized>) => (
-    shouldSync(context.def, 'pull')
-    && context.value !== undefined
-    && await (config.shouldDeserialize ?? (() => true))(context)
+  const shouldDeserialize = async (
+    context: DeserializerContext<Record, Data, Deserialized, Extract>,
+  ) => (
+    shouldSync(context.prop, 'pull')
+    && await (config.shouldDeserialize ?? (() => context.value !== undefined))(context)
   );
 
   const deserializeKey = config.deserializeKey
-    ?? ((context) => normalizeKey(context.instance.$model, context.def.key));
+    ?? ((context) => aliasPropKey(context.prop));
 
   const deserializeAttributeValue = config.deserializeAttribute
-    ?? ((context) => (context.def.transformer?.deserialize ?? ((v) => v))(context.value));
+    ?? ((context) => (context.prop.transformer?.deserialize ?? ((v) => v))(context.value));
 
   const deserializeRelated = config.deserializeRelated
     ?? ((context, related, instancesMap) => context.deserializer.deserializeRecord(
       related,
-      context.context,
+      context.action,
       instancesMap,
     ));
 
   const deserializeRelationValue = async (
-    context: DeserializerContext<Record, Data, Deserialized, ModelRelation>,
+    context: DeserializerContext<Record, Data, Deserialized, Extract, ModelRelation>,
     instancesMap: DeserializerInstancesMap,
   ) => mapArrayable(context.value, (related) => deserializeRelated(
     context,
-    related as DeserializerRecord<Record, Data, Deserialized>,
+    related as DeserializerRecord<Record, Data, Deserialized, Extract>,
     instancesMap,
   ));
 
-  let deserializer: RecordDeserializer<Record, Data, Deserialized>;
-
-  const makeInstancesMapIdentifier = (identifier: DeserializerModelIdentifier) => (
-    identifier.id ?? identifier.lid ?? NON_IDENTIFIED_LOCAL_ID
-  );
-
-  const makeInstancesMap = (): DeserializerInstancesMap => makeIdentifiersMap();
-
-  const makeDeserializerContext = async <Def extends ModelAttribute | ModelRelation, Value>(
+  const makeDeserializerContext = async <Prop extends ModelProp | ModelRelation>(
     instance: ModelInstance,
-    def: Def,
-    pull: (context: DeserializerContext<Record, Data, Deserialized, Def>) => Awaitable<Value>,
-    context: {},
+    prop: Prop,
+    record: DeserializerRecord<Record, Data, Deserialized, Extract>,
+    action: Action,
   ) => {
     const deserializerContext = {
       instance,
-      def,
-      key: def.key,
-      value: instance[def.key],
-      context,
+      prop,
+      key: prop.key,
+      value: instance[prop.key],
+      action,
+      extract: record.extract,
       deserializer,
     };
 
@@ -192,15 +114,102 @@ You should either:
     return {
       ...deserializerContext,
       key,
-      value: await pull({ ...deserializerContext, key }),
+      value: await record.pull({ ...deserializerContext, key }),
     };
   };
 
+  const makeModelIdentifier = async (
+    record: DeserializerRecord<Record, Data, Deserialized, Extract>,
+    action: Action,
+  ): Promise<DeserializerModelIdentifier> => {
+    const deserializeId = async (FoundModel: Model, key: 'id' | 'lid') => {
+      const deserializerContext = await makeDeserializerContext(
+        new FoundModel(),
+        FoundModel.$schema[key],
+        record,
+        action,
+      );
+
+      return await shouldDeserialize(deserializerContext)
+        ? deserializeAttributeValue(deserializerContext)
+        : undefined;
+    };
+
+    const fullFillIdentifier = async (model: Model) => ({
+      model,
+      id: await deserializeId(model, 'id'),
+      lid: await deserializeId(model, 'lid'),
+    });
+
+    // Try to resolve the model directly from the type when possible.
+    // This will provide support for polymorphism and registry based
+    // actions.
+    const registry = await consumeRegistry(action, null);
+    if (registry && !isNil(record.type)) {
+      const model = await registry.resolve(`${await resolveConnectionName(action)}:${record.type}`);
+      if (model) {
+        return fullFillIdentifier(model);
+      }
+    }
+
+    // When no registry is configured or identifier type was not retrieved,
+    // we'll try to resolve the model from the context.
+    // This will also ensure guessed model type matches deserializing record.
+    const models = await resolveContextModels({
+      queryAs: await consumeQueryAs(action, null),
+      model: (record.parent?.instance.$model ?? await consumeModel(action, null)),
+      relation: record.parent?.prop ?? await consumeRelation(action, null),
+      registry,
+    });
+    const model = record.type
+      ? models.find((m) => m.$type === record.type)
+      : models[0];
+    if (!model) {
+      throw new DeserializerError(
+        `Could not resolve model for type \`${record.type}\`, did you forget defining explicit related models or a registry?`,
+      );
+    }
+
+    return fullFillIdentifier(model);
+  };
+
+  const findInstance = async (
+    identifier: DeserializerModelIdentifier,
+    action: Action,
+  ) => {
+    const cache = await consumeCache(action, null);
+    if (cache && !isNil(identifier.id)) {
+      return cache.find(
+        `${identifier.model.$connection}:${identifier.model.$type}`,
+        identifier.id,
+      );
+    }
+
+    const instance = await consumeInstance(action, null);
+
+    return instance
+    && identifier.id === instance.id
+    && identifier.model.$type === instance.$model.$type
+      ? instance : null;
+  };
+
+  const findOrMakeInstance = async (
+    identifier: DeserializerModelIdentifier,
+    action: Action,
+  ): Promise<ModelInstance> => (
+    // eslint-disable-next-line new-cap
+    await findInstance(identifier, action) ?? new identifier.model()
+  );
+
+  const makeInstancesMapIdentifier = (identifier: DeserializerModelIdentifier) => (
+    identifier.id ?? identifier.lid ?? NON_IDENTIFIED_LOCAL_ID
+  );
+
   const deserializeRecordIn = async (
-    record: DeserializerRecord<Record, Data, Deserialized>,
+    record: DeserializerRecord<Record, Data, Deserialized, Extract>,
     identifier: DeserializerModelIdentifier,
     instance: ModelInstance,
-    context: {},
+    action: Action,
     instancesMap: DeserializerInstancesMap,
   ) => {
     const setInstanceId = (key: 'id' | 'lid') => {
@@ -213,42 +222,36 @@ You should either:
     setInstanceId('id');
     setInstanceId('lid');
 
-    await Promise.all(Object.values({
-      ...mapAttributes(instance.$model, async (def) => {
-        const deserializerContext = await makeDeserializerContext(
-          instance,
-          def,
-          record.pullAttribute,
-          context,
-        );
-        if (await shouldDeserialize(deserializerContext)) {
-          forceFill(instance, { [def.key]: await deserializeAttributeValue(deserializerContext) });
+    await Promise.all(Object.values(instance.$model.$schema).map(async (prop) => {
+      const isRelationProp = isRelation(prop);
+      const deserializerContext = await makeDeserializerContext(
+        instance,
+        prop,
+        record,
+        action,
+      );
+      if (await shouldDeserialize(deserializerContext)) {
+        const value = isRelationProp ? await deserializeRelationValue(
+          // eslint-disable-next-line max-len
+          deserializerContext as DeserializerContext<Record, Data, Deserialized, Extract, ModelRelation>,
+          instancesMap,
+        ) : await deserializeAttributeValue(deserializerContext);
+
+        forceFill(instance, { [prop.key]: value });
+
+        if (isRelationProp) {
+          instance.$loaded[prop.key] = true;
+          attachRelationInverse(instance, prop, wrap(value));
         }
-      }),
-      ...mapRelations(instance.$model, async (def) => {
-        const deserializerContext = await makeDeserializerContext(
-          instance,
-          def,
-          record.pullRelation,
-          context,
-        );
-        if (await shouldDeserialize(deserializerContext)) {
-          const related = await deserializeRelationValue(deserializerContext, instancesMap);
-
-          forceFill(instance, { [def.key]: related });
-
-          instance.$loaded[def.key] = true;
-
-          attachRelationInverse(instance, def, wrap(related));
-        }
-      }),
+      }
     }));
 
-    const action = consumeAction(context, null);
+    const actionKind = await consumeActionKind(action, null);
 
-    instance.$exists = !(action === 'destroy' && (
-      isSame(instance, consumeInstance(context, null)) || (
-        instance.$model === consumeModel(context, null) && instance.id === consumeId(context, null)
+    instance.$exists = !(actionKind === 'destroy' && (
+      isSame(instance, await consumeInstance(action, null)) || (
+        instance.$model === await consumeModel(action, null)
+        && instance.id === await consumeId(action, null)
       )
     ));
     instance.$raw = record.raw;
@@ -257,94 +260,115 @@ You should either:
   };
 
   const deserializeRecord = async (
-    record: DeserializerRecord<Record, Data, Deserialized>,
-    context: {},
-    instancesMap: DeserializerInstancesMap = makeInstancesMap(),
+    record: DeserializerRecord<Record, Data, Deserialized, Extract>,
+    action: Action,
+    instancesMap: DeserializerInstancesMap = new Map(),
   ) => {
-    const identifier = await makeModelIdentifier(record, context);
+    const identifier = await makeModelIdentifier(record, action);
     const mapIdentifier = makeInstancesMapIdentifier(identifier);
 
-    let instancePromise = instancesMap.find(identifier.model.$type, mapIdentifier);
+    let instancePromise = multimapGet(instancesMap, [identifier.model.$type, mapIdentifier]);
     if (instancePromise) {
       return instancePromise;
     }
 
-    instancesMap.put(
-      identifier.model.$type,
-      mapIdentifier,
-      instancePromise = findOrMakeInstance(identifier, context),
+    multimapSet(
+      instancesMap,
+      [identifier.model.$type, mapIdentifier],
+      instancePromise = findOrMakeInstance(identifier, action),
     );
 
-    return deserializeRecordIn(record, identifier, await instancePromise, context, instancesMap);
+    return deserializeRecordIn(
+      record,
+      identifier,
+      await instancePromise,
+      action,
+      instancesMap,
+    );
   };
 
   const prepareInstancesMap = async (
-    records: Arrayable<DeserializerRecord<Record, Data, Deserialized>> | null,
-    context: {},
+    records: Arrayable<DeserializerRecord<Record, Data, Deserialized, Extract>> | null,
+    action: Action,
     instancesMap: DeserializerInstancesMap,
   ) => {
     // Handle a singular creation context to map a non-identified instance
     // to the single returned resource if available.
-    const action = consumeAction(context, null);
-    const instance = consumeInstance(context, null);
-    if (action === 'create'
+    const actionKind = await consumeActionKind(action, null);
+    const instance = await consumeInstance(action, null);
+    if (actionKind === 'create'
       && instance
-      && !isNone(records)
+      && records
       && !Array.isArray(records)
     ) {
-      const identifier = await makeModelIdentifier(records, context);
+      const identifier = await makeModelIdentifier(records, action);
       const mapIdentifier = makeInstancesMapIdentifier(identifier);
 
-      instancesMap.put(
-        identifier.model.$type,
-        mapIdentifier,
-        deserializeRecordIn(records, identifier, instance, context, instancesMap),
+      multimapSet(
+        instancesMap,
+        [identifier.model.$type, mapIdentifier],
+        deserializeRecordIn(records, identifier, instance, action, instancesMap),
       );
     }
   };
 
   const releaseInstancesMap = (
-    context: {},
+    action: Action,
     instancesMap: DeserializerInstancesMap,
-  ) => Promise.all(instancesMap.all().map(async (instancePromise) => {
-    const instance = await instancePromise;
+  ) => Promise.all(Array.from(
+    instancesMap.values(),
+    (instancesByIds) => Promise.all(Array.from(
+      instancesByIds.values(),
+      async (instancePromise) => {
+        const instance = await instancePromise;
 
-    markSynced(instance);
-    await runHooks(instance.$model, 'retrieved', instance);
+        markSynced(instance);
+        await runHooks(instance.$model, 'retrieved', instance);
 
-    const cache = await consumeCache(context, null);
-    if (cache && !isNil(instance.id)) {
-      await cache.put(instance.$model.$type, instance.id, instance);
-    }
-  }));
+        const cache = await consumeCache(action, null);
+        if (cache && !isNil(instance.id)) {
+          await cache.put(
+            `${instance.$model.$connection}:${instance.$model.$type}`,
+            instance.id,
+            instance,
+          );
+        }
+      },
+    )),
+  ));
 
-  const deserialize = async (data: Data, context: {}) => {
-    const extract = await config.extractData(data, context);
+  const deserialize = async (data: Data, action: Action) => {
+    const extract = await config.extractData(data, action);
     const records = await mapArrayable(
       extract.records,
-      (record) => config.createRecord(extract, record, context),
+      (record) => config.createRecord(extract, record),
     ) ?? null;
 
-    const instancesMap = makeInstancesMap();
+    const instancesMap: DeserializerInstancesMap = new Map();
 
-    await prepareInstancesMap(records, context, instancesMap);
+    await prepareInstancesMap(records, action, instancesMap);
 
     const instances = await Promise.all(wrap(records).map(async (record) => deserializeRecord(
       record,
-      context,
+      action,
       instancesMap,
     )));
 
-    const parent = consumeInstance(context, null);
-    const relation = consumeRelation(context, null);
-    if (parent && relation) {
-      attachRelationInverse(parent, relation, instances);
+    if (instances.length) {
+      const parent = await consumeInstance(action, null);
+      const relation = await consumeRelation(action, null);
+      if (parent && relation) {
+        attachRelationInverse(parent, relation, instances);
+      }
+
+      const lazyEagerLoadCallback = await consumeLazyEagerLoadCallback(action, null);
+      await lazyEagerLoadCallback?.(instances);
     }
 
-    await releaseInstancesMap(context, instancesMap);
+    await releaseInstancesMap(action, instancesMap);
 
     return (
-      config.createData ? config.createData(instances, extract, context) : { instances }
+      config.createData ? config.createData(instances, extract, action) : { instances }
     ) as Deserialized;
   };
 

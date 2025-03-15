@@ -4,7 +4,7 @@ import UserMock from './user.mock';
 
 export default class CommentMock extends makeModel('comments', {
   imageable,
-  id: id(toNumber()).nullable(),
+  id: id(toNumber(), { nullable: true }),
   lid: id(toString()),
   body: attr(toString()),
   postedAt: attr(toDateTime()),
