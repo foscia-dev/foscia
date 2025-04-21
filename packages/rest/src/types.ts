@@ -54,7 +54,7 @@ export type RestDeserializerConfig<
      *
      * @param record
      */
-    extractId: (
+    extractId?: (
       record: Record,
       deserializerContext: DeserializerContext<Record, Data, Deserialized, Extract>,
     ) => Awaitable<ModelIdType | null | undefined>;
@@ -63,9 +63,9 @@ export type RestDeserializerConfig<
      *
      * @param record
      */
-    extractType: (record: Record) => Awaitable<string | undefined>;
+    extractType?: (record: Record) => Awaitable<string | undefined>;
   }
-  & RecordDeserializerConfig<Record, Data, Deserialized, Extract>;
+  & Partial<RecordDeserializerConfig<Record, Data, Deserialized, Extract>>;
 
 /**
  * Configuration for REST serializer.
@@ -86,7 +86,7 @@ export type RestSerializerConfig<
      */
     serializeType?: boolean;
   }
-  & RecordSerializerConfig<Record, Related, Data>;
+  & Partial<RecordSerializerConfig<Record, Related, Data>>;
 
 /**
  * Configuration for REST eager loader.

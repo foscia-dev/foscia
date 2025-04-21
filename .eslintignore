@@ -1,3 +1,5 @@
 /scripts/
+/website/
+/packages/*/tests
 build.config.ts
 vitest.config.ts

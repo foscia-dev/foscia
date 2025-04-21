@@ -1,0 +1,653 @@
+---
+sidebar_position: 100
+description: Define models with attributes, relations and hooks.
+---
+
+import TabItem from '@theme/TabItem';
+import Tabs from '@theme/Tabs';
+import ShellCommand from '@site/src/components/ShellCommand';
+
+# Models
+
+:::tip What you'll learn
+
+- Defining basic models with attributes and relations
+- Extending your models with custom properties
+- Registering hooks on models
+
+:::
+
+## Before reading this guide
+
+This guide is only about basic usages of models and definition of the model's
+schema.
+To learn more, you can:
+
+- [Learn advanced capabilities of models in the dedicated digging deeper guides](/docs/category/models)
+- [Discover models through examples](/docs/category/examples)
+
+## Models
+
+### Using CLI
+
+You can generate a new model using [`@foscia/cli`](/docs/digging-deeper/usages/cli).
+
+<ShellCommand command="foscia make model post" />
+
+### Model factory
+
+To declare a model, you just need to use the
+[`makeModel`](/docs/api/@foscia/core/functions/makeModel) function.
+This function takes up to 2 arguments and returns a
+[`Model`](/docs/api/@foscia/core/interfaces/Model) constructor:
+
+- The `type` string, the `connection:type` string or a
+[configuration object](/docs/guides/models/configuration).
+- The [optional `definition` of the model](#definition): an object
+containing property definition factories, custom properties, custom
+methods and composables.
+
+```typescript
+import { makeModel, attr, hasMany, toDateTime } from '@foscia/core';
+
+export default makeModel('posts', {
+  /* The model definition */
+  title: attr<string>(),
+  description: attr<string>(),
+  publishedAt: attr(toDateTime()).nullable(),
+  comments: hasMany(() => Comment),
+  get published() {
+    return !!this.publishedAt;
+  },
+});
+```
+
+:::info
+
+Using a `:` inside your model's type will declare both the model type and
+connection to use. For example, using `api:posts` will use the `api` connection
+and `posts` type. If you wish to explicitly declare a model with a type
+containing a `:`, you must use the model's configuration object instead of
+passing.
+
+:::
+
+#### Note on exported value
+
+In many Foscia guides and examples, you will see that the ES6 class returned by
+[`makeModel`](/docs/api/@foscia/core/functions/makeModel) is extended before
+exporting: we use `export default class Post extends makeModel...` instead of
+`export default makeModel...`.
+
+This has two benefits:
+
+- When using TypeScript, it allows to only import the type of the class using
+  `import type Post from './models/post'` and avoids circular dependencies when
+  models have circular relationships
+- It gives you more flexibility as you can quickly add custom properties and
+  methods in the future
+
+However, both syntax are valid. Use the one you prefer! 🦄
+
+### Composing a model class
+
+If you need to share common features between multiple models, such as an ID
+generation creation hook, you can use
+[models composition](/docs/digging-deeper/models/models-composition).
+
+### Using models classes
+
+Model classes can be used like any ES6 class. It can be instantiated,
+manipulated, etc. Properties will be defined on each instance from the model
+definition.
+
+```typescript
+const post = new Post();
+post.title = 'Hello World!';
+post.publishedAt = new Date();
+console.log(post.title); // "Hello World!"
+console.log(post.published); // true
+console.log(post.$exists); // false
+```
+
+:::info
+
+Please note that most model's interaction (fetching, updating, etc.) are done
+through actions, you can
+[**read the actions guide**](/docs/core-concepts/actions) to learn more about
+those.
+
+:::
+
+### Utilities
+
+Foscia provides multiple utilities functions to interact with models, such as
+[`fill`](/docs/api/@foscia/core/functions/fill) to change an instance's values
+or [`changed`](/docs/api/@foscia/core/functions/changed) to check if an
+instance's values changed since last data source sync. You can discover
+all those utilities functions inside the
+[**API documentation utilities category**](/docs/api/@foscia/core/#utilities).
+
+## Definition
+
+### IDs
+
+#### Description
+
+[`id`](/docs/api/@foscia/core/functions/id) is an ID definition factory used
+to define your model's IDs properties.
+You can pass a transformer or a default value to this factory.
+
+- Foscia consider your IDs as `string`, `number` or `null` values by default.
+  Each model have `id` and `lid` properties representing record identification.
+  If you want to change the typing of those properties or transform values, you
+  can use the `id` function.
+- `id` properties can be transformed.
+  [Read more on the transformers guide](/docs/digging-deeper/models/models-transformers).
+- `id` definition factory supports [chained modifiers](#ids-chained-modifiers).
+
+:::info
+
+`id` cannot use another type than `number`, `string` or `null` and can only be
+used on `id` and `lid` keyed model's properties. However, IDs can still be
+transformed and aliased for data sources interaction. This convention
+helps Foscia quickly resolving IDs for cache, etc.
+
+:::
+
+#### Examples
+
+<Tabs>
+<TabItem
+  value="type"
+  label="Type"
+  default
+>
+
+```typescript
+id<string>();
+id<string | null>();
+```
+
+</TabItem>
+<TabItem
+  value="default"
+  label="Default"
+>
+
+```typescript
+id('');
+id(() => uuidV4(), { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="transformer"
+  label="Transformer"
+>
+
+```typescript
+id(toString());
+id(toString(), { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="chaining"
+  label="Chaining"
+>
+
+```typescript
+id<string>()
+  .nullable()
+  .default(() => null)
+  .readOnly();
+```
+
+</TabItem>
+</Tabs>
+
+#### API {#ids-chained-modifiers}
+
+[`id`](/docs/api/@foscia/core/functions/id) provides type definition
+for the factory and examples.
+[`ModelIdFactory`](/docs/api/@foscia/core/interfaces/ModelIdFactory)
+provides type definition of `id` chained modifiers.
+
+### Attributes
+
+#### Description
+
+[`attr`](/docs/api/@foscia/core/functions/attr) is an attribute definition
+factory used to define your model's
+attributes. You can pass a transformer or a default value to this factory.
+
+- Foscia consider your attributes as non-nullable values by default.
+- Non-loaded attributes will have a value of `undefined`.
+- `attr` properties can be transformed.
+  [Read more on the transformers guide](/docs/digging-deeper/models/models-transformers).
+- `attr` definition factory supports
+  [chained modifiers](#attributes-chained-modifiers).
+
+#### Examples
+
+<Tabs>
+<TabItem
+  value="type"
+  label="Type"
+  default
+>
+
+```typescript
+attr<string>();
+attr<Date | null>();
+```
+
+</TabItem>
+<TabItem
+  value="default"
+  label="Default"
+>
+
+```typescript
+attr('');
+attr(() => new Date(), { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="transformer"
+  label="Transformer"
+>
+
+```typescript
+attr(toString());
+attr(toDateTime(), { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="chaining"
+  label="Chaining"
+>
+
+```typescript
+attr<Date>()
+  .nullable()
+  .default(() => null)
+  .readOnly();
+```
+
+</TabItem>
+</Tabs>
+
+#### API {#attributes-chained-modifiers}
+
+[`attr`](/docs/api/@foscia/core/functions/attr) provides type definition
+for the factory and examples.
+[`ModelAttributeFactory`](/docs/api/@foscia/core/interfaces/ModelAttributeFactory)
+provides type definition of `attr` chained modifiers.
+
+### Relations
+
+#### Description
+
+[`hasMany`](/docs/api/@foscia/core/functions/hasMany) and
+[`hasOne`](/docs/api/@foscia/core/functions/hasOne) are relation
+definition factories used to define your model's relations.
+As suggested by their names, `hasMany` represents a
+relation to a list of models and `hasOne` represents a relation to a single
+model. You can pass the relation information to this factory.
+
+- Foscia consider your relations as non-nullable values by default.
+- Non-loaded relations will have a value of `undefined`.
+- `hasOne` and `hasMany` definition factories supports
+  [chained modifiers](#relations-chained-modifiers).
+- Depending on your data structure, you should follow one of the recommandation
+  over relations definition to avoid circular dependencies errors:
+  - [Explicit **model** when **not having circular dependencies**](#explicit-model-when-not-having-circular-references).
+  - [Explicit **type** when **having circular dependencies**](#explicit-type-when-having-circular-references).
+
+#### Examples
+
+<Tabs>
+<TabItem
+  value="hasOne"
+  label="hasOne"
+  default
+>
+
+<Tabs>
+<TabItem
+  value="model"
+  label="Model"
+  default
+>
+
+```typescript
+hasOne(() => User);
+hasOne(() => User, { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="type"
+  label="Type"
+>
+
+```typescript
+hasOne<User>('users');
+hasOne<User, true>('users', { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="polymorphism"
+  label="Polymorphism"
+>
+
+```typescript
+hasOne(() => [Comment, Post]);
+hasOne<Comment | Post>(['comments', 'posts']);
+```
+
+</TabItem>
+<TabItem
+  value="inverse"
+  label="Inverse"
+>
+
+```typescript
+hasOne(() => CreditCard, { inverse: true });
+hasOne(() => CreditCard, { inverse: 'owner' });
+```
+
+</TabItem>
+<TabItem
+  value="config"
+  label="Config"
+>
+
+```typescript
+hasMany(() => User, { path: 'author' });
+hasMany<User>({ path: 'author' });
+```
+
+</TabItem>
+<TabItem
+  value="chaining"
+  label="Chaining"
+>
+
+```typescript
+hasOne(() => User)
+  .nullable()
+  .readOnly()
+  .alias('author')
+  .sync('pull')
+  .inverse();
+```
+
+</TabItem>
+</Tabs>
+
+</TabItem>
+<TabItem
+  value="hasMany"
+  label="hasMany"
+>
+
+<Tabs>
+<TabItem
+  value="model"
+  label="Model"
+  default
+>
+
+```typescript
+hasMany(() => Comment);
+hasMany(() => Comment, { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="type"
+  label="Type"
+>
+
+```typescript
+hasMany<Comment[]>('comments');
+hasMany<Comment[], true>('comments', { readOnly: true });
+```
+
+</TabItem>
+<TabItem
+  value="polymorphism"
+  label="Polymorphism"
+>
+
+```typescript
+hasMany(() => [Comment, Post]);
+hasMany<(Comment | Post)[]>(['comments', 'posts']);
+```
+
+</TabItem>
+<TabItem
+  value="inverse"
+  label="Inverse"
+>
+
+```typescript
+hasMany(() => Post, { inverse: true });
+hasMany(() => Post, { inverse: 'author' });
+```
+
+</TabItem>
+<TabItem
+  value="config"
+  label="Config"
+>
+
+```typescript
+hasMany(() => Comment, { path: 'top-comments' });
+hasMany<Comment[]>({ path: 'top-comments' });
+```
+
+</TabItem>
+<TabItem
+  value="chaining"
+  label="Chaining"
+>
+
+```typescript
+hasMany(() => Comment)
+  .readOnly()
+  .sync('pull')
+  .inverse();
+```
+
+</TabItem>
+</Tabs>
+
+</TabItem>
+</Tabs>
+
+#### API {#relations-chained-modifiers}
+
+[`hasOne`](/docs/api/@foscia/core/functions/hasOne) and
+[`hasMany`](/docs/api/@foscia/core/functions/hasMany) provide type definition
+for the factories and examples.
+[`ModelRelationFactory`](/docs/api/@foscia/core/interfaces/ModelRelationFactory)
+provides type definition of `hasOne` and `hasMany` chained modifiers.
+
+#### Polymorphism support
+
+Polymorphism may require a specific configuration of your action or your data
+source.
+
+For example, polymorphism is supported out of the box with JSON:API, because
+each record have a special `type` property which is resolved by Foscia to the
+correct model.
+
+When implementing polymorphism with a REST data source, your record JSON object
+must contain a `type` property matching your Foscia models' types.
+
+#### Relations inverse
+
+Relations inverse allow to automatically fill the related instance inverse
+relation with the parent instance. This is particularly useful when fetching
+records with their relations, as all related records will get their "inverse"
+relation hydrated with the parent record.
+
+:::info
+
+Inverse of a relation must target a singular relation (like an `hasOne`
+relation). This is because plural inverse's related records cannot be reliably
+determined. In addition, be aware that inverse hydration only occurs
+during deserialization process.
+
+:::
+
+##### Configuring an inverse
+
+To enable inverse of a relation, you can define an
+[`inverse` option](/docs/api/@foscia/core/interfaces/ModelRelationFactoryConfig#inverse)
+to your relation configuration, or call the
+[`inverse` chained modifier](/docs/api/@foscia/core/interfaces/ModelRelationFactory#inverse).
+Giving a boolean value, it will enable or disable automatic inverse resolution
+(searching for a relation named by the singular camel case type of the parent
+model). Giving a string value, it will enable inverse resolution using
+the given relation name.
+
+```typescript
+class Post extends makeModel('posts', {
+  // Automatically define inverse to `post` relation on `Comment` model.
+  comments: hasMany(() => Comment, { inverse: true }),
+  // Manually define inverse to `post` relation on `Comment` model.
+  comments: hasMany(() => Comment, { inverse: 'post' }),
+}) {
+}
+```
+
+##### Example
+
+To explain this, we will take two models:
+a `Comment` model with an `post` "to one" relation to a `Post` model, with
+a `comments` "to many" relation to the `Post` model, like this:
+
+```typescript
+class Post extends makeModel('posts', {
+  comments: hasMany(() => Comment, { inverse: 'post' }),
+}) {
+}
+
+class Comment extends makeModel('comments', {
+  post: hasOne(() => Post),
+}) {
+}
+```
+
+With those models and relations definition, when deserializing a `Post`
+with included `comments` relation, each `Comment` will have its `post` relation
+filled with the parent `Post` instance.
+
+```typescript
+const posts = await action(query(Post), include('comments'), all());
+
+posts.forEach((post) => {
+  post.comments.forEach((comment) => {
+    // `comment.post` is filled with its parent `post`.
+    console.log(comment.post);
+  });
+});
+```
+
+#### Recommandations
+
+##### Explicit model when not having circular references
+
+If your models does not contain ciruclar references (e.g. Post has a "author"
+relation to User and User has a "favoritePosts" relation to Post), you should
+define your relations with explicit related model as follow:
+
+```typescript
+import { hasOne } from '@foscia/core';
+import User from './user';
+
+hasOne(() => User);
+```
+
+This will make identifying a relation's related model easier for Foscia and make
+registering your models optional.
+
+##### Explicit type when having circular references
+
+If your models does contain ciruclar references (e.g. Post has a "author"
+relation to User and User has a "favoritePosts" relation to Post), you should
+define your relations with a TypeScript type as follow:
+
+```typescript
+import { hasOne } from '@foscia/core';
+import type User from './user';
+
+hasOne<User>('users');
+```
+
+Notice the `import type` for type definition when using TypeScript. This will
+import the type of the model and will avoid circular dependencies at runtime.
+
+You should also
+[correctly register your models](/docs/digging-deeper/actions/models-registration)
+on your action factory registry.
+
+When using a data source where each record contains an explicit type info (e.g.
+JSON:API), you don't have anything to do.
+
+If your data source does not provide an explicit type info, you should either:
+
+- Let Foscia guess the related type from the relation's name.
+- Add an explicit mapped type to the relation as follow:
+
+```typescript
+import { hasOne } from '@foscia/core';
+import type User from './user';
+
+hasOne<User>('users');
+```
+
+### Custom properties
+
+In addition to IDs, attributes and relations, you can implement additional
+properties to your model. It's useful when you need computed values (getters) or
+specific instance methods.
+
+This can be done using the definition or an extending class:
+
+```typescript
+// Directly in the definition.
+export default makeModel('users', {
+  firstName: attr(toString()),
+  lastName: attr(toString()),
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  },
+});
+
+// Inside an extending class.
+export default class User extends makeModel('users', {
+  firstName: attr(toString()),
+  lastName: attr(toString()),
+}) {
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+}
+```
+
+## Special properties
+
+Foscia models provide special properties on both the model class and its
+instances, which you can discover inside the API reference:
+
+- [`Model`](/docs/api/@foscia/core/interfaces/Model)
+- [`ModelInstance`](/docs/api/@foscia/core/interfaces/ModelInstance)

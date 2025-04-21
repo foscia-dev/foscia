@@ -6,42 +6,40 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "importHelpers": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": false,
-    "baseUrl": ".",
-    "rootDir": ".",
     "newLine": "lf",
     "paths": {
       "@foscia/*": [
-        "packages/*/src"
+        "./packages/*/src"
       ],
       "@foscia/cli/*": [
-        "packages/cli/src/*"
+        "./packages/cli/src/*"
       ],
       "@foscia/core/*": [
-        "packages/core/src/*"
+        "./packages/core/src/*"
       ],
       "@foscia/http/*": [
-        "packages/http/src/*"
+        "./packages/http/src/*"
       ],
       "@foscia/jsonapi/*": [
-        "packages/jsonapi/src/*"
+        "./packages/jsonapi/src/*"
       ],
       "@foscia/rest/*": [
-        "packages/rest/src/*"
+        "./packages/rest/src/*"
       ],
       "@foscia/serialization/*": [
-        "packages/serialization/src/*"
+        "./packages/serialization/src/*"
       ],
       "@foscia/shared/*": [
-        "packages/shared/src/*"
+        "./packages/shared/src/*"
       ],
       "@foscia/test/*": [
-        "packages/test/src/*"
+        "./packages/test/src/*"
       ]
     },
     "lib": [
@@ -50,7 +48,6 @@
     ]
   },
   "include": [
-    "packages/*/src",
-    "packages/*/tests"
+    "./packages/*/src"
   ]
 }

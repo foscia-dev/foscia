@@ -1,6 +1,6 @@
 import isAttribute from '@foscia/core/model/props/checks/isAttribute';
 import isId from '@foscia/core/model/props/checks/isId';
-import isRelation from '@foscia/core/model/props/checks/isRelation';
+import isRelation from '@foscia/core/relations/checks/isRelation';
 import { ModelAttribute, ModelId, ModelRelation } from '@foscia/core/model/types';
 
 /**

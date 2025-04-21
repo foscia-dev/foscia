@@ -1,6 +1,7 @@
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import ArrowRightSvg from '@site/src/icons/arrow-right.svg';
+import ConceptsSvg from '@site/src/icons/lightbulb-on-outline.svg';
 import LogoIconSvg from '@site/static/img/icon.svg';
 import clsx from 'clsx';
 import styles from './styles.module.css';
@@ -24,15 +25,16 @@ export default function HomeHeader() {
           <div className={styles.heroButtons}>
             <Link
               className={clsx('button button--lg border--gradient blur--gradient margin-horiz--md margin-vert--sm', styles.heroButton)}
-              to="/docs/about"
+              to="/docs/overview/concepts"
             >
-              What's Foscia?
+              <ConceptsSvg className={styles.heroButtonIcon} />
+              Concepts
             </Link>
             <Link
               className={clsx('button button--lg border--gradient blur--gradient margin-horiz--md margin-vert--sm', styles.heroButton)}
-              to="/docs/getting-started"
+              to="/docs/get-started/installation-and-setup"
             >
-              Getting started
+              Get started
               <ArrowRightSvg className={styles.heroButtonArrow} />
             </Link>
           </div>

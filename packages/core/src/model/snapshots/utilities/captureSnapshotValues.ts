@@ -1,4 +1,4 @@
-import isRelation from '@foscia/core/model/props/checks/isRelation';
+import isRelation from '@foscia/core/relations/checks/isRelation';
 import { ModelInstance, ModelLimitedSnapshot, ModelSnapshot } from '@foscia/core/model/types';
 import { Arrayable, isNil, mapWithKeys } from '@foscia/shared';
 

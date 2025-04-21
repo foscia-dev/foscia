@@ -1,6 +1,14 @@
-import { attr, hasOne, id, makeModel, toDateTime, toNumber, toString } from '@foscia/core';
+import {
+  attr,
+  belongsTo,
+  id,
+  makeModel,
+  morphOne,
+  toDateTime,
+  toNumber,
+  toString,
+} from '@foscia/core';
 import imageable from '../composables/imageable.mock';
-import UserMock from './user.mock';
 
 export default class CommentMock extends makeModel('comments', {
   imageable,
@@ -8,6 +16,7 @@ export default class CommentMock extends makeModel('comments', {
   lid: id(toString()),
   body: attr(toString()),
   postedAt: attr(toDateTime()),
-  postedBy: hasOne(() => UserMock),
+  postedBy: belongsTo('users'),
+  commentable: morphOne(['posts', 'galleries']),
 }) {
 }

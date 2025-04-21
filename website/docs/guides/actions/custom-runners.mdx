@@ -1,0 +1,66 @@
+---
+sidebar_position: 70
+description: Definition of custom runners.
+---
+
+import ShellCommand from '@site/src/components/ShellCommand';
+
+# Custom runners
+
+:::tip What you'll learn
+
+- Defining a custom action runner
+
+:::
+
+Foscia tries to be agnostic of your data source, so sometimes you may require a
+custom runner to avoid code duplication.
+This is a simple guide on defining a custom runner, but you may also inspire
+from [any existing Foscia runners](/docs/api/@foscia/core/#runners).
+
+## Goal
+
+We aim to create a `first` runner which will paginate the query using HTTP
+parameter enhancer to retrieve only one record.
+In this example, we will admit a JSON:API is used with the following query
+parameters working:
+
+- `page[number]` describes the number of the page to fetch
+- `page[size]` describes the count of records to fetch (aka. limit)
+
+## Definition
+
+### CLI
+
+You can create a new empty runner using
+[`foscia make runner`](/docs/tools/foscia-cli#make-runner-name).
+
+<ShellCommand command="foscia make runner first" />
+
+### Implementation
+
+Our implementation of `first` will paginate the context and fetch one instance.
+Typing is complex here because we are using `one` runner, which requires to provide
+a context containing an adapter and a deserializer.
+
+```typescript title="action/runners/first.ts"
+import { Action, ConsumeAdapter, ConsumeDeserializer, makeRunner, one } from '@foscia/core';
+import { param } from '@foscia/http';
+
+export default makeRunner('first', <C extends {}, RawData, Data, Deserialized>() => async (
+  action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>>,
+) => action(param({ page: { number: 1, size: 1 } }), one()));
+```
+
+## Usage
+
+Once your runner is ready, you may use it like any other Foscia runner.
+
+```typescript
+import { query } from '@foscia/core';
+import action from './action';
+import first from './runners/first';
+import Post from './models/post';
+
+const post = await action(query(Post), first());
+```

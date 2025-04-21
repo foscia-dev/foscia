@@ -17,7 +17,7 @@ import compareModelValues from '@foscia/core/model/utilities/compareModelValues'
 /**
  * Create a model factory.
  *
- * @param baseConfig
+ * @param baseRawConfig
  * @param baseRawDefinition
  *
  * @category Factories
@@ -33,14 +33,14 @@ import compareModelValues from '@foscia/core/model/utilities/compareModelValues'
  * });
  * ```
  */
-export default <D extends {} = {}>(
+export default <D extends {} = {}, C extends string | undefined = undefined>(
   // eslint-disable-next-line max-len
-  baseConfig?: Partial<ModelConfig<Model<ModelParsedFlattenDefinition<D>, ModelInstance<ModelParsedFlattenDefinition<D>>>>>,
+  baseRawConfig?: Partial<{ connection: C; } & ModelConfig<Model<ModelParsedFlattenDefinition<D>, ModelInstance<ModelParsedFlattenDefinition<D>>>>>,
   baseRawDefinition?: D & ThisType<ModelInstance<ModelParsedFlattenDefinition<D>>>,
 ) => {
   const parseConfig = (
     rawConfig: ModelFactoryRawConfig,
-  ): Partial<ModelConfig> & { type: string; connection?: string; } => {
+  ): Partial<ModelConfig> & { type: string; connection?: string | undefined; } => {
     if (typeof rawConfig === 'string') {
       const [connection, type] = parseConnectionType(rawConfig);
 
@@ -54,9 +54,10 @@ export default <D extends {} = {}>(
     rawConfig: ModelFactoryRawConfig,
     rawDefinition?: object,
   ) => {
+    const { connection: baseConnection, ...baseConfig } = baseRawConfig ?? {};
     const { connection, type, ...config } = parseConfig(rawConfig);
 
-    return makeModelClass(connection ?? 'default', type, {
+    return makeModelClass(connection ?? baseConnection ?? 'default', type, {
       compareSnapshotValues: compareModelValues,
       cloneSnapshotValue: cloneModelValue,
       ...baseConfig,
@@ -72,5 +73,5 @@ export default <D extends {} = {}>(
 
   factory.$hooks = {};
 
-  return factory as unknown as ModelFactory<ModelParsedFlattenDefinition<D>>;
+  return factory as unknown as ModelFactory<ModelParsedFlattenDefinition<D>, C>;
 };

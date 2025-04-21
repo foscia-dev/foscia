@@ -1,0 +1,237 @@
+---
+sidebar_position: 40
+description: Composition and inheritance with models.
+---
+
+import ShellCommand from '@site/src/components/ShellCommand';
+
+# Composition
+
+:::tip What you'll learn
+
+- Creating composables to share features across some of your models
+- Creating your own model factory with predefined features for all of your
+models
+
+:::
+
+Sometimes, you may want to share common features across your models. To solve
+this, you may use one of the two solutions proposed by Foscia:
+
+- [Composables](#composables), to share features across some of your models
+- [Factory](#factory), to share features across all of your models
+
+## Composables
+
+When you need to share features across **some** of your models, you should use
+composables.
+
+### CLI
+
+You can generate a new composable using
+[`foscia make composable`](/docs/tools/foscia-cli#make-composable-name).
+
+<ShellCommand command="foscia make composable publishable" />
+
+### Definition
+
+You can define a new composable using
+[`makeComposable`](/docs/api/@foscia/core/functions/makeComposable).
+
+```typescript
+import { attr, makeComposable, toDateTime } from '@foscia/core';
+
+export default makeComposable({
+  publishedAt: attr(toDateTime(), { nullable: true }),
+  get published() {
+    return !!this.publishedAt;
+  },
+});
+```
+
+### Usage
+
+You can then add the composable to any model's definition.
+
+```typescript
+import { attr, makeModel } from '@foscia/core';
+import publishable from '../composables/publishable';
+
+export default class Post extends makeModel('posts', {
+  publishable,
+  title: attr<string>(),
+}) {}
+```
+
+#### Hooks {#composable-hooks}
+
+Composables share the [models' hooks system](/docs/guides/models/hooks).
+Each hook you define on a composable will be added to models which use
+the composable. This is useful when defining common behaviors, such as
+a UUID keyed model with automatic generation before first saving.
+
+```typescript
+import { attr, makeComposable, onCreating } from '@foscia/core';
+import { v4 as uuidV4 } from 'uuid';
+
+const uuidID = makeComposable({
+  id: attr<string | null>(),
+});
+
+onCreating(uuidID, (instance) => {
+  instance.id = instance.id ?? uuidV4();
+});
+
+export default uuidID;
+```
+
+:::warning
+
+Be aware that you cant unregister hooks from a composable, because hooks are
+shallow cloned when applying the composable.
+Hook registration function (such as
+[`onCreating`](/docs/api/@foscia/core/functions/onCreating)) returned callback
+will only unregister hooks on composable, not on models using it.
+
+:::
+
+Here is another example where we automatically track creation and last update
+timestamp for every record.
+
+```typescript
+import { attr, makeComposable, onSaving, toDateTime } from '@foscia/core';
+
+const timestamps = makeComposable({
+  timestamps: true,
+  createdAt: attr(toDateTime()),
+  updatedAt: attr(toDateTime()),
+});
+
+onSaving(timestamps, (instance) => {
+  if (instance.timestamps) {
+    instance.updatedAt = new Date();
+    if (!instance.$exists) {
+      instance.createdAt = instance.updatedAt;
+    }
+  }
+});
+
+export default timestamps;
+```
+
+#### Typechecking
+
+You can easily typecheck for models or instances using some of your composables
+by defining type aliases using
+[`ModelInstanceUsing`](/docs/api/@foscia/core/type-aliases/ModelInstanceUsing)
+and [`ModelUsing`](/docs/api/@foscia/core/type-aliases/ModelUsing).
+You can also use [`isModelUsing`](/docs/api/@foscia/core/functions/isModelUsing)
+or [`isInstanceUsing`](/docs/api/@foscia/core/functions/isInstanceUsing)
+functions to check for use of a given composable.
+
+```typescript
+import { attr, makeComposable, toDateTime, isInstanceUsing, isModelUsing, ModelInstanceUsing, ModelUsing } from '@foscia/core';
+
+const publishable = makeComposable({
+  publishedAt: attr(toDateTime(), { nullable: true }),
+});
+
+// Defining type aliases for your composable.
+export type PublishableInstance = ModelInstanceUsing<typeof publishable>;
+export type PublishableModel = ModelUsing<typeof publishable>;
+
+export default publishable;
+
+// Use type aliases for a function's argument.
+function somethingRequiringAPublishable(instance: PublishableInstance) {
+  console.log(instance.publishedAt);
+}
+
+// Checking if a model/instance is implementing a composable.
+isInstanceUsing(someInstance, publishable); // `someInstance` uses `publishable`.
+isModelUsing(SomeModel, publishable); // `SomeModel` uses `publishable`.
+```
+
+:::warning
+
+[`isInstanceUsing`](/docs/api/@foscia/core/functions/isInstanceUsing)
+and [`isModelUsing`](/docs/api/@foscia/core/functions/isModelUsing) will
+only check that the model definition contain *at some time* the composable,
+but won't guaranty that the composable properties are not overwritten afterward.
+
+:::
+
+## Factory
+
+When you need to share features across **all** of your models, you should use a
+custom model factory.
+
+### CLI
+
+You can generate a new factory using
+[`foscia make model-factory`](/docs/tools/foscia-cli#make-model-factory).
+
+<ShellCommand command="foscia make model-factory" />
+
+### Definition
+
+You can define a new composable using
+[`makeModelFactory`](/docs/api/@foscia/core/functions/makeModelFactory).
+
+```typescript
+import { attr, makeModelFactory, toDateTime } from '@foscia/core';
+
+export default makeModelFactory({
+  /* ...common configuration */
+}, {
+  createdAt: attr(toDateTime()),
+  updatedAt: attr(toDateTime()),
+  get wasChangedSinceCreation() {
+    return this.createdAt.getTime() === this.updatedAt.getTime();
+  },
+});
+```
+
+Once your factory is ready, you can use it as a replacement of the default
+[`makeModel`](/docs/api/@foscia/core/functions/makeModel) provided by Foscia.
+
+```typescript
+import makeModel from './makeModel';
+
+export default class Post extends makeModel('posts', {
+  /* definition */
+}) {
+}
+```
+
+### Hooks {#factory-hooks}
+
+Composables share the [models' hooks system](/docs/guides/models/hooks).
+Each hook you define on a model factory will be added to models which are
+defined by the factory. This is useful when defining common behaviors, such as
+a UUID keyed model with automatic generation before first saving.
+
+```typescript
+import { attr, makeModelFactory, onCreating } from '@foscia/core';
+import { v4 as uuidV4 } from 'uuid';
+
+const makeModel = makeModelFactory({}, {
+  id: attr<string | null>(),
+});
+
+onCreating(makeModel, (instance) => {
+  instance.id = instance.id ?? uuidV4();
+});
+
+export default makeModel;
+```
+
+:::warning
+
+Be aware that you cant unregister hooks from a factory, because hooks are
+shallow cloned when creating a model.
+Hook registration function (such as
+[`onCreating`](/docs/api/@foscia/core/functions/onCreating)) returned callback
+will only unregister hooks on factory, not on models created by it.
+
+:::

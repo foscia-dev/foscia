@@ -25,7 +25,7 @@ export default <
   Related extends JsonApiResourceIdentifier = JsonApiResourceIdentifier,
   Data = { data: Arrayable<JsonApiNewResource> | null },
 >(
-  config?: Partial<JsonApiSerializerConfig<Record, Related, Data>>,
+  config: Partial<JsonApiSerializerConfig<Record, Related, Data>> = {},
 ) => makeSerializer({
   createData: (records) => ({ data: records } as Data),
   createRecord: makeSerializerRecordFactory(

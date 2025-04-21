@@ -21,6 +21,8 @@ import { Dictionary, mapWithKeys, tap } from '@foscia/shared';
  *
  * @category Factories
  * @since 0.8.6
+ *
+ * @experimental
  */
 export default (config: ModelsReviverConfig) => {
   let reviveInstance: (

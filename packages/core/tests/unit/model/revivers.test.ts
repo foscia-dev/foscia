@@ -2,7 +2,8 @@
 import {
   attr,
   hasMany,
-  hasOne, makeComposable,
+  hasOne,
+  makeComposable,
   makeModel,
   makeModelFactory,
   makeModelsReducer,
@@ -18,14 +19,14 @@ describe.concurrent('unit: reducing and reviving', () => {
   it('should reduce and revive with circular dependencies', () => {
     class PostMock extends makeModel('posts', {
       title: attr(),
-      author: hasOne('users'),
-      comments: hasMany('comments'),
+      author: hasOne('users' as any),
+      comments: hasMany('comments' as any),
     }) {
     }
 
     class UserMock extends makeModel('users', {
       name: attr(),
-      favoritePosts: hasMany('posts'),
+      favoritePosts: hasMany('posts' as any),
     }) {
     }
 

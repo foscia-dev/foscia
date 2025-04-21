@@ -12,7 +12,7 @@ import ShellCommand from '@site/src/components/ShellCommand';
 
 :::tip What you'll learn
 
-- Preparing and configuring Foscia for server-side rendering (SSR)
+- Preparing and configuring Foscia for server-side rendering (SSR) with Nuxt
 
 :::
 
@@ -97,15 +97,26 @@ will create reducer and reviver (if they are missing) and will publish a
 
 Be aware that this plugin must be registered before any payload reduce/revive
 tasks. If you need to priorise it, check out the
-[**registration order guide on Nuxt docs**](https://nuxt.com/docs/guide/directory-structure/plugins#registration-order).
+[registration order guide on Nuxt docs](https://nuxt.com/docs/guide/directory-structure/plugins#registration-order).
 
 :::
+
+```typescript title="fosciaPayloadPlugin.ts"
+import { isInstance } from '@foscia/core';
+import reducer from './utils/reducer';
+import reviver from './utils/reviver';
+
+definePayloadPlugin(() => {
+  definePayloadReducer('FosciaInstance', (data) => isInstance(data) && reducer.reduce(data));
+  definePayloadReviver('FosciaInstance', (data) => reviver.revive(data));
+});
+```
 
 ## Usage
 
 You can now use Foscia in any server/client context using `useAsyncData`.
 
-```html title="pages/products.vue"
+```html title="pages/posts.vue"
 <script setup lang="ts">
 import { all, query } from '@foscia/core';
 import action from '../data/action';

@@ -1,0 +1,412 @@
+---
+sidebar_position: 20
+sidebar_label: Actions
+pagination_label: "Get started: actions"
+description: Run your first actions.
+---
+
+import TabItem from '@theme/TabItem';
+import Tabs from '@theme/Tabs';
+
+# Get started: actions
+
+:::tip What you'll learn
+
+- Action factory definition and how it works
+- Running actions, from common use cases to implementation specific features
+- Understanding the actions lifecycle and available call styles
+
+After reading this guide, you can [explore all actions guides](/docs/guides/actions).
+
+:::
+
+Action factories represent the connection to your data source. They allow
+you to create actions which represents a pending query to the data source.
+If you get started using [`@foscia/cli`](/docs/tools/foscia-cli),
+you should already have an action factory defined thanks to the
+[`foscia init`](/docs/tools/foscia-cli#init-path) process.
+
+## Action factory
+
+Once your models are set up, you will probably want to interact with a data
+source, such as an API. For this, you will need an action factory which
+initialize a preconfigured context for all your future actions. Running actions
+using this action factory will be seen in the
+[next part of this guide](#running-actions).
+
+Action factory will set up all the required context for interacting with data
+source (adapter, (de)serializer, etc.). You can use
+[`makeActionFactory`](/docs/api/@foscia/core/functions/makeActionFactory) to
+create your action factory. It takes one argument: an initial `context`
+as an object or an object factory.
+
+Thanks to [`foscia init`](/docs/tools/foscia-cli#init-path), you can create
+action factories with already defined dependencies and sensible default
+configurations.
+Depending on the usage you are targeting, here is what your action factory may
+look like:
+
+<Tabs groupId="usage">
+  <TabItem
+    value="jsonapi"
+    label="JSON:API"
+    default
+  >
+
+```typescript
+import { makeActionFactory, makeCache, makeLoader, makeSimpleLazyLoader } from '@foscia/core';
+import { makeJsonApiAdapter, makeJsonApiDeserializer, makeJsonApiSerializer, makeJsonApiEagerLoader } from '@foscia/jsonapi';
+
+export default makeActionFactory({
+  ...makeCache(),
+  ...makeJsonApiDeserializer(),
+  ...makeJsonApiSerializer(),
+  ...makeJsonApiAdapter({
+    baseURL: '/api/v1',
+  }),
+  ...makeLoader({
+    eagerLoader: makeJsonApiEagerLoader(),
+    lazyLoader: makeSimpleLazyLoader(),
+  }),
+});
+```
+
+  </TabItem>
+  <TabItem
+    value="rest"
+    label="REST"
+  >
+
+```typescript
+import { makeActionFactory, makeCache, makeLoader, makeSimpleLazyLoader } from '@foscia/core';
+import { makeRestAdapter, makeRestDeserializer, makeRestSerializer, makeRestEagerLoader } from '@foscia/rest';
+
+export default makeActionFactory({
+  ...makeCache(),
+  ...makeRestDeserializer(),
+  ...makeRestSerializer(),
+  ...makeRestAdapter({
+    baseURL: '/api',
+  }),
+  ...makeLoader({
+    eagerLoader: makeRestEagerLoader({ param: 'include' }),
+    lazyLoader: makeSimpleLazyLoader(),
+  }),
+});
+```
+
+  </TabItem>
+  <TabItem
+    value="http"
+    label="HTTP"
+  >
+
+```typescript
+import { makeActionFactory } from '@foscia/core';
+import { makeHttpAdapter } from '@foscia/http';
+
+export default makeActionFactory({
+  ...makeHttpAdapter({
+    baseURL: '/api',
+  }),
+});
+```
+
+  </TabItem>
+</Tabs>
+
+## Running actions
+
+### Common actions
+
+To run an action, you can initialize a new
+[`Action`](/docs/api/@foscia/core/interfaces/Action) object by calling your
+factory. With this instance, you can provide *context enhancers* to
+modify the action context, and a *context runner* to run the action.
+
+Simplest way of running an action is to call the factory, providing *enhancers*
+as arguments and providing a *runner* as the last argument. This is called
+the variadic factory calls.
+Documentation and guides are generally using this call format.
+
+You can also decompose those calls through
+[`use`](/docs/api/@foscia/core/interfaces/Action#use) and
+[`run`](/docs/api/@foscia/core/interfaces/Action#run) individual calls
+(which are also supporting variadic arguments), which will better show
+[how Foscia actions lifecycle works](#lifecycle).
+
+```typescript
+import { all, query } from '@foscia/core';
+import Post from './models/post';
+import action from './action';
+
+// Variadic run.
+const posts = await action(
+  query(Post),
+  all(),
+);
+
+// Equivalent: individual calls.
+const posts = await action()
+  .use(query(Post))
+  .run(all());
+```
+
+In Foscia, the context enhancers are doing the majority of work to customize the
+action you will run. Context runners only exists to tell how you wish to run the
+action and retrieve the result (raw result, deserialized model instance, etc.).
+
+A great example of this is when finding a model using its ID. You'll not use a
+"find" context runner. Instead, you will need to use a
+[`query`](/docs/api/@foscia/core/functions/query) context enhancer which targets
+a model by its ID, and a [`oneOrFail`](/docs/api/@foscia/core/functions/oneOrFail)
+context runner which will retrieve a deserialized instance or throw an error.
+This way, you are able to do a find query and retrieve a raw result when needed.
+
+```typescript
+import { query, oneOrFail } from '@foscia/core';
+import Post from './models/post';
+import action from './action';
+
+const post = await action(
+  query(Post, 'abc-123'),
+  oneOrFail(),
+);
+```
+
+This works the same to send write operations through actions, such as with
+[`create`](/docs/api/@foscia/core/functions/create). In the following
+example, we are retrieving the created instance:
+[`current`](/docs/api/@foscia/core/functions/current) is used to
+retrieve a result from the response if it is available but will also support
+empty responses by returning the context's instance (as an example,
+for *HTTP 204* responses).
+
+```typescript
+import { create, fill, current } from '@foscia/core';
+import Post from './models/post';
+import action from './action';
+
+const post = fill(new Post(), {
+  title: 'Hello World!',
+  description: 'Your first post',
+});
+
+const createdPost = await action(
+  create(post),
+  current(),
+);
+```
+
+But, pay attention, this behavior also means that you **must** provide an
+action runner, even if you do not expect a return result from the action
+execution. This is a common task when deleting a record, because you
+won't use the deletion result. For this, Foscia provides a
+[`none`](/docs/api/@foscia/core/functions/none) runner which ignores
+the data source response.
+
+```typescript
+import { destroy, none } from '@foscia/core';
+import action from './action';
+
+// This has no effect and will throw an error because `destroy` is not a runner!
+// highlight.deletion
+await action(destroy(post));
+// Do this instead: finish with a runner, such as `none`, `raw`, etc.
+// highlight.addition
+await action(destroy(post), none());
+```
+
+### Special actions
+
+#### HTTP: REST and JSON:API
+
+Using JSON:API or REST, you can also use Foscia to make non-standard
+(non-CRUD) API calls.
+This way, you can standardize all API calls across your application, even when
+those are non JSON:API/REST related.
+
+In the following example, we use
+[`makePost`](/docs/api/@foscia/http/functions/makePost) to make a *POST* request
+and [`raw`](/docs/api/@foscia/core/functions/raw) to retrieve the original
+[`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) object.
+
+```typescript
+import { query, raw, oneOrFail } from '@foscia/core';
+import { makePost } from '@foscia/http';
+import Comment from './comment';
+import action from './action';
+
+const comment = await action(
+  query(Comment, '1'),
+  oneOrFail(),
+);
+
+// Make a POST call to "https://example.com/api/v1/comments/1/publish"
+const response = await action(
+  query(comment),
+  makePost('publish', {
+    data: { publishedAt: new Date() },
+  }),
+  raw(),
+);
+
+// This is a raw `fetch` Response object.
+console.log(response.status);
+```
+
+## Lifecycle
+
+When using variadic factory calls (see [calls styles](#calls-styles)),
+Foscia actions lifecycle is "hidden" by the use of variadic arguments.
+In fact, all actions execution have 3 steps:
+creation, enhancements and execution (run).
+
+```typescript
+// Creation, context enhancements (`query`, `include`) and run (`all`) in one call.
+action(
+  query(Post),
+  include('comments'),
+  all(),
+);
+```
+
+The above example is equivalent to the following:
+
+```typescript
+action()                    // Creation.
+  .use(query(Post))         // `query` enhancement.
+  .use(include('comments')) // `include` enhancement.
+  .run(all());              // `all` run.
+```
+
+### Creation
+
+The creation step is applying the initial context provided to the action
+factory (generally to provide common dependencies: adapter, serializer, etc.).
+
+### Enhancers
+
+An action can receive multiple enhancements that will build an
+appropriate context to run requests to your data sources.
+
+Each enhancer can be applied using the `use` action method. Note that those
+enhancers are not instantly applied to the action context, but during the action
+run step (or context computation).
+
+```typescript
+action()
+  // Enhance the action.
+  .use(query(Post))
+  .use(include('comments'));
+```
+
+### Runners
+
+An action can be run using the `run` method. The runner can execute
+multiple enhancers or runners internally.
+
+When an action run, it does 3 things:
+
+- Dequeue all enhancers since the action instantiation and builds context
+- Execute the runner and each of its internal enhancers/runners (this may update
+the context)
+- Return the runner result (might be any value, including void or an error
+throwing)
+
+Internally, action running will also trigger
+[actions hooks](/docs/guides/actions/hooks).
+
+```typescript
+action()
+  .use(query(Post))
+  .use(include('comments'))
+  // Run the action.
+  .run(all());
+```
+
+## Calls styles
+
+Foscia provide various action call styles to make your action run expression
+shorter and simpler to write.
+
+### Variadic style
+
+This call style was introduced and improved multiple times.
+
+#### Variadic action `use` or `run`
+
+Action factory support variadic enhancers (that can finish with a runner)
+by passing those variadic arguments directly to the factory,
+and will immediately call `use` or `run` on the action.
+
+Action instance also support variadic enhancers (that can finish with a runner)
+by invoking the action instance with those variadic arguments,
+and will immediately call `use` or `run` on the action.
+
+Those are the recommended way of enhancing and running actions.
+
+```typescript
+// Variadic action factory invocation.
+const posts = await action(
+  query(Post),
+  include('author'),
+  // Variadic action instance invocation.
+  when(search, (a, s) => a(
+    filterBy('search', s),
+    sortBy('search'),
+  )),
+  all(),
+);
+```
+
+:::warning
+
+`run` variadic call must use an official runner (`all`, `oneOrFail`, etc.)
+or a custom runner created by `makeRunner`, otherwise it will handle
+the variadic call as a `use` call, because it won't be able to detect a `run`
+is requested from an anonymous runner function.
+
+:::
+
+#### Variadic `use`
+
+`use` also support variadic enhancers. Number of arguments might be limited,
+check the function signature for details.
+
+```typescript
+action().use(
+  query(Post),
+  include('comments'),
+  sortByDesc('publishedAt'),
+  // etc.
+);
+```
+
+#### Variadic `run`
+
+`run` also support variadic enhancers finishing with a runner, just like the
+factory variadic calls. Number of arguments might be limited,
+check the function signature for details.
+
+```typescript
+const posts = await action().run(
+  query(Post),
+  include('comments'),
+  sortByDesc('publishedAt'),
+  all(),
+);
+```
+
+### Original style
+
+This call style was the only available way of running an action at Foscia's launch.
+It has the advantage of being clear about the action lifecycle, but is more
+verbose.
+
+```typescript
+const posts = await action()
+  .use(query(Post))
+  .use(include('comments'))
+  .run(all());
+```

@@ -9,6 +9,7 @@ import {
   makeComposableFactory,
   makeDefinition,
   makeModel,
+  makeModelFactory,
   ModelAttribute,
   ModelAttributeFactory,
   ModelComposable,
@@ -176,7 +177,7 @@ test('Models compositions are type safe', () => {
   >() => makeComposableFactory<BelongsToComposable<T>>({
     bind: (composable) => {
       applyDefinition(composable.parent, makeDefinition({
-        [composable.key]: hasOne('dummy'),
+        [composable.key]: hasOne(() => null as unknown as ModelInstance),
         [`${composable.key}Id`]: attr(),
       }));
     },
@@ -197,4 +198,16 @@ test('Models compositions are type safe', () => {
   expectTypeOf(post.mainImageId).toEqualTypeOf<string | number | null>();
   expectTypeOf(post.userImage).toEqualTypeOf<Image>();
   expectTypeOf(post.userImageURL).toEqualTypeOf<string>();
+
+  expectTypeOf(makeModelFactory()('foo').$connection).toEqualTypeOf<'default'>();
+  expectTypeOf(makeModelFactory()('foo').$type).toEqualTypeOf<'foo'>();
+
+  expectTypeOf(makeModelFactory()('v1:foo').$connection).toEqualTypeOf<'v1'>();
+  expectTypeOf(makeModelFactory()('v1:foo').$type).toEqualTypeOf<'foo'>();
+
+  expectTypeOf(makeModelFactory({ connection: 'v1' })('foo').$connection).toEqualTypeOf<'v1'>();
+  expectTypeOf(makeModelFactory({ connection: 'v1' })('foo').$type).toEqualTypeOf<'foo'>();
+
+  expectTypeOf(makeModelFactory({ connection: 'v1' })('v2:foo').$connection).toEqualTypeOf<'v2'>();
+  expectTypeOf(makeModelFactory({ connection: 'v1' })('v2:foo').$type).toEqualTypeOf<'foo'>();
 });

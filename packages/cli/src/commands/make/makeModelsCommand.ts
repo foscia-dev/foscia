@@ -42,6 +42,7 @@ export async function runMakeModelsCommand(
 
   await warnMissingDependencies(config);
 
+  // TODO Foscia typings.
   await makeFile(config, 'models list', 'models', async () => {
     const imports = makeImportsList();
     const models = await resolveModels(config);

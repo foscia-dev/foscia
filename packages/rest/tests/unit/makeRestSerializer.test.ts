@@ -19,29 +19,29 @@ describe.concurrent('unit: makeRestSerializer', () => {
   });
 
   const authored = makeComposable({
-    author: hasOne('users'),
+    author: hasOne('users' as any),
   });
 
   const Comment = makeModel('comments', {
     authored,
     body: attr(),
-    pushOnly: attr().alias('push-only').sync('push'),
+    pushOnly: attr({ alias: 'push-only', sync: 'push' }),
   });
 
   const Post = makeModel('posts', {
     authored,
     title: attr(),
     body: attr(),
-    comments: hasMany('comments'),
-    pullOnly: attr().alias('pull-only').readOnly().sync('pull'),
+    comments: hasMany('comments' as any),
+    pullOnly: attr({ alias: 'pull-only', readOnly: true, sync: 'pull' }),
   });
 
   const User = makeModel('users', {
     username: attr(makeTransformer(
       (value: string) => value.toLowerCase(),
       (value: string) => value.toUpperCase(),
-    )).alias('userName'),
-    posts: hasMany('users').alias('myPosts'),
+    ), { alias: 'userName' }),
+    posts: hasMany('users' as any, { alias: 'myPosts' }),
   });
 
   const user1 = forceFill(new User(), {

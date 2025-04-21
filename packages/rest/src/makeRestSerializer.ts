@@ -15,7 +15,7 @@ export default <
   Related = string,
   Data = Arrayable<RestNewResource> | null,
 >(
-  config?: Partial<RestSerializerConfig<Record, Related, Data>>,
+  config: RestSerializerConfig<Record, Related, Data> = {},
 ) => makeSerializer({
   createRecord: makeSerializerRecordFactory(
     (snapshot) => tap({} as Record, (record) => {

@@ -1,0 +1,239 @@
+---
+sidebar_position: 20
+description: Configuration recipes for REST client features.
+---
+
+# Configuration
+
+## API reference
+
+You can review the full configuration options inside the API reference:
+
+- [`RestAdapterConfig`](/docs/api/@foscia/rest/interfaces/RestAdapterConfig)
+- [`RestDeserializerConfig`](/docs/api/@foscia/rest/interfaces/RestDeserializerConfig)
+- [`RestSerializerConfig`](/docs/api/@foscia/rest/interfaces/RestSerializerConfig)
+
+## Configuration recipes
+
+### Relations loading
+
+:::warning
+
+Work in progress!
+
+:::
+
+### Content format
+
+If your REST API interacts with another data type than JSON, such as XML, you
+can configure this behavior as a default on your adapter:
+
+```typescript
+import { makeRestAdapter } from '@foscia/rest';
+import { objectToXML, objectFromXML } from 'some-xml-library';
+
+makeRestAdapter({
+  defaultBodyAs: (body) => objectToXML(body),
+  defaultResponseReader: (response) => objectFromXML(body),
+  defaultHeaders: {
+    Accept: 'application/xml',
+    'Content-Type': 'application/xml',
+  },
+});
+```
+
+### Nested data deserialization
+
+If your REST API document nest records inside the document (not at root, such as
+inside a `data` property), you can add
+[`extractData`](/docs/api/@foscia/rest/interfaces/RestDeserializerConfig#extractdata)
+option which will extract records data using the given transformation function.
+
+```typescript
+import { makeRestDeserializer } from '@foscia/rest';
+
+makeRestDeserializer({
+  extractData: (data: { data: any }) => ({ records: data.data }),
+});
+```
+
+When your server change the serialization key of results depending on the
+requested model (such as in [dummyJSON free API](https://dummyjson.com/),
+used by Foscia Playgrounds), you can also provide a more customized behavior:
+
+```typescript
+import { resolveContextModels, consumeModel, consumeRelation } from '@foscia/core';
+import { makeRestDeserializer } from '@foscia/rest';
+
+makeRestDeserializer({
+  extractData: async (data, action) => {
+    // Detect targeted model with context.
+    const models = await resolveContextModels(action);
+
+    return { records: (models[0] ? data[models[0].$type] : undefined) ?? data };
+  },
+});
+```
+
+In the example above, Foscia will try to identify the model targeted by the
+current context. When a model is identified, it will search for the model's type
+in the response body. Otherwise, it will use the whole responses body.
+
+This behavior can also be easily implemented when
+[nesting serialized data](#nesting-serialized-data).
+
+### Nested data serialization
+
+If your REST API document expect record data to be nested (not at root, such as
+inside a `data` property), you can add
+[`createData`](/docs/api/@foscia/rest/interfaces/RestSerializerConfig#createdata)
+option which will wrap
+records data using the given transformation function.
+
+```typescript
+import { makeRestSerializer } from '@foscia/rest';
+
+makeRestSerializer({
+  createData: (records, action) => ({ data: records }),
+});
+```
+
+### Endpoint paths transformations
+
+By default, REST use kebab case for models and relations endpoints (e.g.
+`favorite-posts` for a `favoritePosts` relation). If you want to use another
+case for endpoints, you can use
+[`modelPathTransformer`](/docs/api/@foscia/rest/interfaces/RestAdapterConfig#modelpathtransformer),
+[`relationPathTransformer`](/docs/api/@foscia/rest/interfaces/RestAdapterConfig#relationpathtransformer)
+[`idPathTransformer`](/docs/api/@foscia/rest/interfaces/RestAdapterConfig#idpathtransformer)
+options.
+
+```typescript
+import { camelCase } from 'lodash-es';
+import { makeRestAdapter } from '@foscia/rest';
+
+makeRestAdapter({
+  modelPathTransformer: (path) => camelCase(path),
+  relationPathTransformer: (path) => camelCase(path),
+  idPathTransformer: (path) => path.toLowerCase(),
+});
+```
+
+:::tip
+
+You can also change path guessing globally using model's
+[`guessPath`](/docs/guides/models/configuration#guesspath),
+[`guessRelationPath`](/docs/guides/models/configuration#guessrelationpath) and
+[`guessIdPath`](/docs/guides/models/configuration#guessidpath)
+configuration options.
+
+:::
+
+### Properties keys transformations
+
+By default, serialized and deserialized attributes and relations keep keys
+specified in the model. If you are using camel cased keys (e.g. `firstName`)
+but want to exchange kebab cased keys (e.g. `first-name`) with your API,
+you can use
+[`serializeKey`](/docs/api/@foscia/rest/interfaces/RestSerializerConfig#serializekey)
+and [`deserializeKey`](/docs/api/@foscia/rest/interfaces/RestDeserializerConfig#deserializekey)
+options.
+
+```typescript
+import { kebabCase } from 'lodash-es';
+import { makeRestSerializer, makeRestDeserializer } from '@foscia/rest';
+
+makeRestSerializer({
+  serializeKey: ({ key }) => kebabCase(key),
+});
+
+makeRestDeserializer({
+  deserializeKey: ({ key }) => kebabCase(key),
+});
+```
+
+:::tip
+
+You can also change the key serialization globally using model's
+[`guessAlias`](/docs/guides/models/configuration#guessalias)
+configuration option.
+
+:::
+
+### Relations serialization
+
+By default, REST implementation will only serialize the related IDs as the
+serialized relation's data. You can customize this behavior using
+[`serializeRelation`](/docs/api/@foscia/rest/interfaces/RestSerializerConfig#serializerelation)
+option, which will provide the related instance snapshot.
+
+#### Polymorphism support
+
+Here is an example which will serialize ID and type to support polymorphic
+relations:
+
+```typescript
+import { makeRestSerializer } from '@foscia/rest';
+
+makeRestSerializer({
+  serializeRelation: (_, related) => ({
+    type: related.$instance.$model.$type,
+    id: related.$values.id,
+  }),
+});
+```
+
+:::info
+
+Be aware that the serializer is using instance snapshots (not instances), this
+is why we are accessing the `id` property inside a `related.$values` object
+instead of directly on the `related` object.
+This allows locking the values during an action execution process.
+
+:::
+
+#### Deep relations serialization
+
+Here is another example where we serialize the whole related record. Since
+related instances' snapshots are limited and only contain IDs by default,
+you must disable [`limitedSnapshots`](/docs/guides/models/configuration#limitedsnapshots)
+to make it work.
+
+```typescript
+import { makeRestSerializer } from '@foscia/rest';
+
+makeRestSerializer({
+  serializeRelation: ({ context, serializer }, related, parents) => serializer
+    .serializeInstance(related, context, parents)
+});
+```
+
+:::tip
+
+If you want to customize relations serialization behavior when writing
+relations (e.g. using
+[`attach`](/docs/api/@foscia/core/functions/attach),
+[`associate`](/docs/api/@foscia/core/functions/associate), etc.), you can use the
+[`serializeRelated`](/docs/api/@foscia/rest/interfaces/RestSerializerConfig#serializerelated)
+option which have the same signature.
+
+:::
+
+### Parse URL IDs
+
+Some API implementations may serialize records IDs as the record endpoint's URL
+(such as `https://example.com/api/posts/1` for post `1`). You can customize
+the deserializer to support ID and type extraction from URL ID using
+[`extractId`](/docs/api/@foscia/rest/interfaces/RestDeserializerConfig#extractid)
+and [`extractType`](/docs/api/@foscia/rest/interfaces/RestDeserializerConfig#extracttype)
+options.
+
+```typescript
+import { makeRestDeserializer } from '@foscia/rest';
+
+makeRestDeserializer({
+  // This will support IDs like `https://example.com/api/posts/1`, `/api/posts/1`, etc.
+  extractId: (record) => String(record.id).split('/').reverse()[0],
+  extractType: (record) => String(record.id).split('/').reverse()[1],
+});
+```

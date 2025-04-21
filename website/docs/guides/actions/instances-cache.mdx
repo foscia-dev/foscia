@@ -1,0 +1,128 @@
+---
+sidebar_position: 20
+description: Cache usage through actions.
+---
+
+# Instances cache
+
+:::tip What you'll learn
+
+- Understanding the purpose of instances caching
+- Defining cache with the correct implementation
+- Retrieving records from the cache when available
+
+:::
+
+## Purpose
+
+In Foscia, the [`InstancesCache`](/docs/api/@foscia/core/interfaces/InstancesCache)
+is a dependency which can be added to your actions.
+This object has two purposes:
+
+- avoiding two different instances of the same data source's record to coexist
+- retrieving an already fetched instance without running another action.
+
+## Definition
+
+If you initialized Foscia with [`@foscia/cli`](/docs/tools/foscia-cli) or
+followed the example, your action factory is probably using
+[`makeCache`](/docs/api/@foscia/core/functions/makeCache).
+This is the default implementation for the cache. Currently, it uses
+[`makeRefsCache`](/docs/api/@foscia/core/functions/makeRefsCache) with
+[`makeWeakRefFactory`](/docs/api/@foscia/core/functions/makeWeakRefFactory).
+
+```typescript
+import { makeActionFactory, makeCache } from '@foscia/core';
+
+export default makeActionFactory({
+  ...makeCache(),
+});
+```
+
+[`makeRefsCache`](/docs/api/@foscia/core/functions/makeRefsCache) is the
+only implementation available for the cache. It stores reference to instances
+which can expire, built by a [`RefFactory`](/docs/api/@foscia/core/type-aliases/RefFactory).
+
+Currently, it can be used with one of the two built-in factories:
+
+- [`makeWeakRefFactory`](/docs/api/@foscia/core/functions/makeWeakRefFactory),
+which will store every instance as a
+[`WeakRef`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/WeakRef).
+With this implementation, only instance that are still stored in your
+application memory (not garbage collected) remains in cache.
+- [`makeTimedRefFactory`](/docs/api/@foscia/core/functions/makeTimedRefFactory),
+which will store every instance in a special object which expires after a
+configured timeout.
+
+In addition, type and ID normalization functions can be configured
+when caching or retrieving instances. This can be useful when your models types
+are different from the record types returned inside a JSON:API response.
+
+To change the implementation in your action factory, you just need to replace
+the cache in your action factory with the implementation you want:
+
+```typescript
+// highlight.deletion
+import { makeActionFactory, makeCache } from '@foscia/core';
+// highlight.addition
+import { makeActionFactory, makeRefsCache, makeTimedRefFactory } from '@foscia/core';
+
+export default makeActionFactory({
+// highlight.deletion
+  ...makeCache(),
+// highlight.addition
+  ...makeRefsCache({
+// highlight.addition
+    makeRef: makeTimedRefFactory({ lifetime: 5 * 60 }),
+// highlight.addition
+    normalizeType: (type) => toKebabCase(type),
+// highlight.addition
+  }),
+});
+```
+
+## Usage
+
+Foscia will automatically try to deserialize records inside already cached
+instances using your cache implementation. It will register all instances
+inside the cache during deserialization.
+
+You can use the cache to retrieve an already fetched record without
+interacting with your data source again using
+[`cached`](/docs/api/@foscia/core/functions/cached) and
+[`cachedOrFail`](/docs/api/@foscia/core/functions/cachedOrFail).
+
+```typescript
+import { query, cached, cachedOrFail } from '@foscia/core';
+
+const post = await action(query(Post, 1), cachedOrFail());
+const postOrNull = await action(query(Post, 1), cached());
+```
+
+Sometimes, you may want to interact with the cache if your record does not
+have been cached already. For this particular case, you can use
+[`cachedOr`](/docs/api/@foscia/core/functions/cachedOr).
+
+```typescript
+import { query, cachedOr, oneOrFail } from '@foscia/core';
+
+const cachedPostOrFetch = await action(query(Post, 1), cachedOr(oneOrFail()));
+```
+
+:::info
+
+[`cachedOrFail`](/docs/api/@foscia/core/functions/cachedOrFail) will throw a
+[`RecordNotFoundError`](/docs/api/@foscia/core/classes/RecordNotFoundError)
+when the instance does not exist inside the cache.
+[`cachedOr`](/docs/api/@foscia/core/functions/cachedOr) will use your provided
+callback and [`cached`](/docs/api/@foscia/core/functions/cached) will return
+`null`.
+
+In addition, [`cached`](/docs/api/@foscia/core/functions/cached) runners
+will check for loaded relations if you are requesting relations using
+[`include`](/docs/api/@foscia/core/functions/include).
+If some relations (even deep ones) are not loaded, it will act as the record
+is not available the cache to avoid retrieving a record which does not match
+the action.
+
+:::

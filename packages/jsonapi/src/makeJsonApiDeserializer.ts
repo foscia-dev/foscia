@@ -22,7 +22,7 @@ export default <
   Deserialized extends JsonApiDeserializedData = JsonApiDeserializedData,
   Extract extends JsonApiExtractedData<Record> = JsonApiExtractedData<Record>,
 >(
-  config: Partial<JsonApiDeserializerConfig<Record, Data, Deserialized, Extract>> = {},
+  config: JsonApiDeserializerConfig<Record, Data, Deserialized, Extract> = {},
 ) => makeDeserializer({
   extractData: (data: Data) => {
     const included: Multimap<[string, ModelIdType], Record> = new Map();

@@ -1,0 +1,182 @@
+---
+sidebar_position: 20
+description: Blog articles with tags example. Model setup and action usage.
+---
+
+# JSON:API blog
+
+:::tip What you'll learn
+
+- Defining blog and tag models
+- Use blog model for CRUD operations on a JSON:API backend
+
+:::
+
+This is a simple example to implement a blog content management using Foscia.
+This example is framework-agnostic, so you'll only see examples of models or
+actions calls. You may use those examples inside any project (Vanilla JS, React,
+Vue, etc.).
+
+## Models
+
+```typescript title="models/tag.ts"
+import { attr, makeModel } from '@foscia/core';
+
+export default class Tag extends makeModel('tags', {
+  name: attr<string>(),
+}) {}
+```
+
+```typescript title="models/post.ts"
+import { attr, hasMany, makeModel, toDateTime } from '@foscia/core';
+import Tag from './tag';
+
+export default class Post extends makeModel('posts', {
+  title: attr<string>(),
+  description: attr<string>(),
+  publishedAt: attr(toDateTime(), { nullable: true }),
+  tags: hasMany(() => Tag),
+  get published() {
+    return !!this.publishedAt;
+  },
+}) {}
+```
+
+## Action
+
+```typescript
+import { makeActionFactory, makeCache } from '@foscia/core';
+import {
+  makeJsonApiAdapter,
+  makeJsonApiDeserializer,
+  makeJsonApiSerializer,
+} from '@foscia/jsonapi';
+
+export default makeActionFactory({
+  ...makeCache(),
+  ...makeJsonApiDeserializer(),
+  ...makeJsonApiSerializer(),
+  ...makeJsonApiAdapter({
+    baseURL: '/api/v1',
+  }),
+});
+```
+
+## Basic usage
+
+### Read many
+
+```typescript
+import { query, when, all } from '@foscia/core';
+import { filterBy, sortByDesc, paginate, usingDocument } from '@foscia/jsonapi';
+import action from './action';
+import Post from './models/post';
+
+const fetchAllPosts = (
+  query: { search?: string; page?: number; } = {},
+) => action(
+  query(Post),
+  when(query.search, (a, s) => a(filterBy('search', s))),
+  sortByDesc('createdAt'),
+  paginate({ number: query.page ?? 1 }),
+  all(usingDocument),
+);
+
+const { instances, document } = await fetchAllPosts({ search: 'Hello' });
+```
+
+### Read one
+
+```typescript
+import { query, include, oneOrFail } from '@foscia/core';
+import action from './action';
+import Post from './models/post';
+
+const fetchOnePost = (id: string) => action(
+  query(Post, id),
+  include('tags'),
+  oneOrFail(),
+);
+
+const post = await fetchOnePost('123-abc');
+```
+
+### Create or update
+
+```typescript
+import { changed, fill, current, save, when, ModelWritableValues } from '@foscia/core';
+import action from './action';
+import Post from './models/post';
+
+const savePost = async (
+  post: Post,
+  values: Partial<ModelWritableValues<Post>>,
+) => action(
+  save(fill(post, values)),
+  when(!post.$exists || changed(post), current(), () => post),
+);
+
+await savePost(new Post(), {
+  title: 'Hello World!',
+  publishedAt: new Date(),
+});
+```
+
+### Delete
+
+```typescript
+import { destroy, none } from '@foscia/core';
+import action from './action';
+import Post from './models/post';
+
+const deletePost = (post: Post) => action(destroy(post), none());
+
+await deletePost(post);
+```
+
+## Advanced usage
+
+You can also use Foscia to run non-standard actions to your backend. You can
+even combine non-standard action with classical context enhancers and runners.
+
+```typescript
+import { query, all, none } from '@foscia/core';
+import { makeGet, makePost } from '@foscia/http';
+import action from './action';
+import Post from './models/post';
+
+const bestPosts = () => action(
+  query(Post),
+  makeGet('actions/best-posts'),
+  all(),
+);
+
+const publishPost = (post: Post) => action(
+  query(post),
+  makePost('actions/publish', {
+    data: { publishedAt: new Date(), },
+  }),
+  none(),
+);
+
+// Sends a GET to "<your-base-url>/posts/actions/best-posts
+// and deserialize a list of Post instances.
+const posts = await bestPosts();
+
+// Sends a POST to "<your-base-url>/posts/<id>/actions/publish
+await publishPost(posts[0]);
+```
+
+:::info
+
+[`makeGet`](/docs/api/@foscia/http/functions/makeGet) or other custom request
+enhancers ([`makePost`](/docs/api/@foscia/http/functions/makePost), etc.) will
+just append the given path if it is not "absolute" (starting with a scheme such
+as `https://`). This allows you to run non-standard actions scoped to an
+instance's endpoint, etc.
+
+Your can also use an absolute (starting with a scheme) path like
+`https://example.com/some/magic/action` to ignore the configured base URL and
+run a non-standard action.
+
+:::

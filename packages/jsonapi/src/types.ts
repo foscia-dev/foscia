@@ -187,7 +187,7 @@ export type JsonApiDeserializerConfig<
      *
      * @param record
      */
-    extractId: (
+    extractId?: (
       record: Record,
       deserializerContext: DeserializerContext<Record, Data, Deserialized, Extract>,
     ) => Awaitable<ModelIdType | null | undefined>;
@@ -196,9 +196,9 @@ export type JsonApiDeserializerConfig<
      *
      * @param record
      */
-    extractType: (record: Record) => Awaitable<string | undefined>;
+    extractType?: (record: Record) => Awaitable<string | undefined>;
   }
-  & RecordDeserializerConfig<Record, Data, Deserialized, Extract>;
+  & Partial<RecordDeserializerConfig<Record, Data, Deserialized, Extract>>;
 
 /**
  * Configuration for JSON:API serializer.
@@ -211,4 +211,4 @@ export type JsonApiSerializerConfig<
   Record extends JsonApiNewResource,
   Related extends JsonApiResourceIdentifier,
   Data,
-> = RecordSerializerConfig<Record, Related, Data>;
+> = Partial<RecordSerializerConfig<Record, Related, Data>>;

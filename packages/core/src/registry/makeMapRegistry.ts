@@ -10,7 +10,7 @@ import { Multimap, multimapGet, multimapSet } from '@foscia/shared';
  *
  * @category Factories
  */
-export default (config: MapRegistryConfig): { registry: MapRegistry; } => {
+export default <M extends readonly Model[]>(config: MapRegistryConfig<M>) => {
   const models: Multimap<[string, string], Model> = new Map();
 
   const normalizeType = config.normalizeType ?? ((t) => t);
@@ -25,8 +25,6 @@ export default (config: MapRegistryConfig): { registry: MapRegistry; } => {
   });
 
   return {
-    registry: {
-      resolve: async (rawType) => multimapGet(models, parseRawType(rawType)) ?? null,
-    },
-  };
+    resolve: async (rawType) => multimapGet(models, parseRawType(rawType)) ?? null,
+  } as MapRegistry<M>;
 };

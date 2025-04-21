@@ -1,0 +1,295 @@
+---
+sidebar_position: 10
+description: Use JSON:API client specific features.
+---
+
+# Usage
+
+:::info
+
+This guide is about JSON:API specific features, common and generic features
+are already described in [models](/docs/guides/models) and
+[actions](/docs/guides/actions) guides.
+
+:::
+
+[JSON:API](https://jsonapi.org) implementation provides implementation for
+multiple Foscia dependencies.
+
+
+- [`makeJsonApiAdapter`](/docs/api/@foscia/jsonapi/functions/makeJsonApiAdapter)
+provides a [`Adapter`](/docs/api/@foscia/core/interfaces/Adapter)
+implementation which will execute context through HTTP requests using the
+[`fetch` API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
+Internally, it uses [the REST adapter](/docs/guides/rest/usage).
+- [`makeJsonApiDeserializer`](/docs/api/@foscia/jsonapi/functions/makeJsonApiDeserializer)
+provides a [`Deserializer`](/docs/api/@foscia/core/interfaces/Deserializer)
+implementation which will extract model instances from JSON:API documents.
+Internally, it uses [the generic deserializer](/docs/guides/serialization#deserializer).
+- [`makeJsonApiSerializer`](/docs/api/@foscia/jsonapi/functions/makeJsonApiSerializer)
+provides a [`Serializer`](/docs/api/@foscia/core/interfaces/Serializer)
+implementation which will create JSON:API documents from model snapshots.
+Internally, it uses [the generic serializer](/docs/guides/serialization#serializer).
+
+:::tip Useful links
+
+- [HTTP usage guide](/docs/guides/http/usage)
+- [HTTP dedicated enhancers API reference](/docs/api/@foscia/http/#enhancers)
+- [JSON:API dedicated enhancers API reference](/docs/api/@foscia/jsonapi/#enhancers)
+- [JSON:API dedicated runners API reference](/docs/api/@foscia/jsonapi/#runners)
+
+:::
+
+## JSON:API documents format
+
+Foscia expects JSON:API documents to be exchanged with your API. Here are
+examples of valid JSON:API documents supported by Foscia (more information
+can be found inside [the JSON:API specification](https://jsonapi.org)).
+
+
+<details>
+
+<summary>
+
+Deserialized JSON:API document example
+
+</summary>
+
+```json
+{
+  "data": [
+    {
+      "type": "posts",
+      "id": "1",
+      "attributes": {
+        "title": "Foo",
+        "body": "Foo Body",
+        "publishedAt": "2023-10-24T10:00:00.000Z"
+      },
+      "relationships": {
+        "comments": {
+          "data": [
+            {
+              "type": "comments",
+              "id": "1"
+            },
+            {
+              "type": "comments",
+              "id": "2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "posts",
+      "id": "2",
+      "attributes": {
+        "title": "Bar",
+        "body": "Bar Body",
+        "publishedAt": null
+      },
+      "relationships": {
+        "comments": {
+          "data": []
+        }
+      }
+    }
+  ],
+  "included": [
+    {
+      "type": "comments",
+      "id": "1",
+      "attributes": {
+        "body": "Foo Comment"
+      }
+    },
+    {
+      "type": "comments",
+      "id": "2",
+      "attributes": {
+        "body": "Bar Comment"
+      }
+    }
+  ]
+}
+```
+
+</details>
+
+
+<details>
+
+<summary>
+
+Serialized JSON:API document example
+
+</summary>
+
+```json
+{
+  "data": {
+    "type": "posts",
+    "id": "1",
+    "attributes": {
+      "title": "Foo",
+      "body": "Foo Body",
+      "publishedAt": "2023-10-24T10:00:00.000Z"
+    },
+    "relationships": {
+      "comments": {
+        "data": [
+          {
+            "type": "comments",
+            "id": "1"
+          },
+          {
+            "type": "comments",
+            "id": "2"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+</details>
+
+## Basic usage
+
+### Filters
+
+You can filter your request using the
+[`filterBy`](/docs/api/@foscia/jsonapi/functions/filterBy) enhancer.
+This function both supports key-value or object parameters.
+
+```typescript
+import { query, all } from '@foscia/core';
+import { filterBy } from '@foscia/jsonapi';
+
+const posts = await action(
+  query(Post),
+  // Key-value pair.
+  filterBy('published', true),
+  // Object.
+  filterBy({ published: true }),
+  all(),
+);
+```
+
+### Sorts
+
+You can sort results using multiple enhancers:
+[`sortBy`](/docs/api/@foscia/jsonapi/functions/sortBy),
+[`sortByAsc`](/docs/api/@foscia/jsonapi/functions/sortByAsc) and
+[`sortByDesc`](/docs/api/@foscia/jsonapi/functions/sortByDesc).
+`sortBy` supports both object and arrays parameters and will apply
+ascending sorting by default.
+`sortByAsc` and `sortByDesc` supports variadic keys parameter.
+
+```typescript
+import { query, all } from '@foscia/core';
+import { sortBy, sortByDesc } from '@foscia/jsonapi';
+
+const posts = await action(
+  query(Post),
+  // Ascending sorting.
+  sortBy(['publishedAt', 'createdAt']),
+  // Custom sorting.
+  sortBy(['publishedAt', 'createdAt'], ['desc', 'asc']),
+  sortBy({ publishedAt: 'desc', createdAt: 'asc' }),
+  // Every key to descending sorting.
+  sortByDesc(['publishedAt', 'createdAt']),
+  all(),
+);
+```
+
+### Sparse fieldsets
+
+You can filter the record fields you will retrieve using
+[`fields`](/docs/api/@foscia/jsonapi/functions/fields) and
+[`fieldsFor`](/docs/api/@foscia/jsonapi/functions/fieldsFor) enhancers. Those are
+strongly typed to your model's properties and will automatically query for
+properties' aliases if they are set.
+
+`fields` applies for the currently targeted model, whereas `fieldsFor` applies
+for the given model.
+
+```typescript
+import { query, all, include } from '@foscia/core';
+import { fields, fieldsFor } from '@foscia/jsonapi';
+
+const posts = await action(
+  query(Post),
+  include('author'),
+  fields('title', 'author'),
+  fieldsFor(User, 'username'),
+  all(),
+);
+```
+
+### Pagination
+
+:::danger
+
+Pagination will be made generic inside Foscia soon, so this feature is deprecated.
+
+:::
+
+Pagination is agnostic when using JSON:API. That's why Foscia propose a
+[`paginate`](/docs/api/@foscia/jsonapi/functions/paginate) enhancer in which you
+can pass any object value. This provides support of all pagination style.
+
+You can combine this with the
+[`usingDocument`](/docs/api/@foscia/jsonapi/functions/usingDocument) utility
+function to retrieve the whole JSON:API document (for example when your server
+serialize pagination metadata in it).
+
+```typescript
+import { query, all } from '@foscia/core';
+import { paginate, usingDocument } from '@foscia/jsonapi';
+
+const data = await action(
+  query(Post),
+  // A standard pagination.
+  paginate({ size: 10, number: 1 }),
+  // A cursor pagination.
+  paginate({ size: 10, after: 1 }),
+  all(usingDocument),
+);
+
+// The `all` result.
+console.log(data.instances);
+// The JSON:API document.
+console.log(data.document);
+// Some pagination metadata your server gives you.
+console.log(data.document.meta!.page.hasMore);
+```
+
+## Advanced usage
+
+### Non-standard requests
+
+Just like with the HTTP adapter, you can run custom HTTP requests when your
+data source provides non-standard features.
+This provides many possibilities, such as retrieving models instances from
+a global search endpoint. In combination with polymorphism implementation
+on your data source, [`queryAs`](/docs/api/@foscia/core/functions/queryAs)
+will help Foscia resolves your models.
+
+```typescript
+import { queryAs, all } from '@foscia/core';
+import { makeGet } from '@foscia/http';
+
+const results = await action(
+  // Notice the `queryAs` instead of `query`, this will
+  // GET `/api/v1/search` instead of `/api/v1/posts/search`.
+  queryAs([Post, Comment, User]),
+  makeGet('search', { search: 'Hello' }),
+  all(),
+);
+
+// `results` is an array Post, Comment or User instances.
+console.log(results);
+```

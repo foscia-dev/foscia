@@ -10,7 +10,7 @@ import { kebabCase } from '@foscia/shared';
  *
  * @category Factories
  */
-export default (models: Model[]): { registry: ModelsRegistry; } => makeMapRegistry({
+export default <M extends readonly Model[]>(models: M): ModelsRegistry<M> => makeMapRegistry({
   models,
   normalizeType: kebabCase,
 });

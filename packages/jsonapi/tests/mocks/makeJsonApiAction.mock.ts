@@ -16,7 +16,7 @@ import PostMock from './models/post.mock';
 
 export default function makeJsonApiActionMock() {
   return makeActionFactory({
-    ...makeRegistry([PostMock, CommentMock]),
+    registry: makeRegistry([PostMock, CommentMock]),
     ...makeCache(),
     ...makeJsonApiDeserializer(),
     ...makeJsonApiSerializer(),

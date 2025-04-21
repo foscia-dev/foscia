@@ -1,0 +1,138 @@
+---
+sidebar_position: 10
+description: Use HTTP client specific features.
+---
+
+# Usage
+
+:::info
+
+This guide is about HTTP specific features, common and generic features
+are already described in [models](/docs/guides/models) and
+[actions](/docs/guides/actions) guides.
+
+:::
+
+HTTP implementation does only provide an adapter implementation, as it does
+not aim to be used in combination with models as is.
+[`makeHttpAdapter`](/docs/api/@foscia/http/functions/makeHttpAdapter) provides a
+[`Adapter`](/docs/api/@foscia/core/interfaces/Adapter) implementation which
+will execute context through HTTP requests using the
+[`fetch` API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
+The adapter builds [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request)
+objects using the context, returns
+[`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) objects
+as data and handles multiple use cases such as:
+
+- Dynamic endpoint based on targeted models, IDs, etc.
+- String or object query parameters using a customizable serializer.
+- Various request body typologies.
+- Requests cancellation through
+[`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController).
+- Errors handling through custom errors classes.
+- Requests/responses/errors transformation.
+- Defaults to JSON data for request/response bodies with appropriate headers.
+
+It is currently used by the [REST](/docs/guides/rest) and
+[JSON:API](/docs/guides/jsonapi) implementations.
+
+:::tip Useful links
+
+- [HTTP dedicated enhancers API reference](/docs/api/@foscia/http/#enhancers)
+
+:::
+
+## Basic usage
+
+Once your action factory is ready, sending HTTP request is pretty easy using
+provided enhancers ([`makeGet`](/docs/api/@foscia/http/functions/makeGet),
+[`makePost`](/docs/api/@foscia/http/functions/makePost), etc.). Running a
+request is done by [`raw`](/docs/api/@foscia/core/functions/raw) runner, which
+will retrieve a fetch
+[`Response`](https://developer.mozilla.org/docs/Web/API/Response)
+object. You can also pass a callback to
+[`raw`](/docs/api/@foscia/core/functions/raw)
+to retrieve a value from the
+[`Response`](https://developer.mozilla.org/docs/Web/API/Response) object.
+
+```typescript
+import { raw } from '@foscia/core';
+import { makeGet, makePost } from '@foscia/http';
+import action from './action';
+
+// GET https://example.com/ (and get Response object).
+const response = await action(makeGet('/'), raw());
+
+// POST https://example.com/api/posts (and get JSON payload).
+const data = await action(
+  makePost('/api/posts', {
+    data: { title: 'Hello World!' },
+  }),
+  raw((response) => response.json()),
+);
+```
+
+## Advanced usage
+
+You can pass a lot of options to each request enhancers, from
+[`headers`](/docs/api/@foscia/http/interfaces/HttpRequestConfig#headers) and
+[`params`](/docs/api/@foscia/http/interfaces/HttpRequestConfig#params) options
+to any other
+[`Request` options](https://developer.mozilla.org/docs/Web/API/Request/Request#options):
+
+```typescript
+import { raw } from '@foscia/core';
+import { makePost } from '@foscia/http';
+import action from './action';
+
+const abortController = new AbortController();
+
+const data = await action(
+  makePost('/api/posts', {
+    data: { title: 'Hello World!' },
+  }, {
+    headers: { 'Accept-Language': 'fr-FR' },
+    params: { include: 'comments' },
+    credentials: 'same-origin',
+    abortSignal: abortController.signal,
+    // cache, redirect, referrer, etc.
+    middlewares: [async (request, next) => {
+      // Do something with `request`.
+
+      try {
+        const response = await next(request);
+
+        // Do something with `response`.
+
+        return response;
+      } catch (error) {
+        // Do something with `error`.
+
+        throw error;
+      }
+    }],
+  }),
+  raw((response) => response.json()),
+);
+```
+
+## Custom `Request` object
+
+You can even pass a custom
+[`Request` instance](https://developer.mozilla.org/docs/Web/API/Request/Request):
+
+```typescript
+import { raw } from '@foscia/core';
+import { configureRequest } from '@foscia/http';
+import action from './action';
+
+const data = await action(
+  configureRequest({
+    request: new Request('https://example.com', {
+      headers: {},
+      /* Other init... */
+    }),
+  }),
+  raw((response) => response.json()),
+);
+```

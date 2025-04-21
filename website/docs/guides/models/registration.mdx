@@ -1,0 +1,142 @@
+---
+sidebar_position: 10
+description: Models registration for relations resolution.
+---
+
+import ShellCommand from '@site/src/components/ShellCommand';
+
+# Registration
+
+:::tip What you'll learn
+
+- Understanding the purpose of registration
+- Defining registry file using CLI or manually
+- Updating action factory with the registry
+
+:::
+
+## Purpose
+
+Models registration is done on two levels inside Foscia, with each one having
+a dedicated role:
+
+- Type registration through `Foscia` namespace overload, for type resolution by
+relations factories ([`hasMany`](/docs/api/@foscia/core/functions/hasMany),
+[`hasOne`](/docs/api/@foscia/core/functions/hasOne),
+[`belongsTo`](/docs/api/@foscia/core/functions/belongsTo),
+[`morphMany`](/docs/api/@foscia/core/functions/morphMany),
+[`morphOne`](/docs/api/@foscia/core/functions/morphOne),
+and [`morphTo`](/docs/api/@foscia/core/functions/morphTo))
+- Runtime registration through a
+[`ModelsRegistry`](/docs/api/@foscia/core/interfaces/ModelsRegistry),
+for runtime models resolution by Foscia (e.g. when deserializing records in
+unknown contexts or [reviving instances](/docs/guides/models/reduce-revive)).
+
+## Definition
+
+### CLI (recommended)
+
+The best way to maintain your registry is by using
+[`foscia make registry`](/docs/tools/foscia-cli#make-registry).
+
+<ShellCommand command="foscia make registry" />
+
+This command will create a `registry.ts` file containing the types definition
+and models registry by inspecting your `models` directory. You will be able to
+maintain the `registry.ts` file by regenerating it using the same command.
+In addition, on each run of
+[`foscia make model <name>`](/docs/tools/foscia-cli#make-model-name), Foscia
+will suggest you to automatically update the file.
+
+:::warning
+
+If you are not following Foscia types conventions (plural kebab case for
+JSON:API, plural snake case for SQL, etc.) or are using multiple connections,
+you will probably need to maintain this file manually.
+
+:::
+
+### Manually
+
+The `registry.ts` file should:
+
+- Define and export a [`ModelsRegistry`](/docs/api/@foscia/core/interfaces/ModelsRegistry),
+generally using the [`makeRegistry`](/docs/api/@foscia/core/functions/makeRegistry)
+function.
+- Overload `Foscia` namespace with your models typing, while checking registry
+models and types match each others using
+[`TypeCheckCustomTypes`](/docs/api/@foscia/core/type-aliases/typecheckcustomtypes).
+
+```typescript title="registry.ts"
+import { makeRegistry, TypeCheckCustomTypes } from '@foscia/core';
+import Comment from './models/v2/comment';
+import Post from './models/post';
+import User from './models/user';
+
+// Runtime registration is used for deserialization and reviver.
+const registry = makeRegistry([
+  Post,
+  User,
+  Comment,
+] as const);
+
+// `Models` registration is used for relations resolution.
+declare global {
+  namespace Foscia {
+    interface CustomTypes {
+      check: TypeCheckCustomTypes<typeof registry, this>;
+      models: {
+        // Models from default connection.
+        posts: Post;
+        users: User;
+        // Models from other connections.
+        'v2:comments': Comment;
+      };
+    }
+  }
+}
+
+export default registry;
+```
+
+:::warning
+
+Please note that building `Foscia.CustomTypes.models` dynamically is not
+currently possible, due to circularities between models definitions and registry.
+It would produce `TS2310` and `TS2506` errors because the model definition
+references itself as a base type. That's why you must write it yourself in
+addition to the runtime registry.
+
+:::
+
+## Usage
+
+Once your registration is ready, you must add it to your action factory.
+
+```typescript
+import { makeActionFactory } from '@foscia/core';
+// highlight.addition
+import registry from './registry';
+
+export default makeActionFactory({
+// highlight.addition
+  registry,
+  // ...
+});
+```
+
+When your registry types are configured, you will be able to automatically
+strict type your relations by only specifying the related types string.
+Related models will be resolved automatically through the action registry.
+
+```typescript title="foscia.d.ts"
+import { makeModel } from '@foscia/core';
+
+export default class Post extends makeModel('posts', {
+  // Automatically inferred as `User` related model.
+  author: hasOne('users'),
+  // Automatically inferred as `Comment` related model.
+  comments: hasMany('v2:comments'),
+}) {
+}
+```

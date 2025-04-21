@@ -1,0 +1,296 @@
+---
+sidebar_position: 20
+description: Definition of attributes and IDs on models.
+---
+
+# Attributes
+
+:::tip What you'll learn
+
+- Defining attributes or IDs
+- Configuring attributes behaviors
+- Using attributes to store record values
+
+:::
+
+In Foscia, IDs and attributes are model properties holding values which are
+not related records, such as a title string or a publication date time.
+Values can be of any type, from scalar strings or numbers to dates or
+custom objects.
+
+## Definition
+
+IDs and attributes are defined inside your model or composable definition
+using [`id`](/docs/api/@foscia/core/functions/id) and
+[`attr`](/docs/api/@foscia/core/functions/attr) functions. IDs have almost the
+same capabilities as attributes, so the guide won't focus on them. You can learn
+more about the IDs specificities inside
+[their dedicated section of this guide](#ids).
+
+### Type parameter
+
+You can define a typed attribute by specifying a generic type on the
+[`attr`](/docs/api/@foscia/core/functions/attr) factory.
+Using type parameter will only be used for type checking and won't perform
+any runtime checks nor [transformations](#transformed).
+When using this call signature, the [configuration](#configuration) is
+the first and only parameter of the factory.
+
+In the following example, we are defining two attributes:
+
+- `title`, a string
+- `likesCount`, a number with an alias for serialization processes.
+
+```typescript
+import { makeModel, attr } from '@foscia/core';
+
+export default class Post extends makeModel('posts', {
+  title: attr<string>(),
+  likesCount: attr<number>({ alias: 'likes_count' }),
+}) {}
+```
+
+### Transformer
+
+You can define a transformed attribute by passing a transformer as first
+argument of the [`attr`](/docs/api/@foscia/core/functions/attr) factory.
+The attribute type will be automatically inferred from the transformer type.
+The given transformer will be used when serializing or deserializing the
+attribute's value.
+When using this call signature, the [configuration](#configuration) is
+the second and last parameter of the factory.
+
+In the following example, we are defining one attribute:
+
+- `publishedAt`, a nullable `Date` object which will be (de)serialized to
+a string during serialization processes.
+
+```typescript
+import { makeModel, attr, toDateTime } from '@foscia/core';
+
+export default class Post extends makeModel('posts', {
+  publishedAt: attr(toDateTime(), { nullable: true }),
+}) {}
+```
+
+:::tip
+
+Foscia provides multiple built-in transformers, such as
+[`toString`](/docs/guides/models/transformers#tostring),
+[`toBoolean`](/docs/guides/models/transformers#toboolean),
+[`toNumber`](/docs/guides/models/transformers#tonumber),
+[`toDateTime`](/docs/guides/models/transformers#todatetime), etc.
+You can discover all available transformers and learn how to create your owns by
+reading [the dedicated transformers guide](/docs/guides/models/transformers).
+
+:::
+
+### Default value
+
+You can define a default value for an attribute by passing a scalar value or
+an object value factory as first argument of the
+[`attr`](/docs/api/@foscia/core/functions/attr) factory.
+The attribute type will be automatically inferred from the given default.
+When constructing a new instance, the default value will be set it automatically.
+When using this call signature, the [configuration](#configuration) is
+the second and last parameter of the factory.
+
+In the following example, we are defining two attributes:
+
+- `emailVerified`, a read-only boolean with a `false` default value
+- `preferences`, an object with a `{ theme: 'light' }` default value.
+
+```typescript
+import { makeModel, attr } from '@foscia/core';
+
+export default class User extends makeModel('users', {
+  emailVerified: attr(false, { readOnly: true }),
+  preferences: attr(() => ({ theme: 'light' })),
+}) {}
+```
+
+:::warning
+
+Notice that if your default value is not a scalar value (e.g. number, boolean,
+string), you must use a factory function.
+
+:::
+
+In addition, if you want to combine a default value definition with a
+[transformer](#transformer), you can still provide a
+[`transformer`](/docs/api/@foscia/core/interfaces/ModelAttributeFactoryConfig#transformer)
+option to the attribute configuration.
+
+```typescript
+import { makeModel, attr, toDateTime } from '@foscia/core';
+
+export default class Post extends makeModel('posts', {
+  publishedAt: attr(() => new Date(), { transformer: toDateTime() }),
+  // Inverse is also supported:
+  publishedAt: attr(toDateTime(), { default: () => new Date() }),
+}) {}
+```
+
+## Configuration
+
+### Nullable
+
+You can mark an attribute as nullable using the `nullable` option. This will
+add `null` to the current attribute typing.
+
+```typescript
+import { makeModel, attr, toDateTime } from '@foscia/core';
+
+export default class Post extends makeModel('posts', {
+  publishedAt: attr(toDateTime(), { nullable: true }),
+}) {}
+```
+
+### Read only
+
+You can mark an attribute as read-only using the
+[`readOnly`](/docs/api/@foscia/core/interfaces/ModelAttributeFactoryConfig#readonly)
+option.
+The property will be marked as readonly inside the model's values,
+thus producing TypeScript errors when trying to assign it a value.
+If [`strict`](/docs/guides/models/configuration#strict) or
+[`strictReadOnly`](/docs/guides/models/configuration#strictreadonly) model
+configuration options are enabled, trying to assign it a value will throw
+an error.
+
+```typescript
+import { makeModel, attr } from '@foscia/core';
+
+export default class User extends makeModel('users', {
+  email: attr<string>({ readOnly: true }),
+}) {}
+```
+
+:::tip
+
+When you need it, you can still use
+[`forceFill`](/docs/api/@foscia/core/functions/forceFill) to force assignation
+for read-only attributes.
+
+:::
+
+### Alias
+
+When your data source is using a key for a given property, but you wish to use
+a different one for your model attribute, you can define an alias using the
+[`alias`](/docs/api/@foscia/core/interfaces/ModelAttributeFactoryConfig#alias) option.
+The alias will be used when serializing or deserializing the attribute's value
+for your data source exchanges.
+
+```typescript
+import { makeModel, attr, toDateTime } from '@foscia/core';
+
+export default class Post extends makeModel('posts', {
+  publishedAt: attr(toDateTime(), { alias: 'published_at' }),
+}) {}
+```
+
+:::tip
+
+If you wish to define a common behavior for keys aliasing, such as using
+snake or kebab cases keys, you can specify a
+[`guessAlias`](/docs/guides/models/configuration#guessalias) option in your
+model configuration.
+
+:::
+
+### Synchronization
+
+If you want Foscia to only retrieve without sending an attribute to your data
+source, or the inverse, or none, you can define a
+[`sync`](/docs/api/@foscia/core/interfaces/ModelAttributeFactoryConfig#sync) option.
+Synchronization option can have 3 different values:
+
+- `false` will avoid retrieving or sending the attribute
+- `pull` will only retrieve the attribute from the data source while never sending it
+- `push` will only send the attribute to the data source while never retrieving it
+
+```typescript
+import { makeModel, attr, toDateTime } from '@foscia/core';
+
+export default class Post extends makeModel('posts', {
+  liked: attr(false, { sync: 'pull' }),
+}) {}
+```
+
+## IDs
+
+IDs are special properties which have almost the same behavior and capabilities
+as attributes, but with a special meaning. Those are used internally by Foscia
+for multiple purposes, such as building API endpoints for records, uniquely
+identifying instances inside the cache, etc. Inside Foscia, only two properties
+can use [`id`](/docs/api/@foscia/core/functions/id) factory:
+
+- `id` which is the "primary key" uniquely identifying the record.
+- `lid` which is a special local ID required by some implementations (e.g. JSON:API).
+
+Foscia default behavior is to define two IDs properties, `id` and `lid`.
+Those default IDs are typed as `string | number | null` and can be overridden
+inside your model definition. In the following example, the `Post` model is
+now using a non-nullable `string` ID property.
+
+```typescript
+import { makeModel, id } from '@foscia/core';
+
+export default class Post extends makeModel('posts', {
+  id: id<string>(),
+}) {}
+```
+
+:::info
+
+Even if IDs are very similar to attributes, they do have some limitations:
+
+- IDs must be strings or numbers, with the ability to be nullable
+- IDs must be declared on `id` or `lid` properties, but [may be aliased](#alias)
+if your data source is naming those field differently
+- IDs do not support [synchronization customization](#synchronization).
+
+:::
+
+## Usage
+
+Once attributes are defined inside your model, you can manipulate them as any
+standard ES6 class properties.
+
+```typescript
+import { makeModel, attr } from '@foscia/core';
+
+class Post extends makeModel('posts', {
+  title: attr<string>(),
+  body: attr<string>(),
+}) {}
+
+const post = new Post();
+post.title = 'Hello World!';
+console.log(post.title);
+```
+
+You can also use attributes related utilities, such as
+[`changed`](/docs/api/@foscia/core/functions/changed),
+[`fill`](/docs/api/@foscia/core/functions/fill), etc. Explore the full
+[utilities API reference](/docs/api/@foscia/core/#utilities) for more.
+
+```typescript
+import { changed, fill } from '@foscia/core';
+
+const post = new Post();
+console.log(changed(post)); // false
+fill(post, { title: 'Hello...', body: '...world!' });
+console.log(changed(post)); // true
+```
+
+:::warning
+
+When you are manipulating attributes, be aware that non-loaded or non-filled
+attributes values will be `undefined`. You can use
+[`strictProperties`](/docs/guides/models/configuration#strictproperties)
+model configuration option to throw an error when trying to access a property
+which is not loaded or filled.
+
+:::

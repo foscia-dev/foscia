@@ -1,4 +1,4 @@
-import { attr, makeModel, toDateTime } from '@foscia/core';
+import { attr, makeModel, morphMany, toDateTime } from '@foscia/core';
 import commentable from '../composables/commentable.mock';
 import imageable from '../composables/imageable.mock';
 
@@ -7,7 +7,8 @@ export default class PostMock extends makeModel('posts', {
   commentable,
   title: attr<string>(),
   body: attr<string | null>(),
-  publishedAt: attr(toDateTime()).nullable().readOnly(),
+  publishedAt: attr(toDateTime(), { nullable: true, readOnly: true }),
+  relatedContents: morphMany(['posts', 'galleries']),
   get published() {
     return !!this.publishedAt;
   },

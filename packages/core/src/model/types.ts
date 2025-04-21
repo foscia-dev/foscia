@@ -9,8 +9,12 @@ import {
   SYMBOL_MODEL_PROP_KIND_ATTRIBUTE,
   SYMBOL_MODEL_PROP_KIND_ID,
   SYMBOL_MODEL_PROP_KIND_RELATION,
+  SYMBOL_MODEL_RELATION_BELONGS_TO,
   SYMBOL_MODEL_RELATION_HAS_MANY,
   SYMBOL_MODEL_RELATION_HAS_ONE,
+  SYMBOL_MODEL_RELATION_MORPH_MANY,
+  SYMBOL_MODEL_RELATION_MORPH_ONE,
+  SYMBOL_MODEL_RELATION_MORPH_TO,
   SYMBOL_MODEL_SNAPSHOT,
 } from '@foscia/core/symbols';
 import { ObjectTransformer } from '@foscia/core/transformers/types';
@@ -61,6 +65,11 @@ export type ModelConfig<M extends Model = Model> = {
    */
   strictReadOnly?: boolean;
   /**
+   * Guess alias from a property's name.
+   * Defaults is to keep the property's name.
+   */
+  guessAlias?: (prop: ModelProp) => string;
+  /**
    * Guess a related type from a relation.
    * Defaults is to use the relation name (and pluralize it if it is a "to one"
    * relation).
@@ -72,11 +81,6 @@ export type ModelConfig<M extends Model = Model> = {
    * relation).
    */
   guessRelationInverse?: (relation: ModelRelation) => string | string[];
-  /**
-   * Guess alias from a property's name.
-   * Defaults is to keep the property's name.
-   */
-  guessAlias?: (prop: ModelProp) => string;
   /**
    * Compare two properties values when comparing snapshots.
    * Defaults to {@link compareModelValues | `compareModelValues`}.
@@ -152,6 +156,23 @@ export type ModelConfig<M extends Model = Model> = {
    * This is specific to HTTP implementations (REST, JSON:API).
    */
   guessRelationPath?: (relation: ModelRelation) => string;
+};
+
+/**
+ * Valid connection and type pair as a template literal.
+ *
+ * @internal
+ */
+export type ModelConnectionType<T extends string, C extends string> =
+  C extends 'default' ? T | `${C}:${T}` : `${C}:${T}`;
+
+/**
+ * Map a readonly array of models by their connection/type strings.
+ *
+ * @internal
+ */
+export type RegisteredModels<T extends readonly Model[]> = {
+  [M in T[number] as ModelConnectionType<M['$type'], M['$connection']>]: M;
 };
 
 /**
@@ -251,6 +272,14 @@ export interface ModelProp<T = any, R extends boolean = boolean>
    */
   readonly _type: R extends false ? Record<this['key'], T> : Readonly<Record<this['key'], T>>;
   /**
+   * Internal type the property.
+   *
+   * @ignore
+   *
+   * @todo Remove it!
+   */
+  readonly _propType: T;
+  /**
    * Alias of the property (might be used when (de)serializing).
    */
   alias?: string | undefined;
@@ -269,78 +298,30 @@ export interface ModelProp<T = any, R extends boolean = boolean>
 }
 
 /**
- * Pending property.
+ * Model property configuration.
  *
  * @internal
  */
-export type ModelPendingProp<P extends ModelProp> =
-  Omit<P, '$FOSCIA_TYPE' | 'factory' | 'parent' | 'key' | '_type'> & ThisType<P>;
+export type ModelPropConfig = {
+  nullable?: boolean;
+  readOnly?: boolean;
+};
 
 /**
- * Pending property factory.
+ * Infer a possibly nullable property from config.
  *
  * @internal
  */
-export type ModelPendingPropFactory<F extends ModelComposableFactory<ModelProp>> =
-  Omit<F, '$FOSCIA_TYPE' | 'bind' | 'composable' | '_type' | '_readOnly' | '_factory'>;
+export type InferModelPropNullable<C extends { nullable?: boolean; }> =
+  C extends { nullable: true; } ? null : never;
 
 /**
- * Model property factory with modified type and read-only state.
+ * Infer a possibly read-only property from config.
  *
  * @internal
  */
-export type ModelPropModifiedFactory<
-  F extends ModelPropFactory<any, any>,
-  T,
-  R extends boolean,
-> = (F & { readonly _type: T | null; readonly _readOnly: R; })['_factory'];
-
-/**
- * Model property factory.
- *
- * @internal
- */
-export interface ModelPropFactory<T = any, R extends boolean = boolean> {
-  /**
-   * The final factory implementation.
-   *
-   * @ignore
-   */
-  readonly _factory: unknown;
-  /**
-   * The final type of the property created by the factory implementation.
-   *
-   * @ignore
-   */
-  readonly _type: unknown;
-  /**
-   The final read-only state of the property created by the factory implementation.
-   *
-   * @ignore
-   */
-  readonly _readOnly: boolean;
-
-  /**
-   * Define the alias to use for data source interactions.
-   *
-   * @param alias
-   */
-  alias: (alias: string) => ModelPropModifiedFactory<this, T, R>;
-  /**
-   * Define when the property should be synced with data source.
-   *
-   * @param sync
-   */
-  sync: (sync: boolean | ModelPropSync) => ModelPropModifiedFactory<this, T, R>;
-  /**
-   * Define a transformer.
-   *
-   * @param transformer
-   */
-  transform: <NT extends T>(
-    transformer: ObjectTransformer<NT | null, any, any>,
-  ) => ModelPropModifiedFactory<this, NT, R>;
-}
+export type InferModelPropReadOnly<C extends { readOnly?: boolean; }> =
+  C extends { readOnly: true; } ? true : false;
 
 /**
  * Model value property stored inside the instance internal values.
@@ -369,33 +350,6 @@ export type ModelValueProp<
   & ModelProp<T, R>;
 
 /**
- * Model value property factory.
- *
- * @internal
- */
-export interface ModelValuePropFactory<T = any, R extends boolean = boolean>
-  extends ModelPropFactory<T, R> {
-  /**
-   * Define read-only state.
-   *
-   * @param readOnly
-   */
-  readOnly: <NR extends boolean = true>(readOnly?: NR) => ModelPropModifiedFactory<this, T, NR>;
-  /**
-   * Define default value.
-   * Object values should be provided with a factory function to avoid
-   * defining the same reference on multiple instance.
-   *
-   * @param value
-   */
-  default: <NT extends T>(value: NT | (() => NT)) => ModelPropModifiedFactory<this, NT, R>;
-  /**
-   * Mark nullable.
-   */
-  nullable: () => ModelPropModifiedFactory<this, T | null, R>;
-}
-
-/**
  * Model ID property.
  *
  * @interface
@@ -405,18 +359,13 @@ export type ModelId<T = any, R extends boolean = boolean> =
 
 /**
  * Model ID factory.
+ *
+ * @interface
+ *
+ * @internal
  */
 export interface ModelIdFactory<T, R extends boolean>
-  extends ModelComposableFactory<ModelId<T, R>>, ModelValuePropFactory<T, R> {
-  readonly _factory: ModelIdFactory<this['_type'], this['_readOnly']>;
-  /**
-   * @ignore
-   */
-  alias: (alias: string) => ModelPropModifiedFactory<this, T, R>;
-  /**
-   * @ignore
-   */
-  sync: (sync: boolean | ModelPropSync) => ModelPropModifiedFactory<this, T, R>;
+  extends ModelComposableFactory<ModelId<T, R>> {
 }
 
 /**
@@ -426,8 +375,8 @@ export interface ModelIdFactory<T, R extends boolean>
  *
  * @internal
  */
-export type ModelIdFactoryConfig<T extends ModelIdType | null, R extends boolean> =
-  Pick<ModelId<T, R>, 'transformer' | 'default' | 'readOnly'>;
+export type ModelIdFactoryConfig<T extends ModelIdType | null> =
+  Pick<ModelId<T>, 'transformer' | 'default' | 'alias'>;
 
 /**
  * Model attribute property.
@@ -439,10 +388,13 @@ export type ModelAttribute<T = any, R extends boolean = boolean> =
 
 /**
  * Model attribute factory.
+ *
+ * @interface
+ *
+ * @internal
  */
 export interface ModelAttributeFactory<T, R extends boolean>
-  extends ModelComposableFactory<ModelAttribute<T, R>>, ModelValuePropFactory<T, R> {
-  readonly _factory: ModelAttributeFactory<this['_type'], this['_readOnly']>;
+  extends ModelComposableFactory<ModelAttribute<T, R>> {
 }
 
 /**
@@ -452,8 +404,8 @@ export interface ModelAttributeFactory<T, R extends boolean>
  *
  * @internal
  */
-export type ModelAttributeFactoryConfig<T, R extends boolean> =
-  Pick<ModelAttribute<T, R>, 'transformer' | 'default' | 'readOnly' | 'alias' | 'sync'>;
+export type ModelAttributeFactoryConfig<T> =
+  Pick<ModelAttribute<T>, 'transformer' | 'default' | 'alias' | 'sync'>;
 
 /**
  * Model relation property.
@@ -496,6 +448,9 @@ export type ModelRelation<
      */
     query?: AnonymousEnhancer<ConsumeModel, any>;
 
+    // TODO Always include with parent.
+    // TODO Always lazy loaded.
+
     // Specific HTTP config.
 
     /**
@@ -509,12 +464,22 @@ export type ModelRelation<
   & ModelValueProp<T, R, typeof SYMBOL_MODEL_PROP_KIND_RELATION>;
 
 /**
- * Model has one relation property.
+ * Model belongs to relation property.
  *
  * @interface
  */
-export type ModelHasOne<T = any, R extends boolean = boolean> =
-  & ModelRelation<T, R, typeof SYMBOL_MODEL_RELATION_HAS_ONE>;
+export type ModelBelongsTo<T = any, R extends boolean = boolean> =
+  & {
+    /**
+     * The key to the current instance's attribute holding the reference value.
+     */
+    foreignKey?: string;
+    /**
+     * The key to the related instance's attribute holding the reference value.
+     */
+    ownerKey?: string;
+  }
+  & ModelRelation<T, R, typeof SYMBOL_MODEL_RELATION_BELONGS_TO>;
 
 /**
  * Model has many relation property.
@@ -525,15 +490,84 @@ export type ModelHasMany<T = any, R extends boolean = boolean> =
   & ModelRelation<T, R, typeof SYMBOL_MODEL_RELATION_HAS_MANY>;
 
 /**
- * Infer related instance types from relationship types strings.
+ * Model has one relation property.
+ *
+ * @interface
+ */
+export type ModelHasOne<T = any, R extends boolean = boolean> =
+  & ModelRelation<T, R, typeof SYMBOL_MODEL_RELATION_HAS_ONE>;
+
+/**
+ * Model morph to relation property.
+ *
+ * @interface
+ */
+export type ModelMorphTo<T = any, R extends boolean = boolean> =
+  & {
+    /**
+     * The key to the current instance's attribute holding the reference type.
+     */
+    foreignTypeKey?: string;
+    /**
+     * The key to the current instance's attribute holding the reference value.
+     */
+    foreignKey?: string;
+    /**
+     * The key to the related instance's attribute holding the reference value.
+     */
+    ownerKey?: string;
+  }
+  & ModelRelation<T, R, typeof SYMBOL_MODEL_RELATION_MORPH_TO>;
+
+/**
+ * Model morph many relation property.
+ *
+ * @interface
+ */
+export type ModelMorphMany<T = any, R extends boolean = boolean> =
+  & ModelRelation<T, R, typeof SYMBOL_MODEL_RELATION_MORPH_MANY>;
+
+/**
+ * Model morph one relation property.
+ *
+ * @interface
+ */
+export type ModelMorphOne<T = any, R extends boolean = boolean> =
+  & ModelRelation<T, R, typeof SYMBOL_MODEL_RELATION_MORPH_ONE>;
+
+/**
+ * Infer related types from custom types.
  *
  * @internal
  */
-export type InferModelRelationInstanceFromTypes<T> =
+export type ModelRelationTypeFromCustomTypes =
+  Foscia.CustomTypes extends { models: infer M; }
+    ? M extends {} ? keyof M
+      : never : never;
+
+/**
+ * Infer related instance types from custom types.
+ *
+ * @internal
+ */
+export type InferModelRelationInstanceFromCustomTypes<T> =
   Foscia.CustomTypes extends { models: infer M; }
     ? M extends {} ? T extends string & keyof M ? M[T]
-      : T extends (infer ST)[] ? InferModelRelationInstanceFromTypes<ST>
+      : T extends (infer ST)[] ? InferModelRelationInstanceFromCustomTypes<ST>
         : never : never : never;
+
+/**
+ * Infer related instance types from relationship instances type.
+ *
+ * @internal
+ *
+ * @todo
+ * Use this type in `hasMany` and other relations factories providing
+ * the manual typing signature.
+ * This is currently blocked due to TypeScript error about type recursion.
+ */
+export type InferModelRelationTypeFromInstances<I> =
+  I extends ModelInstance<any, infer T, infer C> ? ModelConnectionType<T, C> : never;
 
 /**
  * Infer related instance types from relationship models.
@@ -563,79 +597,57 @@ export type InferModelRelationModelFromValue<T> =
       : never : never;
 
 /**
- * Infer a model's relation possible inverse key.
+ * Model belongs to relationship factory.
  *
  * @internal
  */
-export type InferModelRelationInverseKey<T> =
-  IfAny<T, string, ModelRelationKey<InferModelRelationInstanceFromValue<T>>>;
-
-/**
- * Model relation abstract factory.
- *
- * @internal
- */
-export interface ModelRelationFactory<T, R extends boolean>
-  extends ModelValuePropFactory<T, R> {
-  /**
-   * @ignore
-   * @internal
-   */
-  transform: <NT extends T>(
-    transformer: ObjectTransformer<NT | null, any, any>,
-  ) => ModelPropModifiedFactory<this, NT, R>;
-  /**
-   * Define the inverse of the relation.
-   *
-   * @param inverse
-   */
-  inverse: (
-    inverse?: InferModelRelationInverseKey<T> | boolean,
-  ) => ModelPropModifiedFactory<this, T, R>;
-  /**
-   * Define sub-relations to always include.
-   */
-  include: (
-    include: RawInclude<InferModelRelationModelFromValue<T>>,
-  ) => ModelPropModifiedFactory<this, T, R>;
-  /**
-   * Define the callback to customize the relation query.
-   * Defining it can prevent requests merging and degrade performance.
-   * If your goal is to only include relations, use `include`.
-   */
-  query: (
-    callback: AnonymousEnhancer<ConsumeModel<InferModelRelationModelFromValue<T>>, any>,
-  ) => ModelPropModifiedFactory<this, T, R>;
-
-  /**
-   * Define the path to use when requesting relation's endpoint.
-   *
-   * @param path
-   *
-   * @remarks
-   * This is specific to HTTP implementations (REST, JSON:API).
-   */
-  path: (path: string) => ModelPropModifiedFactory<this, T, R>;
-}
-
-/**
- * Model has one relationship factory.
- */
-export interface ModelHasOneFactory<T, R extends boolean>
-  extends ModelComposableFactory<ModelHasOne<T, R>>, ModelRelationFactory<T, R> {
-  readonly _factory: ModelHasOneFactory<this['_type'], this['_readOnly']>;
+export interface ModelBelongsToFactory<T, R extends boolean>
+  extends ModelComposableFactory<ModelBelongsTo<T, R>> {
 }
 
 /**
  * Model has many relationship factory.
+ *
+ * @internal
  */
 export interface ModelHasManyFactory<T, R extends boolean>
-  extends ModelComposableFactory<ModelHasMany<T, R>>, ModelRelationFactory<T, R> {
-  readonly _factory: ModelHasManyFactory<this['_type'], this['_readOnly']>;
-  /**
-   * @deprecated Has many relations cannot be nullable.
-   */
-  nullable: never;
+  extends ModelComposableFactory<ModelHasMany<T, R>> {
+}
+
+/**
+ * Model has one relationship factory.
+ *
+ * @internal
+ */
+export interface ModelHasOneFactory<T, R extends boolean>
+  extends ModelComposableFactory<ModelHasOne<T, R>> {
+}
+
+/**
+ * Model morph to relationship factory.
+ *
+ * @internal
+ */
+export interface ModelMorphToFactory<T, R extends boolean>
+  extends ModelComposableFactory<ModelMorphTo<T, R>> {
+}
+
+/**
+ * Model morph many relationship factory.
+ *
+ * @internal
+ */
+export interface ModelMorphManyFactory<T, R extends boolean>
+  extends ModelComposableFactory<ModelMorphMany<T, R>> {
+}
+
+/**
+ * Model morph one relationship factory.
+ *
+ * @internal
+ */
+export interface ModelMorphOneFactory<T, R extends boolean>
+  extends ModelComposableFactory<ModelMorphOne<T, R>> {
 }
 
 /**
@@ -645,12 +657,12 @@ export interface ModelHasManyFactory<T, R extends boolean>
  *
  * @internal
  */
-export type ModelRelationFactoryConfig<T extends Arrayable<object> | null, R extends boolean> =
+export type ModelRelationFactoryConfig<T extends Arrayable<object> | null> =
   & {
     /**
      * The inverse relation key on related instances.
      */
-    inverse?: InferModelRelationInverseKey<T> | boolean;
+    inverse?: IfAny<T, string, ModelRelationKey<InferModelRelationInstanceFromValue<T>>> | boolean;
     /**
      * Sub-relations to always include.
      */
@@ -661,18 +673,32 @@ export type ModelRelationFactoryConfig<T extends Arrayable<object> | null, R ext
      * If your goal is to only include relations, use `include`.
      */
     query?: AnonymousEnhancer<ConsumeModel<InferModelRelationModelFromValue<T>>, any>;
+    /**
+     * Sub-relations to always include.
+     */
+    special?: RawInclude<InferModelRelationInstanceFromValue<T>>;
   }
-  & Pick<ModelRelation<T, R>, 'path' | 'default' | 'readOnly' | 'alias' | 'sync'>;
+  & Pick<ModelRelation<T>, 'path' | 'default' | 'readOnly' | 'alias' | 'sync'>;
 
 /**
- * Model has one relation factory object options.
+ * Model belongs to relation factory object options.
  *
  * @interface
  *
  * @internal
  */
-export type ModelHasOneFactoryConfig<T extends object | null, R extends boolean> =
-  & ModelRelationFactoryConfig<T, R>;
+export type ModelBelongsToFactoryConfig<T extends object | null> =
+  & {
+    /**
+     * The key to the current instance's attribute holding the reference value.
+     */
+    foreignKey?: string;
+    /**
+     * The key to the related instance's attribute holding the reference value.
+     */
+    ownerKey?: string;
+  }
+  & ModelRelationFactoryConfig<T>;
 
 /**
  * Model has many relation factory object options.
@@ -681,18 +707,74 @@ export type ModelHasOneFactoryConfig<T extends object | null, R extends boolean>
  *
  * @internal
  */
-export type ModelHasManyFactoryConfig<T extends object[], R extends boolean> =
-  & ModelRelationFactoryConfig<T, R>;
+export type ModelHasManyFactoryConfig<T extends object[]> =
+  & ModelRelationFactoryConfig<T>;
+
+/**
+ * Model has one relation factory object options.
+ *
+ * @interface
+ *
+ * @internal
+ */
+export type ModelHasOneFactoryConfig<T extends object | null> =
+  & ModelRelationFactoryConfig<T>;
+
+/**
+ * Model morph to relation factory object options.
+ *
+ * @interface
+ *
+ * @internal
+ */
+export type ModelMorphToFactoryConfig<T extends object | null> =
+  & {
+    /**
+     * The key to the current instance's attribute holding the reference type.
+     */
+    foreignTypeKey?: string;
+    /**
+     * The key to the current instance's attribute holding the reference value.
+     */
+    foreignKey?: string;
+    /**
+     * The key to the related instance's attribute holding the reference value.
+     */
+    ownerKey?: string;
+  }
+  & ModelRelationFactoryConfig<T>;
+
+/**
+ * Model morph many relation factory object options.
+ *
+ * @interface
+ *
+ * @internal
+ */
+export type ModelMorphManyFactoryConfig<T extends object[]> =
+  & ModelRelationFactoryConfig<T>;
+
+/**
+ * Model morph one relation factory object options.
+ *
+ * @interface
+ *
+ * @internal
+ */
+export type ModelMorphOneFactoryConfig<T extends object | null> =
+  & ModelRelationFactoryConfig<T>;
 
 /**
  * Model instance read property generic hook callback function.
  *
  * @internal
  */
-export type ModelInstancePropertyReadHookCallback = SyncHookCallback<{
+export type ModelInstancePropertyReadHookCallback<
+  P extends ModelValueProp = ModelValueProp,
+> = SyncHookCallback<{
   readonly instance: ModelInstance;
-  readonly prop: ModelProp;
-  readonly value: unknown;
+  readonly prop: P;
+  readonly value: P['_propType'];
 }>;
 
 /**
@@ -700,11 +782,13 @@ export type ModelInstancePropertyReadHookCallback = SyncHookCallback<{
  *
  * @internal
  */
-export type ModelInstancePropertyWriteHookCallback = SyncHookCallback<{
+export type ModelInstancePropertyWriteHookCallback<
+  P extends ModelValueProp = ModelValueProp,
+> = SyncHookCallback<{
   readonly instance: ModelInstance;
-  readonly prop: ModelProp;
-  readonly prev: unknown;
-  readonly next: unknown;
+  readonly prop: P;
+  readonly prev: P['_propType'] | undefined;
+  readonly next: P['_propType'];
 }>;
 
 /**
@@ -768,12 +852,16 @@ export type ModelHooksDefinition =
  *
  * @interface
  */
-export type ModelInstance<D extends {} = any> =
+export type ModelInstance<
+  D extends {} = any,
+  T extends string = string,
+  C extends string = string,
+> =
   {
     /**
      * Model this instance was created from.
      */
-    readonly $model: Model<D, ModelInstance<D>>;
+    readonly $model: Model<D, ModelInstance<D>, T, C>;
     /**
      * Tells if instance exists in data source.
      * This is `true` for retrieved or saved instance.
@@ -892,11 +980,48 @@ export type Model<
 export type ModelFactoryRawConfig<
   M extends Model = Model,
   T extends string = string,
-  C extends string = 'default',
+  C extends string | undefined = undefined,
 > =
   | (Partial<ModelConfig<M>> & { connection?: C; type: T; })
   | `${C}:${T}`
   | T;
+
+/**
+ * Infer a model connection created by a factory.
+ *
+ * @internal
+ */
+export type ModelConnectionFromFactory<
+  FC extends string | undefined,
+  MC extends string | undefined,
+> = MC extends undefined ? FC extends undefined ? 'default' : FC : MC;
+
+/**
+ * Infer a model instance created by a factory.
+ *
+ * @internal
+ */
+export type ModelInstanceFromFactory<
+  FD extends {},
+  FC extends string | undefined,
+  MD extends {},
+  MT extends string,
+  MC extends string | undefined,
+> = ModelInstance<FD & ModelParsedFlattenDefinition<MD>, MT, ModelConnectionFromFactory<FC, MC>>;
+
+/**
+ * Infer a model instance created by a factory.
+ *
+ * @internal
+ */
+export type ModelFromFactory<
+  FD extends {},
+  FC extends string | undefined,
+  MD extends {},
+  MT extends string,
+  MC extends string | undefined,
+// eslint-disable-next-line max-len
+> = Model<FD & ModelParsedFlattenDefinition<MD>, ModelInstanceFromFactory<FD, FC, MD, MT, MC>, MT, ModelConnectionFromFactory<FC, MC>>;
 
 /**
  * Model class factory.
@@ -904,17 +1029,16 @@ export type ModelFactoryRawConfig<
  * @internal
  */
 export type ModelFactory<
-  D extends {} = {},
+  FD extends {} = {},
+  FC extends string | undefined = undefined,
 > = Hookable<ModelHooksDefinition> & (<
-  ND extends {},
-  T extends string = string,
-  C extends string = 'default',
+  MD extends {},
+  MT extends string = string,
+  MC extends string | undefined = undefined,
 >(
-  // eslint-disable-next-line max-len
-  rawConfig: ModelFactoryRawConfig<Model<D & ModelParsedFlattenDefinition<ND>, ModelInstance<D & ModelParsedFlattenDefinition<ND>>, T, C>, T, C>,
-  rawDefinition?: ND & ThisType<ModelInstance<D & ModelParsedFlattenDefinition<ND>>>,
-  // eslint-disable-next-line max-len
-) => Model<D & ModelParsedFlattenDefinition<ND>, ModelInstance<D & ModelParsedFlattenDefinition<ND>>, T, C>);
+  rawConfig: ModelFactoryRawConfig<ModelFromFactory<FD, FC, MD, MT, MC>, MT, MC>,
+  rawDefinition?: MD & ThisType<ModelInstanceFromFactory<FD, FC, MD, MT, MC>>,
+) => ModelFromFactory<FD, FC, MD, MT, MC>);
 
 /**
  * Model instance snapshot.
@@ -1153,6 +1277,14 @@ export type ModelProperties<M> = ModelDefinitionProperties<InferModelDefinition<
 export type ModelValues<M> = Pick<ModelProperties<M>, ModelKey<M>>;
 
 /**
+ * Model class or instance writable values (IDs, attributes and relations).
+ *
+ * @example
+ * const values: Partial<ModelWritableValues<Post>> = { title: 'Hello' };
+ */
+export type ModelWritableValues<M> = Pick<ModelValues<M>, ModelWritableKey<M>>;
+
+/**
  * Model class or instance values' possible keys
  * (IDs, attributes and relations).
  *
@@ -1175,6 +1307,34 @@ export type ModelWritableKey<M> = ModelKey<M> & {
   [K in keyof InferModelSchema<M>]: InferModelSchema<M>[K] extends ModelProp<any, false>
     ? K
     : never;
+}[keyof InferModelSchema<M>];
+
+/**
+ * Model class or instance direct IDs' possible keys.
+ *
+ * @example
+ * const keys: ModelIdKey<Post>[] = ['id', 'lid'];
+ */
+export type ModelIdKey<M> = ModelKey<M> & {
+  [K in keyof InferModelSchema<M>]: InferModelSchema<M>[K] extends ModelId
+    ? K
+    : InferModelSchema<M>[K] extends ModelProp<infer T>
+      ? IfAny<T, K, never>
+      : never;
+}[keyof InferModelSchema<M>];
+
+/**
+ * Model class or instance direct IDs' possible keys.
+ *
+ * @example
+ * const keys: ModelAttributeKey<Post>[] = ['title', 'body'];
+ */
+export type ModelAttributeKey<M> = ModelKey<M> & {
+  [K in keyof InferModelSchema<M>]: InferModelSchema<M>[K] extends ModelAttribute
+    ? K
+    : InferModelSchema<M>[K] extends ModelProp<infer T>
+      ? IfAny<T, K, never>
+      : never;
 }[keyof InferModelSchema<M>];
 
 /**

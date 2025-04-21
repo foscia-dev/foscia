@@ -2,7 +2,6 @@ import {
   makeActionFactory,
   makeCache,
   makePreloadedLazyLoader,
-  makeRegistry,
   makeSmartLoader,
 } from '@foscia/core';
 import { param } from '@foscia/http';
@@ -12,13 +11,11 @@ import {
   makeRestEagerLoader,
   makeRestSerializer,
 } from '@foscia/rest';
-import CommentMock from './models/comment.mock';
-import GalleryMock from './models/gallery.mock';
-import PostMock from './models/post.mock';
+import registry from './registry';
 
 export default function makeRestActionMock() {
   return makeActionFactory({
-    ...makeRegistry([PostMock, CommentMock, GalleryMock]),
+    registry,
     ...makeCache(),
     ...makeRestDeserializer(),
     ...makeRestSerializer(),

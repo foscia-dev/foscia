@@ -25,6 +25,8 @@ import { Dictionary, mapWithKeys, uniqueId, unsafeId } from '@foscia/shared';
  *
  * @category Factories
  * @since 0.8.6
+ *
+ * @experimental
  */
 export default (config: ModelsReducerConfig = {}) => {
   let reduceInstance: (

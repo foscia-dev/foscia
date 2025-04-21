@@ -45,7 +45,7 @@ await action(create(post), one());
   return <HomeCard
     title={title}
     description={description}
-    action={{ to: '/docs/core-concepts/actions', label: 'Discovers actions' }}
+    action={{ to: '/docs/get-started/actions', label: 'Discovers actions' }}
     illustration={<CodeBlock language="ts">{example}</CodeBlock>}
     reverse
   />;
@@ -79,7 +79,7 @@ export default class Post
   return <HomeCard
     title={title}
     description={description}
-    action={{ to: '/docs/core-concepts/models', label: 'Discovers models' }}
+    action={{ to: '/docs/get-started/models', label: 'Discovers models' }}
     illustration={<CodeBlock language="ts">{example}</CodeBlock>}
   />;
 }
@@ -193,7 +193,7 @@ function HomeGetStarted() {
   </>;
 
   const description = <>
-    <Link to="/docs/digging-deeper/usages/cli">
+    <Link to="/docs/tools/foscia-cli">
       <code>
         @foscia/cli
       </code>

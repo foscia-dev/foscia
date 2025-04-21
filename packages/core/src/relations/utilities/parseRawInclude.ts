@@ -1,7 +1,7 @@
 import consumeRegistry from '@foscia/core/actions/context/consumers/consumeRegistry';
 import { Action } from '@foscia/core/actions/types';
 import FosciaError from '@foscia/core/errors/fosciaError';
-import isRelation from '@foscia/core/model/props/checks/isRelation';
+import isRelation from '@foscia/core/relations/checks/isRelation';
 import { Model, ModelRelation } from '@foscia/core/model/types';
 import {
   ParsedIncludeMap,

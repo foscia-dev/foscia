@@ -16,6 +16,7 @@ import {
   makeSmartLoader,
   ModelIdType,
   ModelInstance,
+  morphOne,
   query,
 } from '@foscia/core';
 import { deepParamsSerializer, param } from '@foscia/http';
@@ -40,7 +41,7 @@ describe('integration: REST with multiple connections', () => {
       // TODO polymorphic.
       payableType: attr<string>(),
       payableId: attr<string>(),
-      payable: hasOne(['v2:purchases', 'v1:subscriptions']),
+      payable: morphOne(['v2:purchases', 'v1:subscriptions'] as any),
     }) {
     }
 
@@ -84,8 +85,8 @@ describe('integration: REST with multiple connections', () => {
     }
 
     const commonContext = {
+      registry: makeRegistry([Purchase, Subscription]),
       ...makeCache(),
-      ...makeRegistry([Purchase, Subscription]),
       ...makeRestDeserializer(),
       ...makeRestSerializer(),
       ...makeSmartLoader({

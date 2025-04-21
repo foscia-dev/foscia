@@ -21,7 +21,7 @@ export default <
   Deserialized extends DeserializedData = DeserializedData,
   Extract extends DeserializerExtract<Record> = DeserializerExtract<Record>,
 >(
-  config: Partial<RestDeserializerConfig<Record, Data, Deserialized, Extract>> = {},
+  config: RestDeserializerConfig<Record, Data, Deserialized, Extract> = {},
 ) => makeDeserializer({
   extractData: (data) => ({
     records: data as Arrayable<RestNewResource> | null,

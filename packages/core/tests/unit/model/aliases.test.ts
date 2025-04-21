@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 describe('unit: model keys aliases', () => {
   it('should normalize aliased key', () => {
     const model = makeModel('model', {
-      foo: attr().alias('bar'),
+      foo: attr({ alias: 'bar' }),
     });
 
     expect(aliasPropKey(model.$schema.foo)).toStrictEqual('bar');
@@ -27,7 +27,7 @@ describe('unit: model keys aliases', () => {
       guessAlias: normalizer,
     }, {
       foo: attr(),
-      bar: hasOne('dummy'),
+      bar: hasOne('dummy' as any),
     });
 
     expect(aliasPropKey(model.$schema.foo)).toStrictEqual('foofoo');

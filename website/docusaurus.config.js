@@ -43,7 +43,6 @@ const config = {
           showLastUpdateTime: true,
           exclude: ['api/index.md', 'api/packages.md'],
         },
-        blog: false,
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -102,17 +101,17 @@ const config = {
       },
       announcementBar: !process.env.VERSION ? {
         // Dev/next version announcement.
-        id: `${process.env.VERSION}-announcement`,
+        id: 'dev-announcement',
         content: '<strong>Warning</strong>: you are browsing an upcoming version of Foscia. <a target="_blank" rel="noopener noreferrer" href="https://foscia.dev">Get back to stable docs</a>',
         backgroundColor: 'var(--ifm-color-warning-contrast-background)',
         textColor: 'var(--ifm-color-warning-contrast-foreground)',
         isCloseable: false,
       } : {
         // Production announcement.
-        id: '0.13.0-announcement',
-        content: '<code>v0.13.0</code> relations inverses and more! <a target="_blank" rel="noopener noreferrer" href="https://github.com/foscia-dev/foscia/issues">Give your feedback</a>',
-        backgroundColor: 'var(--ifm-background-surface-color)',
-        textColor: 'inherit',
+        id: '0.13-announcement',
+        content: '<a target="_blank" rel="noopener noreferrer" href="/blog/releases/0.13">🚀 Discover v0.13 new features and changes!</a>',
+        backgroundColor: 'var(--ifm-color-info-contrast-background)',
+        textColor: 'var(--ifm-color-info-contrast-foreground)',
         isCloseable: false,
       },
       navbar: {
@@ -124,13 +123,18 @@ const config = {
         items: [
           {
             position: 'left',
-            label: 'Installing',
-            to: '/docs/installing',
+            label: 'Get started',
+            to: '/docs/get-started/installation-and-setup',
           },
           {
             position: 'left',
             label: 'Docs',
-            to: '/docs/getting-started',
+            to: '/docs',
+          },
+          {
+            position: 'left',
+            label: 'API',
+            to: '/docs/api',
           },
           {
             position: 'left',
@@ -139,20 +143,15 @@ const config = {
           },
           {
             position: 'left',
-            label: 'Examples',
-            to: '/docs/category/examples',
-          },
-          {
-            position: 'left',
-            label: 'API',
-            to: '/docs/category/api',
+            label: 'Blog',
+            to: 'blog',
           },
           {
             position: 'right',
             label: process.env.VERSION
               ? `${process.env.VERSION} v${packageJson.version}`
               : `v${packageJson.version}`,
-            to: '/docs/upgrading/changelog',
+            to: '/docs/category/upgrade-guides',
             className: 'header-version-link button',
           },
           {
@@ -169,41 +168,49 @@ const config = {
             title: 'Documentation',
             items: [
               {
-                label: 'Installing',
-                to: '/docs/installing',
+                label: 'Overview',
+                to: '/docs/overview',
               },
               {
-                label: 'Getting started',
-                to: '/docs/getting-started',
+                label: 'Get started',
+                to: '/docs/get-started/installation-and-setup',
               },
               {
-                label: 'Core concepts',
-                to: '/docs/category/core-concepts',
-              },
-              {
-                label: 'Digging deeper',
-                to: '/docs/category/digging-deeper',
+                label: 'Guides',
+                to: '/docs/guides',
               },
               {
                 label: 'Integrations',
-                to: '/docs/category/integrations',
+                to: '/docs/integrations',
+              },
+              {
+                label: 'Tools',
+                to: '/docs/tools',
               },
               {
                 label: 'API',
-                to: '/docs/category/api',
+                to: '/docs/api',
               },
             ],
           },
           {
-            title: 'Getting help',
+            title: 'Help & more',
             items: [
               {
-                label: 'FAQ',
-                to: '/docs/help/faq',
+                label: 'Upgrade guides',
+                to: '/docs/more/upgrade-guides',
+              },
+              {
+                label: 'Support policy',
+                to: '/docs/more/support-policy',
               },
               {
                 label: 'Examples',
-                href: '/docs/category/examples',
+                href: '/docs/more/examples',
+              },
+              {
+                label: 'FAQ',
+                to: '/docs/more/faq',
               },
               {
                 label: 'GitHub issues',

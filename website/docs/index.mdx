@@ -1,0 +1,32 @@
+import DocCardList from '@theme/DocCardList';
+import sidebars from '../sidebars';
+
+# Docs
+
+Foscia documentation is organized into multiple categories to help you get
+started, found useful information or learn though examples.
+
+export const toDocsIndexItem = (item) => ({
+  type: item.type === 'category' ? item.type : 'link',
+  label: item.label,
+  ...(item.type === 'category' ? {
+    description: item.link.description,
+    href: `/docs${item.link.slug}`,
+    items: [],
+  } : {
+    description: {
+      'guides/serialization': 'Understand Foscia generic serialization features.'
+    }[item.id],
+    href: `/docs/${item.id}`,
+  }),
+});
+
+<DocCardList
+  items={
+    sidebars.docsSidebar
+      .map((item) => item.link?.slug === '/guides' ? item.items : item)
+      .flat()
+      .map(toDocsIndexItem)
+      .filter((item) => item.label)
+  }
+/>

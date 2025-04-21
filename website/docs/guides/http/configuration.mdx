@@ -1,0 +1,68 @@
+---
+sidebar_position: 20
+description: Configuration recipes for HTTP client features.
+---
+
+# Configuration
+
+## API reference
+
+You can review the full configuration options inside the API reference:
+
+- [`HttpAdapterConfig`](/docs/api/@foscia/http/interfaces/HttpAdapterConfig)
+
+## Configuration recipes
+
+### Default headers
+
+To define a default request headers, use the
+[`defaultHeaders`](/docs/api/@foscia/http/interfaces/HttpAdapterConfig#defaultheaders)
+option or implement a middleware (useful for dynamic headers,
+such as `Accept-Language` in an internationalized application).
+
+```typescript
+import { makeHttpAdapter } from '@foscia/http';
+
+const { adapter } = makeHttpAdapter({
+  defaultHeaders: { 'Accept-Language': 'fr-FR' },
+  middlewares: [(request, next) => {
+    request.headers.set('Accept-Language', 'en-US');
+    return next(request);
+  }],
+});
+```
+
+### Fetch implementation
+
+`@foscia/http` uses `globalThis.fetch` as its default fetch implementation.
+
+To define a custom fetch implementation, use the `fetch` option.
+
+```typescript
+import { makeHttpAdapter } from '@foscia/http';
+import { ofetch } from 'ofetch';
+
+const { adapter } = makeHttpAdapter({
+  fetch: ofetch.native,
+});
+```
+
+### Deep query params serialization
+
+`@foscia/http` provides two params serializer:
+
+- A default one which serialize a params object using
+  [`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams).
+- [`deepParamsSerializer`](/docs/api/@foscia/http/functions/deepParamsSerializer)
+  which deeply serialize a params object (handle deep array or object, because
+  [`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams) won't).
+
+To define a custom parameters serializer, use the `serializeParams` option.
+
+```typescript
+import { makeHttpAdapter, deepParamsSerializer } from '@foscia/http';
+
+const { adapter } = makeHttpAdapter({
+  serializeParams: deepParamsSerializer,
+});
+```

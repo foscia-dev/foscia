@@ -10,9 +10,7 @@ import { kebabCase } from '@foscia/shared';
  * @category Factories
  * @since 0.13.0
  */
-export default <Data = any>(
-  config: Partial<RestAdapterConfig<Data>> = {},
-) => makeHttpAdapter({
+export default <Data = any>(config: RestAdapterConfig<Data> = {}) => makeHttpAdapter({
   baseURL: '/api',
   modelPathTransformer: kebabCase,
   relationPathTransformer: kebabCase,

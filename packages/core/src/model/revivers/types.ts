@@ -126,6 +126,8 @@ export type ReducedModelCircularRef = {
 
 /**
  * Reduced (serialized) model instance custom data.
+ *
+ * @experimental
  */
 export type ReducedModelInstanceCustomData = {
   /**
@@ -137,6 +139,8 @@ export type ReducedModelInstanceCustomData = {
 
 /**
  * Tools functions available when reducing an instance.
+ *
+ * @experimental
  */
 export type ModelReduceTools = {
   /**
@@ -155,6 +159,8 @@ export type ModelReduceTools = {
 
 /**
  * Tools functions available when reviving an instance.
+ *
+ * @experimental
  */
 export type ModelReviveTools = {
   /**
@@ -167,6 +173,8 @@ export type ModelReviveTools = {
 
 /**
  * Model which can reduce and revive using custom implementations.
+ *
+ * @experimental
  */
 export type ModelCanReduceRevive<T extends ReducedModelInstanceCustomData = any> = {
   /**

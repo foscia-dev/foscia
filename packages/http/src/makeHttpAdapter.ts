@@ -38,7 +38,7 @@ import { Dictionary, isNil, optionalJoin, throughMiddlewares } from '@foscia/sha
  *
  * @category Factories
  */
-export default <Data = any>(config: HttpAdapterConfig<Data>) => {
+export default <Data = any>(config: HttpAdapterConfig<Data> = {}) => {
   const makeRequestError = (request: Request, error: unknown) => (
     error instanceof DOMException && error.name === 'AbortError'
       ? new HttpAbortedError(error.message, request, error)

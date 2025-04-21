@@ -1,9 +1,7 @@
 import {
-  Action,
   aliasPropKey,
   logger,
   makeStandardizedEagerLoader,
-  ParsedIncludeMap,
   walkParsedIncludeMap,
 } from '@foscia/core';
 import { param } from '@foscia/http';
@@ -21,7 +19,7 @@ import { RestEagerLoaderConfig } from '@foscia/rest/types';
  */
 export default (
   config: RestEagerLoaderConfig,
-) => makeStandardizedEagerLoader(async (action: Action, relations: ParsedIncludeMap) => {
+) => makeStandardizedEagerLoader(async (action, relations) => {
   const keys = new Set<string>();
   await walkParsedIncludeMap(relations, async (relation, parsedInclude, ancestors) => {
     if (parsedInclude.relationQuery || parsedInclude.customQuery) {

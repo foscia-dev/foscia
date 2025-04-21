@@ -1,0 +1,337 @@
+---
+sidebar_position: 30
+description: Definition and usage of relations on models.
+---
+
+# Relations
+
+:::info
+
+This guide is about relations definition on models.
+To learn relations loading or writing operations through actions, check out
+[the actions relations guide](/docs/guides/actions/relations).
+
+:::
+
+:::tip What you'll learn
+
+- Managing circular relations between models
+- Defining each kind of relations on models
+- Configuring relations behaviors
+
+:::
+
+In Foscia, relations represents special attributes containing records related
+to one another, such as the author and comments of a post.
+
+## Definition
+
+Relations are defined inside your model or composable definition
+multiple dedicated factories, such as
+[`hasMany`](/docs/api/@foscia/core/functions/hasMany),
+[`hasOne`](/docs/api/@foscia/core/functions/hasOne), etc.
+Inside this section of the relations guide, you will learn how to define
+each kind of relationship on your models.
+
+### Important notice
+
+:::warning
+
+Relations inside Foscia will require a
+[registry definition](/docs/guides/models/registration) in most common use cases,
+such as circularly referencing models. Be sure to have a registry when necessary.
+
+:::
+
+Having circular referencing models is very common in any projects, from direct
+circular relations (post having author having posts) to indirect ones.
+Circular relations cause TypeScript to detect circularity errors between model
+types definition, so relation factories can be used in 3 different ways which
+you should understand before defining relationships between models.
+
+```typescript
+makeModel('posts', {
+  // Registry resolution (circularity safe):
+  comments: hasMany('comments'),
+  // Model resolution (circularity unsafe):
+  comments: hasMany(() => Comment),
+  // Type parameter (circularity safe):
+  comments: hasMany<Comment>('comments'),
+});
+```
+
+Each of those definitions have benefits and caveats:
+
+- **Registry resolution** will resolve your model type from the given type string,
+but [it requires models registration](/docs/guides/models/registration) and
+cannot be used with [`makeBelongsTo`](#belongs-to-one) and
+[`makeMorphTo`](#belongs-to-one-polymorphic). **Recommended in most scenarios.**
+- **Model resolution** is simple and is the only signature which can be used
+with [`makeBelongsTo`](#belongs-to-one) and [`makeMorphTo`](#belongs-to-one-polymorphic)
+factories, but it might produce TypeScript circular definition errors when
+used in circularly referencing models.
+**Recommended with [`makeBelongsTo`](#belongs-to-one) and
+[`makeMorphTo`](#belongs-to-one-polymorphic).**
+- **Type parameter** is a manual typing for relations. It is simple to implement
+and does not require models `Foscia` namespace overload, but requires writing
+the model class and string type on each relation, which is more verbose and
+error-prone. **Not recommended**.
+
+:::info
+
+In the following parts of the guide, we will use the registry resolution
+signature for every relation, except those created using
+[`makeBelongsTo`](#belongs-to-one) and [`makeMorphTo`](#belongs-to-one-polymorphic).
+
+:::
+
+### One to many
+
+The one-to-many relationship is the most common relationship where a single
+record is the parent of zero to many child records.
+This relation is represented inside Foscia using the
+[`hasMany`](/docs/api/@foscia/core/functions/hasMany) relation factory.
+In the following example, we will represent a post model having many comments.
+
+```typescript
+import { makeModel, hasMany } from '@foscia/core';
+
+export default class Post extends makeModel('posts', {
+  comments: hasMany('comments'),
+}) {}
+```
+
+Once defined, you can [load the relation](/docs/guides/actions/relations)
+and access its value as any attribute would be.
+
+```typescript
+import { query, include, oneOrFail } from '@foscia/core';
+import action from './action';
+import Post from './models/post';
+
+const post = await action(
+  query(Post, '1'),
+  include('comments'),
+  oneOrFail(),
+);
+
+const comments = post.comments;
+```
+
+### One to one
+
+The one-to-one relationship is a less common relationship where a single
+record is the parent of zero to one child record.
+This relation is represented inside Foscia using the
+[`hasOne`](/docs/api/@foscia/core/functions/hasOne) relation factory.
+In the following example, we will represent a user model having a single phone.
+
+```typescript
+import { makeModel, hasOne } from '@foscia/core';
+
+export default class User extends makeModel('users', {
+  phone: hasOne('phones'),
+}) {}
+```
+
+Once defined, you can [load the relation](/docs/guides/actions/relations)
+and access its value as any attribute would be.
+
+```typescript
+import { query, include, oneOrFail } from '@foscia/core';
+import action from './action';
+import User from './models/user';
+
+const user = await action(
+  query(User, '1'),
+  include('phone'),
+  oneOrFail(),
+);
+
+const phone = user.phone;
+```
+
+### Belongs to one
+
+The belongs-to-one relation represents the child of a "to-many"
+or "to-one" relation where we define the relation to its parent.
+Foscia offers two ways to define "belongs to" relations:
+
+- Smart definition through [`makeBelongsTo`](/docs/api/@foscia/core/functions/makeBelongsTo)
+to define both the relation and the parent ID attribute ("foreign key") using
+a unique factory. This is the shortest way to define this kind of relation,
+but it does not support registry resolution call signatures.
+- Manual definition through [`belongsTo`](/docs/api/@foscia/core/functions/belongsTo)
+to define the relation and [`attr`](/docs/api/@foscia/core/functions/attr) to
+define the parent ID attribute ("foreign key"). This is a longer way to define
+this kind of relation, but offer registry resolution call signatures and
+an improved visibility of the two properties used inside the model.
+
+In the following example, we are defining the parent post for a comment
+using [`makeBelongsTo`](/docs/api/@foscia/core/functions/makeBelongsTo):
+this definition statement will define both a `post` "belongs to" relation
+and a `postId` attribute (generally used as a foreign key in SQL data sources).
+
+```typescript
+import { makeModel, makeBelongsTo, belongsTo, attr } from '@foscia/core';
+import Post from './post';
+
+export default class Comment extends makeModel('comments', {
+  post: makeBelongsTo(() => Post),
+  // Equivalent to:
+  post: belongsTo('posts'),
+  postId: attr<string>(),
+}) {}
+```
+
+Once defined, the relation inverse can be used as any other relation, such
+as in previous examples, or to create a new record:
+
+```typescript
+import { create, fill, current } from '@foscia/core';
+import action from './action';
+import Comment from './models/post';
+
+// Assuming we have a `post` instance...
+const comment = await action(
+  create(fill(new Comment(), { body: 'Hello World!', post })),
+  current(),
+);
+
+console.log(comment.post);   // The `post` instance.
+console.log(comment.postId); // The `post` instance's ID.
+```
+
+:::info
+
+Notice that defining the related instance on a "belongs to" relation will
+automatically define the related ID attribute.
+In the above example, setting `post` relation value will automatically
+fill the `postId` value.
+
+In addition, you should know that Foscia will use those two properties
+differently depending on your data source. For example, JSON:API serializer
+will only omit the related ID attribute when serializing a record as it is
+not part of the specification.
+
+:::
+
+### Belongs to many
+
+Foscia does not support "belongs to many" relation out of the box. Belongs
+to many relationships represents multiple records which can be related
+to multiple records from another kind, such posts which can have multiple
+categories.
+
+Within some data sources (such as some JSON:API), "belongs to many" relations
+might be exposed as simple "has many" relations to the client, so Foscia will
+support those out of the box with [the one-to-many relation](#one-to-many).
+
+For other cases, you can use an intermediary model representing the "pivot"
+of the relation. We will take the above example of posts having many categories.
+
+```typescript
+import { makeModel, makeBelongsTo, hasMany } from '@foscia/core';
+
+class Post extends makeModel('posts', {
+  categories: hasMany('categories-posts'),
+}) {}
+
+class Category extends makeModel('categories', {
+  posts: hasMany('categories-posts'),
+}) {}
+
+class CategoryPost extends makeModel('categories-posts', {
+  category: makeBelongsTo(() => Category),
+  post: makeBelongsTo(() => Post),
+}) {}
+```
+
+Once defined, you can [load the relation](/docs/guides/actions/relations)
+and access its value as any attribute would be. Be aware that this intermediary
+model layer will also be represented: this is why we are using `map` and `flat`.
+
+```typescript
+import { query, include, oneOrFail } from '@foscia/core';
+import action from './action';
+import Post from './models/post';
+
+const post = await action(
+  query(Post, '1'),
+  include('categories.category'),
+  oneOrFail(),
+);
+
+const categories = post.categories.map((c) => c.category).flat();
+```
+
+:::info
+
+Supporting "belongs to many" relations is planned in Foscia but it needs more
+exploration and work.
+
+:::
+
+### Polymorphism
+
+Polymorphic relation are representing relations to multiple kind of records
+(and so models inside Foscia). Polymorphism in Foscia is represented using
+dedicated factories, such as
+[`morphMany`](/docs/api/@foscia/core/functions/morphMany),
+[`morphOne`](/docs/api/@foscia/core/functions/morphOne), etc.
+Those factories behave the same as the standard ones appart from the related
+models or types which are multiple instead of unique.
+
+#### One to many {#one-to-many-polymorphic}
+
+:::warning
+
+Work in progress!
+
+:::
+
+#### One to one {#one-to-one-polymorphic}
+
+:::warning
+
+Work in progress!
+
+:::
+
+#### Belongs to one {#belongs-to-one-polymorphic}
+
+:::warning
+
+Work in progress!
+
+:::
+
+## Configuration
+
+:::tip
+
+Relations have almost the same capabilities as attributes: you can check those
+capabilities inside [the attributes guide](/docs/guides/models/attributes) to
+learn how to [make a relation nullable](/docs/guides/models/attributes#nullable),
+[read only](/docs/guides/models/attributes#read-only),
+[use an alias](/docs/guides/models/attributes#alias) or
+[synchronize conditionally](/docs/guides/models/attributes#synchronization).
+
+:::
+
+### Sub-relations inclusion
+
+### Sub-query
+
+### Inverse
+
+## Per-implementation configurations
+
+### HTTP
+
+:::warning
+
+Work in progress!
+`path` configuration.
+
+:::

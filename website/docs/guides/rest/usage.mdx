@@ -1,0 +1,163 @@
+---
+sidebar_position: 10
+description: Use REST client specific features.
+---
+
+# Usage
+
+:::info
+
+This guide is about REST specific features, common and generic features
+are already described in [models](/docs/guides/models) and
+[actions](/docs/guides/actions) guides.
+
+:::
+
+REST implementation provides implementation for multiple Foscia dependencies.
+
+- [`makeRestAdapter`](/docs/api/@foscia/rest/functions/makeRestAdapter)
+provides a [`Adapter`](/docs/api/@foscia/core/interfaces/Adapter)
+implementation which will execute context through HTTP requests using the
+[`fetch` API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
+Internally, it uses [the HTTP adapter](/docs/guides/http/usage).
+- [`makeRestDeserializer`](/docs/api/@foscia/rest/functions/makeRestDeserializer)
+provides a [`Deserializer`](/docs/api/@foscia/core/interfaces/Deserializer)
+implementation which will extract model instances from object documents.
+Internally, it uses [the generic deserializer](/docs/guides/serialization#deserializer).
+- [`makeRestSerializer`](/docs/api/@foscia/rest/functions/makeRestSerializer)
+provides a [`Serializer`](/docs/api/@foscia/core/interfaces/Serializer)
+implementation which will create REST object documents from model snapshots.
+Internally, it uses [the generic serializer](/docs/guides/serialization#serializer).
+
+:::tip Useful links
+
+- [HTTP usage guide](/docs/guides/http/usage)
+- [HTTP dedicated enhancers API reference](/docs/api/@foscia/http/#enhancers)
+
+:::
+
+:::warning
+
+Currently, REST implementations does not support additional features compared to
+generic Foscia features, because REST is not that much standardized about
+filtering, sorting, etc.
+
+If you need something specific, you can
+[open a new issue on the repository](https://github.com/foscia-dev/foscia/issues/new/choose).
+
+:::
+
+## REST documents format
+
+Foscia expects REST JSON documents to be exchanged with your API. Here are
+examples of valid JSON documents supported by Foscia.
+
+<details>
+
+<summary>
+
+Deserialized REST document example
+
+</summary>
+
+```json
+[
+  {
+    "id": "1",
+    "title": "Foo",
+    "body": "Foo Body",
+    "publishedAt": "2023-10-24T10:00:00.000Z",
+    "comments": [
+      {
+        "id": "1",
+        "body": "Foo Comment"
+      },
+      {
+        "id": "2",
+        "body": "Bar Comment"
+      }
+    ]
+  },
+  {
+    "type": "posts",
+    "id": "2",
+    "title": "Bar",
+    "body": "Bar Body",
+    "publishedAt": null,
+    "comments": []
+  }
+]
+```
+
+</details>
+
+<details>
+
+<summary>
+
+Serialized REST document example
+
+</summary>
+
+```json
+{
+  "id": "1",
+  "title": "Foo",
+  "body": "Foo Body",
+  "publishedAt": "2023-10-24T10:00:00.000Z",
+  "comments": ["1", "2"]
+}
+```
+
+</details>
+
+## Advanced usage
+
+### Polymorphism support
+
+If you want your Foscia deserialization process to support polymorphism,
+your server should return a `type` key which match the Foscia model's type
+in addition to other attributes (ID, etc.). Without this, Foscia
+cannot precisely determine which record match which model.
+
+```json
+{
+  "id": 1,
+  // highlight.addition
+  "type": "posts",
+  "title": "Hello World"
+}
+```
+
+:::tip
+
+In addition, you can
+[set up serialization polymorphism](/docs/guides/rest/configuration#polymorphism-support)
+and [set up a registry](/docs/guides/models/registration) to support circular
+models relations.
+
+:::
+
+### Non-standard requests
+
+Just like with the HTTP adapter, you can run custom HTTP requests when your
+data source provides non-standard features.
+This provides many possibilities, such as retrieving models instances from
+a global search endpoint. In combination with polymorphism implementation
+on your data source, [`queryAs`](/docs/api/@foscia/core/functions/queryAs)
+will help Foscia resolves your models.
+
+```typescript
+import { queryAs, all } from '@foscia/core';
+
+const results = await action(
+  // Notice the `queryAs` instead of `query`, this will
+  // GET `/api/search` instead of `/api/posts/search`.
+  queryAs([Post, Comment, User]),
+  makeGet('search', { search: 'Hello' }),
+  all(),
+);
+
+// `results` is an array Post, Comment or User instances.
+console.log(results);
+```

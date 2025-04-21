@@ -18,9 +18,11 @@
   --ifm-pre-border-radius: 8px;
   --ifm-code-border-radius: 8px;
   --ifm-alert-border-left-width: 0px;
+  --ifm-alert-padding-vertical: 0.75rem;
   --ifm-navbar-height: 76px;
   --ifm-navbar-item-padding-vertical: 0.25rem;
   --ifm-navbar-item-padding-horizontal: 0.5rem;
+  --ifm-button-padding-horizontal: 0.875rem;
 
   --ifm-background-color: #ffffff;
   --ifm-background-surface-color: #fef7fa;
@@ -126,13 +128,17 @@ html[data-theme="dark"] .header-github-link:before {
   font-size: 0.875rem;
 }
 
+.theme-admonition.alert a {
+  font-weight: 600;
+}
+
 .theme-admonition.alert div[class^="admonitionHeading"] {
   font-size: 0.75rem;
 }
 
 .theme-admonition.alert div[class^="admonitionHeading"] svg {
-  height: 1.125rem;
-  width: 1.125rem;
+  height: 1rem;
+  width: 1rem;
 }
 
 .theme-doc-markdown.markdown > table {
@@ -207,7 +213,7 @@ code {
 }
 
 img {
-  border-radius: 8px;
+  border-radius: 16px;
 }
 
 img.img--cli {
@@ -350,6 +356,15 @@ details > div > div > div[class^="language-"] {
   background-color: var(--ifm-details-code-background) !important;
 }
 
+details > div > div > div[class^="language-"]:only-child {
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+details > div > div > div[class^="language-"]:only-child > div > pre > code {
+  padding: 0 !important;
+}
+
 details > div > div > :last-child {
   margin-bottom: 0 !important;
 }
@@ -434,6 +449,7 @@ div[class^="announcementBar"] {
   margin: 0 16px;
   border: none !important;
   border-radius: 0 0 24px 24px;
+  font-weight: 600;
 }
 
 div[class^="announcementBar"] > div {
@@ -462,10 +478,20 @@ div[class^="tableOfContents_"] {
   font-size: 0.8rem;
 }
 
+.theme-doc-sidebar-item-link.docs-index-link {
+  display: none;
+}
+
 .theme-doc-sidebar-item-link.theme-doc-sidebar-item-link-level-1 > .menu__link,
 .theme-doc-sidebar-item-category.theme-doc-sidebar-item-category-level-1 > div > .menu__link {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: bold;
+  letter-spacing: 0.075rem;
+  text-transform: uppercase;
+}
+
+.theme-doc-sidebar-item-category.theme-doc-sidebar-item-category-level-1 > .menu__list {
+  margin-top: 0.125rem !important;
 }
 
 .button > p {
@@ -555,4 +581,14 @@ div[class^="tableOfContents_"] {
 
 [data-theme="dark"] .chip.chip--danger {
   color: var(--ifm-color-danger-lightest);
+}
+
+article img[src^="/assets/images/social-card"] {
+  display: block;
+  margin: auto;
+  width: auto;
+  height: auto;
+  max-height: 300px;
+  max-width: 100%;
+  border-radius: 32px;
 }

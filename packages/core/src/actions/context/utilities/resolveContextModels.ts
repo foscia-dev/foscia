@@ -23,7 +23,6 @@ export type ResolveModelContext =
  * @param action
  *
  * @category Utilities
- * @internal
  */
 export default async (action: Action<ResolveModelContext> | ResolveModelContext) => {
   const context = isAction(action) ? await action.useContext() : action;

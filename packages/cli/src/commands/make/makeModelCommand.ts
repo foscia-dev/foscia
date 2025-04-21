@@ -15,7 +15,6 @@ import makeFile from '@foscia/cli/utils/makeFile';
 import promptConfirm from '@foscia/cli/utils/prompts/promptConfirm';
 import promptForComposables from '@foscia/cli/utils/prompts/promptForComposables';
 import promptForProperties from '@foscia/cli/utils/prompts/promptForProperties';
-import { Dictionary } from '@foscia/shared';
 import { camelCase, kebabCase, upperFirst } from 'lodash-es';
 import { plural, singular } from 'pluralize';
 
@@ -35,7 +34,7 @@ export async function runMakeModelCommand(
 
   await warnMissingDependencies(config);
 
-  const fileName = validateFileName(singular(name));
+  const fileName = validateFileName(camelCase(singular(name)));
 
   await makeFile(config, `model "${fileName}"`, `models/${fileName}`, async () => {
     const imports = makeImportsList();
@@ -44,12 +43,12 @@ export async function runMakeModelCommand(
     const typeFromNameResolver = ({
       jsonapi: kebabPluralTypeResolver,
       jsonrest: kebabPluralTypeResolver,
-    } as Dictionary<() => string>)[config.usage] ?? kebabPluralTypeResolver;
+    } as Record<string, () => string>)[config.usage] ?? kebabPluralTypeResolver;
 
     return renderModel({
       config,
       imports,
-      className: upperFirst(camelCase(fileName)),
+      className: upperFirst(fileName),
       typeName: typeFromNameResolver(),
       customFactory: await hasFile(config, 'makeModel'),
       composables: await promptForComposables(config, imports),

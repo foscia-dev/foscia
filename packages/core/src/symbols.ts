@@ -34,6 +34,20 @@ export const SYMBOL_MODEL_PROP_KIND_ATTRIBUTE: unique symbol = Symbol('foscia:pr
 export const SYMBOL_MODEL_PROP_KIND_RELATION: unique symbol = Symbol('foscia:prop:relation');
 
 /**
+ * Unique symbol for a model "belongs to" relation.
+ *
+ * @internal
+ */
+export const SYMBOL_MODEL_RELATION_BELONGS_TO: unique symbol = Symbol('foscia:rel:belongs-to');
+
+/**
+ * Unique symbol for a model "has many" relation.
+ *
+ * @internal
+ */
+export const SYMBOL_MODEL_RELATION_HAS_MANY: unique symbol = Symbol('foscia:rel:has-many');
+
+/**
  * Unique symbol for a model "has one" relation.
  *
  * @internal
@@ -41,11 +55,25 @@ export const SYMBOL_MODEL_PROP_KIND_RELATION: unique symbol = Symbol('foscia:pro
 export const SYMBOL_MODEL_RELATION_HAS_ONE: unique symbol = Symbol('foscia:rel:has-one');
 
 /**
- * Unique symbol for a model "has one" relation.
+ * Unique symbol for a model "morph to" relation.
  *
  * @internal
  */
-export const SYMBOL_MODEL_RELATION_HAS_MANY: unique symbol = Symbol('foscia:rel:has-many');
+export const SYMBOL_MODEL_RELATION_MORPH_TO: unique symbol = Symbol('foscia:rel:morph-to');
+
+/**
+ * Unique symbol for a model "morph many" relation.
+ *
+ * @internal
+ */
+export const SYMBOL_MODEL_RELATION_MORPH_MANY: unique symbol = Symbol('foscia:rel:morph-many');
+
+/**
+ * Unique symbol for a model "morph one" relation.
+ *
+ * @internal
+ */
+export const SYMBOL_MODEL_RELATION_MORPH_ONE: unique symbol = Symbol('foscia:rel:morph-one');
 
 /**
  * Unique symbol for a model class.

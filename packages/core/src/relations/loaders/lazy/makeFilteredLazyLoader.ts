@@ -5,12 +5,12 @@ import mergeEnhancers from '@foscia/core/actions/context/utilities/mergeEnhancer
 import when from '@foscia/core/actions/context/when';
 import { Action, ConsumeModel } from '@foscia/core/actions/types';
 import resolveModelAction from '@foscia/core/connections/resolveModelAction';
-import isPluralRelation from '@foscia/core/model/props/checks/isPluralRelation';
+import isPluralRelation from '@foscia/core/relations/checks/isPluralRelation';
 import { Model, ModelInstance, ModelRelation } from '@foscia/core/model/types';
 import makeStandardizedLazyLoader
   from '@foscia/core/relations/loaders/lazy/makeStandardizedLazyLoader';
 import { FilteredLazyLoaderConfig } from '@foscia/core/relations/loaders/types';
-import { ParsedInclude, ParsedIncludeMap } from '@foscia/core/relations/types';
+import { ParsedInclude } from '@foscia/core/relations/types';
 import fillLoadedRelation from '@foscia/core/relations/utilities/fillLoadedRelation';
 import { Multimap, multimapSet, wrap } from '@foscia/shared';
 
@@ -30,7 +30,7 @@ import { Multimap, multimapSet, wrap } from '@foscia/shared';
  */
 export default <Reference>(
   config: FilteredLazyLoaderConfig<Reference>,
-) => makeStandardizedLazyLoader(async (instances: ModelInstance[], relations: ParsedIncludeMap) => {
+) => makeStandardizedLazyLoader(async (instances, relations) => {
   const references: Multimap<[ModelRelation, ModelInstance], Reference[]> = new Map();
   await Promise.all(instances.map(
     (instance) => Promise.all(Array.from(relations, async ([relation]) => multimapSet(

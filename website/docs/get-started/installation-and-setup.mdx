@@ -1,0 +1,64 @@
+---
+sidebar_position: 0
+sidebar_label: Installation and setup
+description: Setup Foscia in your project.
+---
+
+import ShellCommand from '@site/src/components/ShellCommand';
+import TabItem from '@theme/TabItem';
+import Tabs from '@theme/Tabs';
+
+# Get started: installation and setup
+
+Foscia is composed of multiple packages for different purposes (see
+[available packages in API reference](/docs/category/api)). You can easily
+add Foscia to your project, because it is framework-agnostic. The simplest
+solution is to install the CLI, which will help you to install related packages,
+to configure Foscia and to generate associated files (models, composables, etc.).
+
+## CLI (recommended)
+
+### Install the CLI
+
+Best way to install Foscia is to install [`@foscia/cli`](/docs/tools/foscia-cli)
+as a development dependency, and let it install the additional dependencies
+depending on your usage.
+
+<ShellCommand command="add dev @foscia/cli" />
+
+### Initialize Foscia
+
+Once [`@foscia/cli`](/docs/tools/foscia-cli) is installed, you can run
+the [`foscia init`](/docs/tools/foscia-cli#init-path). You will be prompted
+to configure the Foscia environment (where to store files, etc.) and create
+your first Foscia related files: a model and the action factory.
+
+<ShellCommand command="foscia init" />
+
+## Manual
+
+If you don't want to install [`@foscia/cli`](/docs/tools/foscia-cli),
+you can manually install the set of package you will need depending on your
+usage.
+
+<Tabs groupId="usage">
+  <TabItem
+    value="jsonapi"
+    label="JSON:API"
+    default
+  >
+    <ShellCommand command="add @foscia/core @foscia/http @foscia/jsonapi" />
+  </TabItem>
+  <TabItem
+    value="rest"
+    label="REST"
+  >
+    <ShellCommand command="add @foscia/core @foscia/http @foscia/rest" />
+  </TabItem>
+  <TabItem
+    value="http"
+    label="HTTP Client"
+  >
+    <ShellCommand command="add @foscia/core @foscia/http" />
+  </TabItem>
+</Tabs>

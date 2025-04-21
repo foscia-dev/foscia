@@ -1,0 +1,123 @@
+---
+sidebar_position: 20
+description: Project structure for Foscia files.
+---
+
+# Project structure
+
+Foscia files are organized in an opinionated manner. This keeps your project
+directory structure clean and allow Foscia to provide better features when
+using the CLI, such as:
+
+- Suggesting composables or transformers to use when making models or
+  composables using
+  [`foscia make model`](/docs/tools/foscia-cli#make-model-name) or
+  [`foscia make composable`](/docs/tools/foscia-cli#make-composable-name).
+- Importing available files (`models.ts`, `action.ts`, `makeModel.ts`, etc.)
+  when generating other files (such as models, some frameworks integration files).
+
+## Example
+
+Your Foscia files are stored in one directory you choose when initiating
+your project using [`foscia init`](/docs/tools/foscia-cli#init-path).
+
+Here is an example of a Nuxt v4 project using Foscia and storing Foscia's
+related files into `app/data` directory.
+
+```text
+app/
+└── data/
+    ├── composables/
+    │   ├── commentable.ts
+    │   └── publishable.ts
+    ├── models/
+    │   ├── makeModel.ts
+    │   ├── comment.ts
+    │   ├── gallery.ts
+    │   └── post.ts
+    ├── enhancers/
+    │   └── withCount.ts
+    ├── runners/
+    │   └── firstOrFail.ts
+    ├── transformers/
+    │   └── toMomentDatetime.ts
+    ├── utils/
+    │   ├── reducer.ts
+    │   └── reviver.ts
+    ├── action.ts
+    └── registry.ts
+```
+
+## Default structure
+
+| Path                  | Description                                                                                    |
+|-----------------------|------------------------------------------------------------------------------------------------|
+| `composables/`        | [Composables](/docs/guides/models/composition#composables).                                    |
+| `models/`             | [Models](/docs/get-started/models).                                                            |
+| `models/makeModel.ts` | [Model factory](/docs/guides/models/composition#factory).                                      |
+| `enhancers/`          | [Custom action enhancers](/docs/guides/actions/custom-enhancers).                              |
+| `runners/`            | [Custom action runners](/docs/guides/actions/custom-runners).                                  |
+| `transformers/`       | [Custom transformers](/docs/guides/models/transformers).                                       |
+| `utils/`              | Other utilities files, such as [model reducer and reviver](/docs/guides/models/reduce-revive). |
+| `action.ts`           | [Action factory](/docs/get-started/actions).                                                   |
+| `registry.ts`         | [Models types definition and registry](/docs/guides/models/registry).                          |
+
+## Multi-connections structure
+
+When using [multiple connections](/guides/actions/connections), the project
+structure varies slightly:
+
+- `models` directory will contain one directory per connection
+- `modelFactory.ts` will be inside each model connection directory and named
+accordingly to the connection
+- `actions` directory will contain each connection action factory,
+while `action.ts` file is removed
+- `bootstrap.ts` file is added to register connections in your application
+entry point.
+
+In the following example, we are using two connections to an API: `v1` and `v2`.
+Models directories and action factories are conventionnally named according
+to the connection names.
+
+```text
+app/
+└── data/
+// highlight.addition
+    ├── actions/
+// highlight.addition
+    │   ├── actionV1.ts
+// highlight.addition
+    │   └── actionV2.ts
+    ├── models/
+// highlight.deletion
+    │   ├── comment.ts
+// highlight.deletion
+    │   ├── gallery.ts
+// highlight.deletion
+    │   └── post.ts
+// highlight.addition
+    │   ├── v1/
+// highlight.addition
+    │   │   ├── makeV1Model.ts
+// highlight.addition
+    │   │   ├── comment.ts
+// highlight.addition
+    │   │   └── gallery.ts
+// highlight.addition
+    │   └── v2/
+// highlight.addition
+    │       └── post.ts
+    ├── runners/
+    │   └── firstOrFail.ts
+    ├── transformers/
+    │   └── toMomentDatetime.ts
+    ├── utils/
+    │   ├── reducer.ts
+    │   └── reviver.ts
+// highlight.deletion
+    ├── action.ts
+// highlight.addition
+    ├── bootstrap.ts
+    ├── models.ts
+    └── makeModel.ts
+```

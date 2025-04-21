@@ -20,22 +20,22 @@ describe('unit: makeSerializer', () => {
       type: 'posts',
       limitedSnapshots: false,
     }, {
-      comments: hasMany('comments'),
+      comments: hasMany('comments' as any),
     });
     const CommentMock = makeModel('comments', {
-      author: hasOne('users'),
+      author: hasOne('users' as any),
     });
     const UserMock = makeModel('users', {
-      posts: hasMany('posts'),
+      posts: hasMany('posts' as any),
     });
 
     const post = new PostMock();
     const comment = new CommentMock();
     const user = new UserMock();
 
-    fill(post, { id: 1, comments: [comment] });
-    fill(comment, { id: 2, author: user });
-    fill(user, { id: 3, posts: [post] });
+    fill(post, { id: 1, comments: [comment] as any });
+    fill(comment, { id: 2, author: user as any });
+    fill(user, { id: 3, posts: [post] as any });
 
     const { serializer: deepSerializer } = makeSerializer({
       createRecord: makeSerializerRecordFactory(

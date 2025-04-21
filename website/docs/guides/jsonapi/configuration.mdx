@@ -1,0 +1,113 @@
+---
+sidebar_position: 20
+description: Configuration recipes for JSON:API client features.
+---
+
+# Configuration
+
+## API reference
+
+You can review the full configuration options inside the API reference:
+
+- [`JsonApiAdapterConfig`](/docs/api/@foscia/jsonapi/interfaces/JsonApiAdapterConfig)
+- [`JsonApiDeserializerConfig`](/docs/api/@foscia/jsonapi/interfaces/JsonApiDeserializerConfig)
+- [`JsonApiSerializerConfig`](/docs/api/@foscia/jsonapi/interfaces/JsonApiSerializerConfig)
+
+## Configuration recipes
+
+### Relations loading
+
+:::warning
+
+Work in progress!
+
+:::
+
+### Endpoint paths transformations
+
+By default, JSON:API use kebab case for models and relations endpoints (e.g.
+`favorite-posts` for a `favoritePosts` relation). If you want to use another
+case for endpoints, you can use
+[`modelPathTransformer`](/docs/api/@foscia/jsonapi/interfaces/JsonApiAdapterConfig#modelpathtransformer),
+[`relationPathTransformer`](/docs/api/@foscia/jsonapi/interfaces/JsonApiAdapterConfig#relationpathtransformer)
+[`idPathTransformer`](/docs/api/@foscia/jsonapi/interfaces/JsonApiAdapterConfig#idpathtransformer)
+options.
+
+```typescript
+import { camelCase } from 'lodash-es';
+import { makeJsonApiAdapter } from '@foscia/jsonapi';
+
+makeJsonApiAdapter({
+  modelPathTransformer: (path) => camelCase(path),
+  relationPathTransformer: (path) => camelCase(path),
+  idPathTransformer: (path) => path.toLowerCase(),
+});
+```
+
+:::tip
+
+You can also change path guessing globally using model's
+[`guessPath`](/docs/guides/models/configuration#guesspath),
+[`guessRelationPath`](/docs/guides/models/configuration#guessrelationpath) and
+[`guessIdPath`](/docs/guides/models/configuration#guessidpath)
+configuration options.
+
+:::
+
+### Properties keys transformations
+
+By default, serialized and deserialized attributes and relations keep keys
+specified in the model. If you are using camel cased keys (e.g. `firstName`)
+but want to exchange kebab cased keys (e.g. `first-name`) with your API,
+you can use
+[`serializeKey`](/docs/api/@foscia/jsonapi/interfaces/JsonApiSerializerConfig#serializekey)
+and [`deserializeKey`](/docs/api/@foscia/jsonapi/interfaces/JsonApiDeserializerConfig#deserializekey)
+options.
+
+```typescript
+import { kebabCase } from 'lodash-es';
+import { makeJsonApiSerializer, makeJsonApiDeserializer } from '@foscia/jsonapi';
+
+makeJsonApiSerializer({
+  serializeKey: ({ key }) => kebabCase(key),
+});
+
+makeJsonApiDeserializer({
+  deserializeKey: ({ key }) => kebabCase(key),
+});
+```
+
+:::tip
+
+You can also change the key serialization globally using model's
+[`guessAlias`](/docs/guides/models/configuration#guessalias)
+configuration option.
+
+:::
+
+### Parse URL IDs
+
+Some API implementation may serialize records IDs as the record endpoint's URL
+(such as `https://example.com/api/posts/1` for post `1`). You can customize
+the deserializer to support ID and type extraction from URL ID using
+[`extractId`](/docs/api/@foscia/jsonapi/interfaces/JsonApiDeserializerConfig#extractid)
+and [`extractType`](/docs/api/@foscia/jsonapi/interfaces/JsonApiDeserializerConfig#extracttype)
+options.
+
+```typescript
+import { makeJsonApiDeserializer } from '@foscia/jsonapi';
+
+makeJsonApiDeserializer({
+  // This will support IDs like `https://example.com/api/posts/1`, `/api/posts/1`, etc.
+  extractId: (record) => String(record.id).split('/').reverse()[0],
+  extractType: (record) => String(record.id).split('/').reverse()[1],
+});
+```
+
+:::tip
+
+Notice that if your API follow JSON:API specification, `type` should already be
+present in each record, so you do not need to use
+[`extractType`](/docs/api/@foscia/jsonapi/interfaces/JsonApiDeserializerConfig#extracttype).
+
+:::

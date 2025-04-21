@@ -1,17 +1,19 @@
-import makeRelationFactory from '@foscia/core/relations/props/makeRelationFactory';
 import {
+  InferModelPropReadOnly,
+  InferModelRelationInstanceFromCustomTypes,
   InferModelRelationInstanceFromModels,
-  InferModelRelationInstanceFromTypes,
   ModelHasManyFactory,
   ModelHasManyFactoryConfig,
+  ModelPropConfig,
+  ModelRelationTypeFromCustomTypes,
 } from '@foscia/core/model/types';
+import makeRelationFactory from '@foscia/core/relations/props/makeRelationFactory';
 import { SYMBOL_MODEL_RELATION_HAS_MANY } from '@foscia/core/symbols';
 import { Awaitable } from '@foscia/shared';
 
 export default /* @__PURE__ */ makeRelationFactory(SYMBOL_MODEL_RELATION_HAS_MANY) as {
   /**
-   * Create a has many relation property factory with custom model type.
-   * Prefer using the model callback or strict type strings signatures.
+   * Create a has many relation property factory with type parameter.
    *
    * @param type
    * @param config
@@ -22,22 +24,34 @@ export default /* @__PURE__ */ makeRelationFactory(SYMBOL_MODEL_RELATION_HAS_MAN
    * ```typescript
    * import { hasMany } from '@foscia/core';
    *
-   * hasMany<Post[]>();
-   * hasMany<Post[]>('posts');
-   * hasMany<(Post | Comment)[]>(['posts', 'comments']);
+   * hasMany<Post>('posts');
    * ```
-   */<
-    T extends object[] = never,
-    R extends boolean = false,
-  >(
-    type: T extends never ? never : string | readonly string[],
-    config?: ModelHasManyFactoryConfig<T, R>,
-  ): ModelHasManyFactory<T, R>;
+   */<T extends object = never>(
+    type: T extends never ? never : string,
+    config?: ModelHasManyFactoryConfig<T[]>,
+  ): ModelHasManyFactory<T[], false>;
+  /**
+   * Create a has many relation property factory with type parameter.
+   *
+   * @param type
+   * @param config
+   *
+   * @category Factories
+   *
+   * @example
+   * ```typescript
+   * import { hasMany } from '@foscia/core';
+   *
+   * hasMany<Post>('posts', { readOnly: true });
+   * ```
+   */<T extends object = never>(
+    type: T extends never ? never : string,
+    config: { readOnly: true; } & ModelHasManyFactoryConfig<T[]>,
+  ): ModelHasManyFactory<T[], true>;
   /**
    * Create a has many relation property factory with strict type strings.
    * Recommended when having circular relations.
-   * Must be combined with {@link Foscia.CustomTypes | `Foscia.CustomTypes`}
-   * namespace overload to work.
+   * Must be combined with `Foscia` namespace overload to work.
    *
    * @param type
    * @param config
@@ -50,41 +64,15 @@ export default /* @__PURE__ */ makeRelationFactory(SYMBOL_MODEL_RELATION_HAS_MAN
    *
    * hasMany('posts');
    * hasMany('posts', { readOnly: true });
-   * hasMany(['posts', 'comments']);
    * ```
    */<
-    T extends string | readonly string[],
-    R extends boolean = false,
+    S extends ModelRelationTypeFromCustomTypes,
+    C extends Omit<ModelPropConfig, 'nullable'>,
+    T extends object = InferModelRelationInstanceFromCustomTypes<S>,
   >(
-    type: T,
-    config?: ModelHasManyFactoryConfig<InferModelRelationInstanceFromTypes<T>[], R>,
-  ): ModelHasManyFactory<InferModelRelationInstanceFromTypes<T>[], R>;
-  /**
-   * Create a has many relation property factory with strict type strings.
-   * Recommended when having circular relations.
-   * Must be combined with {@link Foscia.CustomTypes | `Foscia.CustomTypes`}
-   * namespace overload to work.
-   *
-   * @param type
-   * @param config
-   *
-   * @category Factories
-   *
-   * @example
-   * ```typescript
-   * import { hasMany } from '@foscia/core';
-   *
-   * hasMany('posts');
-   * hasMany('posts', { readOnly: true });
-   * hasMany(['posts', 'comments']);
-   * ```
-   */<
-    T extends string | readonly string[],
-    R extends boolean = false,
-  >(
-    type: T,
-    config?: ModelHasManyFactoryConfig<InferModelRelationInstanceFromTypes<T>[], R>,
-  ): ModelHasManyFactory<InferModelRelationInstanceFromTypes<T>[], R>;
+    type: S,
+    config?: C & ModelHasManyFactoryConfig<T[]>,
+  ): ModelHasManyFactory<T[], InferModelPropReadOnly<C>>;
   /**
    * Create a has many relation property factory with a model resolver callback.
    * Recommended when not having circular references.
@@ -100,14 +88,13 @@ export default /* @__PURE__ */ makeRelationFactory(SYMBOL_MODEL_RELATION_HAS_MAN
    *
    * hasMany(() => Post);
    * hasMany(() => Post, { readOnly: true });
-   * hasMany(() => [Post, Comment]);
    * ```
    */<
-    M extends object | readonly object[],
-    T extends InferModelRelationInstanceFromModels<M>[] = InferModelRelationInstanceFromModels<M>[],
-    R extends boolean = false,
+    M extends object,
+    C extends Omit<ModelPropConfig, 'nullable'>,
+    T extends InferModelRelationInstanceFromModels<M>,
   >(
     resolver: () => Awaitable<M>,
-    config?: ModelHasManyFactoryConfig<T, R>,
-  ): ModelHasManyFactory<T, R>;
+    config?: C & ModelHasManyFactoryConfig<T[]>,
+  ): ModelHasManyFactory<T[], InferModelPropReadOnly<C>>;
 };

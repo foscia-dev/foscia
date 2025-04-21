@@ -16,7 +16,7 @@ import type {
 } from '@foscia/core/actions/variadic';
 import type { Hookable, HookCallback } from '@foscia/core/hooks/types';
 import type { Model, ModelIdType, ModelInstance, ModelRelation } from '@foscia/core/model/types';
-import { ParsedRawInclude, ParsedIncludeMap } from '@foscia/core/relations/types';
+import { ParsedIncludeMap, ParsedRawInclude } from '@foscia/core/relations/types';
 import {
   SYMBOL_ACTION,
   SYMBOL_ACTION_ENHANCER,
@@ -368,8 +368,8 @@ export type ConsumeCache = {
  *
  * @internal
  */
-export type ConsumeRegistry = {
-  registry: ModelsRegistry;
+export type ConsumeRegistry<Models extends readonly Model[] = any> = {
+  registry: ModelsRegistry<Models>;
 };
 
 /**

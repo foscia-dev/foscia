@@ -69,6 +69,7 @@ export default /* @__PURE__ */ makeEnhancer('destroy', ((
    * ```
    */<C extends {}, M extends Model>(
     model: M,
+    // TODO Strict type `id` using model property typing.
     id: ModelIdType,
   ): AnonymousEnhancer<C, C & ConsumeModel<M> & ConsumeId>;
 });

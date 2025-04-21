@@ -46,18 +46,11 @@ import makeModelFactory from '@foscia/core/model/makeModelFactory';
 import attr from '@foscia/core/model/props/attr';
 import isAttribute from '@foscia/core/model/props/checks/isAttribute';
 import isId from '@foscia/core/model/props/checks/isId';
-import isPluralRelation from '@foscia/core/model/props/checks/isPluralRelation';
-import isRelation from '@foscia/core/model/props/checks/isRelation';
-import isSingularRelation from '@foscia/core/model/props/checks/isSingularRelation';
-import hasMany from '@foscia/core/relations/props/hasMany';
-import hasOne from '@foscia/core/relations/props/hasOne';
 import id from '@foscia/core/model/props/id';
 import mapAttributes from '@foscia/core/model/props/mappers/mapAttributes';
 import mapRelations from '@foscia/core/model/props/mappers/mapRelations';
 import aliasPropKey from '@foscia/core/model/props/utilities/aliasPropKey';
 import attachRelationInverse from '@foscia/core/model/props/utilities/attachRelationInverse';
-import guessRelationInverses from '@foscia/core/relations/utilities/guessRelationInverses';
-import guessRelationType from '@foscia/core/relations/utilities/guessRelationType';
 import shouldSync from '@foscia/core/model/props/utilities/shouldSync';
 import makeModelsReducer from '@foscia/core/model/revivers/makeModelsReducer';
 import makeModelsReviver from '@foscia/core/model/revivers/makeModelsReviver';
@@ -75,6 +68,9 @@ import filled from '@foscia/core/model/utilities/filled';
 import forceFill from '@foscia/core/model/utilities/forceFill';
 import makeMapRegistry from '@foscia/core/registry/makeMapRegistry';
 import makeRegistry from '@foscia/core/registry/makeRegistry';
+import isPluralRelation from '@foscia/core/relations/checks/isPluralRelation';
+import isRelation from '@foscia/core/relations/checks/isRelation';
+import isSingularRelation from '@foscia/core/relations/checks/isSingularRelation';
 import load from '@foscia/core/relations/load';
 import loaded from '@foscia/core/relations/loaded';
 import makeStandardizedEagerLoader
@@ -87,6 +83,14 @@ import makeStandardizedLazyLoader
 import makeLoader from '@foscia/core/relations/loaders/makeLoader';
 import makeSmartLoader from '@foscia/core/relations/loaders/makeSmartLoader';
 import loadMissing from '@foscia/core/relations/loadMissing';
+import belongsTo from '@foscia/core/relations/props/belongsTo';
+import hasMany from '@foscia/core/relations/props/hasMany';
+import hasOne from '@foscia/core/relations/props/hasOne';
+import morphMany from '@foscia/core/relations/props/morphMany';
+import morphOne from '@foscia/core/relations/props/morphOne';
+import morphTo from '@foscia/core/relations/props/morphTo';
+import guessRelationInverses from '@foscia/core/relations/utilities/guessRelationInverses';
+import guessRelationType from '@foscia/core/relations/utilities/guessRelationType';
 import parseRawInclude from '@foscia/core/relations/utilities/parseRawInclude';
 import toParsedRawInclude from '@foscia/core/relations/utilities/toParsedRawInclude';
 import walkParsedIncludeMap from '@foscia/core/relations/utilities/walkParsedIncludeMap';
@@ -103,8 +107,12 @@ import {
   SYMBOL_MODEL_PROP_KIND_ID,
   SYMBOL_MODEL_PROP_KIND_RELATION,
   SYMBOL_MODEL_PROP_TRANSFORMER,
+  SYMBOL_MODEL_RELATION_BELONGS_TO,
   SYMBOL_MODEL_RELATION_HAS_MANY,
   SYMBOL_MODEL_RELATION_HAS_ONE,
+  SYMBOL_MODEL_RELATION_MORPH_MANY,
+  SYMBOL_MODEL_RELATION_MORPH_ONE,
+  SYMBOL_MODEL_RELATION_MORPH_TO,
   SYMBOL_MODEL_SNAPSHOT,
 } from '@foscia/core/symbols';
 import isTransformer from '@foscia/core/transformers/isTransformer';
@@ -126,10 +134,8 @@ export type * from '@foscia/core/model/types';
 export type * from '@foscia/core/registry/types';
 export type * from '@foscia/core/relations/types';
 export type * from '@foscia/core/transformers/types';
+export type * from '@foscia/core/customTypes';
 export type * from '@foscia/core/types';
-
-// eslint-disable-next-line @typescript-eslint/no-use-before-define
-export type { Foscia };
 
 export * from '@foscia/core/actions';
 export * from '@foscia/core/configuration';
@@ -147,8 +153,12 @@ export {
   makeWeakRefFactory,
   makeTimedRefFactory,
   attr,
+  belongsTo,
   hasMany,
   hasOne,
+  morphTo,
+  morphMany,
+  morphOne,
   id,
   fill,
   forceFill,
@@ -239,8 +249,12 @@ export {
   SYMBOL_MODEL_PROP_KIND_ID,
   SYMBOL_MODEL_PROP_KIND_ATTRIBUTE,
   SYMBOL_MODEL_PROP_KIND_RELATION,
-  SYMBOL_MODEL_RELATION_HAS_ONE,
+  SYMBOL_MODEL_RELATION_BELONGS_TO,
   SYMBOL_MODEL_RELATION_HAS_MANY,
+  SYMBOL_MODEL_RELATION_HAS_ONE,
+  SYMBOL_MODEL_RELATION_MORPH_MANY,
+  SYMBOL_MODEL_RELATION_MORPH_ONE,
+  SYMBOL_MODEL_RELATION_MORPH_TO,
   SYMBOL_MODEL_CLASS,
   SYMBOL_MODEL_INSTANCE,
   SYMBOL_MODEL_COMPOSABLE,

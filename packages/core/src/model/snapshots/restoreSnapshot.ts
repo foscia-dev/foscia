@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import isRelation from '@foscia/core/model/props/checks/isRelation';
+import isRelation from '@foscia/core/relations/checks/isRelation';
 import isValueProp from '@foscia/core/model/props/checks/isValueProp';
 import markSynced from '@foscia/core/model/snapshots/markSynced';
 import {

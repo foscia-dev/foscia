@@ -1,0 +1,342 @@
+---
+sidebar_position: 0
+description: Usage of actions for common use cases, such as CRUD operations.
+---
+
+import FunctionInfo from '@site/src/components/FunctionInfo';
+
+# Usage
+
+:::tip What you'll learn
+
+- CRUD operations through actions
+- Conditionally enhancing and running actions
+- Conditionally catching errors from actions
+
+To complete this, you can browse the API documentation to see available
+[enhancers](/docs/api/@foscia/core/#enhancers) and
+[runners](/docs/api/@foscia/core/#runners).
+
+:::
+
+## Read records
+
+### All records
+
+[`query`](/docs/api/@foscia/core/functions/query) can target a records index
+using a model. You can use it in combination with
+[`all`](/docs/api/@foscia/core/functions/all) to retrieve a list of
+the model instances.
+
+```typescript
+import { query, all } from '@foscia/core';
+
+const posts = await action(
+  query(Post),
+  all(),
+);
+
+posts.forEach((post) => {
+  console.log(post.title);
+});
+```
+
+### One record
+
+In addition, [`query`](/docs/api/@foscia/core/functions/query) also provide a
+way to target a record using a model and an ID. You can use it in combination
+with [`oneOrFail`](/docs/api/@foscia/core/functions/oneOrFail) or
+[`one`](/docs/api/@foscia/core/functions/one) to retrieve a single record
+and handle not found errors.
+
+```typescript
+import { query, oneOrFail } from '@foscia/core';
+
+const post = await action(
+  query(Post, '1'),
+  oneOrFail(),
+);
+
+const postOrNull = await action(
+  query(Post, '2'),
+  one(),
+);
+```
+
+:::info
+
+[`oneOrFail`](/docs/api/@foscia/core/functions/oneOrFail) will throw a
+[`RecordNotFoundError`](/docs/api/@foscia/core/classes/RecordNotFoundError)
+when encountering a not found response from adapter (e.g. HTTP 404)
+or an empty list of deserialized instances (e.g. HTTP 204).
+[`oneOr`](/docs/api/@foscia/core/functions/oneOr) will use your provided
+callback and [`one`](/docs/api/@foscia/core/functions/one) will return `null`.
+
+:::
+
+Finally, [`query`](/docs/api/@foscia/core/functions/query) can also be used to
+target a record using an instance. If the instance does not exist, this will
+target the records index, otherwise it will target the record.
+This can be used when writing a record (e.g. create/update)
+or when [lazy loading a relation](#lazy-loading-relations).
+
+```typescript
+import { query, oneOrFail } from '@foscia/core';
+
+const post = await action(query(somePost), oneOrFail());
+```
+
+## Save records
+
+You can create or update records using
+[`create`](/docs/api/@foscia/core/functions/create) and
+[`update`](/docs/api/@foscia/core/functions/update) functions. As a convenience,
+Foscia provides a [`save`](/docs/api/@foscia/core/functions/save) function which
+will call [`create`](/docs/api/@foscia/core/functions/create) or
+[`update`](/docs/api/@foscia/core/functions/update) depending on the existence
+state of your record.
+
+[`current`](/docs/api/@foscia/core/functions/current) is a runner
+which you can combine with those enhancers to always retrieve an instance,
+even if your data source does not return the record on
+those actions (such as a `204 No Content` on update). It will return a record if
+there is one if your data source response, otherwise it will return the
+initially provided instance.
+
+You can also combine those functions with
+[`none`](/docs/api/@foscia/core/functions/none) runner to not handle the data
+source response. When using this runner, Foscia won't try to deserialize the
+record from the data source response, thus ignoring data source-side changes.
+
+```typescript
+import { create, save, fill, current, none } from '@foscia/core';
+
+const post = await action(
+  create(fill(new Post(), { title: 'Hello World!' })),
+  include('author'),
+  current(),
+);
+
+post.title = 'Edited Hello World!';
+
+await action(save(post), none());
+```
+
+## Delete records
+
+### By instance
+
+You can use [`destroy`](/docs/api/@foscia/core/functions/destroy) to trigger
+a record deletion. You can combine it with
+[`none`](/docs/api/@foscia/core/functions/none) to ignore the data
+source's response (errors are still thrown by the adapter).
+
+```typescript
+import { destroy, none } from '@foscia/core';
+
+await action(destroy(post), none());
+```
+
+### By ID
+
+<FunctionInfo version="0.13.0" />
+
+In addition, you can delete a record using only its model and ID, instead of
+passing an already retrieved instance.
+
+```typescript
+import { destroy, none } from '@foscia/core';
+
+await action(destroy(Post, '1'), none());
+```
+
+## Conditionals
+
+Sometimes, you may need to conditionally apply an enhancer or run an action. As
+an example, you may want to sort results differently based on the user's defined
+search or sort's direction. This can be done easily using the
+[`when`](/docs/api/@foscia/core/functions/when) helper, which can receive enhancers, runners or callbacks:
+
+```typescript
+import { query, when, all } from '@foscia/core';
+import { filterBy, sortByDesc } from '@foscia/jsonapi';
+
+action(
+  query(Post),
+  when(searchQuery, (a, s) => a(
+    filterBy('search', s),
+    sortByDesc('searchMatch'),
+  )),
+  when(displayLatestFirst, sortByDesc('createdAt')),
+  all(),
+);
+```
+
+[`when`](/docs/api/@foscia/core/functions/when) returns a new enhancer or
+runner based on the given value's _truthiness_.
+It will execute the first enhancer/runner only if its value is _truthy_. You may
+pass the value as a factory function returning the value, and even a promise
+value. You may also pass a second enhancer/runner which will only execute if the
+value is _falsy_. Each callback arguments will receive the action as their first
+argument and the value as their second argument. Each callback may also be
+async, as any enhancers and runners.
+
+:::info
+
+[`when`](/docs/api/@foscia/core/functions/when) will create a new enhancer or
+runner which will be **evaluated on run**.
+This has benefits, as the condition can be an async value or
+callback, but it also means that the condition won't be evaluated immediately
+if action is not ran immediately.
+
+:::
+
+Here are further examples:
+
+```typescript
+import { changed, create, oneOrFail, when } from '@foscia/core';
+
+const post = fill(new Post(), userInputData);
+
+action(
+  create(post),
+  when(
+    () => /* compute a special value */,
+    (a, specialTruthyValue) => /* do something */,
+    (a, specialFalsyValue) => /* do something */,
+  ),
+  when(
+    changed(post),
+    oneOrFail(),
+    () => post,
+  ),
+);
+```
+
+## Catch errors
+
+Catching special errors is a common use case when dealing with data exchanges.
+For this, Foscia provides a [`catchIf`](/docs/api/@foscia/core/functions/catchIf)
+runner, allowing you to quickly handle common error management scenarios.
+
+You can use [`catchIf`](/docs/api/@foscia/core/functions/catchIf) to make your
+runner returns `null` on every error. You can compare this code to his
+equivalent without using [`catchIf`](/docs/api/@foscia/core/functions/catchIf),
+which is more verbose.
+
+```typescript
+const postOrNull = await action(
+  query(Post, '123'),
+  catchIf(oneOrFail()),
+);
+```
+
+<details>
+
+<summary>
+
+Equivalent without `catchIf`
+
+</summary>
+
+```typescript
+let postOrNull = null as Post | null;
+
+try {
+  postOrNull = await action(
+    query(Post, '123'),
+    oneOrFail(),
+  );
+} catch (error) {
+  postOrNull = null;
+}
+```
+
+</details>
+
+### Ignore specific errors
+
+In the following example, we would like to create a stat event for each page
+viewed, ignoring all "too many requests" errors.
+
+```typescript
+const statEvent = fill(new StatEvent(), {
+  type: 'page-viewed',
+  url: 'https://example.com',
+});
+
+await action(
+  create(statEvent),
+  catchIf(none(), (error) => error instanceof HttpTooManyRequestsError),
+);
+```
+
+<details>
+
+<summary>
+
+Equivalent without `catchIf`
+
+</summary>
+
+```typescript
+const statEvent = fill(new StatEvent(), {
+  type: 'page-viewed',
+  url: 'https://example.com',
+});
+
+try {
+  await action(
+    create(statEvent),
+    none(),
+  );
+} catch (error) {
+  if (error instanceof HttpTooManyRequestsError) {
+    // Ignoring too many requests errors.
+  } else {
+    // Throwing any other errors.
+    throw error;
+  }
+}
+```
+
+</details>
+
+### Alternative runner on error
+
+Instead of returning `null` on caught errors, you can also use
+[`catchIf`](/docs/api/@foscia/core/functions/catchIf) to execute another
+runner when catching errors.
+
+```typescript
+// Run a first `oneOrFail`, and another one if an error is thrown.
+await action(
+  query(Post, '123'),
+  catchIf(oneOrFail(), () => oneOrFail())
+);
+
+// Run a first `oneOrFail`, and another one only if a "too many requests"
+// error is thrown.
+await action(
+  query(Post, '123'),
+  catchIf(oneOrFail(), (error) => (
+    error instanceof HttpTooManyRequestsError && oneOrFail()
+  ))
+);
+```
+
+Here is a real world example which uses catch runner to retry a request
+which has been rejected by the server after a 15sec delay using a hypothetical
+`wait` helper function.
+
+```typescript
+await action(
+  create(statEvent),
+  catchIf(none(), (error) => (
+    error instanceof HttpTooManyRequestsError && (async (a) => {
+      await wait(15 * 1000);
+      return a(none());
+    })
+  )),
+);
+```

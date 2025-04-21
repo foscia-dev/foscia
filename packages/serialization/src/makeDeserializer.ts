@@ -59,7 +59,9 @@ export default <
   Data,
   Deserialized extends DeserializedData,
   Extract extends DeserializerExtract<Record>,
->(config: RecordDeserializerConfig<Record, Data, Deserialized, Extract>) => {
+>(
+  config: RecordDeserializerConfig<Record, Data, Deserialized, Extract>,
+) => {
   const NON_IDENTIFIED_LOCAL_ID = '__foscia_non_identified_local_id__';
 
   let deserializer: RecordDeserializer<Record, Data, Deserialized, Extract>;

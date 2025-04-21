@@ -6,12 +6,14 @@ describe.concurrent('unit: makeMapRegistry', () => {
   it('should resolve models', async () => {
     class PostV1 extends makeModel('v1:posts') {
     }
+
     class PostV2 extends makeModel('v2:posts') {
     }
+
     class Comment extends makeModel('comments') {
     }
 
-    const { registry } = makeMapRegistry({
+    const registry = makeMapRegistry({
       models: [PostV1, PostV2, Comment] as const,
     });
 
@@ -26,7 +28,7 @@ describe.concurrent('unit: makeMapRegistry', () => {
   it('should normalize types', async () => {
     const modelFooBar = makeModel('foo-bar');
 
-    const { registry } = makeMapRegistry({
+    const registry = makeMapRegistry({
       models: [modelFooBar],
       normalizeType: (t) => t.toUpperCase(),
     });

@@ -1,0 +1,336 @@
+---
+sidebar_position: 10
+description: CLI installation, commands and usage.
+---
+
+import FunctionInfo from '@site/src/components/FunctionInfo';
+import ShellCommand from '@site/src/components/ShellCommand';
+
+# Foscia CLI
+
+:::tip What you'll learn
+
+- Initializing Foscia on your project with the CLI
+- Creating files related to Foscia (models, composables, etc.) using the CLI
+
+:::
+
+## Installation
+
+The Foscia CLI is provided by `@foscia/cli` package.
+
+<ShellCommand command="add dev @foscia/cli" />
+
+## Usage
+
+The `foscia` command can be called from command line once Foscia CLI is
+installed. When called without arguments, it will list available commands.
+
+<ShellCommand command="foscia" />
+
+:::info
+
+Since Foscia CLI is not installed globally, you will need to prefix `foscia`
+with your package runner.
+
+:::
+
+## Commands
+
+### `init [path]`
+
+Initialize Foscia in your project.
+The command will ask you multiple things about your project to set up an adapted
+Foscia environment (creating the configuration file, installing dependencies,
+creating a first model and creating an action factory).
+
+#### Examples
+
+<ShellCommand
+  command={[
+    'foscia init',
+    '# Init with specific usage inside given path.',
+    'foscia init src/api --usage=jsonapi',
+  ]}
+/>
+
+#### Arguments
+
+- `[path]` Directory to put new Foscia files in (models, composables, actions).
+If absent, will be requested during initialization process.
+
+#### Options
+
+- `--usage <usage>` Define your usage of Foscia (CLI will ask for it if not
+provided)
+- `--manual` Disable environment detection (language and modules organizations)
+- `--show` Output the files instead of writing them on filesystem
+- `--force` Overwrite existing files instead of prompting user
+
+### `make model <name>`
+
+Create a Foscia model using the name argument.
+
+#### Examples
+
+<ShellCommand
+  command={[
+    'foscia make model post',
+    '# Make model and show file content instead of writing to filesystem.',
+    'foscia make model post --show',
+    '# Make model and update models list file.',
+    'foscia make model post --write-models',
+  ]}
+/>
+
+#### Arguments
+
+- `<name>` Name of the model (class, file and type will be determined from it)
+
+#### Options
+
+- `--connection <connection>` Connection to use for the model in a
+multi-connection project. You will be prompted for the connection to use
+if Foscia detects a multi-connection project.
+- `--registry` Update the `registry.ts` file after creating model. This
+will only occur if `show` option is disabled. If the option is not provided,
+you will be prompted to update registry file if it exists.
+- `--show` Output the file instead of writing it on filesystem
+- `--force` Overwrite existing files instead of prompting user
+
+### `make composable <name>`
+
+Create a Foscia composable using the name argument.
+
+#### Examples
+
+<ShellCommand command="foscia make composable publishable" />
+
+#### Arguments
+
+- `<name>` Name of the composable (file will be determined from it)
+
+#### Options
+
+- `--show` Output the file instead of writing it on filesystem
+- `--force` Overwrite existing files instead of prompting user
+
+### `make transformer <name>`
+
+Create a Foscia value transformer (for IDs and attributes).
+
+#### Examples
+
+<ShellCommand command="foscia make transformer toDateTime" />
+
+#### Arguments
+
+- `<name>` Name of the transformer (file will be determined from it)
+
+#### Options
+
+- `--show` Output the file instead of writing it on filesystem
+- `--force` Overwrite existing files instead of prompting user
+
+### `make reducer`
+
+<FunctionInfo version="0.9.0" />
+
+Create a Foscia models reducer.
+
+#### Examples
+
+<ShellCommand command="foscia make reducer" />
+
+#### Options
+
+- `--show` Output the file instead of writing it on filesystem
+- `--force` Overwrite existing files instead of prompting user
+
+### `make reviver`
+
+<FunctionInfo version="0.9.0" />
+
+Create a Foscia models reviver.
+
+#### Examples
+
+<ShellCommand command="foscia make reviver" />
+
+#### Options
+
+- `--show` Output the file instead of writing it on filesystem
+- `--force` Overwrite existing files instead of prompting user
+
+### `make model-factory`
+
+<FunctionInfo version="0.9.0" />
+
+Create a Foscia model factory.
+
+#### Examples
+
+<ShellCommand command="foscia make model-factory" />
+
+#### Options
+
+- `--connection <connection>` Connection to use for the factory in a
+multi-connection project. You will be prompted for the connection to use
+if Foscia detects a multi-connection project.
+- `--show` Output the file instead of writing it on filesystem
+- `--force` Overwrite existing files instead of prompting user
+
+### `make registry`
+
+<FunctionInfo version="0.13.0" />
+
+Create or update the registry file containing types definition and models
+registry. It will inspect your `models` directory to automatically list models
+types and objects.
+See [models registration guide](/docs/guides/models/registration) for more
+information.
+
+#### Examples
+
+<ShellCommand command="foscia make registry" />
+
+#### Options
+
+- `--show` Output the file instead of writing it on filesystem
+- `--force` Overwrite existing files instead of prompting user
+
+### `make action`
+
+Create a Foscia action factory.
+
+#### Examples
+
+<ShellCommand command="foscia make action" />
+
+#### Options
+
+- `--usage <usage>` Define your usage of Foscia (default to your configuration
+defined usage)
+- `--connection <connection>` Connection to use for the factory in a
+multi-connection project. You will be prompted for the connection to use
+if Foscia detects a multi-connection project.
+- `--show` Output the file instead of writing it on filesystem
+- `--force` Overwrite existing files instead of prompting user
+
+### `make enhancer <name>`
+
+<FunctionInfo version="0.9.0" />
+
+Create a Foscia action enhancer.
+
+#### Examples
+
+<ShellCommand command="foscia make enhancer" />
+
+#### Arguments
+
+- `<name>` Name of the enhancer
+
+#### Options
+
+- `--show` Output the file instead of writing it on filesystem
+- `--force` Overwrite existing files instead of prompting user
+
+### `make runner <name>`
+
+<FunctionInfo version="0.9.0" />
+
+Create a Foscia action runner.
+
+#### Examples
+
+<ShellCommand command="foscia make runner" />
+
+#### Arguments
+
+- `<name>` Name of the runner
+
+#### Options
+
+- `--show` Output the file instead of writing it on filesystem
+- `--force` Overwrite existing files instead of prompting user
+
+### `integrate nuxt`
+
+<FunctionInfo version="0.9.0" />
+
+Publish all integrations for Nuxt:
+
+- [`foscia integrate nuxt payload-plugin`](#integrate-nuxt-payload-plugin-name)
+
+#### Examples
+
+<ShellCommand command="foscia integrate nuxt" />
+
+#### Options
+
+- `--payload-plugin <name>` Name of the payload plugin (default to `fosciaPayloadPlugin`)
+- `--plugins-directory <directory>` Path to plugins directory (default to detected automatically)
+- `--show` Output the file instead of writing it on filesystem
+- `--force` Overwrite existing files instead of prompting user
+
+### `integrate nuxt payload-plugin [name]`
+
+<FunctionInfo version="0.9.0" />
+
+Publish only payload plugin for Nuxt integration.
+
+#### Examples
+
+<ShellCommand command="foscia integrate nuxt payload-plugin" />
+
+#### Arguments
+
+- `[name]` Name of the plugin (default to `fosciaPayloadPlugin`)
+
+#### Options
+
+- `--directory <directory>` Path to plugins directory (default to detected automatically)
+- `--show` Output the file instead of writing it on filesystem
+- `--force` Overwrite existing files instead of prompting user
+
+## Configuration
+
+Foscia CLI uses a configuration file which help generating files correctly for
+all `make:*` commands using many options, such as:
+
+- Path to store your files
+- Language you are using (TS or JS)
+- Modules organization (ESM or CommonJS)
+- etc.
+
+This configuration can be set up using [`foscia init [path]`](#init-path)
+command and will be stored in a `.fosciarc.json`.
+
+### Available options
+
+Example of a Foscia CLI configuration:
+
+```json
+{
+  "path": "src/api",
+  "alias": "@/api",
+  "packageManager": "npm",
+  "usage": "jsonapi",
+  "language": "ts",
+  "modules": "esm"
+}
+```
+
+Description of each configuration options:
+
+| Key              | Type                                             | Description                                                                        |
+|------------------|--------------------------------------------------|------------------------------------------------------------------------------------|
+| `path`           | `string`                                         | The directory to put your Foscia files in (action factory, models, etc.)           |
+| `alias`          | `string`&vert;`undefined`                        | The alias to use when importing models in files (instead of relative import path). |
+| `packageManager` | `'npm'`&vert;`'yarn'`&vert;`'pnpm'`&vert;`'bun'` | The package manager to use when installing Foscia dependencies.                    |
+| `usage`          | `'jsonapi'`&vert;`'jsonrest'`&vert;`'http'`      | Your usage of Foscia for this configuration.                                       |
+| `framework`      | `'nuxt'`&vert;`undefined`                        | The framework you are using Foscia in.                                             |
+| `language`       | `'ts'`&vert;`'js'`                               | The language to use when generating files.                                         |
+| `modules`        | `'esm'`&vert;`'commonjs'`                        | The modules organization to use when generating files.                             |
+| `tabSize`        | `number`                                         | The tab size to use when generating files (defaults to 2).                         |

@@ -12,7 +12,7 @@ import { optionalJoin } from '@foscia/shared';
  * @category Factories
  */
 export default <Data = any>(
-  config: Partial<JsonApiAdapterConfig<Data>> = {},
+  config: JsonApiAdapterConfig<Data> = {},
 ) => makeRestAdapter({
   baseURL: '/api/v1',
   buildURL: async (endpoint, action) => clearEndpoint(optionalJoin([

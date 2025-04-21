@@ -5,11 +5,9 @@ import one from '@foscia/core/actions/context/runners/one';
 import mergeEnhancers from '@foscia/core/actions/context/utilities/mergeEnhancers';
 import when from '@foscia/core/actions/context/when';
 import resolveModelRelationAction from '@foscia/core/connections/resolveModelRelationAction';
-import isPluralRelation from '@foscia/core/model/props/checks/isPluralRelation';
-import { ModelInstance } from '@foscia/core/model/types';
+import isPluralRelation from '@foscia/core/relations/checks/isPluralRelation';
 import makeStandardizedLazyLoader
   from '@foscia/core/relations/loaders/lazy/makeStandardizedLazyLoader';
-import { ParsedIncludeMap } from '@foscia/core/relations/types';
 import fillLoadedRelation from '@foscia/core/relations/utilities/fillLoadedRelation';
 
 /**
@@ -22,10 +20,7 @@ import fillLoadedRelation from '@foscia/core/relations/utilities/fillLoadedRelat
  * @category Factories
  * @since 0.13.0
  */
-export default () => makeStandardizedLazyLoader(async (
-  instances: ModelInstance[],
-  relations: ParsedIncludeMap,
-) => {
+export default () => makeStandardizedLazyLoader(async (instances, relations) => {
   await Promise.all(instances.map(async (instance) => {
     await Promise.all(Array.from(relations, async ([relation, parsedInclude]) => {
       const action = await resolveModelRelationAction(relation);

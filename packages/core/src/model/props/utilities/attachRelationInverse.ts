@@ -1,6 +1,6 @@
 import logger from '@foscia/core/logger/logger';
-import isRelation from '@foscia/core/model/props/checks/isRelation';
-import isSingularRelation from '@foscia/core/model/props/checks/isSingularRelation';
+import isRelation from '@foscia/core/relations/checks/isRelation';
+import isSingularRelation from '@foscia/core/relations/checks/isSingularRelation';
 import guessRelationInverses from '@foscia/core/relations/utilities/guessRelationInverses';
 import { ModelInstance, ModelRelation } from '@foscia/core/model/types';
 import forceFill from '@foscia/core/model/utilities/forceFill';

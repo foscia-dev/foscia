@@ -1,5 +1,5 @@
 import { configuration } from '@foscia/core/configuration';
-import isPluralRelation from '@foscia/core/model/props/checks/isPluralRelation';
+import isPluralRelation from '@foscia/core/relations/checks/isPluralRelation';
 import { ModelRelation } from '@foscia/core/model/types';
 import { pluralize } from '@foscia/shared';
 

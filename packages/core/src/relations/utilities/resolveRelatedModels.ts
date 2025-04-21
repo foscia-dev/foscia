@@ -1,5 +1,5 @@
+import { Model, ModelRelation } from '@foscia/core/model/types';
 import guessRelationType from '@foscia/core/relations/utilities/guessRelationType';
-import { ModelRelation } from '@foscia/core/model/types';
 import { ModelsRegistry } from '@foscia/core/types';
 import { wrap } from '@foscia/shared';
 
@@ -14,7 +14,7 @@ import { wrap } from '@foscia/shared';
  */
 export default async (
   relation: ModelRelation,
-  registry?: ModelsRegistry | null,
+  registry?: ModelsRegistry<any> | null,
 ) => {
   if (relation.model) {
     return wrap(await relation.model());
@@ -30,7 +30,7 @@ export default async (
       possibleTypes.map((type) => registry.resolve(type)),
     );
 
-    return possibleModels.filter((m) => !!m);
+    return possibleModels.filter((m): m is Model => !!m);
   }
 
   return [];

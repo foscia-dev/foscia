@@ -8,6 +8,7 @@ import {
   makeModel,
   makeRegistry,
   Model,
+  morphMany,
   parseRawInclude,
   toParsedRawInclude,
 } from '@foscia/core';
@@ -20,25 +21,25 @@ describe.concurrent('unit: parseRawInclude', () => {
 
   it('should handle unresolved relations', async () => {
     class User extends makeModel('users', {
-      dummy: hasOne('dummy'),
+      dummy: hasOne('dummy' as any),
       avatar: hasOne('files'),
     }) {
     }
 
     class Comment extends makeModel('comments', {
-      author: hasOne('users'),
+      author: hasOne('users' as any),
     }) {
     }
 
     class Post extends makeModel('posts', {
-      dummy: hasMany('dummy'),
-      author: hasOne('users'),
-      comments: hasMany('comments'),
+      dummy: hasMany('dummy' as any),
+      author: hasOne('users' as any),
+      comments: hasMany('comments' as any),
     }) {
     }
 
     const action = makeActionFactory({
-      ...makeRegistry([User, Comment, Post]),
+      registry: makeRegistry([User, Comment, Post]),
     })();
 
     await expect(() => parseRawInclude(action, [], [toParsedRawInclude('author')]))
@@ -415,7 +416,7 @@ describe.concurrent('unit: parseRawInclude', () => {
     }
 
     class Tag extends makeModel('tags', {
-      taggables: hasMany(() => [Comment, Post]),
+      taggables: morphMany(() => [Comment, Post]),
     }) {
     }
 
@@ -437,26 +438,26 @@ describe.concurrent('unit: parseRawInclude', () => {
 
     class Comment extends makeModel('comments', {
       imageable,
-      author: hasOne('users'),
+      author: hasOne('users' as any),
       files: hasMany('files'),
     }) {
     }
 
     class Post extends makeModel('posts', {
       imageable,
-      author: hasOne('users'),
-      comments: hasMany('comments'),
+      author: hasOne('users' as any),
+      comments: hasMany('comments' as any),
       files: hasMany('files'),
     }) {
     }
 
     class Tag extends makeModel('tags', {
-      taggables: hasMany(['comments', 'posts']),
+      taggables: morphMany(['comments', 'posts'] as any),
     }) {
     }
 
     const action = makeActionFactory({
-      ...makeRegistry([File, User, Comment, Post, Tag]),
+      registry: makeRegistry([File, User, Comment, Post, Tag]),
     })();
 
     await shouldParseForModels({ File, User, Comment, Post, Tag }, action);

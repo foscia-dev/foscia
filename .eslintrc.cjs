@@ -13,7 +13,9 @@ module.exports = {
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: path.resolve(__dirname, 'tsconfig.json'),
+    project: [
+      path.resolve(__dirname, 'tsconfig.json'),
+    ],
     warnOnUnsupportedTypeScriptVersion: false,
   },
   plugins: ['import'],
@@ -23,7 +25,6 @@ module.exports = {
     // https://github.com/typescript-eslint/typescript-eslint/issues/1824
     '@typescript-eslint/indent': ['error', 2],
     'object-curly-newline': ['off'],
-    'import/no-unresolved': ['error'],
     'import/no-relative-packages': ['off'],
     'no-restricted-imports': ['error', {
       'patterns': ['.*'],
@@ -43,14 +44,6 @@ module.exports = {
       },
     ],
   },
-  overrides: [
-    {
-      files: ['**/tests/**/*'],
-      rules: {
-        'no-restricted-imports': ['off'],
-      },
-    },
-  ],
   settings: {
     'import/parsers': {
       '@typescript-eslint/parser': ['.ts'],

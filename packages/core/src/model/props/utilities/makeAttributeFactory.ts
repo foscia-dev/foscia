@@ -1,8 +1,5 @@
-import buildPropFactoryModifiers
-  from '@foscia/core/model/props/utilities/buildPropFactoryModifiers';
 import makePropFactory from '@foscia/core/model/props/utilities/makePropFactory';
 import makeValuePropInit from '@foscia/core/model/props/utilities/makeValuePropInit';
-import makeValuePropModifiers from '@foscia/core/model/props/utilities/makeValuePropModifiers';
 import {
   ModelAttributeFactory,
   ModelAttributeFactoryConfig,
@@ -14,7 +11,7 @@ import isTransformer from '@foscia/core/transformers/isTransformer';
 
 const parseConfig = (
   config?: any,
-  otherConfig?: ModelIdFactoryConfig<any, boolean> | ModelAttributeFactoryConfig<any, boolean>,
+  otherConfig?: ModelIdFactoryConfig<any> | ModelAttributeFactoryConfig<any>,
 ) => {
   if (isTransformer(config)) {
     return { transformer: config, ...otherConfig };
@@ -34,13 +31,9 @@ export default (
   kind: typeof SYMBOL_MODEL_PROP_KIND_ID | typeof SYMBOL_MODEL_PROP_KIND_ATTRIBUTE,
 ) => (
   config?: any,
-  otherConfig?: ModelIdFactoryConfig<any, boolean> | ModelAttributeFactoryConfig<any, boolean>,
+  otherConfig?: ModelIdFactoryConfig<any> | ModelAttributeFactoryConfig<any>,
 ) => makePropFactory<ModelIdFactory<any, any> | ModelAttributeFactory<any, any>>({
   $VALUE_PROP_KIND: kind,
   ...makeValuePropInit(),
   ...parseConfig(config, otherConfig),
-}, {
-  ...buildPropFactoryModifiers<ModelIdFactory<any, any> | ModelAttributeFactory<any, any>>({
-    ...makeValuePropModifiers(),
-  }),
 });

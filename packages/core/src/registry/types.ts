@@ -8,8 +8,8 @@ import { ModelsRegistry } from '@foscia/core/types';
  *
  * @internal
  */
-export type MapRegistryConfig = {
-  models?: Model[];
+export type MapRegistryConfig<M extends readonly Model[]> = {
+  models: M;
   normalizeType?: (type: string) => string;
 };
 
@@ -20,4 +20,4 @@ export type MapRegistryConfig = {
  *
  * @internal
  */
-export type MapRegistry = ModelsRegistry;
+export type MapRegistry<M extends readonly Model[]> = ModelsRegistry<M>;

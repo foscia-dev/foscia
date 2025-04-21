@@ -103,7 +103,7 @@ describe.concurrent('unit: makeRestDeserializer', () => {
       const Comment = makeModel('comments', {
         authored,
         body: attr(),
-        pushOnly: attr().alias('push-only').sync('push'),
+        pushOnly: attr({ alias: 'push-only', sync: 'push' }),
       });
 
       const Post = makeModel('posts', {
@@ -111,15 +111,15 @@ describe.concurrent('unit: makeRestDeserializer', () => {
         title: attr(),
         body: attr(),
         comments: hasMany(() => Comment),
-        pullOnly: attr().alias('pull-only').readOnly().sync('pull'),
+        pullOnly: attr({ alias: 'pull-only', readOnly: true, sync: 'pull' }),
       });
 
       User = makeModel('users', {
         username: attr(makeTransformer(
           (value: string) => value.toLowerCase(),
           (value: string) => value.toUpperCase(),
-        )).alias('userName'),
-        posts: hasMany(() => Post).alias('myPosts'),
+        ), { alias: 'userName' }),
+        posts: hasMany(() => Post, { alias: 'myPosts' }),
       });
 
       it.each([
@@ -137,32 +137,32 @@ describe.concurrent('unit: makeRestDeserializer', () => {
 
     (() => {
       const authored = makeComposable({
-        author: hasOne('users'),
+        author: hasOne('users' as any),
       });
 
       const Comment = makeModel('comments', {
         authored,
         body: attr(),
-        pushOnly: attr().alias('push-only').sync('push'),
+        pushOnly: attr({ alias: 'push-only', sync: 'push' }),
       });
 
       const Post = makeModel('posts', {
         authored,
         title: attr(),
         body: attr(),
-        comments: hasMany('comments'),
-        pullOnly: attr().alias('pull-only').readOnly().sync('pull'),
+        comments: hasMany('comments' as any),
+        pullOnly: attr({ alias: 'pull-only', readOnly: true, sync: 'pull' }),
       });
 
       const User = makeModel('users', {
         username: attr(makeTransformer(
           (value: string) => value.toLowerCase(),
           (value: string) => value.toUpperCase(),
-        )).alias('userName'),
-        posts: hasMany('posts').alias('myPosts'),
+        ), { alias: 'userName' }),
+        posts: hasMany('posts', { alias: 'myPosts' }),
       });
 
-      const { registry } = makeRegistry([User, Post, Comment]);
+      const registry = makeRegistry([User, Post, Comment]);
 
       it.each([
         [{ registry, model: User }],

@@ -2,8 +2,6 @@ import makeComposableFactory from '@foscia/core/model/composition/makeComposable
 import {
   ModelComposableFactory,
   ModelPendingComposable,
-  ModelPendingProp,
-  ModelPendingPropFactory,
   ModelProp,
 } from '@foscia/core/model/types';
 import { SYMBOL_MODEL_PROP } from '@foscia/core/symbols';
@@ -11,24 +9,22 @@ import { SYMBOL_MODEL_PROP } from '@foscia/core/symbols';
 /**
  * Make a property factory.
  *
- * @param pendingProp
- * @param pendingFactory
+ * @param prop
  *
  * @internal
  */
 export default <
   F extends ModelComposableFactory<ModelProp>,
 >(
-  pendingProp: ModelPendingProp<ReturnType<F['bind']>>,
-  pendingFactory: ModelPendingPropFactory<F>,
+  prop: Omit<ReturnType<F['bind']>, '$FOSCIA_TYPE' | 'factory' | 'parent' | 'key' | '_type' | '_propType'>,
 ) => makeComposableFactory({
   composable: {
     $FOSCIA_TYPE: SYMBOL_MODEL_PROP,
-    ...pendingProp,
+    ...prop,
   } as ModelPendingComposable<ReturnType<F['bind']>>,
-  bind: (prop) => {
+  bind: (realProp) => {
     // eslint-disable-next-line no-param-reassign
-    prop.parent.$schema[prop.key] = prop;
+    realProp.parent.$schema[realProp.key] = realProp;
   },
-  factory: pendingFactory,
+  factory: {},
 }) as unknown as F;

@@ -147,12 +147,12 @@ describe.concurrent('unit: snapshots', () => {
   it('should take deep and limited snapshots', () => {
     const FooModel = makeModel({ type: 'foo', limitedSnapshots: false }, {
       foo: attr<any>(),
-      bar: hasOne<any>('dummy'),
+      bar: hasOne('dummy' as any),
     });
 
     const BarModel = makeModel({ type: 'bar', limitedSnapshots: true }, {
       bar: attr<any>(),
-      baz: hasOne<any>('dummy'),
+      baz: hasOne('dummy' as any),
     });
 
     const BazModel = makeModel({ type: 'baz' }, {

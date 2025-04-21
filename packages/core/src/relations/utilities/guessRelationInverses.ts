@@ -13,4 +13,4 @@ export default (prop: ModelRelation) => [
   camelCase(
     (configuration.utilities?.singularize ?? singularize)(prop.parent.$type),
   ),
-].filter((k) => k !== undefined) as string[];
+].filter((k): k is string => k !== undefined);

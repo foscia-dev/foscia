@@ -6,7 +6,8 @@ import {
   ConsumeId,
   ConsumeInstance,
   ConsumeModel,
-  ConsumeRelation, InferQueryInstance,
+  ConsumeRelation,
+  InferQueryInstance,
 } from '@foscia/core/actions/types';
 import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import isModel from '@foscia/core/model/checks/isModel';
@@ -27,7 +28,17 @@ import { isNil } from '@foscia/shared';
  * @internal
  */
 export type QueryOptions<C extends {} = {}, M extends ModelInstance | Model = Model> = {
+  /**
+   * Override the default model or relation sub-query.
+   *
+   * @internal
+   */
   query?: AnonymousEnhancer<C, any> | null;
+  /**
+   * Override the default model or relation sub-include.
+   *
+   * @internal
+   */
   include?: RawInclude<M> | null;
 };
 
@@ -109,6 +120,7 @@ export default /* @__PURE__ */ makeEnhancer('query', (<C extends {}>(
    * ```
    */<C extends {}, M extends Model>(
     model: M,
+    // TODO Strict type `id` using model property typing.
     id: ModelIdType,
     options?: QueryOptions<C & ConsumeModel<M> & ConsumeId, M>,
   ): AnonymousEnhancer<C, C & ConsumeModel<M> & ConsumeId>;

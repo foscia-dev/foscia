@@ -15,12 +15,14 @@ import {
   ModelInstance,
   ModelLimitedSnapshot,
   ModelSnapshot,
+  morphOne,
   takeSnapshot,
   toString,
 } from '@foscia/core';
 import { expectTypeOf, test } from 'vitest';
 import CommentMock from '../mocks/models/comment.mock';
 import FileMock from '../mocks/models/file.mock';
+import GalleryMock from '../mocks/models/gallery.mock';
 import PostMock from '../mocks/models/post.mock';
 import TagMock from '../mocks/models/tag.mock';
 import UserMock from '../mocks/models/user.mock';
@@ -84,6 +86,7 @@ test('Models are type safe', () => {
   expectTypeOf(post.comments).toEqualTypeOf<CommentMock[]>();
   expectTypeOf(post.commentsCount).toEqualTypeOf<number>();
   expectTypeOf(post.published).toEqualTypeOf<boolean>();
+  expectTypeOf(post.relatedContents).toEqualTypeOf<(PostMock | GalleryMock)[]>();
 
   post.title = 'Hello World';
   // @ts-expect-error publishedAt is readonly
@@ -129,6 +132,7 @@ test('Models are type safe', () => {
   expectTypeOf(comment.body).toEqualTypeOf<string>();
   expectTypeOf(comment.postedAt).toEqualTypeOf<Date>();
   expectTypeOf(comment.postedBy).toEqualTypeOf<UserMock>();
+  expectTypeOf(comment.commentable).toEqualTypeOf<PostMock | GalleryMock>();
 
   fill(comment, { body: 'Hello World', postedAt: new Date() });
   // @ts-expect-error id is a number
@@ -183,13 +187,12 @@ test('Models are type safe', () => {
 
   class ModelProps extends makeModel('model-props', {
     attr1: attr('', { readOnly: true }),
-    attr2: attr(toString(), { default: null }),
+    attr2: attr(toString(), { default: null, nullable: true }),
     attr3: attr(toString(), { readOnly: true }),
     attr4: attr<string>({ readOnly: true }),
-    attr5: attr<string>({ nullable: true, readOnly: true }),
-    attr6: attr<string>({ nullable: true }),
-    rel1: hasOne<PostMock>('posts'),
-    rel2: hasOne<PostMock | CommentMock, true>(['posts', 'comments'], { readOnly: true }),
+    attr5: attr<string | null>({ readOnly: true }),
+    rel1: hasOne('posts'),
+    rel2: morphOne(() => [PostMock, CommentMock], { readOnly: true }),
     rel3: hasOne(() => PostMock, { readOnly: true }),
   }) {
   }
@@ -210,8 +213,6 @@ test('Models are type safe', () => {
   expectTypeOf(modelProps.attr5).toEqualTypeOf<string | null>();
   // @ts-expect-error attr5 is readonly
   modelProps.attr5 = 'hello';
-  expectTypeOf(modelProps.attr6).toEqualTypeOf<string | null>();
-  modelProps.attr6 = 'hello';
 
   expectTypeOf(modelProps.rel1).toEqualTypeOf<PostMock>();
   modelProps.rel1 = new PostMock();
@@ -224,7 +225,7 @@ test('Models are type safe', () => {
 
   class ModelComposite extends makeModel('model-composite', {
     user: makeComposable({
-      user: hasOne<UserMock>('users'),
+      user: hasOne(() => UserMock),
       userId: attr<ModelIdType>(),
     }),
   }) {
@@ -237,31 +238,16 @@ test('Models are type safe', () => {
 
   class ModelInverse extends makeModel('model-inverse', {
     file1: hasMany('files', { inverse: 'parent' }),
-    file2: hasMany('files').inverse('parent'),
     comments1: hasMany(() => CommentMock, {
       inverse: 'postedBy',
       query: (a) => a(include('images')),
     }),
-    comments2: hasMany(() => CommentMock)
-      .inverse('postedBy'),
-    comments3: hasMany<CommentMock[]>('comments')
-      .inverse('postedBy'),
+    comments2: hasMany(() => CommentMock, { inverse: 'postedBy' }),
 
     any1: hasMany(() => CommentMock as Model, { inverse: 'postedBy' }),
-    any2: hasMany(() => CommentMock as Model).inverse('postedBy'),
-    any3: hasMany<any[]>('anything').inverse('postedBy'),
-    any4: hasMany<ModelInstance[]>('anything').inverse('postedBy'),
-
-    // @ts-expect-error postedAt is not a relation
-    attrInvalid1: hasMany(() => CommentMock, { inverse: 'postedAt' }),
-    // @ts-expect-error postedAt is not a relation
-    attrInvalid2: hasMany(() => CommentMock).inverse('postedAt'),
-    // @ts-expect-error postedAt is not a relation
-    attrInvalid3: hasMany<CommentMock[]>().inverse('postedAt'),
+    any2: hasMany(() => CommentMock as Model),
 
     relShouldFail1: hasOne(() => UserMock, { inverse: 'comments' }),
-    relShouldFail2: hasOne(() => UserMock).inverse('comments'),
-    relShouldFail3: hasOne<UserMock[]>('users').inverse('comments'),
   }) {
   }
 

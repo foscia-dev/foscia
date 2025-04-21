@@ -22,13 +22,12 @@ export default <C extends ModelComposable, F extends {} = {}>(
   const factory = {
     ...config.factory,
     $FOSCIA_TYPE: SYMBOL_MODEL_COMPOSABLE,
-    composable: config.composable ?? {},
     bind({ parent, key }) {
       const composable: any = {
         factory,
         parent,
         key,
-        ...this.composable,
+        ...(config.composable ?? {}),
       };
 
       config.bind(composable);

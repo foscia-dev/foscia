@@ -1,0 +1,135 @@
+---
+sidebar_position: 10
+sidebar_label: Models
+pagination_label: "Get started: models"
+description: Define and use your first models.
+---
+
+import ShellCommand from '@site/src/components/ShellCommand';
+
+# Get started: models
+
+:::tip What you'll learn
+
+- Defining models with attributes and relations
+- Using models classes and associated utilities
+
+After reading this guide, you can [explore all models guides](/docs/guides/models).
+
+:::
+
+Models represent the structure of your data and are used to simplify and
+strictly type your interactions with a data source.
+If you got started using [`@foscia/cli`](/docs/tools/foscia-cli),
+you may already have a first model defined thanks to the
+[`foscia init`](/docs/tools/foscia-cli#init-path) process.
+
+## Definition
+
+[`foscia make model`](/docs/tools/foscia-cli#make-model-name) help generating
+a new model after prompting you for attributes, relations, etc.
+
+<ShellCommand command="foscia make model post" />
+
+Model are defined using [`makeModel`](/docs/api/@foscia/core/functions/makeModel)
+function, which takes up to 2 arguments and returns a
+[`Model`](/docs/api/@foscia/core/interfaces/Model) constructor.
+
+The model type must be defined as the first argument. It is used by Foscia
+to identify models and map them to specific data source records. This first
+argument can also be used to configure the
+[connection to use](/docs/guides/actions/connections) or the
+[model's configuration](/docs/guides/models/configuration).
+
+The model definition is the second argument. It let you specify the model's
+[attributes](/docs/guides/models/attributes) and
+[relations](/docs/guides/models/relations) using specific factories, such as
+[`attr`](/docs/api/@foscia/core/functions/attr) or
+[`hasMany`](/docs/api/@foscia/core/functions/hasMany). It is also used
+to attach [composables](/docs/guides/models/composition)
+or define custom properties (such as custom getters, methods, etc.).
+
+```typescript title="models/post.ts"
+import { makeModel, attr, hasMany, toDateTime } from '@foscia/core';
+import Comment from './comment';
+
+export default class Post extends makeModel('posts', {
+  title: attr<string>(),
+  body: attr<string>(),
+  publishedAt: attr(toDateTime(), { nullable: true }),
+  comments: hasMany('comments', { readOnly: true }),
+  get published() {
+    return !!this.publishedAt;
+  },
+}) {
+}
+```
+
+In the example above, we are defining a `Post` model, identified with the type
+`posts`. The model has:
+
+- 3 attributes:
+  - a title string
+  - a body string
+  - a publication date which is nullable (and exchanged as a string with the
+  data source, thanks to the
+  [`toDateTime`](/docs/api/@foscia/core/functions/toDateTime) transformer)
+- a "has many" relation to a `Comment` model
+[resolved through registration](/docs/guides/models/registration), which is read-only
+- a `published` getter which returns `true` if the post is published.
+
+:::tip
+
+You should prefer extending the model class created by
+[`makeModel`](/docs/api/@foscia/core/functions/makeModel). This avoids using
+an anonymous class with complex generics, and will provide more features
+with TypeScript (e.g. `import type`).
+
+:::
+
+As another example, we could define the following `Comment` model:
+
+```typescript title="models/comment.ts"
+import { makeModel, attr, hasOne } from '@foscia/core';
+import User from './user';
+
+export default class Post extends makeModel('comments', {
+  body: attr<string>(),
+  author: hasOne('users', { readOnly: true }),
+}) {
+}
+```
+
+## Usage
+
+Model classes can be used like any JavaScript class. It can be instantiated,
+manipulated, etc. Properties will be defined on each instance from the model
+definition.
+
+```typescript
+import { fill } from '@foscia/core';
+import Post from './models/post';
+
+const post = new Post();
+post.title = 'Hello World!';
+post.publishedAt = new Date();
+
+console.log(post.title); // "Hello World!"
+console.log(post.published); // true
+console.log(post.$exists); // false
+
+fill(post, { title: 'Hello World 2!' });
+
+console.log(post.title); // "Hello World 2!"
+```
+
+:::info
+
+Foscia provides multiple utilities functions to interact with models, such as
+[`fill`](/docs/api/@foscia/core/functions/fill) to change an instance's values
+or [`changed`](/docs/api/@foscia/core/functions/changed) to check if an
+instance's values changed since last data source sync. You can discover
+all those utilities functions inside the
+[utilities API reference](/docs/api/@foscia/core/#utilities).
+
+:::

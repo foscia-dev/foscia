@@ -7,7 +7,7 @@ import makeHttpActionMock from '../mocks/makeHttpAction.mock';
 
 describe('integration: HTTP', () => {
   const PostMock = makeModel('posts', {
-    comments: hasMany('comments'),
+    comments: hasMany('comments' as any),
   });
 
   it('should run fetch: slash path', async () => {
@@ -31,8 +31,16 @@ describe('integration: HTTP', () => {
     [{ model: PostMock }, 'something', 'https://example.com/posts/something'],
     [{ model: PostMock, id: '1' }, '', 'https://example.com/posts/1'],
     [{ model: PostMock, id: '1' }, 'something', 'https://example.com/posts/1/something'],
-    [{ model: PostMock, id: '1', relation: PostMock.$schema.comments }, '', 'https://example.com/posts/1/comments'],
-    [{ model: PostMock, id: '1', relation: PostMock.$schema.comments }, 'something', 'https://example.com/posts/1/comments/something'],
+    [{
+      model: PostMock,
+      id: '1',
+      relation: PostMock.$schema.comments,
+    }, '', 'https://example.com/posts/1/comments'],
+    [{
+      model: PostMock,
+      id: '1',
+      relation: PostMock.$schema.comments,
+    }, 'something', 'https://example.com/posts/1/comments/something'],
   ])('should run fetch: with path and context', async (ctx: {}, path: string, url: string) => {
     const fetchMock = createFetchMock();
     fetchMock.mockImplementationOnce(createFetchResponse().noContent());

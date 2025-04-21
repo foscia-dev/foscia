@@ -1,0 +1,43 @@
+---
+description: Understand Foscia generic serialization features.
+---
+
+# Serialization
+
+Foscia provides generic serialization features which are used by multiple
+implementations, such as [REST](/docs/guides/rest) and
+[JSON:API](/docs/guides/jsonapi).
+
+## Deserializer
+
+[`makeDeserializer`](/docs/api/@foscia/serialization/functions/makeDeserializer)
+provides a [`Deserializer`](/docs/api/@foscia/core/interfaces/Deserializer)
+implementation which will produce instances from a generic record object.
+
+It handles multiple features, such as:
+
+- deduplicate records by identifier to avoid deserializing the same record
+multiple times
+- interact with the cache (if configured) to keep only one instance alive for
+one record
+- resolve model to deserialize record automatically from context, relations
+and configuration
+- use model's properties aliases and value transformers
+- handle multiple post-deserialization processes: trigger models' `retrieved`
+hook, store instances in cache (if configured), execute scheduled lazy eager
+loading of relations.
+
+## Serializer
+
+[`makeSerializer`](/docs/api/@foscia/serialization/functions/makeSerializer)
+provides a [`Serializer`](/docs/api/@foscia/core/interfaces/Serializer)
+implementation which will produce a generic record value from a model snapshot.
+
+It handles multiple features, such as:
+
+- serialize instances' snapshots into generic record value
+- serialize relation instances' snapshots into generic record values
+- serialize generic record values into adapter's data format
+- only serialize changed instance's values
+- use model's properties aliases and value transformers
+- serialize nested relation instances with circular references support.

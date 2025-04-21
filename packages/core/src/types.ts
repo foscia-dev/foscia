@@ -5,47 +5,10 @@ import type {
   ModelInstance,
   ModelRelation,
   ModelSnapshot,
+  RegisteredModels,
 } from '@foscia/core/model/types';
-import { ParsedRawInclude } from '@foscia/core/relations/types';
-import { Arrayable, Awaitable } from '@foscia/shared';
-
-declare global {
-  /**
-   * Foscia namespace can be overloaded by end-users for better types resolution.
-   *
-   * @since 0.13.0
-   *
-   * @example
-   * ```typescript
-   * import type Comment from './models/comment';
-   * import type Post from './models/post';
-   * import type User from './models/user';
-   * import type FileV2 from './models/v2/file';
-   *
-   * declare global {
-   *   namespace Foscia {
-   *     interface CustomTypes {
-   *       /**
-   *        * Define mapping between type strings and models.
-   *        *\/
-   *       models: {
-   *         // If using default connection.
-   *         comments: Comment;
-   *         posts: Post;
-   *         users: User;
-   *         // If using multiple connections.
-   *         'v2:files': FileV2;
-   *       };
-   *     }
-   *   }
-   * }
-   * ```
-   */
-  export namespace Foscia {
-    export interface CustomTypes {
-    }
-  }
-}
+import type { ParsedRawInclude } from '@foscia/core/relations/types';
+import { Arrayable, Awaitable, IfAny } from '@foscia/shared';
 
 /**
  * Registry containing available models.
@@ -53,19 +16,23 @@ declare global {
  * It will be used by other dependencies, like {@link Deserializer | `Deserializer`},
  * to deserialize raw data source records in the correct models.
  *
+ * @typeParam Models Registered models array.
+ *
  * @interface
  *
  * @remarks
  * `rawType` must be using the `<connection?>:<type>` format. If connection is
  * omitted, `default` connection is used.
  */
-export type ModelsRegistry = {
+export type ModelsRegistry<Models extends readonly Model[]> = {
   /**
    * Resolve a registered model by its raw type.
    *
    * @param rawType
    */
-  resolve(rawType: string): Awaitable<Model | null>;
+  resolve<T extends string, M extends RegisteredModels<Models>>(
+    rawType: T,
+  ): Awaitable<IfAny<Models, Model | null, T extends keyof M ? M[T] : null>>;
 };
 
 /**
@@ -84,7 +51,7 @@ export type ModelsRegistry = {
  * omitted, `default` connection is used.
  */
 export type InstancesCache = {
-  // TODO More map alike methods?
+  // TODO More map or storage alike methods?
   /**
    * Retrieve a model instance from cache.
    *
@@ -137,6 +104,8 @@ export type InstancesCache = {
  * @typeParam RawData Adapter's original response (e.g. a
  * {@link !Response | `Response`} object for HTTP adapter).
  * @typeParam Data Adapter's original response data, containing records or relations data.
+ *
+ * @interface
  */
 export type AdapterResponse<RawData, Data = unknown> = {
   /**

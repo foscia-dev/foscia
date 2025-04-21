@@ -1,11 +1,22 @@
 import FosciaError from '@foscia/core/errors/fosciaError';
 import runHooksSync from '@foscia/core/hooks/runHooksSync';
 import logger from '@foscia/core/logger/logger';
-import { ModelValueProp } from '@foscia/core/model/types';
+import {
+  ModelInstancePropertyReadHookCallback,
+  ModelInstancePropertyWriteHookCallback,
+  ModelValueProp,
+} from '@foscia/core/model/types';
 import forceFill from '@foscia/core/model/utilities/forceFill';
 import { value } from '@foscia/shared';
 
-export default (): Pick<ModelValueProp, 'init'> & ThisType<ModelValueProp> => ({
+export type ValuePropOptions<P extends ModelValueProp> = {
+  onRead?: ModelInstancePropertyReadHookCallback<P>;
+  onWrite?: ModelInstancePropertyWriteHookCallback<P>;
+};
+
+export default <P extends ModelValueProp>(
+  options?: ValuePropOptions<P>,
+): Pick<P, 'init'> & ThisType<P> => ({
   init(instance) {
     Object.defineProperty(instance, this.key, {
       enumerable: true,
@@ -28,9 +39,11 @@ export default (): Pick<ModelValueProp, 'init'> & ThisType<ModelValueProp> => ({
         runHooksSync(instance.$model, `property:read:${this.key}`, readHookEvent);
         runHooksSync(instance.$model, 'property:read', readHookEvent);
 
+        options?.onRead?.(readHookEvent);
+
         return current;
       },
-      set: (next: unknown) => {
+      set: (next: any) => {
         const writeHookEvent = { instance, prop: this, prev: instance.$values[this.key], next };
 
         runHooksSync(instance.$model, `property:writing:${this.key}`, writeHookEvent);
@@ -49,6 +62,8 @@ export default (): Pick<ModelValueProp, 'init'> & ThisType<ModelValueProp> => ({
 
         runHooksSync(instance.$model, `property:write:${this.key}`, writeHookEvent);
         runHooksSync(instance.$model, 'property:write', writeHookEvent);
+
+        options?.onWrite?.(writeHookEvent);
       },
     });
 
