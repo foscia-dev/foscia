@@ -1,49 +1,27 @@
 import { Hookable } from '@foscia/core/hooks/types';
+import { temporaryBackup } from '@foscia/shared';
+
+/* eslint-disable no-param-reassign */
 
 /**
- * Temporary disable the hooks of the given object and run callback.
+ * Execute a callback with temporary disabled hooks on a hookable object.
  *
  * @param hookable
  * @param callback
  *
  * @category Hooks
  */
-export default <T extends Hookable<any>, R>(
+export default function withoutHooks<T extends Hookable<any>, R>(
   hookable: T,
-  callback: (hookable: T) => R,
-): R => {
-  const hooksBackup = hookable.$hooks;
-  const restoreHooks = () => {
-    // eslint-disable-next-line no-param-reassign
+  callback: () => R,
+): R {
+  return temporaryBackup(callback, () => {
+    const hooksBackup = hookable.$hooks;
+
+    hookable.$hooks = null;
+
+    return hooksBackup;
+  }, (hooksBackup) => {
     hookable.$hooks = hooksBackup;
-  };
-
-  let restoreHooksImmediately = true;
-  // eslint-disable-next-line no-param-reassign
-  hookable.$hooks = null;
-
-  try {
-    const value = callback(hookable);
-    if (value instanceof Promise) {
-      restoreHooksImmediately = false;
-
-      return new Promise((resolve, reject) => {
-        value
-          .then((v) => {
-            restoreHooks();
-            resolve(v);
-          })
-          .catch((e) => {
-            restoreHooks();
-            reject(e);
-          });
-      }) as any;
-    }
-
-    return value as any;
-  } finally {
-    if (restoreHooksImmediately) {
-      restoreHooks();
-    }
-  }
-};
+  });
+}

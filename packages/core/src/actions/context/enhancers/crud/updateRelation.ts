@@ -6,7 +6,7 @@ import {
   Action,
   ConsumeId,
   ConsumeModel,
-  ConsumeRelation,
+  ConsumeModelRelation,
   ConsumeSerializer,
 } from '@foscia/core/actions/types';
 import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
@@ -17,7 +17,7 @@ import {
   ModelRelationKey,
   ModelValues,
   ModelWritableKey,
-} from '@foscia/core/model/types';
+} from '@foscia/core/models/oldTypes';
 
 /**
  * Infer the relation update possible values.
@@ -71,4 +71,4 @@ export default /* @__PURE__ */ makeEnhancer('updateRelation', <
       value,
     ),
   }),
-) as unknown as Action<C & ConsumeModel<I['$model']> & ConsumeRelation<InferModelSchemaProp<I, K, ModelRelation>> & ConsumeId>);
+) as unknown as Action<C & ConsumeModel<I['$model']> & ConsumeModelRelation<InferModelSchemaProp<I, K, ModelRelation>> & ConsumeId>);

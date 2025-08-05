@@ -1,7 +1,7 @@
-import makePropFactory from '@foscia/core/model/props/utilities/makePropFactory';
+import makePropFactory from '@foscia/core/models/old/props/utilities/makePropFactory';
 import makeValuePropInit, {
   ValuePropOptions,
-} from '@foscia/core/model/props/utilities/makeValuePropInit';
+} from '@foscia/core/models/old/props/utilities/makeValuePropInit';
 import {
   ModelBelongsToFactory,
   ModelHasManyFactory,
@@ -11,8 +11,8 @@ import {
   ModelMorphToFactory,
   ModelRelation,
   ModelRelationFactoryConfig,
-} from '@foscia/core/model/types';
-import { SYMBOL_MODEL_PROP_KIND_RELATION } from '@foscia/core/symbols';
+} from '@foscia/core/models/oldTypes';
+import { SYMBOL_MODEL_PROP_RELATION } from '@foscia/core/symbols';
 import { Awaitable } from '@foscia/shared';
 
 type AnyModelRelation =
@@ -38,7 +38,7 @@ export default <R extends ModelRelation>(
   config?: string | string[] | ModelRelationFactoryConfig<any> | (() => Awaitable<any>),
   otherConfig?: ModelRelationFactoryConfig<any>,
 ) => makePropFactory<AnyModelRelation>({
-  $VALUE_PROP_KIND: SYMBOL_MODEL_PROP_KIND_RELATION,
+  $VALUE_PROP_KIND: SYMBOL_MODEL_PROP_RELATION,
   $RELATION_KIND: kind,
   ...makeValuePropInit(options),
   ...(() => {

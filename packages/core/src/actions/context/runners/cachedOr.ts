@@ -7,12 +7,12 @@ import {
   ConsumeCache,
   ConsumeId,
   ConsumeModel,
-  InferQueryInstance,
+  InferActionInstance,
 } from '@foscia/core/actions/types';
 import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import logger from '@foscia/core/logger/logger';
-import { ModelInstance } from '@foscia/core/model/types';
-import filled from '@foscia/core/model/utilities/filled';
+import { ModelInstance } from '@foscia/core/models/oldTypes';
+import filled from '@foscia/core/models/utilities/filled';
 import { Awaitable } from '@foscia/shared';
 
 /**
@@ -43,7 +43,7 @@ export type CachedData<I extends ModelInstance> = {
  */
 export default /* @__PURE__ */ makeRunner('cachedOr', <
   C extends {},
-  I extends InferQueryInstance<C>,
+  I extends InferActionInstance<C>,
   RD,
   ND = I,
 >(

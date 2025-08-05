@@ -1,5 +1,5 @@
 import { Action } from '@foscia/core/actions/types';
-import { Model } from '@foscia/core/model/types';
+import { Model } from '@foscia/core/models/oldTypes';
 import { ParsedIncludeMap, ParsedRawInclude } from '@foscia/core/relations/types';
 import parseRawInclude from '@foscia/core/relations/utilities/parseRawInclude';
 import { Awaitable } from '@foscia/shared';

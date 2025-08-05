@@ -2,12 +2,12 @@ import create from '@foscia/core/actions/context/enhancers/crud/create';
 import update from '@foscia/core/actions/context/enhancers/crud/update';
 import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import {
-  ConsumeInstance,
+  ConsumeModelInstance,
   ConsumeModel,
   ConsumeSerializer,
   AnonymousEnhancer,
 } from '@foscia/core/actions/types';
-import { ModelInstance } from '@foscia/core/model/types';
+import { ModelInstance } from '@foscia/core/models/oldTypes';
 
 /**
  * Prepare context for an instance creation or update depending on its existence
@@ -33,5 +33,5 @@ export default /* @__PURE__ */ makeEnhancer('save', (<I extends ModelInstance>(i
   <C extends {}, I extends ModelInstance, Record, Related, Data>(
     instance: I,
     // eslint-disable-next-line max-len
-  ): AnonymousEnhancer<C & ConsumeSerializer<Record, Related, Data>, C & ConsumeModel<I['$model']> & ConsumeInstance<I>>;
+  ): AnonymousEnhancer<C & ConsumeSerializer<Record, Related, Data>, C & ConsumeModel<I['$model']> & ConsumeModelInstance<I>>;
 });

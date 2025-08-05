@@ -176,7 +176,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
         serializeType: true,
         serializeRelation: (context, related, parents) => context.serializer
           .serializeToRecords(related, context.action, parents),
-        circularRelationBehavior: () => 'keep',
+        onCircularBehavior: () => 'keep',
       },
       {},
       (assertion: Assertion) => assertion.resolves.toStrictEqual({
@@ -274,7 +274,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
     [
       post1,
       {
-        circularRelationBehavior: () => 'throw',
+        onCircularBehavior: () => 'throw',
         serializeRelation: (context, related, parents) => context.serializer
           .serializeToRecords(related, context.action, parents),
       },
@@ -337,7 +337,7 @@ describe.concurrent('unit: makeRestSerializer', () => {
       const { serializer } = makeRestSerializer(config);
       const action = makeActionFactory(context)();
       const serialize = async () => serializer.serializeToData(
-        await serializer.serializeToRelatedRecords(
+        await serializer.serializeRelated(
           takeSnapshot(instance),
           instance.$model.$schema.author,
           takeSnapshot(instance.author),

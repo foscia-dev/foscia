@@ -1,4 +1,4 @@
-import { Adapter, context, makeActionFactory, makeModel, query, raw, when } from '@foscia/core';
+import { ActionAdapter, context, makeActionFactory, makeModel, query, raw, when } from '@foscia/core';
 import { makeActionFactoryMockable, mockAction, unmockAction } from '@foscia/test';
 import { describe, expect, it, vi } from 'vitest';
 import createFetchMock from '../../../../tests/mocks/createFetchMock.mock';
@@ -17,7 +17,7 @@ describe.concurrent('unit: mocking', () => {
 
             return { raw: rawData, read: () => rawData.json() };
           },
-        } as Adapter<any>,
+        } as ActionAdapter<any>,
       })),
     };
   };

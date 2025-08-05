@@ -1,5 +1,5 @@
 import { Action, ConsumeModel } from '@foscia/core/actions/types';
-import { ModelIdType, ModelInstance, ModelRelation } from '@foscia/core/model/types';
+import { ModelIdType, ModelInstance, ModelRelation } from '@foscia/core/models/oldTypes';
 import { ParsedIncludeMap } from '@foscia/core/relations/types';
 import { Awaitable } from '@foscia/shared';
 

@@ -1,15 +1,12 @@
-import { isId, isRelation } from '@foscia/core';
-import {
-  JsonApiNewResource,
-  JsonApiResourceIdentifier,
-  JsonApiSerializerConfig,
-} from '@foscia/jsonapi/types';
-import {
-  makeSerializer,
-  makeSerializerRecordFactory,
-  shouldSerialize,
-} from '@foscia/serialization';
-import { Arrayable, isNil } from '@foscia/shared';
+import isModelPrimary from '@foscia/core/models/definition/utilities/isModelPrimary';
+import isModelRelation from '@foscia/core/models/definition/utilities/isModelRelation';
+import isSameSnapshot from '@foscia/core/models/snapshots/isSameSnapshot';
+import toShallowSnapshot from '@foscia/core/models/snapshots/toShallowSnapshot';
+import serializeProp from '@foscia/core/props/internals/serializeProp';
+import { JsonApiDocument } from '@foscia/jsonapi/specification';
+import { JsonApiSerializerRecord } from '@foscia/jsonapi/types';
+import { makeSnapshotsSerializer, SnapshotsSerializerConfig } from '@foscia/serialization';
+import { isNil, mapArrayable } from '@foscia/shared';
 
 const serializeId = (id: unknown) => (isNil(id) ? undefined : String(id));
 
@@ -21,44 +18,54 @@ const serializeId = (id: unknown) => (isNil(id) ? undefined : String(id));
  * @category Factories
  */
 export default <
-  Record extends JsonApiNewResource = JsonApiNewResource,
-  Related extends JsonApiResourceIdentifier = JsonApiResourceIdentifier,
-  Data = { data: Arrayable<JsonApiNewResource> | null },
+  Document extends JsonApiDocument<Record>,
+  PendingRecord extends JsonApiSerializerRecord,
+  Record extends JsonApiSerializerRecord,
 >(
-  config: Partial<JsonApiSerializerConfig<Record, Related, Data>> = {},
-) => makeSerializer({
-  createData: (records) => ({ data: records } as Data),
-  createRecord: makeSerializerRecordFactory(
-    (snapshot) => ({
-      type: snapshot.$instance.$model.$type,
-      attributes: {},
-      relationships: {},
-    } as Record),
-    (record, { prop, key, value }) => {
-      if (isId(prop)) {
-        // eslint-disable-next-line no-param-reassign
-        record[prop.key as 'id' | 'lid'] = serializeId(value);
-      } else if (isRelation(prop)) {
-        // eslint-disable-next-line no-param-reassign
-        record.relationships![key] = { data: value as any };
+  config?: Partial<SnapshotsSerializerConfig<Document, PendingRecord, Record>>,
+) => makeSnapshotsSerializer<Document, PendingRecord, Record>({
+  serializeData: ({ records }) => ({
+    data: records,
+  } satisfies JsonApiDocument<Record> as Document),
+  createRecord: ({ snapshot }) => ({
+    type: snapshot.instance.$model.$type,
+  } satisfies JsonApiSerializerRecord as PendingRecord),
+  serializeValue: async ({ snapshot, record, prop, key, value }, serialize) => {
+    if (
+      value !== undefined
+      && (
+        isModelPrimary(prop)
+        || !isSameSnapshot(snapshot, snapshot.original ?? null, [prop.key])
+      )
+    ) {
+      /* eslint-disable no-param-reassign */
+      if (key === 'lid' || key === 'id') {
+        record[key] = String(await serializeProp(prop, value));
+      } else if (isModelRelation(prop)) {
+        record.relationships = {
+          ...record.relationships,
+          [key]: {
+            data: await mapArrayable(value, async (related) => {
+              const resource = await serialize(toShallowSnapshot(related as any));
+              if (!resource.id) {
+                throw new Error('TODO');
+              }
+
+              return {
+                type: resource.type,
+                id: resource.id,
+                lid: resource.lid,
+              };
+            }),
+          },
+        };
       } else {
-        // eslint-disable-next-line no-param-reassign
-        record.attributes![key] = value;
+        record.attributes = {
+          ...record.attributes,
+          [key]: await serializeProp(prop, value),
+        };
       }
-    },
-  ),
-  shouldSerialize: async (context) => (
-    isId(context.prop)
-    || await shouldSerialize(context)
-  ),
-  serializeRelation: (_, related) => ({
-    type: related.$instance.$model.$type,
-    id: serializeId(related.$values.id),
-    lid: serializeId(related.$values.lid),
-  }),
-  serializeRelated: (_, related) => ({
-    type: related.$instance.$model.$type,
-    id: serializeId(related.$values.id),
-  } as Related),
+    }
+  },
   ...config,
 });

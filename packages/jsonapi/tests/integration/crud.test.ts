@@ -2,14 +2,18 @@ import {
   all,
   associate,
   attach,
+  attr,
   cachedOr,
   changed,
   destroy,
   detach,
   dissociate,
   fill,
+  hasMany,
   include,
   load,
+  makeComposable,
+  makeModel,
   markSynced,
   none,
   one,
@@ -19,9 +23,21 @@ import {
   save,
   updateRelation,
   when,
+  toDateTime,
+  id,
+  makeActionFactory,
+  makeCache,
+  makeLoader,
+  makeRegistry,
+  makeSimpleLazyLoader,
 } from '@foscia/core';
+import primary from '@foscia/core/props/decorators/primary';
 import { makeGet } from '@foscia/http';
 import {
+  makeJsonApiAdapter,
+  makeJsonApiDeserializer,
+  makeJsonApiEagerLoader,
+  makeJsonApiSerializer,
   fields,
   fieldsFor,
   filterBy,
@@ -34,11 +50,48 @@ import {
 import { describe, expect, it, vi } from 'vitest';
 import createFetchMock from '../../../../tests/mocks/createFetchMock.mock';
 import createFetchResponse from '../../../../tests/mocks/createFetchResponse.mock';
-import makeJsonApiActionMock from '../mocks/makeJsonApiAction.mock';
-import CommentMock from '../mocks/models/comment.mock';
-import PostMock from '../mocks/models/post.mock';
 
 describe('integration: JSON:API', () => {
+  const stringId = makeComposable((model) => class BaseModel extends model {
+    @primary() id!: string;
+  });
+
+  const model = makeModel({
+    composables: [stringId],
+  });
+
+  @model('comments')
+  class CommentMock extends model.base() {
+    @attr() body!: string;
+  }
+
+  @model('posts')
+  class PostMock extends model.base() {
+    @attr() title!: string;
+    @attr() body!: string | null;
+    @attr(toDateTime()) readonly publishedAt!: Date | null;
+    @hasMany(() => CommentMock) comments!: CommentMock[];
+  }
+
+  const makeJsonApiActionMock = () => makeActionFactory({
+    registry: makeRegistry([PostMock, CommentMock]),
+    ...makeCache(),
+    ...makeJsonApiDeserializer(),
+    ...makeJsonApiSerializer(),
+    ...makeJsonApiAdapter({
+      baseURL: 'https://example.com/api/v1',
+      middlewares: [(request, next) => {
+        request.headers.set('X-Foo-Header', 'bar');
+
+        return next(request);
+      }],
+    }),
+    ...makeLoader({
+      eagerLoader: makeJsonApiEagerLoader(),
+      lazyLoader: makeSimpleLazyLoader(),
+    }),
+  });
+
   it('should run action: all records', async () => {
     const fetchMock = createFetchMock();
     fetchMock.mockImplementationOnce(createFetchResponse().json({

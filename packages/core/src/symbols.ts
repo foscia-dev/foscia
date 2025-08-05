@@ -16,22 +16,38 @@ export const SYMBOL_MODEL_PROP: unique symbol = Symbol('foscia:prop');
  * Unique symbol for a model ID property.
  *
  * @internal
+ *
+ * TODO REMOVE
  */
-export const SYMBOL_MODEL_PROP_KIND_ID: unique symbol = Symbol('foscia:prop:id');
+export const SYMBOL_MODEL_PROP_ID: symbol = Symbol('foscia:prop:id');
 
 /**
- * Unique symbol for a model attribute property factory.
+ * Unique symbol for a model primary property.
  *
  * @internal
  */
-export const SYMBOL_MODEL_PROP_KIND_ATTRIBUTE: unique symbol = Symbol('foscia:prop:attribute');
+export const SYMBOL_MODEL_PROP_PRIMARY: unique symbol = Symbol('foscia:prop:primary');
 
 /**
- * Unique symbol for a model relation property factory.
+ * Unique symbol for a model primary property.
  *
  * @internal
  */
-export const SYMBOL_MODEL_PROP_KIND_RELATION: unique symbol = Symbol('foscia:prop:relation');
+export const SYMBOL_MODEL_PROP_FOREIGN: unique symbol = Symbol('foscia:prop:foreign');
+
+/**
+ * Unique symbol for a model attribute property.
+ *
+ * @internal
+ */
+export const SYMBOL_MODEL_PROP_ATTRIBUTE: unique symbol = Symbol('foscia:prop:attribute');
+
+/**
+ * Unique symbol for a model relation property.
+ *
+ * @internal
+ */
+export const SYMBOL_MODEL_PROP_RELATION: unique symbol = Symbol('foscia:prop:relation');
 
 /**
  * Unique symbol for a model "belongs to" relation.
@@ -74,6 +90,13 @@ export const SYMBOL_MODEL_RELATION_MORPH_MANY: unique symbol = Symbol('foscia:re
  * @internal
  */
 export const SYMBOL_MODEL_RELATION_MORPH_ONE: unique symbol = Symbol('foscia:rel:morph-one');
+
+/**
+ * Unique symbol for a model primary value.
+ *
+ * @internal
+ */
+export const SYMBOL_MODEL_PRIMARY: unique symbol = Symbol('foscia:primary');
 
 /**
  * Unique symbol for a model class.

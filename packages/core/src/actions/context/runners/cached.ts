@@ -1,5 +1,5 @@
 import cachedOr, { CachedData } from '@foscia/core/actions/context/runners/cachedOr';
-import { InferQueryInstance } from '@foscia/core/actions/types';
+import { InferActionInstance } from '@foscia/core/actions/types';
 import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import { Awaitable } from '@foscia/shared';
 
@@ -20,7 +20,7 @@ import { Awaitable } from '@foscia/shared';
  */
 export default /* @__PURE__ */ makeRunner('cached', <
   C extends {},
-  I extends InferQueryInstance<C>,
+  I extends InferActionInstance<C>,
   ND = I,
 >(
   transform?: (data: CachedData<I>) => Awaitable<ND>,

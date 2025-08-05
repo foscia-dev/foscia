@@ -27,7 +27,7 @@ import { Dictionary } from '@foscia/shared';
  * ```
  */
 export default /* @__PURE__ */ makeEnhancer('filterBy', <C extends {}>(
-  key: string | Dictionary,
+  key: string | Dictionary<unknown>,
   value?: unknown,
 ) => async (action: Action<C>) => action(param('filter', {
   ...(await consumeRequestObjectParams(action))?.filter,

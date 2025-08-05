@@ -8,26 +8,26 @@ import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import {
   Action,
   ConsumeId,
-  ConsumeInstance,
+  ConsumeModelInstance,
   ConsumeModel,
-  ConsumeRelation,
+  ConsumeModelRelation,
   ConsumeSerializer,
   AnonymousEnhancer,
-  InferQueryInstance,
+  InferActionInstance,
 } from '@foscia/core/actions/types';
 import {
   InferModelSchemaProp,
   ModelInstance,
   ModelRelation,
   ModelRelationKey,
-} from '@foscia/core/model/types';
+} from '@foscia/core/models/oldTypes';
 
 export default /* @__PURE__ */ makeEnhancer('create', (<
   C extends {},
   I extends ModelInstance,
   K extends string,
   R extends InferModelSchemaProp<I, K, ModelRelation>,
-  RI extends InferQueryInstance<ConsumeRelation<R>>,
+  RI extends InferActionInstance<ConsumeModelRelation<R>>,
   Record,
   Related,
   Data,
@@ -65,7 +65,7 @@ export default /* @__PURE__ */ makeEnhancer('create', (<
    */<C extends {}, I extends ModelInstance, Record, Related, Data>(
     instance: I,
     // eslint-disable-next-line max-len
-  ): AnonymousEnhancer<C & ConsumeSerializer<Record, Related, Data>, C & ConsumeModel<I['$model']> & ConsumeInstance<I>>;
+  ): AnonymousEnhancer<C & ConsumeSerializer<Record, Related, Data>, C & ConsumeModel<I['$model']> & ConsumeModelInstance<I>>;
   /**
    * Prepare context for an instance creation through another instance relation.
    *
@@ -86,7 +86,7 @@ export default /* @__PURE__ */ makeEnhancer('create', (<
     I extends ModelInstance,
     K extends string,
     R extends InferModelSchemaProp<I, K, ModelRelation>,
-    RI extends InferQueryInstance<ConsumeRelation<R>>,
+    RI extends InferActionInstance<ConsumeModelRelation<R>>,
     Record,
     Related,
     Data,
@@ -95,5 +95,5 @@ export default /* @__PURE__ */ makeEnhancer('create', (<
     throughInstance: I,
     throughRelation: K & ModelRelationKey<I>,
     // eslint-disable-next-line max-len
-  ): AnonymousEnhancer<C & ConsumeSerializer<Record, Related, Data>, C & ConsumeModel<I['$model']> & ConsumeRelation<R> & ConsumeInstance<RI> & ConsumeId>;
+  ): AnonymousEnhancer<C & ConsumeSerializer<Record, Related, Data>, C & ConsumeModel<I['$model']> & ConsumeModelRelation<R> & ConsumeModelInstance<RI> & ConsumeId>;
 });

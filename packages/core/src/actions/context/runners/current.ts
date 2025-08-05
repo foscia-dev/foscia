@@ -3,14 +3,14 @@ import all, { RetypedDeserializedData } from '@foscia/core/actions/context/runne
 import { OneData } from '@foscia/core/actions/context/runners/oneOr';
 import {
   Action,
-  ConsumeAdapter,
+  ConsumeActionAdapter,
   ConsumeDeserializer,
-  ConsumeInstance,
-  InferQueryInstance,
+  ConsumeModelInstance,
+  InferActionInstance,
 } from '@foscia/core/actions/types';
 import makeRunner from '@foscia/core/actions/utilities/makeRunner';
-import { ModelInstance } from '@foscia/core/model/types';
-import { DeserializedData } from '@foscia/core/types';
+import { ModelInstance } from '@foscia/core/models/oldTypes';
+import { DataDeserializerResult } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
 
 /**
@@ -30,18 +30,18 @@ import { Awaitable } from '@foscia/shared';
  * ```
  */
 export default makeRunner('current', <
-  C extends ConsumeInstance<CI>,
-  I extends InferQueryInstance<C>,
+  C extends ConsumeModelInstance<CI>,
+  I extends InferActionInstance<C>,
   CI extends ModelInstance,
   RawData,
   Data,
-  Deserialized extends DeserializedData,
+  Deserialized extends DataDeserializerResult,
   Next = I | CI,
 >(
   transform?: (data: OneData<Data, RetypedDeserializedData<Deserialized, I>, I>) => Awaitable<Next>,
 ) => async (
   // eslint-disable-next-line max-len
-  action: Action<C & ConsumeInstance<CI> & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>>,
+  action: Action<C & ConsumeModelInstance<CI> & ConsumeActionAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>>,
 ) => action.run(all(async (data) => {
   const instance = data.instances[0] ?? await consumeInstance(action);
 

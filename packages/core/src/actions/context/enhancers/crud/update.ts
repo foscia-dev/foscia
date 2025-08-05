@@ -6,7 +6,7 @@ import registerWriteActionHooks
   from '@foscia/core/actions/context/utilities/registerWriteActionHooks';
 import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
-import { ModelInstance } from '@foscia/core/model/types';
+import { ModelInstance } from '@foscia/core/models/oldTypes';
 
 /**
  * Prepare context for an instance update.

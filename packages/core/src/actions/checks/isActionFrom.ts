@@ -10,7 +10,9 @@ import { Action, ActionFactory } from '@foscia/core/actions/types';
  *
  * @internal
  */
-export default async (
+export default async function isActionFrom(
   action: Action,
   from: ActionFactory<{}>,
-) => from.connectionId === await consumeActionConnectionId(action, null);
+) {
+  return from.connectionId === await consumeActionConnectionId(action, null);
+}

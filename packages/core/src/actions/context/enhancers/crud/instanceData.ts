@@ -2,7 +2,7 @@ import context from '@foscia/core/actions/context/enhancers/context';
 import serializeInstance from '@foscia/core/actions/context/utilities/serializeInstance';
 import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
-import { ModelInstance } from '@foscia/core/model/types';
+import { ModelInstance } from '@foscia/core/models/oldTypes';
 
 /**
  * Serialize the given instance as the context's data.

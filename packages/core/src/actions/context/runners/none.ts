@@ -1,5 +1,5 @@
 import raw from '@foscia/core/actions/context/runners/raw';
-import { ConsumeAdapter, AnonymousRunner } from '@foscia/core/actions/types';
+import { ConsumeActionAdapter, AnonymousRunner } from '@foscia/core/actions/types';
 import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 
 /**
@@ -17,5 +17,5 @@ import makeRunner from '@foscia/core/actions/utilities/makeRunner';
  * ```
  */
 export default makeRunner('none', raw as {
-  <C extends {}>(): AnonymousRunner<C & ConsumeAdapter, Promise<void>>;
+  <C extends {}>(): AnonymousRunner<C & ConsumeActionAdapter, Promise<void>>;
 });

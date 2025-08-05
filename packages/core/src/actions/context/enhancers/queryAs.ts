@@ -1,7 +1,7 @@
 import context from '@foscia/core/actions/context/enhancers/context';
 import { Action } from '@foscia/core/actions/types';
 import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
-import { Model } from '@foscia/core/model/types';
+import { Model } from '@foscia/core/models/oldTypes';
 import { Arrayable, wrap } from '@foscia/shared';
 
 /**

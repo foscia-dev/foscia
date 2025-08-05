@@ -1,6 +1,6 @@
-import forceFill from '@foscia/core/model/utilities/forceFill';
-import markSynced from '@foscia/core/model/snapshots/markSynced';
-import { ModelInstance, ModelRelationKey } from '@foscia/core/model/types';
+import forceFill from '@foscia/core/models/utilities/forceFill';
+import markSynced from '@foscia/core/models/snapshots/markSynced';
+import { ModelInstance, ModelRelationKey } from '@foscia/core/models/oldTypes';
 
 /**
  * Fill and mark a relation's value as loaded on an instance.

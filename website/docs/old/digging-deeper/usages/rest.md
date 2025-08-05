@@ -134,7 +134,7 @@ records data using the given transformation function.
 import { makeRestDeserializer } from '@foscia/rest';
 
 makeRestDeserializer({
-  extractData: (data: { data: any }) => ({ records: data.data }),
+  initialize: (data: { data: any }) => ({ records: data.data }),
 });
 ```
 

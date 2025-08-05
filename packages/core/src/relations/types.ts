@@ -1,16 +1,16 @@
 import type { AnonymousEnhancer, ConsumeModel } from '@foscia/core/actions/types';
-import type {
-  InferModelSchema,
+import {
+  InferModelInstance,
+  InferRelatedInstance,
   Model,
   ModelInstance,
   ModelKey,
-  ModelProp,
-  ModelRelation,
+  ModelRelationProp,
   ModelRelationDotKey,
-} from '@foscia/core/model/types';
+  ModelRelationKey,
+} from '@foscia/core/models/types';
 import {
   Arrayable,
-  Constructor,
   IfAny,
   PrefixRecordKeys,
   Prev,
@@ -21,36 +21,13 @@ import {
 export type * from '@foscia/core/relations/loaders/types';
 
 /**
- * Infer included instance from a relation's type.
- *
- * @internal
- */
-export type InferIncludeInstance<T> = T extends any[] ? T[number] : T;
-
-/**
- * Infer included model from a relation's type.
- *
- * @internal
- */
-export type InferIncludeModel<I> = I extends ModelInstance ? I['$model'] & Constructor<I> : Model;
-
-/**
- * Enhancer which can be used for a relation sub action, allowing to modify
- * the relation's dedicated action's context.
- *
- * @internal
- */
-export type IncludeEnhancer<T> =
-  AnonymousEnhancer<ConsumeModel<InferIncludeModel<InferIncludeInstance<T>>>, any>;
-
-/**
  * Possible include object for direct relations,
  * with behavior compliance (already callback loaded relations are disallowed).
  *
  * @internal
  */
 export type IncludeStrictDirectRelation<K extends string, T> =
-  & Partial<Record<K, IncludeEnhancer<T>>>
+  & Partial<Record<K, AnonymousEnhancer<ConsumeModel<T>>>>
   & Record<`${K}.${string}`, never>;
 
 /**
@@ -61,7 +38,7 @@ export type IncludeStrictDirectRelation<K extends string, T> =
  */
 export type IncludeStrictNestedRelations<K extends string, T, Depth extends number> =
   & Partial<Record<K, null>>
-  & PrefixRecordKeys<IncludeObjectCallbacks<InferIncludeInstance<T>, Prev[Depth]>, `${K}.`>;
+  & PrefixRecordKeys<IncludeObjectCallbacks<T, Prev[Depth]>, `${K}.`>;
 
 /**
  * Possible include object for direct or nested relations,
@@ -74,6 +51,14 @@ export type IncludeStrictRelations<K extends string, T, Depth extends number> =
   | IncludeStrictNestedRelations<K, T, Depth>;
 
 /**
+ * Include object for any relations under given key.
+ *
+ * @internal
+ */
+export type IncludeAnyRelations<K extends string> =
+  Record<K | `${K}.${string}`, null | AnonymousEnhancer<ConsumeModel<ModelInstance>>>;
+
+/**
  * Include object for a model
  * with behavior compliance (already callback loaded relations are disallowed).
  *
@@ -83,14 +68,12 @@ export type IncludeObjectCallbacks<M, Depth extends number = 5> =
   [Depth] extends [0]
     ? never
     : ModelKey<M> extends infer K
-      ? K extends ModelKey<M>
-        ? InferModelSchema<M>[K] extends never
-          ? never
-          : InferModelSchema<M>[K] extends ModelRelation<infer T, any>
-            ? IncludeStrictRelations<K, T, Depth>
-            : InferModelSchema<M>[K] extends ModelProp<infer T, any>
-              ? IfAny<T, Record<K | `${K}.${string}`, null | IncludeEnhancer<ModelInstance>>, never>
-              : never : never : never;
+      ? K extends ModelRelationKey<M>
+        ? IncludeStrictRelations<K, InferRelatedInstance<InferModelInstance<M>[K]>, Depth>
+        : K extends ModelKey<M>
+          ? IfAny<InferModelInstance<M>[K], IncludeAnyRelations<K>, never>
+          : never
+      : never;
 
 /**
  * Possible include object for direct or nested relations,
@@ -99,8 +82,8 @@ export type IncludeObjectCallbacks<M, Depth extends number = 5> =
  * @internal
  */
 export type IncludePermissiveRelations<K extends string, T, Depth extends number> =
-  | Record<K, IncludeEnhancer<T> | null>
-  | PrefixRecordKeys<IncludePermissiveCallbacks<InferIncludeInstance<T>, Prev[Depth]>, `${K}.`>;
+  | Record<K, AnonymousEnhancer<ConsumeModel<T>> | null>
+  | PrefixRecordKeys<IncludePermissiveCallbacks<T, Prev[Depth]>, `${K}.`>;
 
 /**
  * Include object for a model
@@ -112,14 +95,12 @@ export type IncludePermissiveCallbacks<M, Depth extends number = 5> =
   [Depth] extends [0]
     ? never
     : ModelKey<M> extends infer K
-      ? K extends ModelKey<M>
-        ? InferModelSchema<M>[K] extends never
-          ? never
-          : InferModelSchema<M>[K] extends ModelRelation<infer T, any>
-            ? IncludePermissiveRelations<K, T, Depth>
-            : InferModelSchema<M>[K] extends ModelProp<infer T, any>
-              ? IfAny<T, Record<K | `${K}.${string}`, null | IncludeEnhancer<ModelInstance>>, never>
-              : never : never : never;
+      ? K extends ModelRelationKey<M>
+        ? IncludePermissiveRelations<K, InferRelatedInstance<InferModelInstance<M>[K]>, Depth>
+        : K extends ModelKey<M>
+          ? IfAny<InferModelInstance<M>[K], IncludeAnyRelations<K>, never>
+          : never
+      : never;
 
 /**
  * Include entry (relation/callback pair) for a model.
@@ -217,6 +198,6 @@ export type ParsedInclude = {
  *
  * @internal
  */
-export type ParsedIncludeMap = Map<ModelRelation, ParsedInclude>;
+export type ParsedIncludeMap = Map<ModelRelationProp, ParsedInclude>;
 // TODO Add support for special include (aggregate, etc.):
 //  `& Map<ModelAttribute, ParsedValueInclude>`

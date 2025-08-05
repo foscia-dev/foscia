@@ -11,11 +11,13 @@ import { Awaitable } from '@foscia/shared';
  *
  * @category Factories
  */
-export default <T, DS, SR>(
-  deserialize: (value: DS) => Awaitable<T>,
-  serialize: (value: T) => Awaitable<SR>,
-) => ({
-  $FOSCIA_TYPE: SYMBOL_MODEL_PROP_TRANSFORMER,
-  deserialize,
-  serialize,
-} as ObjectTransformer<T, DS, SR>);
+export default function makeCustomTransformer<T, Deserialized, Serialized>(
+  deserialize: (value: Deserialized) => Awaitable<T>,
+  serialize: (value: T) => Awaitable<Serialized>,
+): ObjectTransformer<T, Deserialized, Serialized> {
+  return {
+    $FOSCIA_TYPE: SYMBOL_MODEL_PROP_TRANSFORMER,
+    deserialize,
+    serialize,
+  };
+}

@@ -1,3 +1,4 @@
+import FosciaError from '@foscia/core/errors/fosciaError';
 import { Hookable, HooksDefinition } from '@foscia/core/hooks/types';
 
 /**
@@ -9,15 +10,17 @@ import { Hookable, HooksDefinition } from '@foscia/core/hooks/types';
  *
  * @category Hooks
  */
-export default <D extends HooksDefinition, K extends keyof D>(
+export default function unregisterHook<D extends HooksDefinition, K extends keyof D>(
   hookable: Hookable<D>,
   key: K,
   callback: D[K],
-) => {
-  if (hookable.$hooks !== null) {
-    const index = hookable.$hooks[key]?.indexOf(callback);
-    if (index !== undefined && index !== -1) {
-      hookable.$hooks[key]!.splice(index, 1);
-    }
+) {
+  if (!hookable.$hooks) {
+    throw new FosciaError('Could not unregister hook, hooks are temporary disabled.');
   }
-};
+
+  const index = hookable.$hooks[key]?.indexOf(callback);
+  if (index !== undefined && index !== -1) {
+    hookable.$hooks[key]!.splice(index, 1);
+  }
+}

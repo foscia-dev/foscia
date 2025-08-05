@@ -61,18 +61,16 @@ function HomeModelsPresentation() {
   const description = <>
     <strong>Foscia provides an elegant way to define your data models.</strong> It
     gives your data structure readability and type safety across
-    all your data interactions, even across nested relations.
+    all your data interactions, even across nested or recursive relations.
   </>;
 
   const example = `
-export default class Post
-  extends makeModel('posts', {
-    publishable,
-    title: attr<string>(),
-    body: attr<string>(),
-    author: hasOne(() => User),
-    tags: hasMany(() => Tag),
-  }) {
+@model()
+class Post extends model.base([publishable]) {
+  @attr() title!: string;
+  @attr() body!: string;
+  @belongsTo(() => User) author!: User;
+  @hasMany(() => Comment) comments!: Comment[];
 }
   `.trim();
 

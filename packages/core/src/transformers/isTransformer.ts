@@ -9,6 +9,6 @@ import { isFosciaType } from '@foscia/shared';
  *
  * @internal
  */
-export default (
+export default <T = unknown, DS = unknown, SR = unknown>(
   value: unknown,
-): value is ObjectTransformer<unknown> => isFosciaType(value, SYMBOL_MODEL_PROP_TRANSFORMER);
+): value is ObjectTransformer<T, DS, SR> => isFosciaType(value, SYMBOL_MODEL_PROP_TRANSFORMER);

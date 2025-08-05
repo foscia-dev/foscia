@@ -1,4 +1,4 @@
-import { makeRegistry, TypeCheckCustomTypes } from '@foscia/core';
+import { makeRegistry } from '@foscia/core';
 import CommentMock from './models/comment.mock';
 import GalleryMock from './models/gallery.mock';
 import PostMock from './models/post.mock';
@@ -12,7 +12,6 @@ const registry = makeRegistry([
 declare global {
   namespace Foscia {
     interface CustomTypes {
-      check: TypeCheckCustomTypes<typeof registry, this>;
       models: {
         comments: CommentMock;
         galleries: GalleryMock;

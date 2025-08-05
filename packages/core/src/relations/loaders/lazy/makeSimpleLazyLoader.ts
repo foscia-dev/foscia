@@ -28,7 +28,7 @@ export default () => makeStandardizedLazyLoader(async (instances, relations) => 
       const customQuery = mergeEnhancers(parsedInclude.relationQuery, parsedInclude.customQuery);
 
       const value = await action(
-        query(instance, relation.key, { query: null, include: null }),
+        query(instance, relation.key, { withoutScopes: true }),
         when(() => parsedInclude.include, include(parsedInclude.include!)),
         when(() => customQuery, customQuery!),
         when(isPluralRelation(relation), all(), one()),

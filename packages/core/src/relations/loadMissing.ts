@@ -1,7 +1,7 @@
 import consumeLoader from '@foscia/core/actions/context/consumers/consumeLoader';
 import resolveModelAction from '@foscia/core/connections/resolveModelAction';
 import logger from '@foscia/core/logger/logger';
-import { ModelInstance } from '@foscia/core/model/types';
+import { ModelInstance } from '@foscia/core/models/oldTypes';
 import { RawInclude, RawIncludeOptions } from '@foscia/core/relations/types';
 import toParsedRawInclude from '@foscia/core/relations/utilities/toParsedRawInclude';
 import { wrap } from '@foscia/shared';

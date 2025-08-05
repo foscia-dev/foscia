@@ -1,72 +1,65 @@
-import { makeRefsCache, makeWeakRefFactory } from '@foscia/core';
+import { makeModel, makeRefsCache, makeWeakRefFactory } from '@foscia/core';
 import { describe, expect, it } from 'vitest';
-import CommentMock from '../../mocks/models/comment.mock';
-import PostMock from '../../mocks/models/post.mock';
 
 describe.concurrent('unit: makeRefsCache', () => {
-  it('should put, find and remove from cache', async () => {
-    const firstPost = new PostMock();
-    const secondPost = new PostMock();
-    const comment = new CommentMock();
+  const model = makeModel();
 
-    const { cache } = makeRefsCache({ makeRef: makeWeakRefFactory() });
+  @model()
+  class Post extends model.base() {
+  }
 
-    expect(await cache.find('default:posts', '1')).toBeNull();
-    expect(await cache.find('default:posts', '2')).toBeNull();
-    expect(await cache.find('default:posts', '3')).toBeNull();
-    expect(await cache.find('default:dummy', '1')).toBeNull();
+  @model()
+  class Comment extends model.base() {
+  }
 
-    await cache.put('default:posts', '1', firstPost);
-    await cache.put('default:posts', '2', secondPost);
-    await cache.put('default:comments', '1', comment);
+  it('should support get, set and delete', async () => {
+    const postA = new Post();
+    const postB = new Post();
+    const comment = new Comment();
 
-    expect(await cache.find('default:posts', '1')).toBe(firstPost);
-    expect(await cache.find('default:posts', '2')).toBe(secondPost);
-    expect(await cache.find('default:posts', '3')).toBeNull();
-    expect(await cache.find('default:comments', '1')).toBe(comment);
-    expect(await cache.find('default:dummy', '1')).toBeNull();
+    const cache = makeRefsCache({ makeRef: makeWeakRefFactory() });
 
-    await cache.forget('default:posts', '1');
+    expect(await cache.get(Post, '1')).toBeUndefined();
+    expect(await cache.get(Post, '2')).toBeUndefined();
+    expect(await cache.get(Post, '3')).toBeUndefined();
 
-    expect(await cache.find('default:posts', '1')).toBeNull();
-    expect(await cache.find('default:posts', '2')).toBe(secondPost);
-    expect(await cache.find('default:comments', '1')).toBe(comment);
+    await cache.set(Post, '1', postA);
+    await cache.set(Post, '2', postB);
+    await cache.set(Comment, '1', comment);
+    expect(await cache.get(Post, '1')).toBe(postA);
+    expect(await cache.get(Post, '2')).toBe(postB);
+    expect(await cache.get(Post, '3')).toBeUndefined();
+    expect(await cache.get(Comment, '1')).toBe(comment);
 
-    await cache.put('default:posts', '1', firstPost);
-
-    expect(await cache.find('default:posts', '1')).toBe(firstPost);
-    expect(await cache.find('default:posts', '2')).toBe(secondPost);
-    expect(await cache.find('default:comments', '1')).toBe(comment);
-
-    await cache.forgetAll('default:posts');
-
-    expect(await cache.find('default:posts', '1')).toBeNull();
-    expect(await cache.find('default:posts', '2')).toBeNull();
-    expect(await cache.find('default:comments', '1')).toBe(comment);
-
-    await cache.put('default:posts', '1', firstPost);
-
-    expect(await cache.find('default:posts', '1')).toBe(firstPost);
-    expect(await cache.find('default:posts', '2')).toBeNull();
-    expect(await cache.find('default:comments', '1')).toBe(comment);
-
-    await cache.clear();
-
-    expect(await cache.find('default:posts', '1')).toBeNull();
-    expect(await cache.find('default:posts', '2')).toBeNull();
-    expect(await cache.find('default:comments', '1')).toBeNull();
+    await cache.delete(Post, '1');
+    expect(await cache.get(Post, '1')).toBeUndefined();
+    expect(await cache.get(Post, '2')).toBe(postB);
+    expect(await cache.get(Comment, '1')).toBe(comment);
   });
 
-  it('should forget if ref has expired', async () => {
-    let post: PostMock | null = new PostMock();
+  it('should support multiple primary keys', async () => {
+    const post = new Post();
+
+    const cache = makeRefsCache({ makeRef: makeWeakRefFactory() });
+
+    expect(await cache.get(Post, { foo: '1', bar: '2' })).toBeUndefined();
+
+    await cache.set(Post, { foo: '1', bar: '2' }, post);
+    expect(await cache.get(Post, { foo: '1', bar: '2' })).toBe(post);
+    expect(await cache.get(Post, { bar: '2', foo: '1' })).toBe(post);
+  });
+
+  it('should support expired reference', async () => {
+    let post: Post | null = new Post();
     const fakeRef = () => () => post as any;
+    const cache = makeRefsCache({ makeRef: fakeRef });
 
-    const { cache } = makeRefsCache({ makeRef: fakeRef });
+    expect(await cache.get(Post, '1')).toBeUndefined();
 
-    expect(await cache.find('default:posts', '1')).toBeNull();
-    await cache.put('default:posts', '1', post);
-    expect(await cache.find('default:posts', '1')).toBe(post);
+    await cache.set(Post, '1', post);
+    expect(await cache.get(Post, '1')).toBe(post);
+
     post = null;
-    expect(await cache.find('default:posts', '1')).toBeNull();
+    expect(await cache.get(Post, '1')).toBeUndefined();
   });
 });

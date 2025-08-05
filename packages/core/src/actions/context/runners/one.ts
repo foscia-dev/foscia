@@ -1,8 +1,8 @@
 import { RetypedDeserializedData } from '@foscia/core/actions/context/runners/all';
 import oneOr, { OneData } from '@foscia/core/actions/context/runners/oneOr';
-import { InferQueryInstance } from '@foscia/core/actions/types';
+import { InferActionInstance } from '@foscia/core/actions/types';
 import makeRunner from '@foscia/core/actions/utilities/makeRunner';
-import { DeserializedData } from '@foscia/core/types';
+import { DataDeserializerResult } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
 
 /**
@@ -21,10 +21,10 @@ import { Awaitable } from '@foscia/shared';
  */
 export default makeRunner('one', <
   C extends {},
-  I extends InferQueryInstance<C>,
+  I extends InferActionInstance<C>,
   RawData,
   Data,
-  Deserialized extends DeserializedData,
+  Deserialized extends DataDeserializerResult,
   Next = I,
 >(
   transform?: (data: OneData<Data, RetypedDeserializedData<Deserialized, I>, I>) => Awaitable<Next>,

@@ -1,12 +1,12 @@
 import consumeSerializer from '@foscia/core/actions/context/consumers/consumeSerializer';
 import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
-import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
+import takeSnapshot from '@foscia/core/models/snapshots/takeSnapshot';
 import {
   ModelInstance,
   ModelRelation,
   ModelRelationKey,
   ModelValues,
-} from '@foscia/core/model/types';
+} from '@foscia/core/models/oldTypes';
 import { mapArrayable } from '@foscia/shared';
 
 /**
@@ -34,7 +34,7 @@ export default async <
   const serializer = await consumeSerializer(action);
 
   return serializer.serializeToData(
-    await serializer.serializeToRelatedRecords(
+    await serializer.serializeForRelationAction(
       takeSnapshot(instance),
       instance.$model.$schema[relation] as ModelRelation,
       await mapArrayable(

@@ -10,7 +10,7 @@ import {
 import { configuration } from '@foscia/core/configuration';
 import FosciaError from '@foscia/core/errors/fosciaError';
 import registerHook from '@foscia/core/hooks/registerHook';
-import runHooks from '@foscia/core/hooks/runHooks';
+import runAsyncHooks from '@foscia/core/hooks/runAsyncHooks';
 import withoutHooks from '@foscia/core/hooks/withoutHooks';
 import logger from '@foscia/core/logger/logger';
 import { SYMBOL_ACTION } from '@foscia/core/symbols';
@@ -46,7 +46,7 @@ export default <Context extends {} = {}>(
     let currentCall: ActionCall | null = null;
 
     let currentQueue: AnonymousEnhancer<any, any>[] = [];
-    let currentContext: Dictionary = {
+    let currentContext: Dictionary<unknown> = {
       actionConnectionId: connectionId,
       ...value(initialContext),
     };
@@ -85,7 +85,7 @@ export default <Context extends {} = {}>(
 
         return currentContext;
       },
-      updateContext(newContext: Dictionary) {
+      updateContext(newContext: Dictionary<unknown>) {
         currentContext = newContext;
 
         return this;
@@ -104,10 +104,10 @@ export default <Context extends {} = {}>(
 
         (this.use as any)(...enhancers);
 
-        const { middlewares, ...context } = await this.useContext() as Dictionary;
+        const { middlewares, ...context } = await this.useContext() as Dictionary<unknown>;
         this.updateContext(context);
 
-        await runHooks(this, 'running', { action: this, runner });
+        await runAsyncHooks(this, 'running', { action: this, runner });
 
         try {
           // Context runner might use other context enhancers and runners,
@@ -121,15 +121,15 @@ export default <Context extends {} = {}>(
             logger.warn('Action run result is the action itself, did you forget to pass a runner when calling `run`?');
           }
 
-          await runHooks(this, 'success', { action: this, result });
+          await runAsyncHooks(this, 'success', { action: this, result });
 
           return result;
         } catch (error) {
-          await runHooks(this, 'error', { action: this, error });
+          await runAsyncHooks(this, 'error', { action: this, error });
 
           throw error;
         } finally {
-          await runHooks(this, 'finally', { action: this });
+          await runAsyncHooks(this, 'finally', { action: this });
         }
       },
       async track(

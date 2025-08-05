@@ -13,59 +13,49 @@ import RecordNotFoundError from '@foscia/core/errors/recordNotFoundError';
 import SerializerError from '@foscia/core/errors/serializerError';
 import { FLAG_ERROR_NOT_FOUND } from '@foscia/core/flags';
 import registerHook from '@foscia/core/hooks/registerHook';
-import runHooks from '@foscia/core/hooks/runHooks';
+import runAsyncHooks from '@foscia/core/hooks/runAsyncHooks';
 import unregisterHook from '@foscia/core/hooks/unregisterHook';
 import withoutHooks from '@foscia/core/hooks/withoutHooks';
 import logger from '@foscia/core/logger/logger';
-import isInstance from '@foscia/core/model/checks/isInstance';
-import isInstanceUsing from '@foscia/core/model/checks/isInstanceUsing';
-import isModel from '@foscia/core/model/checks/isModel';
-import isModelUsing from '@foscia/core/model/checks/isModelUsing';
-import isSame from '@foscia/core/model/checks/isSame';
-import makeComposable from '@foscia/core/model/composition/makeComposable';
-import makeComposableFactory from '@foscia/core/model/composition/makeComposableFactory';
-import makeDefinition from '@foscia/core/model/composition/makeDefinition';
-import applyDefinition from '@foscia/core/model/composition/utilities/applyDefinition';
-import onBoot from '@foscia/core/model/hooks/onBoot';
-import onCreated from '@foscia/core/model/hooks/onCreated';
-import onCreating from '@foscia/core/model/hooks/onCreating';
-import onDestroyed from '@foscia/core/model/hooks/onDestroyed';
-import onDestroying from '@foscia/core/model/hooks/onDestroying';
-import onInit from '@foscia/core/model/hooks/onInit';
-import onPropertyRead from '@foscia/core/model/hooks/onPropertyRead';
-import onPropertyReading from '@foscia/core/model/hooks/onPropertyReading';
-import onPropertyWrite from '@foscia/core/model/hooks/onPropertyWrite';
-import onPropertyWriting from '@foscia/core/model/hooks/onPropertyWriting';
-import onRetrieved from '@foscia/core/model/hooks/onRetrieved';
-import onSaved from '@foscia/core/model/hooks/onSaved';
-import onSaving from '@foscia/core/model/hooks/onSaving';
-import onUpdated from '@foscia/core/model/hooks/onUpdated';
-import onUpdating from '@foscia/core/model/hooks/onUpdating';
-import makeModel from '@foscia/core/model/makeModel';
-import makeModelFactory from '@foscia/core/model/makeModelFactory';
-import attr from '@foscia/core/model/props/attr';
-import isAttribute from '@foscia/core/model/props/checks/isAttribute';
-import isId from '@foscia/core/model/props/checks/isId';
-import id from '@foscia/core/model/props/id';
-import mapAttributes from '@foscia/core/model/props/mappers/mapAttributes';
-import mapRelations from '@foscia/core/model/props/mappers/mapRelations';
-import aliasPropKey from '@foscia/core/model/props/utilities/aliasPropKey';
-import attachRelationInverse from '@foscia/core/model/props/utilities/attachRelationInverse';
-import shouldSync from '@foscia/core/model/props/utilities/shouldSync';
-import makeModelsReducer from '@foscia/core/model/revivers/makeModelsReducer';
-import makeModelsReviver from '@foscia/core/model/revivers/makeModelsReviver';
-import changed from '@foscia/core/model/snapshots/changed';
-import isSameSnapshot from '@foscia/core/model/snapshots/checks/isSameSnapshot';
-import isSnapshot from '@foscia/core/model/snapshots/checks/isSnapshot';
-import markSynced from '@foscia/core/model/snapshots/markSynced';
-import restore from '@foscia/core/model/snapshots/restore';
-import restoreSnapshot from '@foscia/core/model/snapshots/restoreSnapshot';
-import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
-import cloneModelValue from '@foscia/core/model/utilities/cloneModelValue';
-import compareModelValues from '@foscia/core/model/utilities/compareModelValues';
-import fill from '@foscia/core/model/utilities/fill';
-import filled from '@foscia/core/model/utilities/filled';
-import forceFill from '@foscia/core/model/utilities/forceFill';
+import makeDefinition from '@foscia/core/models/old/composition/makeDefinition';
+import applyDefinition from '@foscia/core/models/old/composition/utilities/applyDefinition';
+import onBoot from '@foscia/core/models/hooks/onBoot';
+import onCreated from '@foscia/core/models/hooks/onCreated';
+import onCreating from '@foscia/core/models/hooks/onCreating';
+import onDestroyed from '@foscia/core/models/hooks/onDestroyed';
+import onDestroying from '@foscia/core/models/hooks/onDestroying';
+import onInit from '@foscia/core/models/hooks/onInit';
+import onPropertyRead from '@foscia/core/models/hooks/onPropertyRead';
+import onPropertyReading from '@foscia/core/models/hooks/onPropertyReading';
+import onPropertyWrite from '@foscia/core/models/hooks/onPropertyWrite';
+import onPropertyWriting from '@foscia/core/models/hooks/onPropertyWriting';
+import onRetrieved from '@foscia/core/models/hooks/onRetrieved';
+import onSaved from '@foscia/core/models/hooks/onSaved';
+import onSaving from '@foscia/core/models/hooks/onSaving';
+import onUpdated from '@foscia/core/models/hooks/onUpdated';
+import onUpdating from '@foscia/core/models/hooks/onUpdating';
+import makeModelFactory from '@foscia/core/models/makeModelFactory';
+import isAttribute from '@foscia/core/models/old/props/checks/isAttribute';
+import isId from '@foscia/core/models/old/props/checks/isId';
+import mapAttributes from '@foscia/core/models/old/props/mappers/mapAttributes';
+import mapRelations from '@foscia/core/models/old/props/mappers/mapRelations';
+import aliasPropKey from '@foscia/core/models/old/props/utilities/aliasPropKey';
+import attachRelationInverse from '@foscia/core/models/old/props/utilities/attachRelationInverse';
+import shouldSync from '@foscia/core/models/old/props/utilities/shouldSync';
+import makeModelsReducer from '@foscia/core/models/revivers/makeModelsReducer';
+import makeModelsReviver from '@foscia/core/models/revivers/makeModelsReviver';
+import changed from '@foscia/core/models/snapshots/changed';
+import isSameSnapshot from '@foscia/core/models/snapshots/isSameSnapshot';
+import isSnapshot from '@foscia/core/models/snapshots/isSnapshot';
+import markSynced from '@foscia/core/models/snapshots/markSynced';
+import restore from '@foscia/core/models/snapshots/restore';
+import restoreSnapshot from '@foscia/core/models/snapshots/restoreSnapshot';
+import takeSnapshot from '@foscia/core/models/snapshots/takeSnapshot';
+import cloneModelValue from '@foscia/core/models/utilities/cloneModelValue';
+import compareModelValues from '@foscia/core/models/utilities/compareModelValues';
+import fill from '@foscia/core/models/utilities/fill';
+import filled from '@foscia/core/models/utilities/filled';
+import forceFill from '@foscia/core/models/utilities/forceFill';
 import makeMapRegistry from '@foscia/core/registry/makeMapRegistry';
 import makeRegistry from '@foscia/core/registry/makeRegistry';
 import isPluralRelation from '@foscia/core/relations/checks/isPluralRelation';
@@ -83,12 +73,6 @@ import makeStandardizedLazyLoader
 import makeLoader from '@foscia/core/relations/loaders/makeLoader';
 import makeSmartLoader from '@foscia/core/relations/loaders/makeSmartLoader';
 import loadMissing from '@foscia/core/relations/loadMissing';
-import belongsTo from '@foscia/core/relations/props/belongsTo';
-import hasMany from '@foscia/core/relations/props/hasMany';
-import hasOne from '@foscia/core/relations/props/hasOne';
-import morphMany from '@foscia/core/relations/props/morphMany';
-import morphOne from '@foscia/core/relations/props/morphOne';
-import morphTo from '@foscia/core/relations/props/morphTo';
 import guessRelationInverses from '@foscia/core/relations/utilities/guessRelationInverses';
 import guessRelationType from '@foscia/core/relations/utilities/guessRelationType';
 import parseRawInclude from '@foscia/core/relations/utilities/parseRawInclude';
@@ -103,9 +87,9 @@ import {
   SYMBOL_MODEL_COMPOSABLE,
   SYMBOL_MODEL_INSTANCE,
   SYMBOL_MODEL_PROP,
-  SYMBOL_MODEL_PROP_KIND_ATTRIBUTE,
-  SYMBOL_MODEL_PROP_KIND_ID,
-  SYMBOL_MODEL_PROP_KIND_RELATION,
+  SYMBOL_MODEL_PROP_ATTRIBUTE,
+  SYMBOL_MODEL_PROP_ID,
+  SYMBOL_MODEL_PROP_RELATION,
   SYMBOL_MODEL_PROP_TRANSFORMER,
   SYMBOL_MODEL_RELATION_BELONGS_TO,
   SYMBOL_MODEL_RELATION_HAS_MANY,
@@ -125,19 +109,15 @@ import toDateTime from '@foscia/core/transformers/toDateTime';
 import toNumber from '@foscia/core/transformers/toNumber';
 import toString from '@foscia/core/transformers/toString';
 
-export type * from '@foscia/core/actions/types';
 export type * from '@foscia/core/cache/types';
 export type * from '@foscia/core/hooks/types';
 export type * from '@foscia/core/logger/types';
-export type * from '@foscia/core/model/revivers/types';
-export type * from '@foscia/core/model/types';
-export type * from '@foscia/core/registry/types';
 export type * from '@foscia/core/relations/types';
 export type * from '@foscia/core/transformers/types';
-export type * from '@foscia/core/customTypes';
 export type * from '@foscia/core/types';
 
 export * from '@foscia/core/actions';
+export * from '@foscia/core/models';
 export * from '@foscia/core/configuration';
 
 export {
@@ -152,26 +132,14 @@ export {
   makeRefsCache,
   makeWeakRefFactory,
   makeTimedRefFactory,
-  attr,
-  belongsTo,
-  hasMany,
-  hasOne,
-  morphTo,
-  morphMany,
-  morphOne,
-  id,
   fill,
   forceFill,
-  isSame,
   filled,
   changed,
   restore,
   markSynced,
   applyDefinition,
   makeDefinition,
-  makeComposable,
-  makeComposableFactory,
-  makeModel,
   makeModelFactory,
   load,
   loadMissing,
@@ -211,7 +179,7 @@ export {
   isSameSnapshot,
   restoreSnapshot,
   takeSnapshot,
-  runHooks,
+  runAsyncHooks,
   registerHook,
   unregisterHook,
   withoutHooks,
@@ -220,10 +188,6 @@ export {
   isId,
   isPluralRelation,
   isSingularRelation,
-  isModel,
-  isInstance,
-  isModelUsing,
-  isInstanceUsing,
   mapAttributes,
   mapRelations,
   shouldSync,
@@ -246,9 +210,9 @@ export {
   FLAG_ERROR_NOT_FOUND,
   SYMBOL_MODEL_PROP_TRANSFORMER,
   SYMBOL_MODEL_PROP,
-  SYMBOL_MODEL_PROP_KIND_ID,
-  SYMBOL_MODEL_PROP_KIND_ATTRIBUTE,
-  SYMBOL_MODEL_PROP_KIND_RELATION,
+  SYMBOL_MODEL_PROP_ID,
+  SYMBOL_MODEL_PROP_ATTRIBUTE,
+  SYMBOL_MODEL_PROP_RELATION,
   SYMBOL_MODEL_RELATION_BELONGS_TO,
   SYMBOL_MODEL_RELATION_HAS_MANY,
   SYMBOL_MODEL_RELATION_HAS_ONE,

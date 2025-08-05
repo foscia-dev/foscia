@@ -5,8 +5,10 @@
  * @category Factories
  * @since 0.13.0
  */
-export default () => <V extends WeakKey>(value: V) => {
-  const ref = new WeakRef(value);
+export default function makeWeakRefFactory() {
+  return <V extends WeakKey>(value: V) => {
+    const ref = new WeakRef(value);
 
-  return () => ref.deref() ?? null;
-};
+    return () => ref.deref() ?? null;
+  };
+}

@@ -63,6 +63,8 @@ import makeActionFactory from '@foscia/core/actions/makeActionFactory';
 import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 
+export type * from '@foscia/core/actions/types';
+
 export {
   none,
   all,

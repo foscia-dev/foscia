@@ -1,5 +1,5 @@
 import resolveModelAction from '@foscia/core/connections/resolveModelAction';
-import { ModelInstance } from '@foscia/core/model/types';
+import { ModelInstance } from '@foscia/core/models/oldTypes';
 import { ParsedRawInclude, StandardizedLazyLoader } from '@foscia/core/relations/types';
 import withParsedIncludeMap from '@foscia/core/relations/utilities/withParsedIncludeMap';
 import { uniqueValues } from '@foscia/shared';

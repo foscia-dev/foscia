@@ -6,13 +6,13 @@ import when from '@foscia/core/actions/context/when';
 import { Action, ConsumeModel } from '@foscia/core/actions/types';
 import resolveModelAction from '@foscia/core/connections/resolveModelAction';
 import isPluralRelation from '@foscia/core/relations/checks/isPluralRelation';
-import { Model, ModelInstance, ModelRelation } from '@foscia/core/model/types';
+import { Model, ModelInstance, ModelRelation } from '@foscia/core/models/oldTypes';
 import makeStandardizedLazyLoader
   from '@foscia/core/relations/loaders/lazy/makeStandardizedLazyLoader';
 import { FilteredLazyLoaderConfig } from '@foscia/core/relations/loaders/types';
 import { ParsedInclude } from '@foscia/core/relations/types';
 import fillLoadedRelation from '@foscia/core/relations/utilities/fillLoadedRelation';
-import { Multimap, multimapSet, wrap } from '@foscia/shared';
+import { OldMultimap, multimapSet, wrap } from '@foscia/shared';
 
 // TODO Decline to support belongsTo, etc. (see connections tests):
 // TODO   Belongs to: where id in instances.foreign_id
@@ -31,7 +31,7 @@ import { Multimap, multimapSet, wrap } from '@foscia/shared';
 export default <Reference>(
   config: FilteredLazyLoaderConfig<Reference>,
 ) => makeStandardizedLazyLoader(async (instances, relations) => {
-  const references: Multimap<[ModelRelation, ModelInstance], Reference[]> = new Map();
+  const references: OldMultimap<[ModelRelation, ModelInstance], Reference[]> = new Map();
   await Promise.all(instances.map(
     (instance) => Promise.all(Array.from(relations, async ([relation]) => multimapSet(
       references,
@@ -40,7 +40,7 @@ export default <Reference>(
     ))),
   ));
 
-  const models: Multimap<[Model, ModelRelation], ParsedInclude> = new Map();
+  const models: OldMultimap<[Model, ModelRelation], ParsedInclude> = new Map();
   await Promise.all(Array.from(
     relations,
     async ([relation, parsedInclude]) => parsedInclude.models.forEach(
@@ -55,7 +55,7 @@ export default <Reference>(
     includes.forEach((parsedInclude, relation) => {
       const currentReferences = [...(references.get(relation)?.values() ?? [])].flat();
       let currentAction: [Action<ConsumeModel>, Reference[]];
-      const action = resolveModelAction(model)(query(model, { query: null, include: null }));
+      const action = resolveModelAction(model)(query(model, { withoutScopes: true }));
       const customQuery = mergeEnhancers(parsedInclude.relationQuery, parsedInclude.customQuery);
       if (customQuery) {
         currentAction = [action(customQuery), currentReferences];

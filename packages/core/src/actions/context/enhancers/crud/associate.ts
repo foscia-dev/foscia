@@ -1,15 +1,15 @@
 import updateRelation from '@foscia/core/actions/context/enhancers/crud/updateRelation';
 import onSuccess from '@foscia/core/actions/context/enhancers/hooks/onSuccess';
-import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
-import fill from '@foscia/core/model/utilities/fill';
-import markSynced from '@foscia/core/model/snapshots/markSynced';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import {
   ModelInstance,
   ModelRelationKey,
   ModelValues,
   ModelWritableKey,
-} from '@foscia/core/model/types';
+} from '@foscia/core/models/oldTypes';
+import markSynced from '@foscia/core/models/snapshots/markSynced';
+import fill from '@foscia/core/models/utilities/fill';
 
 /**
  * Prepare context for a singular relation's update operation.
@@ -42,10 +42,13 @@ export default /* @__PURE__ */ makeEnhancer('associate', <
   instance: I,
   relation: K,
   value: ModelValues<I>[K],
-) => (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => action(
-  updateRelation(instance, relation, value),
-  onSuccess(() => {
-    fill(instance, { [relation]: value } as unknown as Partial<ModelValues<I>>);
-    markSynced(instance, relation);
-  }),
-));
+) => (action: Action<C & ConsumeSerializer<Record, Related, Data>>) => {
+  if (action.$hooks) {
+    action(onSuccess(() => {
+      fill(instance, { [relation]: value } as unknown as Partial<ModelValues<I>>);
+      markSynced(instance, relation);
+    }));
+  }
+
+  return action(updateRelation(instance, relation, value));
+});

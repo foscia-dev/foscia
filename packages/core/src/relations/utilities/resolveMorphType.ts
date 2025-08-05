@@ -1,4 +1,4 @@
-import { Model } from '@foscia/core/model/types';
+import { Model } from '@foscia/core/models/types';
 
 /**
  * Resolve morph type to store on morph to relation.

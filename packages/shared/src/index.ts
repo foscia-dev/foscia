@@ -17,12 +17,16 @@ import tap from '@foscia/shared/functions/tap';
 import value from '@foscia/shared/functions/value';
 import uniqueId from '@foscia/shared/identifiers/uniqueId';
 import unsafeId from '@foscia/shared/identifiers/unsafeId';
-import multimapMake from '@foscia/shared/maps/multimapMake';
+import makeMultimap from '@foscia/shared/maps/makeMultimap';
 import multimapDelete from '@foscia/shared/maps/multimapDelete';
 import multimapGet from '@foscia/shared/maps/multimapGet';
+import multimapMake from '@foscia/shared/maps/multimapMake';
 import multimapSet from '@foscia/shared/maps/multimapSet';
+import sequential from '@foscia/shared/miscellaneous/sequential';
 import sequentialTransform from '@foscia/shared/miscellaneous/sequentialTransform';
+import temporaryBackup from '@foscia/shared/miscellaneous/temporaryBackup';
 import throughMiddlewares from '@foscia/shared/miscellaneous/throughMiddlewares';
+import trustedEntries from '@foscia/shared/objects/trustedEntries';
 import camelCase from '@foscia/shared/strings/camelCase';
 import kebabCase from '@foscia/shared/strings/kebabCase';
 import optionalJoin from '@foscia/shared/strings/optionalJoin';
@@ -41,6 +45,7 @@ export {
   mapArrayable,
   mapWithKeys,
   groupBy,
+  makeMultimap,
   multimapGet,
   multimapSet,
   multimapDelete,
@@ -52,9 +57,12 @@ export {
   optionalJoin,
   pluralize,
   singularize,
+  sequential,
   sequentialTransform,
+  temporaryBackup,
   throughMiddlewares,
   removeTimezoneOffset,
+  trustedEntries,
   kebabCase,
   camelCase,
   unsafeId,

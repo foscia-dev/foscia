@@ -1,286 +1,158 @@
 import type { Action } from '@foscia/core/actions/types';
-import type {
+import {
   Model,
-  ModelIdType,
   ModelInstance,
-  ModelRelation,
+  ModelPrimaryDictionary,
+  ModelPrimaryType, ModelShallowSnapshot,
   ModelSnapshot,
-  RegisteredModels,
-} from '@foscia/core/model/types';
+} from '@foscia/core/models/types';
 import type { ParsedRawInclude } from '@foscia/core/relations/types';
-import { Arrayable, Awaitable, IfAny } from '@foscia/shared';
+import { Arrayable, Awaitable } from '@foscia/shared';
 
 /**
- * Registry containing available models.
+ * Registry of available models.
  *
- * It will be used by other dependencies, like {@link Deserializer | `Deserializer`},
- * to deserialize raw data source records in the correct models.
- *
- * @typeParam Models Registered models array.
- *
- * @interface
- *
- * @remarks
- * `rawType` must be using the `<connection?>:<type>` format. If connection is
- * omitted, `default` connection is used.
+ * It may be used to identify a model to use for a given type (e.g. when deserializing
+ * a record into an instance inside a {@link Deserializer | `Deserializer`}).
  */
-export type ModelsRegistry<Models extends readonly Model[]> = {
+export interface ModelRegistry {
   /**
-   * Resolve a registered model by its raw type.
+   * Get a registered model.
    *
-   * @param rawType
+   * @param type
    */
-  resolve<T extends string, M extends RegisteredModels<Models>>(
-    rawType: T,
-  ): Awaitable<IfAny<Models, Model | null, T extends keyof M ? M[T] : null>>;
-};
+  get(type: string): Promise<Model | undefined>;
+
+  /**
+   * Set a registered model.
+   *
+   * @param model
+   */
+  set(model: Model): Promise<void>;
+}
 
 /**
- * Cache containing already synced models instances.
+ * Cache for models' instances.
  *
- * It is used by some runners, like {@link cachedOr | `cachedOr`}, to extract
- * a cached instance instead of fetching it.
- * It will also be used by other dependencies, like {@link Deserializer | `Deserializer`},
- * to prevent multiple instance of the same record coexisting or to store an instance
- * as retrieved.
- *
- * @interface
- *
- * @remarks
- * `rawType` must be using the `<connection?>:<type>` format. If connection is
- * omitted, `default` connection is used.
+ * It may be used to cache and retrieve instances (e.g. using {@link cachedOr | `cachedOr`})
+ * or keep a unique instance in memory per record (e.g. in a {@link Deserializer | `Deserializer`}).
  */
-export type InstancesCache = {
-  // TODO More map or storage alike methods?
+export interface InstancesCache {
   /**
-   * Retrieve a model instance from cache.
+   * Get a cached instance.
    *
-   * @param rawType
-   * @param id
+   * @param model
+   * @param primary
    */
-  find(
-    rawType: string,
-    id: ModelIdType,
-  ): Awaitable<ModelInstance | null>;
+  get(
+    model: Model,
+    primary: ModelPrimaryType | ModelPrimaryDictionary,
+  ): Promise<ModelInstance | undefined>;
+
   /**
-   * Put a model instance inside cache.
+   * Set a cached instance.
    *
-   * @param rawType
-   * @param id
    * @param instance
    */
-  put(
-    rawType: string,
-    id: ModelIdType,
-    instance: ModelInstance,
-  ): Awaitable<void>;
+  set(instance: ModelInstance): Promise<void>;
+
   /**
-   * Forget a model's instance.
+   * Delete a cached instance.
    *
-   * @param rawType
-   * @param id
+   * @param model
+   * @param primary
    */
-  forget(
-    rawType: string,
-    id: ModelIdType,
-  ): Awaitable<void>;
-  /**
-   * Forget all model's instances.
-   *
-   * @param rawType
-   */
-  forgetAll(
-    rawType: string,
-  ): Awaitable<void>;
-  /**
-   * Forget all models' instances.
-   */
-  clear(): Awaitable<void>;
-};
+  delete(
+    model: Model,
+    primary: ModelPrimaryType | ModelPrimaryDictionary,
+  ): Promise<void>;
+}
 
 /**
- * Adapter raw response wrapper.
- *
- * @typeParam RawData Adapter's original response (e.g. a
- * {@link !Response | `Response`} object for HTTP adapter).
- * @typeParam Data Adapter's original response data, containing records or relations data.
- *
- * @interface
+ * Action adapter's response.
  */
-export type AdapterResponse<RawData, Data = unknown> = {
+export interface ActionAdapterResponse<OriginalResponse, Data> {
   /**
    * The original response (e.g. a {@link !Response | `Response`} object for HTTP adapter).
    */
-  readonly raw: RawData;
+  readonly raw: OriginalResponse;
+
   /**
-   * Read the original response data.
-   * This will be used to deserialize instances from data
-   * by {@link Deserializer | `Deserializer`}.
-   * This method may not support to be called multiple times,
-   * prefer calling it only once and reusing returned value.
+   * Read the data from the original response.
    */
-  read(): Awaitable<Data>;
-};
+  read(): Promise<Data>;
+}
 
 /**
- * Adapter interacting with the data source.
+ * Adapter to execute actions over a data source.
  *
- * @typeParam RawData Adapter's original response (e.g. a
- * {@link !Response | `Response`} object for HTTP adapter).
- * @typeParam Data Adapter's original response data, containing records or relations data.
- *
- * @interface
+ * @typeParam OriginalResponse The original response from the data source.
+ * @typeParam Data The data which can be read from the original response.
  */
-export type Adapter<RawData, Data = any> = {
+export interface ActionAdapter<OriginalResponse, Data> {
   /**
-   * Execute a given action to retrieve a raw data response.
-   * Context data will already be serialized using serializer if available.
+   * Execute action over the data source.
    *
    * @param action
    */
-  execute(action: Action): Awaitable<AdapterResponse<RawData, Data>>;
-};
+  execute(action: Action): Promise<ActionAdapterResponse<OriginalResponse, Data>>;
+}
 
 /**
- * Base deserialized data which must contain at least an instances array.
+ * Data deserializer result.
  */
-export type DeserializedData<I extends ModelInstance = ModelInstance> = {
+export interface DataDeserializerResult<
+  Instance extends ModelInstance,
+  DeserializedData,
+> {
   /**
    * Deserialized instances.
    */
-  instances: I[];
-};
+  readonly instances: Instance[];
+  /**
+   * Deserialized complementary data.
+   */
+  readonly data: DeserializedData;
+}
 
 /**
- * Deserializer converting adapter response read data to a deserialized array of instances.
- *
- * @typeParam Data Adapter's original response data, containing records or relations data.
- * @typeParam Deserialized Object containing deserialized instances and other
- * relevant deserialized data (e.g. the document for a JSON:API response).
- *
- * @interface
+ * Data deserializer to extract models' instances from an adapter's response's data.
  */
-export type Deserializer<Data, Deserialized extends DeserializedData = DeserializedData> = {
+export interface DataDeserializer<Data, DeserializedData> {
   /**
-   * Deserialize adapter data to a deserialized array of instances.
+   * Deserialize data retrieved using an action into a deserialized data object.
    *
    * @param data
    * @param action
    */
-  deserialize(data: Data, action: Action): Awaitable<Deserialized>;
-};
+  deserialize(
+    data: Data,
+    action: Action,
+  ): Promise<DataDeserializerResult<ModelInstance, DeserializedData>>;
+}
 
 /**
- * Serializer converting model instances to adapter data source format.
- *
- * @typeParam Record Serialized value for an instance.
- * @typeParam RelatedRecord Serialized value for a related instance.
- * @typeParam Data Serialized value for one/many/none instances.
- * Usually, it is a wrapper type for `Record` or `RelatedRecord` records.
+ * Snapshots serializer to transform models' snapshots to serialized records.
  *
  * @interface
  */
-export type Serializer<Record, RelatedRecord, Data> = {
+export interface SnapshotsSerializer<SerializedData> {
   /**
-   * Serialize snapshots to records.
-   *
-   * @param snapshot
-   * @param action
-   */
-  serializeToRecords(snapshot: ModelSnapshot, action: Action): Awaitable<Record>;
-  /**
-   * Serialize snapshots to records.
+   * Serialize snapshots to data.
    *
    * @param snapshots
    * @param action
    */
-  serializeToRecords(snapshots: ModelSnapshot[], action: Action): Awaitable<Record[]>;
-  /**
-   * Serialize snapshots to records.
-   *
-   * @param snapshot
-   * @param action
-   */
-  serializeToRecords(snapshot: null, action: Action): Awaitable<null>;
-  /**
-   * Serialize snapshots to records.
-   *
-   * @param snapshot
-   * @param action
-   */
-  serializeToRecords(
-    snapshot: ModelSnapshot[] | ModelSnapshot | null,
+  serialize(
+    snapshots: Arrayable<ModelSnapshot | ModelShallowSnapshot> | null,
     action: Action,
-  ): Awaitable<Record[] | Record | null>;
-  /**
-   * Serialize related snapshots to related records.
-   *
-   * @param parent
-   * @param prop
-   * @param snapshot
-   * @param action
-   */
-  serializeToRelatedRecords(
-    parent: ModelSnapshot,
-    prop: ModelRelation,
-    snapshot: ModelSnapshot,
-    action: Action,
-  ): Awaitable<RelatedRecord>;
-  /**
-   * Serialize related snapshots to related records.
-   *
-   * @param parent
-   * @param prop
-   * @param snapshots
-   * @param action
-   */
-  serializeToRelatedRecords(
-    parent: ModelSnapshot,
-    prop: ModelRelation,
-    snapshots: ModelSnapshot[],
-    action: Action,
-  ): Awaitable<RelatedRecord[]>;
-  /**
-   * Serialize related snapshots to related records.
-   *
-   * @param parent
-   * @param prop
-   * @param snapshot
-   * @param action
-   */
-  serializeToRelatedRecords(
-    parent: ModelSnapshot,
-    prop: ModelRelation,
-    snapshot: null,
-    action: Action,
-  ): Awaitable<null>;
-  /**
-   * Serialize related snapshots to related records.
-   *
-   * @param parent
-   * @param prop
-   * @param snapshot
-   * @param action
-   */
-  serializeToRelatedRecords(
-    parent: ModelSnapshot,
-    prop: ModelRelation,
-    snapshot: ModelSnapshot[] | ModelSnapshot | null,
-    action: Action,
-  ): Awaitable<RelatedRecord[] | RelatedRecord | null>;
-  /**
-   * Serialize already serialized records to data.
-   * It will usually only wrap records if necessary (e.g. to a `data` key
-   * in a JSON:API context).
-   *
-   * @param records
-   * @param action
-   */
-  serializeToData(
-    records: Arrayable<Record | RelatedRecord> | null,
-    action: Action,
-  ): Awaitable<Data>;
-};
+  ): Promise<SerializedData>;
+}
+
+// TODO Operation adapter (extract CRUD logic from adapter).
+// TODO Filtering adapter (where logic).
+// TODO Sorting adapter (sort logic).
+// TODO Pagination adapter (pagination logic).
 
 /**
  * Relations loader to eager and/or lazy load relations.

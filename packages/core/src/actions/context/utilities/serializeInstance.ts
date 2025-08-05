@@ -1,7 +1,7 @@
 import consumeSerializer from '@foscia/core/actions/context/consumers/consumeSerializer';
 import { Action, ConsumeSerializer } from '@foscia/core/actions/types';
-import takeSnapshot from '@foscia/core/model/snapshots/takeSnapshot';
-import { ModelInstance } from '@foscia/core/model/types';
+import takeSnapshot from '@foscia/core/models/snapshots/takeSnapshot';
+import { ModelInstance } from '@foscia/core/models/oldTypes';
 
 /**
  * Serialize the given instance to a serialized dataset.
@@ -18,7 +18,7 @@ export default async <Record, Related, Data>(
   const serializer = await consumeSerializer(action);
 
   return serializer.serializeToData(
-    await serializer.serializeToRecords(takeSnapshot(instance), action),
+    await serializer.serialize(takeSnapshot(instance), action),
     action,
   );
 };

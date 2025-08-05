@@ -1,7 +1,13 @@
-import { RefsCache, RefsCacheConfig, RefValue } from '@foscia/core/cache/types';
-import parseConnectionType from '@foscia/core/connections/parseConnectionType';
-import { ModelIdType, ModelInstance } from '@foscia/core/model/types';
-import { Multimap, multimapDelete, multimapGet, multimapSet } from '@foscia/shared';
+import { RefsCacheConfig, RefValue } from '@foscia/core/cache/types';
+import { primaryValues } from '@foscia/core/models/index';
+import {
+  Model,
+  ModelInstance,
+  ModelPrimaryDictionary,
+  ModelPrimaryType,
+} from '@foscia/core/models/types';
+import { InstancesCache } from '@foscia/core/types';
+import { Dictionary, makeMultimap, Multimap } from '@foscia/shared';
 
 /**
  * Make a cache using a {@link RefFactory | `RefFactory`} to store cached
@@ -11,45 +17,39 @@ import { Multimap, multimapDelete, multimapGet, multimapSet } from '@foscia/shar
  *
  * @category Factories
  */
-export default (config: RefsCacheConfig): { cache: RefsCache; } => {
-  const instances: Multimap<[string, string, ModelIdType], RefValue<ModelInstance>> = new Map();
+export default function makeRefsCache(config: RefsCacheConfig): InstancesCache {
+  type RefsCacheMultimap =
+    Multimap<Dictionary<Model> | ModelPrimaryDictionary, RefValue<ModelInstance>>;
 
-  const normalizeType = config.normalizeType ?? ((t) => t);
-  const normalizeId = config.normalizeId ?? ((v) => v);
-  const parseRawType = (rawType: string) => {
-    const [connection, type] = parseConnectionType(rawType);
+  const normalizeKey = (
+    model: Model,
+    primary: ModelPrimaryType | ModelPrimaryDictionary,
+  ) => ({
+    $model: model,
+    ...(typeof primary === 'object' ? primary : { id: primary }),
+  });
 
-    return [connection, normalizeType(type)] as const;
-  };
+  const instances: RefsCacheMultimap = makeMultimap();
 
   return {
-    cache: {
-      find: async (rawType, id) => {
-        const params = [...parseRawType(rawType), normalizeId(id)] as const;
-        const ref = multimapGet(instances, params);
-        if (ref) {
-          const instance = await ref();
-          if (instance) {
-            return instance;
-          }
-
-          multimapDelete(instances, params);
+    get: async (model, primary) => {
+      const key = normalizeKey(model, primary);
+      const ref = instances.get(key);
+      if (ref) {
+        const instance = await ref();
+        if (instance) {
+          return instance;
         }
 
-        return null;
-      },
-      put: async (rawType, id, instance) => multimapSet(
-        instances,
-        [...parseRawType(rawType), normalizeId(id)],
-        await config.makeRef(instance),
-      ),
-      forget: async (rawType, id) => {
-        multimapDelete(instances, [...parseRawType(rawType), normalizeId(id)]);
-      },
-      forgetAll: async (rawType) => {
-        multimapDelete(instances, parseRawType(rawType));
-      },
-      clear: async () => instances.clear(),
+        instances.delete(key);
+      }
+
+      return undefined;
     },
+    set: async (instance) => instances.set(
+      normalizeKey(instance.$model, primaryValues(instance)),
+      await config.makeRef(instance),
+    ),
+    delete: async (model, primary) => instances.delete(normalizeKey(model, primary)),
   };
-};
+}

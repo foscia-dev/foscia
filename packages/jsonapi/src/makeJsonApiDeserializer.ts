@@ -1,13 +1,13 @@
-import { isId, isRelation, ModelIdType } from '@foscia/core';
+import isModelRelation from '@foscia/core/models/definition/utilities/isModelRelation';
+import deserializeProp from '@foscia/core/props/internals/deserializeProp';
 import {
-  JsonApiDeserializedData,
-  JsonApiDeserializerConfig,
   JsonApiDocument,
-  JsonApiExtractedData,
-  JsonApiNewResource,
-} from '@foscia/jsonapi/types';
-import { makeDeserializer, makeDeserializerRecordFactory } from '@foscia/serialization';
-import { isNil, mapArrayable, Multimap, multimapGet, multimapSet, wrap } from '@foscia/shared';
+  JsonApiResource,
+  JsonApiResourceIdentifier,
+} from '@foscia/jsonapi/specification';
+import { JsonApiDeserializedData, JsonApiExtractedData } from '@foscia/jsonapi/types';
+import { DataDeserializerConfig, makeDataDeserializer } from '@foscia/serialization';
+import { makeMultimap, mapArrayable, wrap } from '@foscia/shared';
 
 /**
  * Make a JSON:API deserializer object.
@@ -16,51 +16,54 @@ import { isNil, mapArrayable, Multimap, multimapGet, multimapSet, wrap } from '@
  *
  * @category Factories
  */
-export default <
-  Record extends JsonApiNewResource = JsonApiNewResource,
-  Data extends JsonApiDocument | null | undefined = JsonApiDocument | null | undefined,
-  Deserialized extends JsonApiDeserializedData = JsonApiDeserializedData,
-  Extract extends JsonApiExtractedData<Record> = JsonApiExtractedData<Record>,
+export default function makeJsonApiDeserializer<
+  Document extends JsonApiDocument<Record> | null | undefined,
+  DeserializedData extends JsonApiDeserializedData<Document>,
+  ExtractedData extends JsonApiExtractedData<Document, Record>,
+  Record extends JsonApiResource,
 >(
-  config: JsonApiDeserializerConfig<Record, Data, Deserialized, Extract> = {},
-) => makeDeserializer({
-  extractData: (data: Data) => {
-    const included: Multimap<[string, ModelIdType], Record> = new Map();
+  config?: Partial<DataDeserializerConfig<Document, DeserializedData, ExtractedData, Record>>,
+) {
+  const makeRecordIdentifier = (record: JsonApiResource | JsonApiResourceIdentifier) => ({
+    type: record.type,
+    id: record.id,
+    lid: record.lid,
+  });
 
-    [...wrap(data?.data), ...wrap(data?.included)].forEach(
-      (record) => !isNil(record.id)
-        && multimapSet(included, [record.type, record.id], record),
-    );
+  return makeDataDeserializer<Document, DeserializedData, ExtractedData, Record>({
+    extractRecords: ({ data }) => data?.data,
+    extractData: ({ data }) => ({
+      document: data ?? {},
+      included: makeMultimap(
+        [...wrap(data?.data), ...wrap(data?.included)]
+          .reduce((entries: [JsonApiResourceIdentifier, Record][], record) => {
+            entries.push([makeRecordIdentifier(record), record] as const);
 
-    return {
-      records: data?.data,
-      document: data as JsonApiDocument,
-      included,
-    } as Extract;
-  },
-  createData: (instances, extract) => ({
-    instances, document: extract.document ?? {},
-  } as Deserialized),
-  createRecord: makeDeserializerRecordFactory(
-    async (record) => ({
-      type: await config.extractType?.(record) ?? record.type,
-    }),
-    async (record, context, factory) => {
-      if (isId(context.prop)) {
-        return context.prop.key === 'id'
-          ? (config.extractId ?? (() => record.id))(record, context)
-          : record.lid;
-      }
-
-      if (isRelation(context.prop)) {
+            return entries;
+          }, []),
+      ),
+    } satisfies JsonApiExtractedData<JsonApiDocument<Record>, Record> as ExtractedData),
+    deserializeType: ({ record }) => record.type,
+    deserializeValue: ({ data, record, prop, key }, deserialize) => {
+      if (isModelRelation(prop)) {
         return mapArrayable(
-          record.relationships?.[context.key]?.data,
-          (value) => factory(multimapGet(context.extract.included, [value.type, value.id])!),
+          record.relationships?.[key]?.data,
+          (reference) => deserialize(data.included.get(makeRecordIdentifier(reference))!) as any,
         );
       }
 
-      return record.attributes?.[context.key];
+      const value = key === 'id' || key === 'lid'
+        ? record[key]
+        : record.attributes?.[key];
+      if (value !== undefined) {
+        return deserializeProp(prop, value);
+      }
+
+      return undefined;
     },
-  ),
-  ...config,
-});
+    deserializeData: ({ data }) => ({
+      document: data.document,
+    } satisfies JsonApiDeserializedData<Document> as DeserializedData),
+    ...config,
+  });
+}

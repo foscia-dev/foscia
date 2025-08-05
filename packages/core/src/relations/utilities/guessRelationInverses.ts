@@ -1,5 +1,5 @@
 import { configuration } from '@foscia/core/configuration';
-import { ModelRelation } from '@foscia/core/model/types';
+import { ModelRelation } from '@foscia/core/models/oldTypes';
 import { camelCase, singularize } from '@foscia/shared';
 
 /**

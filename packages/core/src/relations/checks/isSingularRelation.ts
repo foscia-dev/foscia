@@ -1,5 +1,5 @@
 import isPluralRelation from '@foscia/core/relations/checks/isPluralRelation';
-import { ModelRelation } from '@foscia/core/model/types';
+import { ModelRelation } from '@foscia/core/models/oldTypes';
 
 /**
  * Check if relation is singular.

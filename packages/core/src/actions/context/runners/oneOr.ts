@@ -1,28 +1,28 @@
-import all, { AllData, RetypedDeserializedData } from '@foscia/core/actions/context/runners/all';
+import all from '@foscia/core/actions/context/runners/all';
 import {
   Action,
   AnonymousRunner,
-  ConsumeAdapter,
+  ConsumeActionAdapter,
   ConsumeDeserializer,
-  InferQueryInstance,
+  InferActionInstance,
 } from '@foscia/core/actions/types';
 import makeRunner from '@foscia/core/actions/utilities/makeRunner';
 import { FLAG_ERROR_NOT_FOUND } from '@foscia/core/flags';
-import { ModelInstance } from '@foscia/core/model/types';
-import { DeserializedData } from '@foscia/core/types';
+import { ModelInstance } from '@foscia/core/models/types';
+import { DataDeserializerResult } from '@foscia/core/types';
 import { Awaitable, isFosciaFlag } from '@foscia/shared';
 
 /**
  * Data retrieved with {@link oneOr | `oneOr`} which can be transformed
  * to another return value than an instance.
  */
-export type OneData<
-  Data,
-  Deserialized extends DeserializedData,
-  I extends ModelInstance,
-> = AllData<Data, Deserialized, I> & {
-  instance: I;
-};
+export type OneData<OriginalResponse, Data, DeserializedData, I extends ModelInstance> =
+  & {
+    readonly raw: OriginalResponse;
+    readonly read: Data;
+    readonly instance: I;
+  }
+  & DataDeserializerResult<I, DeserializedData>;
 
 /**
  * Run the action and deserialize one model's instance.
@@ -41,32 +41,44 @@ export type OneData<
  * ```
  */
 export default makeRunner('oneOr', <
-  C extends {},
-  I extends InferQueryInstance<C>,
-  RawData,
+  C extends (
+    & ConsumeActionAdapter<OriginalResponse, Data>
+    & ConsumeDeserializer<Data, DeserializedData>),
+  OriginalResponse,
   Data,
-  Deserialized extends DeserializedData,
-  NilData,
-  Next = I,
+  DeserializedData,
+  Next = InferActionInstance<C>,
+  Default = void,
 >(
-  // eslint-disable-next-line max-len
-  nilRunner: AnonymousRunner<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>, Awaitable<NilData>>,
-  transform?: (data: OneData<Data, RetypedDeserializedData<Deserialized, I>, I>) => Awaitable<Next>,
+  runner: AnonymousRunner<(
+    & C
+    & ConsumeActionAdapter<OriginalResponse, Data>
+    & ConsumeDeserializer<Data, DeserializedData>), Awaitable<Default>>,
+  transform?: (
+    data: OneData<OriginalResponse, Data, DeserializedData, InferActionInstance<C>>,
+  ) => Awaitable<Next>,
 ) => async (
-  // eslint-disable-next-line max-len
-  action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>>,
-) => {
+  action: Action<(
+    & C
+    & ConsumeActionAdapter<OriginalResponse, Data>
+    & ConsumeDeserializer<Data, DeserializedData>)>,
+): Promise<Next | Default> => {
   try {
+    // TODO Limit deserialization to first record only.
     const result = await action.run(all((data) => {
-      const instance = data.instances[0];
-      if (instance) {
-        return transform ? transform({ ...data, instance }) : instance;
+      const instance = data.instances[0] ?? null;
+      if (instance && transform) {
+        return transform({
+          ...data,
+          instance,
+        });
       }
 
-      return null;
+      return instance as Next;
     }));
+
     if (result !== null) {
-      return result as Next;
+      return result;
     }
   } catch (error) {
     if (!isFosciaFlag(error, FLAG_ERROR_NOT_FOUND)) {
@@ -74,5 +86,5 @@ export default makeRunner('oneOr', <
     }
   }
 
-  return action.run(nilRunner);
+  return action.run(runner);
 });

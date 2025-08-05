@@ -1,10 +1,10 @@
 import {
   Action,
-  Adapter,
+  ActionAdapter,
   InstancesCache,
-  ConsumeInstance,
+  ConsumeModelInstance,
   ConsumeModel,
-  Deserializer,
+  DataDeserializer,
   include,
   makeActionFactory,
   Model,
@@ -14,17 +14,17 @@ import {
   oneOrFail,
   query,
   save,
-  Serializer,
+  SnapshotsSerializer,
 } from '@foscia/core';
 import { expectTypeOf, test } from 'vitest';
 import PostMock from '../mocks/models/post.mock';
 
 test('Actions generics are type safe', async () => {
   const action = makeActionFactory({
-    adapter: null as unknown as Adapter<Response>,
+    adapter: null as unknown as ActionAdapter<Response>,
     cache: null as unknown as InstancesCache,
-    deserializer: null as unknown as Deserializer<any>,
-    serializer: null as unknown as Serializer<any, any, any>,
+    deserializer: null as unknown as DataDeserializer<any>,
+    serializer: null as unknown as SnapshotsSerializer<any, any, any>,
   });
 
   const normalFindModel = (
@@ -66,7 +66,7 @@ test('Actions generics are type safe', async () => {
   ) => action().use(save(instance), include(relations)).run(oneOrFail());
   const genericCallbackSaveInstance = <I extends ModelInstance>(
     instance: I,
-    tap: (action: Action<ConsumeInstance<I>>) => void,
+    tap: (action: Action<ConsumeModelInstance<I>>) => void,
   ) => action().use(save(instance)).use(tap).run(oneOrFail());
 
   expectTypeOf(await normalSaveInstance(new PostMock(), ['comments'])).toEqualTypeOf<ModelInstance>();

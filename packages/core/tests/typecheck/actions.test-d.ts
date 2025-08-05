@@ -1,5 +1,5 @@
 import {
-  Adapter,
+  ActionAdapter,
   all,
   appendActionMiddlewares,
   associate,
@@ -9,7 +9,7 @@ import {
   context,
   create,
   current,
-  Deserializer,
+  DataDeserializer,
   destroy,
   dissociate,
   include,
@@ -21,7 +21,7 @@ import {
   query,
   queryAs,
   raw,
-  Serializer,
+  SnapshotsSerializer,
   update,
   when,
 } from '@foscia/core';
@@ -32,10 +32,10 @@ import UserMock from '../mocks/models/user.mock';
 
 test('Actions are type safe', async () => {
   const action = makeActionFactory({
-    adapter: null as unknown as Adapter<Response>,
+    adapter: null as unknown as ActionAdapter<Response>,
     cache: null as unknown as InstancesCache,
-    serializer: null as unknown as Serializer<any, any, any>,
-    deserializer: null as unknown as Deserializer<any>,
+    serializer: null as unknown as SnapshotsSerializer<any, any, any>,
+    deserializer: null as unknown as DataDeserializer<any>,
   });
 
   const postsUsingFunc = await action()

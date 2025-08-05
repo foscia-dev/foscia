@@ -1,5 +1,5 @@
 import makeContextConsumer from '@foscia/core/actions/context/consumers/makeContextConsumer';
-import { ConsumeInstance } from '@foscia/core/actions/types';
+import { ConsumeModelInstance } from '@foscia/core/actions/types';
 
 /**
  * Retrieve the instance from a context.
@@ -7,4 +7,4 @@ import { ConsumeInstance } from '@foscia/core/actions/types';
  * @param context
  * @param defaultValue
  */
-export default /* @__PURE__ */ makeContextConsumer<'instance', ConsumeInstance>('instance');
+export default /* @__PURE__ */ makeContextConsumer<'instance', ConsumeModelInstance>('instance');

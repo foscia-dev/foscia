@@ -1,4 +1,10 @@
-import { ModelBelongsTo, ModelMorphTo } from '@foscia/core/model/types';
+import {
+  InferRelatedInstance,
+  ModelBelongsToProp,
+  ModelInstance,
+  ModelMorphToProp,
+  ModelNonRelationKey,
+} from '@foscia/core/models/types';
 
 /**
  * Guess belongs/morph to relation owner key.
@@ -7,4 +13,6 @@ import { ModelBelongsTo, ModelMorphTo } from '@foscia/core/model/types';
  *
  * @internal
  */
-export default (prop: ModelBelongsTo | ModelMorphTo) => prop.ownerKey ?? 'id';
+export default <T extends ModelInstance | null, I extends ModelInstance>(
+  prop: ModelBelongsToProp<T, I> | ModelMorphToProp<T, I>,
+) => prop.ownerKey ?? 'id' as ModelNonRelationKey<InferRelatedInstance<T>>;

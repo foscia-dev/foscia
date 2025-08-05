@@ -1,6 +1,6 @@
 import associate from '@foscia/core/actions/context/enhancers/crud/associate';
 import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
-import { ModelInstance, ModelRelationKey, ModelWritableKey } from '@foscia/core/model/types';
+import { ModelInstance, ModelRelationKey, ModelWritableKey } from '@foscia/core/models/oldTypes';
 
 /**
  * Prepare context for a singular relation's update operation.

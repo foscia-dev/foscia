@@ -1,30 +1,30 @@
 import parseConnectionType from '@foscia/core/connections/parseConnectionType';
-import { Model } from '@foscia/core/model/types';
-import { MapRegistry, MapRegistryConfig } from '@foscia/core/registry/types';
-import { Multimap, multimapGet, multimapSet } from '@foscia/shared';
+import { Model } from '@foscia/core/models/types';
+import { ModelRegistry } from '@foscia/core/types';
+import { Dictionary, makeMultimap } from '@foscia/shared';
 
 /**
- * Make a registry which holds registered models in a map.
- *
- * @param config
+ * Make a registry holding models in a map.
  *
  * @category Factories
  */
-export default <M extends readonly Model[]>(config: MapRegistryConfig<M>) => {
-  const models: Multimap<[string, string], Model> = new Map();
+export default function makeMapRegistry(): ModelRegistry {
+  const normalizeKey = (type: string) => {
+    const connectionType = parseConnectionType(type);
 
-  const normalizeType = config.normalizeType ?? ((t) => t);
-  const parseRawType = (rawType: string) => {
-    const [connection, type] = parseConnectionType(rawType);
-
-    return [connection, normalizeType(type)] as const;
+    return {
+      $connection: connectionType.connection,
+      $type: connectionType.type,
+    };
   };
 
-  config.models?.forEach((model) => {
-    multimapSet(models, [model.$connection, normalizeType(model.$type)], model);
-  });
+  const instances = makeMultimap<Dictionary<string>, Model>();
 
   return {
-    resolve: async (rawType) => multimapGet(models, parseRawType(rawType)) ?? null,
-  } as MapRegistry<M>;
-};
+    get: async (type) => instances.get(normalizeKey(type)),
+    set: async (model) => instances.set({
+      $connection: model.$connection,
+      $type: model.$type,
+    }, model),
+  };
+}

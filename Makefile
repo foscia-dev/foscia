@@ -61,7 +61,7 @@ typecheck: ## Run typecheck.
 
 .PHONY: test-watch
 test-watch: ## Run tests (watching).
-	@$(PNPM) test:watch
+	@$(PNPM) test:watch $(t)
 
 .PHONY: test-coverage
 test-coverage: ## Run tests.

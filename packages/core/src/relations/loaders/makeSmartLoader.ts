@@ -4,7 +4,7 @@ import context from '@foscia/core/actions/context/enhancers/context';
 import { ActionFactory } from '@foscia/core/actions/types';
 import resolveModelRelationAction from '@foscia/core/connections/resolveModelRelationAction';
 import logger from '@foscia/core/logger/logger';
-import { ModelInstance } from '@foscia/core/model/types';
+import { ModelInstance } from '@foscia/core/models/oldTypes';
 import loaded from '@foscia/core/relations/loaded';
 import { SmartLoaderConfig } from '@foscia/core/relations/loaders/types';
 import { ParsedIncludeMap } from '@foscia/core/relations/types';

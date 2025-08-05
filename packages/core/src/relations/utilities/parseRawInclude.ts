@@ -1,8 +1,7 @@
-import consumeRegistry from '@foscia/core/actions/context/consumers/consumeRegistry';
 import { Action } from '@foscia/core/actions/types';
 import FosciaError from '@foscia/core/errors/fosciaError';
+import { Model, ModelRelation } from '@foscia/core/models/oldTypes';
 import isRelation from '@foscia/core/relations/checks/isRelation';
-import { Model, ModelRelation } from '@foscia/core/model/types';
 import {
   ParsedIncludeMap,
   ParsedIncludeQuery,
@@ -30,8 +29,6 @@ const parseRawInclude = async (
 ) => {
   // TODO Support relation-less eager loadings?
   // TODO Append relations include and query (if not disabled through RawInclude).
-  const registry = await consumeRegistry(action, null);
-
   const nextInclude: ParsedIncludeMap = new Map();
 
   const mergeInclude = async (
@@ -43,7 +40,7 @@ const parseRawInclude = async (
   ) => {
     const prevParsedInclude = include.get(relation);
     const relatedModels = prevParsedInclude?.models
-      ?? await resolveRelatedModels(relation, registry);
+      ?? await resolveRelatedModels(relation);
 
     include.set(relation, {
       requested: requested || !!prevParsedInclude?.requested,

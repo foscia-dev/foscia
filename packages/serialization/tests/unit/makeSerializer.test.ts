@@ -39,7 +39,7 @@ describe('unit: makeSerializer', () => {
 
     const { serializer: deepSerializer } = makeSerializer({
       createRecord: makeSerializerRecordFactory(
-        (snapshot) => ({ id: snapshot.$values.id } as Dictionary),
+        (snapshot) => ({ id: snapshot.$values.id } as Dictionary<unknown>),
         (record, { key, value }) => {
           // eslint-disable-next-line no-param-reassign
           record[key] = value;

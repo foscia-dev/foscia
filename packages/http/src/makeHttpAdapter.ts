@@ -205,29 +205,34 @@ export default <Data = any>(config: HttpAdapterConfig<Data> = {}) => {
     const requestConfig = await consumeRequestConfig(action, {} as HttpRequestConfig);
 
     const middlewares = [...config.middlewares ?? []];
+    const mergedMiddlewares = typeof requestConfig.middlewares === 'function'
+      ? await requestConfig.middlewares(middlewares)
+      : [...middlewares, ...(requestConfig.middlewares ?? [])];
 
-    return makeHttpAdapterResponse(await throughMiddlewares(
-      typeof requestConfig.middlewares === 'function'
-        ? await requestConfig.middlewares(middlewares)
-        : [...middlewares, ...(requestConfig.middlewares ?? [])],
-      async (request) => {
-        let response: Response;
-        try {
-          response = await runRequest(request);
-        } catch (error) {
-          throw makeRequestError(request, error);
-        }
+    const request = await makeRequest(
+      action,
+      await consumeRequestConfig(action, {} as HttpRequestConfig),
+    );
 
-        if (response.status >= 200 && response.status < 300) {
-          return response;
-        }
+    const response = await throughMiddlewares(mergedMiddlewares, async (req) => {
+      let resp: Response;
+      try {
+        resp = await runRequest(req);
+      } catch (error) {
+        throw makeRequestError(req, error);
+      }
 
-        throw makeResponseError(request, response);
-      },
-    )(await makeRequest(action, requestConfig)), {
+      if (resp.status >= 200 && resp.status < 300) {
+        return resp;
+      }
+
+      throw makeResponseError(req, resp);
+    })(request);
+
+    return makeHttpAdapterResponse(response, {
       reader: requestConfig.responseReader ?? config.defaultResponseReader ?? ((r) => r.json()),
     });
   };
 
-  return { adapter: { execute } as HttpAdapter<Data> };
+  return { execute } as HttpAdapter<Data>;
 };

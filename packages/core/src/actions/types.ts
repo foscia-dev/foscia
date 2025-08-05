@@ -1,3 +1,4 @@
+import { InferModelRelationInstance } from '@foscia/core';
 import ActionKind from '@foscia/core/actions/context/actionKind';
 import type {
   InferRelationUpdateValue,
@@ -15,7 +16,13 @@ import type {
   ActionVariadicUseMethod,
 } from '@foscia/core/actions/variadic';
 import type { Hookable, HookCallback } from '@foscia/core/hooks/types';
-import type { Model, ModelIdType, ModelInstance, ModelRelation } from '@foscia/core/model/types';
+import {
+  Model,
+  ModelInstance,
+  ModelPrimaryType,
+  ModelPrimaryValues,
+  ModelRelationProp,
+} from '@foscia/core/models/types';
 import { ParsedIncludeMap, ParsedRawInclude } from '@foscia/core/relations/types';
 import {
   SYMBOL_ACTION,
@@ -24,13 +31,13 @@ import {
   SYMBOL_ACTION_WHEN,
 } from '@foscia/core/symbols';
 import {
-  Adapter,
-  DeserializedData,
-  Deserializer,
+  ActionAdapter,
+  DataDeserializer,
+  DataDeserializerResult,
   InstancesCache,
-  ModelsRegistry,
+  ModelRegistry,
   RelationsLoader,
-  Serializer,
+  SnapshotsSerializer,
 } from '@foscia/core/types';
 import { Awaitable, Constructor, FosciaObject, IfAny } from '@foscia/shared';
 
@@ -224,14 +231,12 @@ export type ContextFunctionMetadata<S extends symbol> =
  *
  * @internal
  */
-export type InferQueryInstance<C extends {}> =
-  C extends { queryAs: Constructor<infer I>[] } ? I extends ModelInstance ? I : never
-    : C extends { relation: ModelRelation<Array<infer I>> }
-      ? I extends ModelInstance ? I : never
-      : C extends { relation: ModelRelation<infer I> } ? I extends ModelInstance ? I : never
-        : C extends { instance: infer I } ? I extends ModelInstance ? I : never
-          : C extends { model: Constructor<infer I> } ? I extends ModelInstance ? I : never
-            : never;
+export type InferActionInstance<C extends {}> =
+  C extends ConsumeModelAs<infer M> ? InstanceType<M>
+    : C extends ConsumeModelRelation<infer R> ? InferModelRelationInstance<R>
+      : C extends ConsumeModelInstance<infer I> ? I
+        : C extends ConsumeModel<infer M> ? InstanceType<M>
+          : never;
 
 /**
  * Infer the query model or instance from context.
@@ -243,12 +248,12 @@ export type InferQueryInstance<C extends {}> =
  */
 export type InferQueryModelOrInstance<C extends {}> =
   C extends { queryAs: Constructor<infer I>[] } ? I extends ModelInstance ? I : never
-    : C extends { relation: ModelRelation<Array<infer I>> }
+    : C extends { relation: ModelRelationProp<Array<infer I>> }
       ? I extends ModelInstance ? I : never
-      : C extends { relation: ModelRelation<infer I> } ? I extends ModelInstance ? I : never
+      : C extends { relation: ModelRelationProp<infer I> } ? I extends ModelInstance ? I : never
         : C extends { instance: infer I } ? I
           : C extends { model: infer M } ? M
-            : InferQueryInstance<C>;
+            : InferActionInstance<C>;
 
 /**
  * Consumed context from an action or context object.
@@ -304,37 +309,42 @@ export type ConsumeData = {
  *
  * @internal
  */
-export type ConsumeQueryAs<M extends Model = Model> = {
+export type ConsumeModelAs<M extends Model = Model> = {
   queryAs: M[];
 };
 
 /**
  * Define the model to query.
  */
-export type ConsumeModel<M extends Model = Model> = {
-  model: M;
-};
+export type ConsumeModel<M extends Model = Model> = { model: M; };
+
+/**
+ * Define the primary values to query.
+ */
+export type ConsumeModelByPrimary<I extends ModelInstance = ModelInstance> =
+  & {
+    primary: Partial<ModelPrimaryValues<I>>;
+  }
+  & ConsumeModel<Model<I>>;
 
 /**
  * Define the instance to query.
  */
-export type ConsumeInstance<I extends ModelInstance = ModelInstance> = {
-  instance: I;
-};
+export type ConsumeModelInstance<I extends ModelInstance = ModelInstance> =
+  & { instance: I; }
+  & ConsumeModelByPrimary<I>;
 
 /**
  * Define the relation to query.
  */
-export type ConsumeRelation<R extends ModelRelation = ModelRelation> = {
-  relation: R;
-};
+export type ConsumeModelRelation<R extends ModelRelationProp = ModelRelationProp> =
+  & { relation: R; }
+  & ConsumeModelInstance<InstanceType<R['parent']>>;
 
 /**
  * Define the ID to query.
  */
-export type ConsumeId = {
-  id: ModelIdType;
-};
+export type ConsumeId = { id: ModelPrimaryType; };
 
 /**
  * Define the relations to eager load.
@@ -368,8 +378,8 @@ export type ConsumeCache = {
  *
  * @internal
  */
-export type ConsumeRegistry<Models extends readonly Model[] = any> = {
-  registry: ModelsRegistry<Models>;
+export type ConsumeRegistry = {
+  registry: ModelRegistry;
 };
 
 /**
@@ -377,8 +387,8 @@ export type ConsumeRegistry<Models extends readonly Model[] = any> = {
  *
  * @internal
  */
-export type ConsumeAdapter<RawData = any, Data = any> = {
-  adapter: Adapter<RawData, Data>;
+export type ConsumeActionAdapter<OriginalResponse = any, Data = any> = {
+  adapter: ActionAdapter<OriginalResponse, Data>;
 };
 
 /**
@@ -388,9 +398,9 @@ export type ConsumeAdapter<RawData = any, Data = any> = {
  */
 export type ConsumeDeserializer<
   Data = any,
-  Deserialized extends DeserializedData = any,
+  DeserializedData = any,
 > = {
-  deserializer: Deserializer<Data, Deserialized>;
+  deserializer: DataDeserializer<Data, DeserializedData>;
 };
 
 /**
@@ -399,7 +409,7 @@ export type ConsumeDeserializer<
  * @internal
  */
 export type ConsumeSerializer<Record = any, Related = any, Data = any> = {
-  serializer: Serializer<Record, Related, Data>;
+  serializer: SnapshotsSerializer<Record, Related, Data>;
 };
 
 /**

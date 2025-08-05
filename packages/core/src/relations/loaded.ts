@@ -1,6 +1,6 @@
-import isInstance from '@foscia/core/model/checks/isInstance';
+import isInstance from '@foscia/core/models/definition/utilities/isInstance';
 import isRelation from '@foscia/core/relations/checks/isRelation';
-import { ModelInstance, ModelRelationDotKey } from '@foscia/core/model/types';
+import { ModelInstance, ModelRelationDotKey } from '@foscia/core/models/oldTypes';
 import { Arrayable, wrap } from '@foscia/shared';
 
 /**

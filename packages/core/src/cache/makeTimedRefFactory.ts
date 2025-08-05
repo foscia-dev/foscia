@@ -14,7 +14,7 @@ export type TimedRefFactoryConfig = {
    */
   lifetime?: number;
   /**
-   * When enabled, access to a reference will reset the expiration.
+   * When enabled, access to a reference will reset the expiration delay.
    * Defaults to `true`.
    */
   postpone?: boolean;
@@ -27,22 +27,24 @@ export type TimedRefFactoryConfig = {
  * @category Factories
  * @since 0.13.0
  */
-export default (config?: TimedRefFactoryConfig) => <V>(value: V) => {
-  let expirationTimeout: ReturnType<typeof setTimeout> | undefined;
-  const scheduleExpiration = () => {
-    clearTimeout(expirationTimeout);
-    expirationTimeout = setTimeout(() => {
-      expirationTimeout = undefined;
-    }, (config?.lifetime ?? (5 * 60)) * 1000);
+export default function makeTimedRefFactory(config?: TimedRefFactoryConfig) {
+  return <V>(value: V) => {
+    let expirationTimeout: ReturnType<typeof setTimeout> | undefined;
+    const scheduleExpiration = () => {
+      clearTimeout(expirationTimeout);
+      expirationTimeout = setTimeout(() => {
+        expirationTimeout = undefined;
+      }, (config?.lifetime ?? (5 * 60)) * 1000);
+    };
+
+    scheduleExpiration();
+
+    return () => (
+      expirationTimeout === undefined ? null : tap(value, () => {
+        if (config?.postpone ?? true) {
+          scheduleExpiration();
+        }
+      })
+    );
   };
-
-  scheduleExpiration();
-
-  return () => (
-    expirationTimeout === undefined ? null : tap(value, () => {
-      if (config?.postpone ?? true) {
-        scheduleExpiration();
-      }
-    })
-  );
-};
+}

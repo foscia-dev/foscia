@@ -24,7 +24,10 @@ module.exports = {
     'no-debugger': [process.env.NODE_ENV === 'production' ? 'error' : 'off'],
     // https://github.com/typescript-eslint/typescript-eslint/issues/1824
     '@typescript-eslint/indent': ['error', 2],
+    '@typescript-eslint/no-redeclare': 'off',
+    'symbol-description': 'off',
     'object-curly-newline': ['off'],
+    'new-cap': ['off'],
     'import/no-relative-packages': ['off'],
     'no-restricted-imports': ['error', {
       'patterns': ['.*'],

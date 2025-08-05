@@ -1,4 +1,4 @@
-import { AdapterResponse } from '@foscia/core';
+import { ActionAdapterResponse } from '@foscia/core';
 import { HttpResponseReader } from '@foscia/http/types';
 
 /**
@@ -9,10 +9,22 @@ import { HttpResponseReader } from '@foscia/http/types';
  *
  * @internal
  */
-export default <Data>(
+export default function makeHttpAdapterResponse<Data>(
   response: Response,
   config: { reader: HttpResponseReader<Data> },
-): AdapterResponse<Response, Data | undefined> => ({
-  read: async () => (response.status === 204 ? undefined : config.reader(response)),
-  raw: response,
-});
+): ActionAdapterResponse<Response, Data | undefined> {
+  let read = false;
+  let data: Promise<Data>;
+
+  return {
+    raw: response,
+    read: async () => {
+      if (!read && response.status !== 204) {
+        data = config.reader(response);
+        read = true;
+      }
+
+      return data;
+    },
+  };
+}

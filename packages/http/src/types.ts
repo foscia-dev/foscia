@@ -1,4 +1,4 @@
-import { Action, Adapter } from '@foscia/core';
+import { Action, ActionAdapter } from '@foscia/core';
 import { Awaitable, Dictionary, Middleware } from '@foscia/shared';
 
 /**
@@ -232,14 +232,14 @@ export type HttpAdapterConfig<Data = any> = {
  *
  * @internal
  */
-export type HttpAdapter<Data = any> = Adapter<Response, Data>;
+export type HttpAdapter<Data = any> = ActionAdapter<Response, Data>;
 
 /**
  * HTTP query params serializer.
  *
  * @internal
  */
-export type HttpParamsSerializer = (params: Dictionary) => string | undefined;
+export type HttpParamsSerializer = (params: Dictionary<unknown>) => string | undefined;
 
 /**
  * Converts given body as a valid {@link !Request | `Request`} body.

@@ -1,4 +1,4 @@
-import { ModelMorphTo } from '@foscia/core/model/types';
+import { ModelInstance, ModelMorphToProp, ModelNonRelationKey } from '@foscia/core/models/types';
 
 /**
  * Guess morph to relation foreign type key.
@@ -7,4 +7,6 @@ import { ModelMorphTo } from '@foscia/core/model/types';
  *
  * @internal
  */
-export default (prop: ModelMorphTo) => prop.foreignKey ?? `${prop.key}Type`;
+export default <T extends ModelInstance | null, I extends ModelInstance>(
+  prop: ModelMorphToProp<T, I>,
+) => prop.foreignKey ?? `${prop.key}Type` as ModelNonRelationKey<I>;

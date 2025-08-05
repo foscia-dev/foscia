@@ -3,14 +3,14 @@
  *
  * @internal
  */
-export type Dictionary<T = unknown> = { [K: string]: T };
+export type Dictionary<T> = { [K: string]: T };
 
 /**
  * Constructor of type.
  *
  * @internal
  */
-export type Constructor<T> = new (...args: any[]) => T;
+export type Constructor<T = {}> = new (...args: any[]) => T;
 
 /**
  * Utility for recursive types.
@@ -46,9 +46,23 @@ export type AwaitableVoid = Awaitable<unknown>;
  *
  * @internal
  */
-export type Multimap<K extends unknown[], V> = K extends [infer F, ...infer R]
-  ? Map<F, Multimap<R, V>>
+export type OldMultimap<K extends unknown[], V> = K extends [infer F, ...infer R]
+  ? Map<F, OldMultimap<R, V>>
   : V;
+
+/**
+ * Multidimensional map.
+ *
+ * @internal
+ */
+export type Multimap<K extends Dictionary<unknown>, V> = {
+  has: (keys: K) => boolean;
+  get: (keys: K) => V | undefined;
+  set: (keys: K, value: V) => void;
+  delete: (keys: K) => void;
+  clear: (keys: K) => void;
+  values: () => V[];
+};
 
 /**
  * Make all property of .
@@ -62,12 +76,23 @@ export type Nullable<T> = {
 /**
  * Type which can be an array or not.
  *
+ * @useDeclaredType
+ *
  * @internal
  */
 export type Arrayable<T> = T[] | T;
 
 /**
+ * Type which can be an array or iterator.
+ *
+ * @internal
+ */
+export type Iterable<T> = T[] | IteratorObject<T>;
+
+/**
  * Type which can be an item of an array if the original type is an array.
+ *
+ * @internal
  */
 export type Itemable<T> = T extends any[] ? (T[number] | T) : T;
 
@@ -98,7 +123,7 @@ export type OnlyFalsy<T> = T extends Falsy ? T : never;
  * @internal
  */
 export type OmitNever<T> = {
-  [K in keyof T as T[K] extends never ? never : K]: T[K]
+  [K in keyof T as [T[K]] extends [never] ? never : K]: T[K]
 };
 
 /**
@@ -124,8 +149,17 @@ export type PrefixRecordKeys<T, P extends string> = {
  * @internal
  */
 export type RecordEntry<T> = {
-  [K in keyof T]: [K, T[K]];
-}[keyof T];
+  [K in keyof Required<T>]-?: [K, Required<T>[K]];
+}[keyof Required<T>];
+
+/**
+ * Create a map type from an object.
+ *
+ * @internal
+ */
+export type MapFrom<T extends {}> = Map<keyof T, T[keyof T]> & UnionToIntersection<{
+  [K in keyof T]: Map<K, T[K]>;
+}[keyof T]>;
 
 /**
  * Define a type whether the original type is any or not.
@@ -137,15 +171,15 @@ export type IfAny<T, Y, N> = 0 extends (1 & T) ? Y : N;
 /**
  * Define a type whether the original types are equal or not.
  */
-export type IfEquals<X, Y, A = X, B = never> =
-  (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2)
-    ? A : B;
+export type IfEquals<A, B, Yes, No> =
+  (<T>() => T extends A ? 1 : 2) extends (<T>() => T extends B ? 1 : 2)
+    ? Yes : No;
 
 /**
  * Get the writable (not readonly) keys of a type.
  */
 export type WritableKeys<T> = {
-  [P in keyof T]-?: IfEquals<{ [Q in P]: T[P]; }, { -readonly [Q in P]: T[P]; }, P>;
+  [P in keyof T]-?: IfEquals<{ [Q in P]: T[P]; }, { -readonly [Q in P]: T[P]; }, P, never>;
 }[keyof T];
 
 /**
@@ -161,6 +195,49 @@ export type MiddlewareNext<V, R> = (value: V) => R;
  * @internal
  */
 export type Middleware<V, R> = (value: V, next: MiddlewareNext<V, R>) => R;
+
+/**
+ * Brand name key unique symbol.
+ *
+ * @internal
+ */
+declare const brand: unique symbol;
+
+/**
+ * Brand type witness key unique symbol.
+ *
+ * @internal
+ */
+declare const witness: unique symbol;
+
+/**
+ * Brand a value.
+ *
+ * @internal
+ */
+export type BrandedValue<Brand, T> = T & {
+  /**
+   * Internal brand of the value.
+   *
+   * @internal
+   */
+  [brand]: Brand;
+  /**
+   * Internal type witness of the value.
+   *
+   * @internal
+   */
+  [witness]: T;
+};
+
+/**
+ * Unbrand a value.
+ *
+ * @internal
+ */
+export type UnbrandValue<T> = T extends BrandedValue<any, unknown>
+  ? T[typeof witness]
+  : T;
 
 /**
  * Foscia object which can be identified by a unique symbol.

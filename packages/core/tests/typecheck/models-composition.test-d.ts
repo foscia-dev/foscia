@@ -10,7 +10,7 @@ import {
   makeDefinition,
   makeModel,
   makeModelFactory,
-  ModelAttribute,
+  ModelAttributeProp,
   ModelAttributeFactory,
   ModelComposable,
   ModelHasOneFactory,
@@ -51,7 +51,7 @@ test('Models compositions are type safe', () => {
     expectTypeOf(instance.bar).toEqualTypeOf<any>();
   });
   onPropertyWrite(foo, 'foo', ({ instance, prop }) => {
-    expectTypeOf(prop).toEqualTypeOf<ModelAttribute<string, false>>();
+    expectTypeOf(prop).toEqualTypeOf<ModelAttributeProp<string, false>>();
     expectTypeOf(instance.foo).toEqualTypeOf<string>();
     // @ts-expect-error property does not exist
     expectTypeOf(instance.bar).toEqualTypeOf<any>();
@@ -69,7 +69,7 @@ test('Models compositions are type safe', () => {
     expectTypeOf(instance.unknown).toEqualTypeOf<any>();
   });
   onPropertyWrite(Model, 'foo', ({ instance, prop }) => {
-    expectTypeOf(prop).toEqualTypeOf<ModelAttribute<string, false>>();
+    expectTypeOf(prop).toEqualTypeOf<ModelAttributeProp<string, false>>();
     expectTypeOf(instance.foo).toEqualTypeOf<string>();
     expectTypeOf(instance.baz).toEqualTypeOf<boolean>();
     // @ts-expect-error property does not exist

@@ -11,14 +11,16 @@ import { Awaitable, isNil } from '@foscia/shared';
  *
  * @category Factories
  */
-export default <T, DS, SR>(
-  deserialize: (value: DS) => Awaitable<T>,
-  serialize?: (value: T) => Awaitable<SR>,
-) => makeCustomTransformer(
-  (value: DS | null | undefined) => (isNil(value) ? null : deserialize(value)),
-  (value: T | null) => (
-    isNil(value)
-      ? null
-      : (serialize ?? deserialize)(value as any)
-  ),
-) as ObjectTransformer<T | null, DS | null | undefined, SR | null>;
+export default function makeTransformer<T, Deserialized, Serialized>(
+  deserialize: (value: Deserialized) => Awaitable<T>,
+  serialize?: (value: T) => Awaitable<Serialized>,
+) {
+  return makeCustomTransformer(
+    (value: Deserialized | null | undefined) => (isNil(value) ? null : deserialize(value)),
+    (value: T | null) => (
+      isNil(value)
+        ? null
+        : (serialize ?? deserialize)(value as any)
+    ),
+  ) as ObjectTransformer<T | null, Deserialized | null | undefined, Serialized | null>;
+}

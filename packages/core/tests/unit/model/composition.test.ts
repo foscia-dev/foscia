@@ -6,7 +6,7 @@ import {
   makeComposable,
   makeModel,
   onCreating,
-  runHooks,
+  runAsyncHooks,
   toDate,
 } from '@foscia/core';
 import { describe, expect, it } from 'vitest';
@@ -88,12 +88,12 @@ describe.concurrent('unit: composition', () => {
     }
 
     const post1 = new Post();
-    await runHooks(post1.$model, ['creating'], post1);
+    await runAsyncHooks(post1.$model, ['creating'], post1);
     expect(post1.createdAt).toBeInstanceOf(Date);
 
     const post2 = new Post();
     post2.timestamps = false;
-    await runHooks(post2.$model, ['creating'], post2);
+    await runAsyncHooks(post2.$model, ['creating'], post2);
     expect(post2.createdAt).toBeUndefined();
   });
 });

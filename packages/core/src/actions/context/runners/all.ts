@@ -2,37 +2,25 @@ import consumeAdapter from '@foscia/core/actions/context/consumers/consumeAdapte
 import consumeDeserializer from '@foscia/core/actions/context/consumers/consumeDeserializer';
 import {
   Action,
-  ConsumeAdapter,
+  ConsumeActionAdapter,
   ConsumeDeserializer,
-  InferQueryInstance,
+  InferActionInstance,
 } from '@foscia/core/actions/types';
 import makeRunner from '@foscia/core/actions/utilities/makeRunner';
-import { ModelInstance } from '@foscia/core/model/types';
-import { DeserializedData } from '@foscia/core/types';
+import { ModelInstance } from '@foscia/core/models/types';
+import { DataDeserializerResult } from '@foscia/core/types';
 import { Awaitable } from '@foscia/shared';
-
-/**
- * Deserialized data with a strongly retyped instances array.
- *
- * @internal
- */
-export type RetypedDeserializedData<DD extends DeserializedData, I extends ModelInstance> = {
-  instances: I[];
-} & Omit<DD, 'instances'>;
 
 /**
  * Data retrieved with {@link all | `all`} which can be transformed
  * to another return value than an instances array.
  */
-export type AllData<
-  Data,
-  Deserialized extends DeserializedData,
-  I extends ModelInstance,
-> = {
-  data: Data;
-  deserialized: Deserialized;
-  instances: I[];
-};
+export type AllData<OriginalResponse, Data, DeserializedData, I extends ModelInstance> =
+  & {
+    readonly raw: OriginalResponse;
+    readonly read: Data;
+  }
+  & DataDeserializerResult<I, DeserializedData>;
 
 /**
  * Run the action and deserialize an array of model's instance.
@@ -51,28 +39,29 @@ export type AllData<
  */
 export default /* @__PURE__ */ makeRunner('all', <
   C extends {},
-  I extends InferQueryInstance<C>,
-  RawData,
+  OriginalResponse,
   Data,
-  Deserialized extends DeserializedData,
-  Next = I[],
+  DeserializedData,
+  Next = InferActionInstance<C>[],
 >(
   transform?: (
-    data: AllData<Data, RetypedDeserializedData<Deserialized, I>, I>,
+    data: AllData<OriginalResponse, Data, DeserializedData, InferActionInstance<C>>,
   ) => Awaitable<Next>,
 ) => async (
-  action: Action<C & ConsumeAdapter<RawData, Data> & ConsumeDeserializer<Data, Deserialized>>,
-) => {
+  action: Action<(
+    & C
+    & ConsumeActionAdapter<OriginalResponse, Data>
+    & ConsumeDeserializer<Data, DeserializedData>)>,
+): Promise<Next> => {
   const response = await (await consumeAdapter(action)).execute(action);
-  const data = await response.read();
-  const deserialized = await (await consumeDeserializer(action)).deserialize(
-    data,
-    action,
-  ) as RetypedDeserializedData<Deserialized, I>;
+  const read = await response.read();
+  const deserialized = await (await consumeDeserializer(action)).deserialize(read, action);
 
-  return (
-    transform
-      ? transform({ data, deserialized, instances: deserialized.instances })
-      : deserialized.instances
-  ) as Awaitable<Next>;
+  return transform
+    ? transform({
+      raw: response.raw,
+      read,
+      ...deserialized as DataDeserializerResult<InferActionInstance<C>, DeserializedData>,
+    })
+    : deserialized.instances as Next;
 });

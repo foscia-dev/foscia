@@ -1,5 +1,5 @@
 import multimapSet from '@foscia/shared/maps/multimapSet';
-import { Multimap } from '@foscia/shared/types';
+import { OldMultimap } from '@foscia/shared/types';
 
 /**
  * Make a multidimensional map from a tuples array.
@@ -16,7 +16,7 @@ export default ((values: [any, any][]) => {
 
   return map;
 }) as {
-  <K1, V>(values: readonly [K1, V][]): Multimap<[K1], V>;
-  <K1, K2, V>(values: readonly [K1, K2, V][]): Multimap<[K1, K2], V>;
-  <K1, K2, K3, V>(values: readonly [K1, K2, K3, V][]): Multimap<[K1, K2, K3], V>;
+  <K1, V>(values: readonly [K1, V][]): OldMultimap<[K1], V>;
+  <K1, K2, V>(values: readonly [K1, K2, V][]): OldMultimap<[K1, K2], V>;
+  <K1, K2, K3, V>(values: readonly [K1, K2, K3, V][]): OldMultimap<[K1, K2, K3], V>;
 };

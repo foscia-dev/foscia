@@ -1,5 +1,5 @@
-import { Model } from '@foscia/core/model/types';
-import { ModelsRegistry } from '@foscia/core/types';
+import { Model } from '@foscia/core/models/oldTypes';
+import { ModelRegistry } from '@foscia/core/types';
 
 /**
  * Config for registry map implementation.
@@ -8,8 +8,8 @@ import { ModelsRegistry } from '@foscia/core/types';
  *
  * @internal
  */
-export type MapRegistryConfig<M extends readonly Model[]> = {
-  models: M;
+export type MapRegistryConfig = {
+  models: Model[];
   normalizeType?: (type: string) => string;
 };
 
@@ -20,4 +20,4 @@ export type MapRegistryConfig<M extends readonly Model[]> = {
  *
  * @internal
  */
-export type MapRegistry<M extends readonly Model[]> = ModelsRegistry<M>;
+export type MapRegistry = ModelRegistry;

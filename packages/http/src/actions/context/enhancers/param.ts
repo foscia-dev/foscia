@@ -31,7 +31,7 @@ import { Dictionary } from '@foscia/shared';
  * combination with a query string (such as `search=foo&sort=title`).
  */
 export default /* @__PURE__ */ makeEnhancer('param', (
-  key: string | Dictionary,
+  key: string | Dictionary<unknown>,
   value?: unknown,
 ) => async <C extends {}>(action: Action<C>) => action(
   configureRequest({

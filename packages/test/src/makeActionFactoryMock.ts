@@ -5,7 +5,7 @@ import {
   AnonymousRunner,
   FosciaError,
   isWhen,
-  runHooks,
+  runAsyncHooks,
   withoutHooks,
 } from '@foscia/core';
 import {
@@ -66,7 +66,7 @@ export default <C extends {}>(
 
     (action as any).use(...enhancers);
 
-    const { middlewares, ...context } = await action.useContext() as Dictionary;
+    const { middlewares, ...context } = await action.useContext() as Dictionary<unknown>;
     action.updateContext(context);
 
     const runners = await unnestRunners(action, [rootRunner]);
@@ -84,7 +84,7 @@ export default <C extends {}>(
       throw new UnexpectedActionError(testContext);
     }
 
-    await runHooks(action, 'running', { action, runner: rootRunner });
+    await runAsyncHooks(action, 'running', { action, runner: rootRunner });
 
     try {
       const result = await throughMiddlewares(
@@ -92,13 +92,13 @@ export default <C extends {}>(
         async (a) => withoutHooks(a, async () => mock.run(testContext)),
       )(action);
 
-      await runHooks(action, 'success', { action, result });
+      await runAsyncHooks(action, 'success', { action, result });
 
       history.push({ context: testContext, mock, result, error: undefined });
 
       return result;
     } catch (error) {
-      await runHooks(action, 'error', { action, error });
+      await runAsyncHooks(action, 'error', { action, error });
 
       history.push({ context: testContext, mock, result: undefined, error });
 
@@ -111,7 +111,7 @@ export default <C extends {}>(
         }
       }
 
-      await runHooks(action, 'finally', { action });
+      await runAsyncHooks(action, 'finally', { action });
     }
   };
 

@@ -1,5 +1,5 @@
-import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import { Action } from '@foscia/core/actions/types';
+import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
 import registerHook from '@foscia/core/hooks/registerHook';
 import { Awaitable } from '@foscia/shared';
 

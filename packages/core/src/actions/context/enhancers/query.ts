@@ -1,94 +1,65 @@
 import context from '@foscia/core/actions/context/enhancers/context';
-import include from '@foscia/core/actions/context/enhancers/include';
 import {
   Action,
   AnonymousEnhancer,
-  ConsumeId,
-  ConsumeInstance,
   ConsumeModel,
-  ConsumeRelation,
-  InferQueryInstance,
+  ConsumeModelByPrimary,
+  ConsumeModelInstance,
+  ConsumeModelRelation,
 } from '@foscia/core/actions/types';
 import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
-import isModel from '@foscia/core/model/checks/isModel';
+import isModel from '@foscia/core/models/definition/utilities/isModel';
+import isModelRelation from '@foscia/core/models/definition/utilities/isModelRelation';
+import getPrimaryValues from '@foscia/core/models/primary/getPrimaryValues';
+import parsePrimaryValues from '@foscia/core/models/primary/parsePrimaryValues';
 import {
-  InferModelSchemaProp,
   Model,
-  ModelIdType,
   ModelInstance,
-  ModelRelation,
-  ModelRelationKey,
-} from '@foscia/core/model/types';
-import { RawInclude } from '@foscia/core/relations/types';
-import { isNil } from '@foscia/shared';
+  ModelPrimaryRawValues,
+  ModelRelationProps,
+} from '@foscia/core/models/types';
 
-/**
- * Options for the query.
- *
- * @internal
- */
-export type QueryOptions<C extends {} = {}, M extends ModelInstance | Model = Model> = {
-  /**
-   * Override the default model or relation sub-query.
-   *
-   * @internal
-   */
-  query?: AnonymousEnhancer<C, any> | null;
-  /**
-   * Override the default model or relation sub-include.
-   *
-   * @internal
-   */
-  include?: RawInclude<M> | null;
-};
-
-export default /* @__PURE__ */ makeEnhancer('query', (<C extends {}>(
-  modelOrInstance: Model | ModelInstance,
-  idOrRelationOrOptions?: ModelIdType | string | QueryOptions,
-  optionsOrUndefined?: QueryOptions,
+export default /* @__PURE__ */ makeEnhancer('query', (<
+  C extends {},
+  I extends ModelInstance,
+>(
+  model: Model<I> | I,
+  primary?: ModelPrimaryRawValues<I> | keyof ModelRelationProps<I>,
 ) => (action: Action<C>) => {
-  const [idOrRelation, options] = typeof idOrRelationOrOptions === 'object'
-    ? [undefined, idOrRelationOrOptions]
-    : [idOrRelationOrOptions, optionsOrUndefined];
+  const queryContext = isModel(model)
+    ? {
+      model,
+      primary: primary !== undefined
+        ? parsePrimaryValues(model, primary as ModelPrimaryRawValues<I>)
+        : undefined,
+    }
+    : {
+      model: model.$model,
+      instance: model,
+      primary: getPrimaryValues(model),
+      relation: primary !== undefined
+        // TODO Validate relation.
+        ? model.$model.$schema.get(primary as keyof ModelRelationProps<I>)
+        : undefined,
+    };
 
-  const queryContext = isModel(modelOrInstance) ? {
-    model: modelOrInstance,
-    id: idOrRelation,
-  } : {
-    model: modelOrInstance.$model,
-    instance: idOrRelation ? undefined : modelOrInstance,
-    id: modelOrInstance.$exists ? modelOrInstance.id : undefined,
-    relation: isNil(idOrRelation)
-      ? undefined
-      : modelOrInstance.$model.$schema[idOrRelation] as ModelRelation,
-  };
+  const queryScopes = (
+    isModelRelation(queryContext.relation)
+      ? queryContext.relation.scopes
+      : queryContext.model.$config.scopes
+  ) ?? [];
 
-  action(context(queryContext));
-
-  const customBehaviors = isModel(modelOrInstance)
-    ? modelOrInstance.$config
-    : queryContext.relation;
-
-  const additionalQuery = options?.query !== null
-    && (options?.query ?? customBehaviors?.query);
-  if (additionalQuery) {
-    action(additionalQuery as any);
-  }
-
-  const additionalInclude = options?.include !== null
-    && (options?.include ?? customBehaviors?.include);
-  if (additionalInclude) {
-    action(include(additionalInclude as any));
-  }
+  (action.use as any)(
+    context(queryContext),
+    ...queryScopes,
+  );
 }) as {
   /**
-   * Query a model.
+   * Query a model records.
    *
    * @param model
-   * @param options
    *
    * @category Enhancers
-   * @since 0.6.3
    * @provideContext model
    *
    * @example
@@ -99,17 +70,14 @@ export default /* @__PURE__ */ makeEnhancer('query', (<C extends {}>(
    * ```
    */<C extends {}, M extends Model>(
     model: M,
-    options?: QueryOptions<C & ConsumeModel<M>, M>,
   ): AnonymousEnhancer<C, C & ConsumeModel<M>>;
   /**
    * Query a model record by ID.
    *
    * @param model
-   * @param id
-   * @param options
+   * @param primary
    *
    * @category Enhancers
-   * @since 0.6.3
    * @provideContext model, id
    *
    * @example
@@ -120,18 +88,14 @@ export default /* @__PURE__ */ makeEnhancer('query', (<C extends {}>(
    * ```
    */<C extends {}, M extends Model>(
     model: M,
-    // TODO Strict type `id` using model property typing.
-    id: ModelIdType,
-    options?: QueryOptions<C & ConsumeModel<M> & ConsumeId, M>,
-  ): AnonymousEnhancer<C, C & ConsumeModel<M> & ConsumeId>;
+    primary: ModelPrimaryRawValues<InstanceType<M>>,
+  ): AnonymousEnhancer<C, C & ConsumeModelByPrimary<InstanceType<M>>>;
   /**
-   * Query a model instance.
+   * Query a model record by instance.
    *
    * @param instance
-   * @param options
    *
    * @category Enhancers
-   * @since 0.6.3
    * @provideContext model, instance, id
    *
    * @example
@@ -142,17 +106,14 @@ export default /* @__PURE__ */ makeEnhancer('query', (<C extends {}>(
    * ```
    */<C extends {}, I extends ModelInstance>(
     instance: I,
-    options?: QueryOptions<C & ConsumeModel<I['$model']> & ConsumeInstance<I> & ConsumeId, I>,
-  ): AnonymousEnhancer<C, C & ConsumeModel<I['$model']> & ConsumeInstance<I> & ConsumeId>;
+  ): AnonymousEnhancer<C, C & ConsumeModelInstance<I>>;
   /**
-   * Query a model instance relation.
+   * Query a model relation related records.
    *
    * @param instance
    * @param relation
-   * @param options
    *
    * @category Enhancers
-   * @since 0.6.3
    * @provideContext model, instance, id, relation
    *
    * @example
@@ -164,11 +125,9 @@ export default /* @__PURE__ */ makeEnhancer('query', (<C extends {}>(
    */<
     C extends {},
     I extends ModelInstance,
-    K extends string,
-    R extends InferModelSchemaProp<I, K, ModelRelation>,
+    K extends keyof ModelRelationProps<I>,
   >(
     instance: I,
-    relation: K & ModelRelationKey<I>,
-    options?: QueryOptions<C & ConsumeModel<I['$model']> & ConsumeRelation<R> & ConsumeId, InferQueryInstance<ConsumeRelation<R>>>,
-  ): AnonymousEnhancer<C, C & ConsumeModel<I['$model']> & ConsumeRelation<R> & ConsumeId>;
+    relation: K,
+  ): AnonymousEnhancer<C, C & ConsumeModelRelation<ModelRelationProps<I>[K]>>;
 });

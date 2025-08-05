@@ -1,3 +1,5 @@
+import { OldMultimap } from '@foscia/shared/types';
+
 /**
  * Multidimensional map function typing.
  *

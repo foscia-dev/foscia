@@ -45,6 +45,9 @@
     "lib": [
       "esnext",
       "dom"
+    ],
+    "types": [
+      "vitest/globals"
     ]
   },
   "include": [

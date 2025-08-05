@@ -7,13 +7,13 @@ import {
   Action,
   AnonymousEnhancer,
   ConsumeId,
-  ConsumeInstance,
+  ConsumeModelInstance,
   ConsumeModel,
 } from '@foscia/core/actions/types';
 import makeEnhancer from '@foscia/core/actions/utilities/makeEnhancer';
-import isModel from '@foscia/core/model/checks/isModel';
-import { Model, ModelIdType, ModelInstance } from '@foscia/core/model/types';
-import forceFill from '@foscia/core/model/utilities/forceFill';
+import isModel from '@foscia/core/models/definition/utilities/isModel';
+import { Model, ModelIdType, ModelInstance } from '@foscia/core/models/oldTypes';
+import forceFill from '@foscia/core/models/utilities/forceFill';
 
 export default /* @__PURE__ */ makeEnhancer('destroy', ((
   modelOrInstance: Model | ModelInstance,
@@ -50,7 +50,7 @@ export default /* @__PURE__ */ makeEnhancer('destroy', ((
    * ```
    */<C extends {}, I extends ModelInstance>(
     instance: I,
-  ): AnonymousEnhancer<C, C & ConsumeModel<I['$model']> & ConsumeInstance<I> & ConsumeId>;
+  ): AnonymousEnhancer<C, C & ConsumeModel<I['$model']> & ConsumeModelInstance<I> & ConsumeId>;
   /**
    * Prepare context for a record deletion using model and ID.
    *

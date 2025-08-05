@@ -6,7 +6,7 @@ import {
   ModelHasManyFactoryConfig,
   ModelPropConfig,
   ModelRelationTypeFromCustomTypes,
-} from '@foscia/core/model/types';
+} from '@foscia/core/models/oldTypes';
 import makeRelationFactory from '@foscia/core/relations/props/makeRelationFactory';
 import { SYMBOL_MODEL_RELATION_HAS_MANY } from '@foscia/core/symbols';
 import { Awaitable } from '@foscia/shared';

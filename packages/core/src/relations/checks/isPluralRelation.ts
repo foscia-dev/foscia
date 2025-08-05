@@ -1,4 +1,4 @@
-import { ModelRelation } from '@foscia/core/model/types';
+import { ModelRelation } from '@foscia/core/models/oldTypes';
 import {
   SYMBOL_MODEL_RELATION_HAS_MANY,
   SYMBOL_MODEL_RELATION_MORPH_MANY,

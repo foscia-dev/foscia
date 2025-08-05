@@ -1,4 +1,4 @@
-import { ModelRelation, ModelSnapshot, SerializerError } from '@foscia/core';
+import { ModelRelationProp, ModelSnapshot, SerializerError } from '@foscia/core';
 import { SerializerCircularRelationBehavior } from '@foscia/serialization/types';
 
 /**
@@ -11,7 +11,7 @@ export default class SerializerCircularRelationError extends SerializerError {
 
   public constructor(
     snapshot: ModelSnapshot,
-    relation: ModelRelation,
+    relation: ModelRelationProp,
     behavior: SerializerCircularRelationBehavior,
   ) {
     super(

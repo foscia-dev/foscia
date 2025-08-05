@@ -1,7 +1,6 @@
-import { Model } from '@foscia/core/model/types';
+import { Model } from '@foscia/core/models/types';
 import makeMapRegistry from '@foscia/core/registry/makeMapRegistry';
-import { ModelsRegistry } from '@foscia/core/types';
-import { kebabCase } from '@foscia/shared';
+import { ModelRegistry } from '@foscia/core/types';
 
 /**
  * Make a default {@link ModelsRegistry | `ModelsRegistry`} implementation.
@@ -10,7 +9,10 @@ import { kebabCase } from '@foscia/shared';
  *
  * @category Factories
  */
-export default <M extends readonly Model[]>(models: M): ModelsRegistry<M> => makeMapRegistry({
-  models,
-  normalizeType: kebabCase,
-});
+export default function makeRegistry(models: Model[]): ModelRegistry {
+  const registry = makeMapRegistry();
+
+  models.forEach((model) => registry.set(model));
+
+  return registry;
+}

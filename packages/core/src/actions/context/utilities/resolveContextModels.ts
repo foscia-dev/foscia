@@ -1,11 +1,5 @@
 import isAction from '@foscia/core/actions/checks/isAction';
-import {
-  Action,
-  ConsumeModel,
-  ConsumeQueryAs,
-  ConsumeRegistry,
-  ConsumeRelation,
-} from '@foscia/core/actions/types';
+import { Action, ConsumeModel, ConsumeModelAs, ConsumeModelRelation } from '@foscia/core/actions/types';
 import resolveRelatedModels from '@foscia/core/relations/utilities/resolveRelatedModels';
 import { Nullable } from '@foscia/shared';
 
@@ -15,7 +9,7 @@ import { Nullable } from '@foscia/shared';
  * @internal
  */
 export type ResolveModelContext =
-  Nullable<Partial<ConsumeQueryAs & ConsumeModel & ConsumeRelation & ConsumeRegistry>>;
+  Nullable<Partial<ConsumeModelAs & ConsumeModel & ConsumeModelRelation>>;
 
 /**
  * Resolve models targeted by an action or a context.
@@ -31,7 +25,7 @@ export default async (action: Action<ResolveModelContext> | ResolveModelContext)
   }
 
   if (context.relation) {
-    return resolveRelatedModels(context.relation, context.registry);
+    return resolveRelatedModels(context.relation);
   }
 
   return context.model ? [context.model] : [];

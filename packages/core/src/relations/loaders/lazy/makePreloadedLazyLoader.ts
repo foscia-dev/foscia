@@ -1,7 +1,7 @@
 import consumeModel from '@foscia/core/actions/context/consumers/consumeModel';
 import logger from '@foscia/core/logger/logger';
-import aliasPropKey from '@foscia/core/model/props/utilities/aliasPropKey';
-import { ModelInstance } from '@foscia/core/model/types';
+import aliasPropKey from '@foscia/core/models/old/props/utilities/aliasPropKey';
+import { ModelInstance } from '@foscia/core/models/oldTypes';
 import makeFilteredLazyLoader from '@foscia/core/relations/loaders/lazy/makeFilteredLazyLoader';
 import {
   PreloadedLazyLoaderConfig,

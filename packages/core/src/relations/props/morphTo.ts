@@ -9,8 +9,8 @@ import {
   ModelMorphToFactoryConfig,
   ModelPropConfig,
   ModelRelationTypeFromCustomTypes,
-} from '@foscia/core/model/types';
-import forceFill from '@foscia/core/model/utilities/forceFill';
+} from '@foscia/core/models/oldTypes';
+import forceFill from '@foscia/core/models/utilities/forceFill';
 import makeRelationFactory from '@foscia/core/relations/props/makeRelationFactory';
 import guessRelationForeignKey from '@foscia/core/relations/utilities/guessRelationForeignKey';
 import guessRelationForeignTypeKey

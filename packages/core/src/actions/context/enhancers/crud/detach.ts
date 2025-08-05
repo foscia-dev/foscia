@@ -6,7 +6,7 @@ import {
   ModelRelationKey,
   ModelValues,
   ModelWritableKey,
-} from '@foscia/core/model/types';
+} from '@foscia/core/models/oldTypes';
 import { Itemable, wrap } from '@foscia/shared';
 
 /**

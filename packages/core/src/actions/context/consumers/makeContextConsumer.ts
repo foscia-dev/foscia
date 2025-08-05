@@ -4,7 +4,7 @@ import InvalidContextError from '@foscia/core/errors/invalidContextError';
 import { Dictionary, isNil } from '@foscia/shared';
 
 const resolveContext = (
-  context: Dictionary,
+  context: Dictionary<unknown>,
   key: string,
   defaultValue?: unknown,
 ) => {
@@ -28,7 +28,7 @@ const resolveContext = (
  * @internal
  */
 export default ((key: string) => (
-  from: Action | Dictionary,
+  from: Action | Dictionary<unknown>,
   defaultValue?: unknown,
 ) => (
   isAction(from)

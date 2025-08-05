@@ -1,11 +1,8 @@
-import { DeserializedData, isRelation } from '@foscia/core';
-import { RestDeserializerConfig, RestNewResource } from '@foscia/rest/types';
-import {
-  DeserializerExtract,
-  makeDeserializer,
-  makeDeserializerRecordFactory,
-} from '@foscia/serialization';
-import { Arrayable, mapArrayable } from '@foscia/shared';
+import isModelRelation from '@foscia/core/models/definition/utilities/isModelRelation';
+import deserializeProp from '@foscia/core/props/internals/deserializeProp';
+import { RestResource } from '@foscia/rest/specification';
+import { DataDeserializerConfig, makeDataDeserializer } from '@foscia/serialization';
+import { mapArrayable } from '@foscia/shared';
 
 /**
  * Make a REST deserializer object.
@@ -16,34 +13,23 @@ import { Arrayable, mapArrayable } from '@foscia/shared';
  * @since 0.13.0
  */
 export default <
-  Record extends RestNewResource = RestNewResource,
-  Data = Arrayable<RestNewResource> | null | undefined,
-  Deserialized extends DeserializedData = DeserializedData,
-  Extract extends DeserializerExtract<Record> = DeserializerExtract<Record>,
+  Document = RestResource[] | RestResource | null | undefined,
+  DeserializedData = undefined,
+  ExtractedData = undefined,
+  Record extends RestResource = RestResource,
 >(
-  config: RestDeserializerConfig<Record, Data, Deserialized, Extract> = {},
-) => makeDeserializer({
-  extractData: (data) => ({
-    records: data as Arrayable<RestNewResource> | null,
-  } as Extract),
-  createRecord: makeDeserializerRecordFactory(
-    async (record) => ({
-      type: await config.extractType?.(record) ?? record.type,
-    }),
-    async (record, context, factory) => {
-      if (context.prop.key === 'id' && config.extractId) {
-        return config.extractId(record, context);
-      }
+  config?: Partial<DataDeserializerConfig<Document, DeserializedData, ExtractedData, Record>>,
+) => makeDataDeserializer<Document, DeserializedData, ExtractedData, Record>({
+  extractRecords: ({ data }) => data as Record[] | Record | null | undefined,
+  deserializeType: ({ record }) => (typeof record.type === 'string' ? record.type : null),
+  deserializeValue: ({ record, prop, key }, deserialize) => {
+    if (isModelRelation(prop)) {
+      return mapArrayable(record[key], (value) => deserialize((
+        typeof value === 'object' ? value : { id: value }
+      ) as Record));
+    }
 
-      if (isRelation(context.prop)) {
-        return mapArrayable(
-          record[context.key],
-          (value) => factory((typeof value === 'object' ? value : { id: value }) as Record),
-        );
-      }
-
-      return record[context.key];
-    },
-  ),
+    return deserializeProp(prop, record[key]);
+  },
   ...config,
 });

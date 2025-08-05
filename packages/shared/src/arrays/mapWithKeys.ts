@@ -1,5 +1,6 @@
 import { Dictionary } from '@foscia/shared/types';
 
+// TODO Rename to "mapTo".
 const mapWithKeys: {
   /**
    * Map array to an object.
@@ -8,7 +9,7 @@ const mapWithKeys: {
    * @param callback
    *
    * @internal
-   */<T, U extends {}>(
+   */<T, U>(
     values: T[],
     callback: (value: T, key: number) => U,
   ): U;
@@ -19,7 +20,7 @@ const mapWithKeys: {
    * @param callback
    *
    * @internal
-   */<T extends {}, U extends {}>(
+   */<T extends {}, U>(
     values: T,
     callback: <K extends keyof T>(value: T[K], key: K) => U,
   ): U;
@@ -28,7 +29,7 @@ const mapWithKeys: {
   callback: (value: T, key: any) => U,
 ) => Object.entries(values).reduce((nextValues, [key, value]) => ({
   ...nextValues,
-  ...callback(value, key),
+  ...(callback(value, key) ?? {}),
 }), {} as U);
 
 export default mapWithKeys;

@@ -1,24 +1,29 @@
 /* eslint-disable no-param-reassign */
+import FosciaError from '@foscia/core/errors/fosciaError';
 import { Hookable, HooksDefinition } from '@foscia/core/hooks/types';
 import unregisterHook from '@foscia/core/hooks/unregisterHook';
-import { tap } from '@foscia/shared';
 
 /**
  * Register a hook on a hookable object.
- * Return value is a function which unregister the hook.
  *
  * @param hookable
  * @param key
  * @param callback
  *
+ * @returns The unregister function for the registered hook.
+ *
  * @internal
  */
-export default <D extends HooksDefinition, K extends keyof D>(
+export default function registerHook<D extends HooksDefinition, K extends keyof D>(
   hookable: Hookable<D>,
   key: K,
   callback: D[K],
-) => tap(() => unregisterHook(hookable, key, callback), () => {
-  if (hookable.$hooks !== null) {
-    hookable.$hooks[key] = [...(hookable.$hooks[key] ?? []), callback] as D[K][];
+) {
+  if (!hookable.$hooks) {
+    throw new FosciaError('Could not register hook, hooks are temporary disabled.');
   }
-});
+
+  hookable.$hooks[key] = [...(hookable.$hooks[key] ?? []), callback] as D[K][];
+
+  return () => unregisterHook(hookable, key, callback);
+}

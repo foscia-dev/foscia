@@ -6,9 +6,11 @@ import { Awaitable, FosciaObject } from '@foscia/shared';
  *
  * @internal
  */
-export type ObjectTransformer<T, DS = unknown, SR = unknown> =
-  & {
-    deserialize: (value: DS) => Awaitable<T>;
-    serialize: (value: T) => Awaitable<SR>;
-  }
-  & FosciaObject<typeof SYMBOL_MODEL_PROP_TRANSFORMER>;
+export interface ObjectTransformer<
+  T,
+  Deserialized = unknown,
+  Serialized = unknown,
+> extends FosciaObject<typeof SYMBOL_MODEL_PROP_TRANSFORMER> {
+  deserialize: (value: Deserialized) => Awaitable<T>;
+  serialize: (value: T) => Awaitable<Serialized>;
+}
