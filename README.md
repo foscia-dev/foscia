@@ -29,6 +29,8 @@
 </a>
 </p>
 
+> **Warning!** Foscia is in early development stage, do not use in production!
+
 > Type safe, modular and intuitive API/data client for JS/TS.
 
 **Foscia acts as an intermediary layer** between your application and

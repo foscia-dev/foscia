@@ -88,10 +88,10 @@ const config = {
         isCloseable: false,
       } : {
         // Production announcement.
-        id: '0.9.0-announcement',
-        content: '<code>v0.9.0</code> released with new <code>@foscia/cli</code> features! <a target="_blank" rel="noopener noreferrer" href="https://github.com/foscia-dev/foscia/issues">Give your feedback</a>',
-        backgroundColor: 'var(--ifm-background-surface-color)',
-        textColor: 'inherit',
+        id: '0.12.x-announcement',
+        content: '<strong>Warning!</strong> Foscia is in early development stage, do not use in production!',
+        backgroundColor: 'var(--ifm-color-warning-contrast-background)',
+        textColor: 'var(--ifm-color-warning-contrast-foreground)',
         isCloseable: false,
       },
       navbar: {
